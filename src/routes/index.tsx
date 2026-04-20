@@ -72,25 +72,19 @@ function Index() {
           )}
 
           {phase === "quiz" && lesson && (
-            <div className="mx-auto max-w-2xl px-6 py-12">
-              <QuizSection
-                quizzes={lesson.blocks[blockIdx].quizzes}
-                onAllCorrect={() => {
-                  /* unlocked — show next button below */
-                }}
-              />
-              <NextStepButton
-                isLast={blockIdx + 1 >= lesson.blocks.length}
-                onNext={() => {
-                  if (blockIdx + 1 >= lesson.blocks.length) {
-                    setPhase("done");
-                  } else {
-                    setBlockIdx((i) => i + 1);
-                    setPhase("lesson");
-                  }
-                }}
-              />
-            </div>
+            <QuizPhase
+              key={`quiz-${blockIdx}`}
+              lesson={lesson}
+              blockIdx={blockIdx}
+              onNext={() => {
+                if (blockIdx + 1 >= lesson.blocks.length) {
+                  setPhase("done");
+                } else {
+                  setBlockIdx((i) => i + 1);
+                  setPhase("lesson");
+                }
+              }}
+            />
           )}
 
           {phase === "done" && lesson && (
@@ -102,20 +96,33 @@ function Index() {
   );
 }
 
-function NextStepButton({ isLast, onNext }: { isLast: boolean; onNext: () => void }) {
-  // The QuizSection shows a success banner when all correct; this button is only
-  // useful after that. We render it always but rely on the user to complete the quiz.
-  // To enforce gating visually, we hide until success banner is in DOM via a small trick:
-  // simplest approach — always show button but disable until quiz fully passed.
-  // For accuracy we use a controlled flag:
+function QuizPhase({
+  lesson,
+  blockIdx,
+  onNext,
+}: {
+  lesson: Lesson;
+  blockIdx: number;
+  onNext: () => void;
+}) {
+  const [passed, setPassed] = useState(false);
+  const isLast = blockIdx + 1 >= lesson.blocks.length;
   return (
-    <div className="mt-10 text-center">
-      <button
-        onClick={onNext}
-        className="rounded-full bg-success px-10 py-4 text-base font-semibold text-success-foreground shadow-[var(--shadow-soft)] transition hover:bg-success/90"
-      >
-        {isLast ? "إنهاء الدرس ←" : "الفقرة التالية ←"}
-      </button>
+    <div className="mx-auto max-w-2xl px-6 py-12">
+      <QuizSection
+        quizzes={lesson.blocks[blockIdx].quizzes}
+        onAllCorrect={() => setPassed(true)}
+      />
+      {passed && (
+        <div className="mt-10 text-center">
+          <button
+            onClick={onNext}
+            className="rounded-full bg-success px-10 py-4 text-base font-semibold text-success-foreground shadow-[var(--shadow-soft)] transition hover:bg-success/90"
+          >
+            {isLast ? "إنهاء الدرس ←" : "الفقرة التالية ←"}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
