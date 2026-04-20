@@ -1,70 +1,127 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Button } from "@/components/ui/button";
-import { blocks } from "@/lib/lesson-data";
+import { AnimatePresence, motion } from "framer-motion";
+import { type Lesson } from "@/lib/lesson-data";
+import { HomeUpload } from "@/components/HomeUpload";
 import { WelcomeScreen } from "@/components/WelcomeScreen";
 import { ParagraphBlockCard } from "@/components/ParagraphBlock";
+import { QuizSection } from "@/components/QuizSection";
+import { Flashcards } from "@/components/Flashcards";
 
 export const Route = createFileRoute("/")({
   component: Index,
   head: () => ({
     meta: [
-      { title: "متكيف — درس البناء الضوئي" },
+      { title: "متكيف — منصة التعلم المتكيف" },
       {
         name: "description",
-        content: "منصة تعلم متكيفة بأسلوب هادئ ومركّز لتقديم الدروس بصيغ متعددة.",
+        content: "ارفع درسك واحصل على تجربة تعلم متكيفة بمراحل تدريجية وخرائط ذهنية وبطاقات مراجعة.",
       },
     ],
   }),
 });
 
+type Phase = "home" | "welcome" | "lesson" | "quiz" | "done";
+
 function Index() {
-  const [started, setStarted] = useState(false);
+  const [lesson, setLesson] = useState<Lesson | null>(null);
+  const [phase, setPhase] = useState<Phase>("home");
   const [blockIdx, setBlockIdx] = useState(0);
-  const [completed, setCompleted] = useState<Set<number>>(new Set());
+
+  const allHardWords = useMemo(
+    () => (lesson ? lesson.blocks.flatMap((b) => b.hard_words) : []),
+    [lesson],
+  );
+
+  const reset = () => {
+    setLesson(null);
+    setPhase("home");
+    setBlockIdx(0);
+  };
 
   return (
     <div dir="rtl" lang="ar" className="min-h-screen bg-background font-sans">
-      {!started ? (
-        <WelcomeScreen onStart={() => setStarted(true)} />
-      ) : blockIdx >= blocks.length ? (
-        <div className="mx-auto flex min-h-screen max-w-xl flex-col items-center justify-center px-6 text-center">
-          <h2 className="text-3xl font-extrabold">🎉 أتممت الدرس!</h2>
-          <p className="mt-4 text-foreground/60">
-            أحسنت — لقد فهمت عملية البناء الضوئي بكل تفاصيلها.
-          </p>
-          <Button
-            onClick={() => {
-              setStarted(false);
-              setBlockIdx(0);
-              setCompleted(new Set());
-            }}
-            className="mt-10 rounded-full bg-brand px-8 py-6 text-brand-foreground hover:bg-brand/90"
-          >
-            ابدأ من جديد
-          </Button>
-        </div>
-      ) : (
-        <>
-          <ParagraphBlockCard
-            key={blocks[blockIdx].id}
-            block={blocks[blockIdx]}
-            onComplete={() =>
-              setCompleted((prev) => new Set(prev).add(blocks[blockIdx].id))
-            }
-          />
-          {completed.has(blocks[blockIdx].id) && (
-            <div className="mx-auto max-w-2xl px-6 pb-16 text-center">
-              <Button
-                onClick={() => setBlockIdx((i) => i + 1)}
-                size="lg"
-                className="rounded-full bg-success px-10 py-6 text-success-foreground hover:bg-success/90"
-              >
-                {blockIdx + 1 < blocks.length ? "الفقرة التالية ←" : "إنهاء الدرس"}
-              </Button>
-            </div>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={`${phase}-${blockIdx}`}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -12 }}
+          transition={{ duration: 0.3 }}
+        >
+          {phase === "home" && (
+            <HomeUpload
+              onLoad={(l) => {
+                setLesson(l);
+                setBlockIdx(0);
+                setPhase("welcome");
+              }}
+            />
           )}
-        </>
+
+          {phase === "welcome" && lesson && (
+            <WelcomeScreen lesson={lesson} onStart={() => setPhase("lesson")} />
+          )}
+
+          {phase === "lesson" && lesson && (
+            <ParagraphBlockCard
+              key={lesson.blocks[blockIdx].id}
+              block={lesson.blocks[blockIdx]}
+              onComplete={() => setPhase("quiz")}
+            />
+          )}
+
+          {phase === "quiz" && lesson && (
+            <QuizPhase
+              key={`quiz-${blockIdx}`}
+              lesson={lesson}
+              blockIdx={blockIdx}
+              onNext={() => {
+                if (blockIdx + 1 >= lesson.blocks.length) {
+                  setPhase("done");
+                } else {
+                  setBlockIdx((i) => i + 1);
+                  setPhase("lesson");
+                }
+              }}
+            />
+          )}
+
+          {phase === "done" && lesson && (
+            <Flashcards words={allHardWords} onRestart={reset} />
+          )}
+        </motion.div>
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function QuizPhase({
+  lesson,
+  blockIdx,
+  onNext,
+}: {
+  lesson: Lesson;
+  blockIdx: number;
+  onNext: () => void;
+}) {
+  const [passed, setPassed] = useState(false);
+  const isLast = blockIdx + 1 >= lesson.blocks.length;
+  return (
+    <div className="mx-auto max-w-2xl px-6 py-12">
+      <QuizSection
+        quizzes={lesson.blocks[blockIdx].quizzes}
+        onAllCorrect={() => setPassed(true)}
+      />
+      {passed && (
+        <div className="mt-10 text-center">
+          <button
+            onClick={onNext}
+            className="rounded-full bg-success px-10 py-4 text-base font-semibold text-success-foreground shadow-[var(--shadow-soft)] transition hover:bg-success/90"
+          >
+            {isLast ? "إنهاء الدرس ←" : "الفقرة التالية ←"}
+          </button>
+        </div>
       )}
     </div>
   );

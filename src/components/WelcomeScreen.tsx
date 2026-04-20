@@ -1,22 +1,19 @@
 import { Clock, BookOpen, Layers, ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { lessonMeta } from "@/lib/lesson-data";
+import type { Lesson } from "@/lib/lesson-data";
 
-export function WelcomeScreen({ onStart }: { onStart: () => void }) {
+export function WelcomeScreen({ lesson, onStart }: { lesson: Lesson; onStart: () => void }) {
   return (
     <div className="mx-auto flex min-h-screen max-w-xl flex-col items-center justify-center px-6 py-16 text-center">
-      <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground">
-        {lessonMeta.title}
-      </h1>
+      <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground">{lesson.title}</h1>
 
       <div className="mt-10 space-y-4 text-base text-foreground/70">
         <p className="flex items-center justify-center gap-2">
           <Clock className="h-5 w-5 text-brand" />
-          الوقت المقدر: {lessonMeta.estimatedTime}
+          الوقت المقدر: {lesson.estimatedTime}
         </p>
         <p className="flex items-center justify-center gap-2">
           <BookOpen className="h-5 w-5 text-brand" />
-          الحجم: {lessonMeta.size}
+          الحجم: {lesson.size}
         </p>
       </div>
 
@@ -26,7 +23,7 @@ export function WelcomeScreen({ onStart }: { onStart: () => void }) {
           مواضيع الدرس
         </p>
         <ul className="space-y-2 text-foreground/80">
-          {lessonMeta.topics.map((t, i) => (
+          {lesson.topics.map((t, i) => (
             <li key={t} className="text-base">
               {i + 1}. {t}
             </li>
@@ -34,14 +31,13 @@ export function WelcomeScreen({ onStart }: { onStart: () => void }) {
         </ul>
       </div>
 
-      <Button
+      <button
         onClick={onStart}
-        size="lg"
-        className="mt-12 gap-2 rounded-full bg-brand px-10 py-7 text-lg text-brand-foreground shadow-[var(--shadow-soft)] hover:bg-brand/90"
+        className="mt-12 inline-flex items-center gap-2 rounded-full bg-brand px-10 py-4 text-lg text-brand-foreground shadow-[var(--shadow-soft)] hover:bg-brand/90"
       >
         ابدأ الدرس الآن
         <ArrowLeft className="h-5 w-5" />
-      </Button>
+      </button>
     </div>
   );
 }
