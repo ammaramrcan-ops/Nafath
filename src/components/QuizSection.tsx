@@ -14,14 +14,18 @@ function normalize(s: string) {
 
 export function QuizSection({
   quizzes,
+  type = "all",
   onAllCorrect,
 }: {
   quizzes: Quizzes;
+  type?: "mcq_fill" | "essay" | "all";
   onAllCorrect: () => void;
 }) {
-  const mcqs = quizzes.mcqs.filter((q) => q.question.trim() && q.options.some((o) => o.trim()));
-  const fills = quizzes.fills.filter((q) => q.question.trim() && q.answer.trim());
-  const essays = quizzes.essays.filter((q) => q.question.trim());
+  const mcqs = type === "essay" ? [] : quizzes.mcqs.filter(
+    (q) => (q.question.trim() || q.image_url?.trim()) && q.options.some((o) => o.trim()),
+  );
+  const fills = type === "essay" ? [] : quizzes.fills.filter((q) => (q.question.trim() || q.image_url?.trim()) && q.answer.trim());
+  const essays = type === "mcq_fill" ? [] : quizzes.essays.filter((q) => q.question.trim() || q.image_url?.trim());
 
   const total = mcqs.length + fills.length + essays.length;
   const [statuses, setStatuses] = useState<Record<string, Status>>({});
@@ -105,6 +109,9 @@ function McqItem({
   };
   return (
     <div className="space-y-3">
+      {q.image_url && (
+        <img src={q.image_url} alt={`صورة السؤال ${num}`} className="h-44 w-full rounded-xl object-cover" />
+      )}
       <p className="font-semibold leading-relaxed">{num}. {q.question}</p>
       <div className="grid gap-2">
         {q.options.filter((o) => o.trim()).map((opt) => {
@@ -155,6 +162,9 @@ function FillItem({
   const check = () => setStatus(normalize(val) === normalize(q.answer) ? "correct" : "wrong");
   return (
     <div className="space-y-3">
+      {q.image_url && (
+        <img src={q.image_url} alt={`صورة السؤال ${num}`} className="h-44 w-full rounded-xl object-cover" />
+      )}
       <p className="font-semibold leading-relaxed">{num}. {q.question}</p>
       <Input
         value={val}
@@ -202,6 +212,9 @@ function EssayItem({
   };
   return (
     <div className="space-y-3">
+      {q.image_url && (
+        <img src={q.image_url} alt={`صورة السؤال ${num}`} className="h-44 w-full rounded-xl object-cover" />
+      )}
       <p className="font-semibold leading-relaxed">{num}. {q.question}</p>
       <Textarea
         value={val}

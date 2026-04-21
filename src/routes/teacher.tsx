@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowRight,
@@ -11,7 +11,6 @@ import {
   Plus,
   Save,
   Trash2,
-  X,
 } from "lucide-react";
 import {
   defaultLesson,
@@ -21,13 +20,11 @@ import {
   type Lesson,
   type ParagraphBlock,
 } from "@/lib/lesson-data";
-import { ParagraphBlockCard } from "@/components/ParagraphBlock";
-import { LessonFlow } from "@/components/LessonFlow";
-import { SettingsButton } from "@/components/SettingsDialog";
 import { useSettings, STAGE_LABELS, DEFAULT_STAGE_ORDER, type Stage } from "@/lib/settings";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+type FillStage = Stage | "quizzes_mcq_fill" | "quizzes_essay";
 
 export const Route = createFileRoute("/teacher")({
   component: TeacherPage,
@@ -43,6 +40,7 @@ function emptyBlock(id: number): ParagraphBlock {
       id,
       title: "",
       short_sentence: "",
+      story: "",
       examples: "",
       full_text: "",
       hard_words: [],
@@ -88,8 +86,6 @@ function TeacherPage() {
     return emptyLesson();
   });
   const [step, setStep] = useState(0); // 0 = info, 1..N = blocks, N+1 = full preview
-  const [previewMode, setPreviewMode] = useState<"edit" | "preview">("edit");
-  const [fullPreview, setFullPreview] = useState(false);
   const [savedAt, setSavedAt] = useState<string | null>(null);
 
   const totalSteps = 1 + lesson.blocks.length; // info + blocks
@@ -132,36 +128,19 @@ function TeacherPage() {
     }
   };
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(lesson));
+    } catch {
+      /* ignore autosave errors */
+    }
+  }, [lesson]);
+
   const loadDefault = () => {
     setLesson(defaultLesson);
     setStep(0);
   };
-
-  if (fullPreview) {
-    return (
-      <div dir="rtl" lang="ar" className="min-h-screen bg-background font-sans">
-        <div className="sticky top-0 z-10 border-b border-border bg-card/95 px-6 py-3 backdrop-blur">
-          <div className="mx-auto flex max-w-5xl items-center justify-between">
-            <div className="text-sm font-semibold text-foreground/70">
-              معاينة الدرس الكامل — هكذا سيرى الطالب الدرس
-            </div>
-            <button
-              onClick={() => setFullPreview(false)}
-              className="inline-flex items-center gap-2 rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background hover:bg-foreground/90"
-            >
-              <X className="h-4 w-4" />
-              إنهاء المعاينة
-            </button>
-          </div>
-        </div>
-        <LessonFlow
-          lesson={lesson}
-          onExit={() => setFullPreview(false)}
-          exitLabel="العودة إلى المحرر"
-        />
-      </div>
-    );
-  }
 
   return (
     <div dir="rtl" lang="ar" className="min-h-screen bg-background font-sans">
@@ -182,24 +161,17 @@ function TeacherPage() {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {savedAt && <span className="text-xs text-foreground/50">حُفظت {savedAt}</span>}
-            <SettingsButton />
             <button
               onClick={loadDefault}
               className="rounded-full border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground/70 hover:border-brand/50"
             >
-              قالب نموذجي
+              قالب نموذج فقط
             </button>
             <button
               onClick={handleSave}
               className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:border-brand/50"
             >
               <Save className="h-3.5 w-3.5" /> حفظ
-            </button>
-            <button
-              onClick={() => setFullPreview(true)}
-              className="inline-flex items-center gap-1 rounded-full bg-brand px-4 py-1.5 text-xs font-semibold text-brand-foreground hover:bg-brand/90"
-            >
-              <Eye className="h-3.5 w-3.5" /> معاينة كاملة
             </button>
           </div>
         </div>
@@ -217,7 +189,9 @@ function TeacherPage() {
                 key={i}
                 label={`فقرة ${i + 1}${b.title ? `: ${b.title}` : ""}`}
                 active={step === i + 1}
-                onClick={() => setStep(i + 1)}
+                onClick={() => {
+                  if (i + 1 <= step || i + 1 === 1) setStep(i + 1);
+                }}
               />
             ))}
             <button
@@ -239,44 +213,12 @@ function TeacherPage() {
             block={lesson.blocks[blockIdx]}
             blockNum={blockIdx + 1}
             total={lesson.blocks.length}
-            mode={previewMode}
-            onModeChange={setPreviewMode}
             onChange={(patch) => updateBlock(blockIdx, patch)}
             onRemove={lesson.blocks.length > 1 ? () => removeBlock(blockIdx) : undefined}
+            onNextBlock={() => setStep((s) => Math.min(totalSteps - 1, s + 1))}
+            isLastBlock={blockIdx === lesson.blocks.length - 1}
           />
         )}
-
-        {/* Wizard footer nav */}
-        <div className="mt-10 flex items-center justify-between gap-3">
-          <button
-            onClick={() => setStep((s) => Math.max(0, s - 1))}
-            disabled={step === 0}
-            className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-5 py-2 text-sm font-semibold text-foreground/70 hover:border-brand/50 disabled:opacity-30"
-          >
-            <ArrowRight className="h-4 w-4" />
-            السابق
-          </button>
-          <span className="text-xs text-foreground/50">
-            {step + 1} / {totalSteps}
-          </span>
-          {step < totalSteps - 1 ? (
-            <button
-              onClick={() => setStep((s) => s + 1)}
-              className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2 text-sm font-semibold text-brand-foreground hover:bg-brand/90"
-            >
-              التالي
-              <ArrowLeft className="h-4 w-4" />
-            </button>
-          ) : (
-            <button
-              onClick={() => setFullPreview(true)}
-              className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2 text-sm font-semibold text-brand-foreground hover:bg-brand/90"
-            >
-              <Eye className="h-4 w-4" />
-              معاينة كاملة
-            </button>
-          )}
-        </div>
       </main>
     </div>
   );
@@ -357,24 +299,34 @@ function BlockStep({
   block,
   blockNum,
   total,
-  mode,
-  onModeChange,
   onChange,
   onRemove,
+  onNextBlock,
+  isLastBlock,
 }: {
   block: ParagraphBlock;
   blockNum: number;
   total: number;
-  mode: "edit" | "preview";
-  onModeChange: (m: "edit" | "preview") => void;
   onChange: (patch: Partial<ParagraphBlock>) => void;
   onRemove?: () => void;
+  onNextBlock: () => void;
+  isLastBlock: boolean;
 }) {
   const { settings } = useSettings();
-  const previewStages = useMemo(
-    () => effectiveStages(block, settings.stageOrder),
-    [block, settings.stageOrder],
-  );
+  const [showSequenceEditor, setShowSequenceEditor] = useState(false);
+  const [activeStage, setActiveStage] = useState<FillStage | null>(null);
+  const previewStages = useMemo(() => {
+    const base = effectiveStages(block, settings.stageOrder) as FillStage[];
+    return block.quiz_enabled === false ? base : [...base, "quizzes_mcq_fill", "quizzes_essay"];
+  }, [block, settings.stageOrder]);
+
+  useEffect(() => {
+    if (previewStages.length === 0) {
+      setActiveStage(null);
+      return;
+    }
+    setActiveStage((prev) => (prev && previewStages.includes(prev) ? prev : previewStages[0]));
+  }, [previewStages]);
 
   return (
     <div>
@@ -385,109 +337,72 @@ function BlockStep({
             {block.title || "فقرة بدون عنوان"}
           </h2>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="inline-flex rounded-full border border-border bg-background p-1">
-            <button
-              onClick={() => onModeChange("edit")}
-              className={cn(
-                "rounded-full px-4 py-1.5 text-xs font-semibold transition",
-                mode === "edit" ? "bg-brand text-brand-foreground" : "text-foreground/60",
-              )}
-            >
-              تحرير
-            </button>
-            <button
-              onClick={() => onModeChange("preview")}
-              className={cn(
-                "rounded-full px-4 py-1.5 text-xs font-semibold transition",
-                mode === "preview" ? "bg-brand text-brand-foreground" : "text-foreground/60",
-              )}
-            >
-              معاينة الفقرة
-            </button>
-          </div>
-          {onRemove && (
-            <button
-              onClick={onRemove}
-              className="inline-flex items-center gap-1 rounded-full border border-destructive/40 px-3 py-1.5 text-xs font-semibold text-destructive hover:bg-destructive/5"
-            >
-              <Trash2 className="h-3.5 w-3.5" /> حذف الفقرة
-            </button>
-          )}
-        </div>
+        {onRemove && (
+          <button
+            onClick={onRemove}
+            className="inline-flex items-center gap-1 rounded-full border border-destructive/40 px-3 py-1.5 text-xs font-semibold text-destructive hover:bg-destructive/5"
+          >
+            <Trash2 className="h-3.5 w-3.5" /> حذف الفقرة
+          </button>
+        )}
       </div>
 
-      {mode === "preview" ? (
-        <div className="rounded-3xl border border-border bg-card p-2">
-          {previewStages.length === 0 ? (
-            <p className="p-12 text-center text-sm text-foreground/50">
-              لا توجد مراحل مفعّلة لهذه الفقرة. فعّل مرحلة واحدة على الأقل من تبويب التحرير.
-            </p>
-          ) : (
-            <ParagraphBlockCard
-              key={`${block.id}-preview-${previewStages.join("|")}`}
-              block={block}
-              stageOrder={previewStages}
-              onComplete={() => {
-                /* noop in preview */
-              }}
-            />
+      <div className="space-y-4">
+        <div className="flex items-center justify-between gap-3">
+          <button
+            onClick={() => setShowSequenceEditor((v) => !v)}
+            className="rounded-full border border-border bg-background px-4 py-1.5 text-xs font-semibold text-foreground/70 hover:border-brand/50"
+          >
+            {showSequenceEditor ? "إغلاق إعداد التسلسل" : "إعداد تسلسل هذه الفقرة"}
+          </button>
+          {!isLastBlock && activeStage === previewStages[previewStages.length - 1] && (
+            <button
+              onClick={onNextBlock}
+              className="rounded-full bg-brand px-4 py-1.5 text-xs font-semibold text-brand-foreground hover:bg-brand/90"
+            >
+              الفقرة التالية
+            </button>
           )}
         </div>
-      ) : (
-        <div className="space-y-6">
-          <Section title="عنوان الفقرة">
-            <Input
-              value={block.title}
-              onChange={(e) => onChange({ title: e.target.value })}
-              placeholder="مثال: مقدمة الغذاء"
-            />
-          </Section>
-
-          <StagesEditor block={block} onChange={onChange} />
-
-          <HardWordsEditor
-            words={block.hard_words}
-            onChange={(hard_words) => onChange({ hard_words })}
-          />
-
-          <QuizzesEditor block={block} onChange={onChange} />
-
-          <QuizzesEditor block={block} onChange={onChange} />
-
-          <div className="mt-6 space-y-4 rounded-2xl border border-border bg-background p-4">
-            <h3 className="text-sm font-semibold text-foreground">إعدادات الفاصل الزمني (بعد هذه الفقرة)</h3>
-            
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <label className="text-sm font-semibold text-foreground">تفعيل فاصل الراحة</label>
-                <p className="text-xs text-foreground/70">هل تريد إضافة استراحة تنفس بعد إتمام هذه الفقرة؟</p>
+        <Input
+          value={block.title}
+          onChange={(e) => onChange({ title: e.target.value })}
+          placeholder="عنوان الفقرة"
+          className="h-11 rounded-2xl text-sm"
+        />
+        {showSequenceEditor ? (
+          <div className="space-y-3 rounded-3xl border border-border bg-card p-4">
+            <StagesEditor block={block} onChange={onChange} />
+            <div className="rounded-2xl border border-border bg-background p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold text-foreground">فقرة الأسئلة</p>
+                  <p className="text-xs text-foreground/60">إظهار/إخفاء شاشة الأسئلة ضمن هذه الفقرة فقط.</p>
+                </div>
+                <button
+                  onClick={() => onChange({ quiz_enabled: block.quiz_enabled === false ? true : false })}
+                  className={cn(
+                    "rounded-full border px-3 py-1 text-xs font-semibold transition",
+                    block.quiz_enabled !== false
+                      ? "border-success/40 bg-success-soft text-success"
+                      : "border-border text-foreground/60",
+                  )}
+                >
+                  {block.quiz_enabled !== false ? "مفعّلة" : "معطّلة"}
+                </button>
               </div>
-              <button
-                onClick={() => onChange({ enable_break: block.enable_break === false ? true : false })}
-                className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${block.enable_break !== false ? "bg-brand" : "bg-border"}`}
-              >
-                <span className={`inline-block h-4 w-4 transform rounded-full bg-background transition-transform ${block.enable_break !== false ? "-translate-x-6" : "-translate-x-1"}`} />
-              </button>
             </div>
-
-            {block.enable_break !== false && (
-              <div className="pt-2">
-                <Field label="مدة الاستراحة (بالثواني)">
-                  <Input
-                    type="number"
-                    min={5}
-                    max={300}
-                    value={block.break_duration ?? 60}
-                    onChange={(e) => onChange({ break_duration: parseInt(e.target.value) || 60 })}
-                    placeholder="60"
-                  />
-                </Field>
-              </div>
-            )}
           </div>
-        </div>
-      )}
+        ) : (
+          <ContentFillSurface
+            block={block}
+            activeStages={previewStages}
+            selectedStage={activeStage}
+            onSelectStage={setActiveStage}
+            onChange={onChange}
+          />
+        )}
+      </div>
     </div>
   );
 }
@@ -524,12 +439,8 @@ function StagesEditor({
   };
 
   return (
-    <Section
-      title="مراحل عرض الفقرة"
-      subtitle="فعّل المراحل التي تريدها ورتّبها بالترتيب الذي يظهر للطالب. كل مرحلة لها محتواها الخاص أدناه."
-    >
-      <div className="space-y-3">
-        {order.map((stage, i) => {
+    <div className="space-y-3">
+      {order.map((stage, i) => {
           const isOn = enabled.has(stage);
           return (
             <div
@@ -582,14 +493,13 @@ function StagesEditor({
               </div>
               {isOn && (
                 <div className="border-t border-border/60 px-4 py-3">
-                  <StageContentField stage={stage} block={block} onChange={onChange} />
+                  <StageIntervalSettings stage={stage} block={block} onChange={onChange} />
                 </div>
               )}
             </div>
           );
         })}
-      </div>
-    </Section>
+    </div>
   );
 }
 
@@ -614,13 +524,25 @@ function StageContentField({
               placeholder="مثال: النباتات تصنع طعامها بنفسها باستخدام الضوء."
             />
           </Field>
-          <StageIntervalSettings stage={stage} block={block} onChange={onChange} />
+        </div>
+      );
+    case "story":
+      return (
+        <div className="space-y-3">
+          <Field label="القصة" hint="قصة تعليمية منفصلة عن الأمثلة التوضيحية.">
+            <Textarea
+              value={block.story}
+              onChange={(e) => onChange({ story: e.target.value })}
+              rows={4}
+              placeholder="اكتب قصة تربط المفهوم بموقف واقعي..."
+            />
+          </Field>
         </div>
       );
     case "examples":
       return (
         <div className="space-y-3">
-          <Field label="مثال توضيحي / قصة" hint="مثال ملموس أو قصة تربط الفكرة بالواقع.">
+          <Field label="مثال توضيحي" hint="مثال مختصر يوضح الفكرة مباشرة.">
             <Textarea
               value={block.examples}
               onChange={(e) => onChange({ examples: e.target.value })}
@@ -628,7 +550,6 @@ function StageContentField({
               placeholder="مثال: مثل شجرة التفاح التي تبني خشبها وثمارها من الهواء والماء."
             />
           </Field>
-          <StageIntervalSettings stage={stage} block={block} onChange={onChange} />
         </div>
       );
     case "original":
@@ -649,7 +570,6 @@ function StageContentField({
             url={block.visual_url ?? ""}
             onChange={(visual_url) => onChange({ visual_url })}
           />
-          <StageIntervalSettings stage={stage} block={block} onChange={onChange} />
         </div>
       );
     case "mental":
@@ -669,7 +589,6 @@ function StageContentField({
               placeholder="مثال: النبات كائن فضائي بيشرب من رجله!"
             />
           </Field>
-          <StageIntervalSettings stage={stage} block={block} onChange={onChange} />
         </div>
       );
     case "mindmap":
@@ -689,7 +608,6 @@ function StageContentField({
               placeholder="ذاتي التغذية، صنع الغذاء، طاقة الشمس"
             />
           </Field>
-          <StageIntervalSettings stage={stage} block={block} onChange={onChange} />
         </div>
       );
   }
@@ -748,191 +666,550 @@ function StageIntervalSettings({
   );
 }
 
+function ContentFillSurface({
+  block,
+  activeStages,
+  selectedStage,
+  onSelectStage,
+  onChange,
+}: {
+  block: ParagraphBlock;
+  activeStages: FillStage[];
+  selectedStage: FillStage | null;
+  onSelectStage: (stage: FillStage) => void;
+  onChange: (patch: Partial<ParagraphBlock>) => void;
+}) {
+  const selectedIndex = selectedStage ? activeStages.indexOf(selectedStage) : -1;
+  const stage = selectedStage ?? activeStages[0];
+  const timedStage = stage && stage !== "quizzes_mcq_fill" && stage !== "quizzes_essay" ? stage : null;
+  const stageEnabled = timedStage ? (block.enable_stage_intervals?.[timedStage] ?? true) : true;
+  const stageDuration = timedStage ? (block.stage_intervals?.[timedStage] ?? 15) : 15;
+  const stageImage = stage ? getStageImage(block, stage) : "";
+
+  const patchInterval = (patch: { enabled?: boolean; duration?: number }) => {
+    if (!timedStage) return;
+    const nextEnabled = { ...(block.enable_stage_intervals || {}) };
+    const nextIntervals = { ...(block.stage_intervals || {}) };
+    if (typeof patch.enabled === "boolean") nextEnabled[timedStage] = patch.enabled;
+    if (typeof patch.duration === "number") nextIntervals[timedStage] = patch.duration;
+    onChange({ enable_stage_intervals: nextEnabled, stage_intervals: nextIntervals });
+  };
+
+  const patchStageImage = (url: string) => {
+    if (!stage) return;
+    const nextVisuals = { ...(block.stage_visuals || {}) };
+    nextVisuals[stage] = url;
+    const patch: Partial<ParagraphBlock> = { stage_visuals: nextVisuals };
+    if (stage === "original") patch.visual_url = url;
+    onChange(patch);
+  };
+
+  return (
+    <div className="relative">
+      {activeStages.length === 0 ? (
+        <EmptyHint text="لا توجد مراحل مفعلة. فعّل مرحلة واحدة على الأقل من إعداد التسلسل." />
+      ) : (
+        <div className="relative overflow-hidden rounded-3xl border border-border bg-card">
+          <div className="flex items-center justify-between border-b border-border/60 px-5 py-3">
+            <div className="text-xs font-semibold text-foreground/55">
+              شريحة {selectedIndex + 1} من {activeStages.length}
+            </div>
+            <div className="text-xs font-semibold text-brand">{stage ? getFillStageLabel(stage) : ""}</div>
+          </div>
+          <div className="flex flex-wrap gap-2 border-b border-border/60 px-5 py-2">
+            {activeStages.map((s, i) => (
+              <button
+                key={s}
+                onClick={() => onSelectStage(s)}
+                className={cn(
+                  "rounded-full border px-3 py-1 text-[11px] font-semibold transition",
+                  s === stage
+                    ? "border-brand bg-brand-soft text-brand"
+                    : "border-border text-foreground/60 hover:border-brand/40",
+                )}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+
+          <div className="min-h-[62vh] px-6 py-8 sm:px-10">
+            {stage === "quizzes_mcq_fill" ? (
+              <div className="mx-auto max-w-3xl">
+                {stageImage && (
+                  <img src={stageImage} alt="صورة مرحلة الأسئلة" className="mb-4 h-40 w-full rounded-2xl object-cover" />
+                )}
+                <QuizzesEditor block={block} onChange={onChange} type="mcq_fill" />
+              </div>
+            ) : stage === "quizzes_essay" ? (
+              <div className="mx-auto max-w-3xl">
+                {stageImage && (
+                  <img src={stageImage} alt="صورة مرحلة الأسئلة" className="mb-4 h-40 w-full rounded-2xl object-cover" />
+                )}
+                <QuizzesEditor block={block} onChange={onChange} type="essay" />
+              </div>
+            ) : (
+              stage && <InlineStageCanvas stage={stage} block={block} onChange={onChange} imageUrl={stageImage} />
+            )}
+          </div>
+
+          {stage && (
+            <div className="absolute bottom-4 right-4 z-10 w-36 rounded-xl border border-border bg-background/95 p-2 shadow-sm backdrop-blur">
+              <p className="text-[10px] font-semibold text-foreground">صورة الشريحة</p>
+              <ImageUploaderCompact url={stageImage} onChange={patchStageImage} />
+              {stage !== "quizzes_mcq_fill" && stage !== "quizzes_essay" && (
+                <>
+              <p className="text-[10px] font-semibold text-foreground">الفاصل الزمني</p>
+              <p className="mt-0.5 text-[9px] text-foreground/60">قفل للطالب فقط</p>
+              <button
+                onClick={() => patchInterval({ enabled: !stageEnabled })}
+                className={cn(
+                  "mt-2 w-full rounded-full border px-2 py-1 text-[10px] font-semibold transition",
+                  stageEnabled
+                    ? "border-success/40 bg-success-soft text-success"
+                    : "border-border text-foreground/60",
+                )}
+              >
+                {stageEnabled ? "مفعّل" : "معطّل"}
+              </button>
+              {stageEnabled && (
+                <Input
+                  type="number"
+                  min={0}
+                  max={300}
+                  value={stageDuration}
+                  onChange={(e) => patchInterval({ duration: parseInt(e.target.value, 10) || 15 })}
+                  className="mt-1.5 h-7 text-[10px]"
+                  placeholder="15 ث"
+                />
+              )}
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function getFillStageLabel(stage: FillStage): string {
+  if (stage === "quizzes_mcq_fill") return "أسئلة: اختر وأكمل";
+  if (stage === "quizzes_essay") return "أسئلة: مقالي";
+  return STAGE_LABELS[stage];
+}
+
+function getStageImage(block: ParagraphBlock, stage: FillStage): string {
+  if (stage === "original") return block.stage_visuals?.original ?? block.visual_url ?? "";
+  return block.stage_visuals?.[stage] ?? "";
+}
+
+function InlineStageCanvas({
+  stage,
+  block,
+  onChange,
+  imageUrl,
+}: {
+  stage: Stage;
+  block: ParagraphBlock;
+  onChange: (patch: Partial<ParagraphBlock>) => void;
+  imageUrl?: string;
+}) {
+  const inputClasses =
+    "w-full rounded-2xl border border-transparent bg-transparent px-3 py-2 text-foreground placeholder:text-foreground/35 focus:border-brand/30 focus:bg-background/70 focus:outline-none";
+
+  if (stage === "short") {
+    return (
+      <div className="mx-auto flex min-h-[52vh] max-w-2xl items-center justify-center">
+        <div className="w-full space-y-4">
+          {imageUrl && <img src={imageUrl} alt="صورة الشريحة" className="h-44 w-full rounded-2xl object-cover" />}
+          <Textarea
+            value={block.short_sentence}
+            onChange={(e) => onChange({ short_sentence: e.target.value })}
+            rows={3}
+            className={cn(inputClasses, "resize-none text-center text-2xl font-semibold leading-loose")}
+            placeholder="اكتب الجملة المبسطة هنا..."
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (stage === "examples") {
+    return (
+      <div className="mx-auto max-w-3xl">
+        <div className="rounded-3xl bg-brand-soft/60 p-8">
+          {imageUrl && <img src={imageUrl} alt="صورة الشريحة" className="mb-4 h-44 w-full rounded-2xl object-cover" />}
+          <p className="mb-3 text-sm font-semibold text-brand">مثال</p>
+          <Textarea
+            value={block.examples}
+            onChange={(e) => onChange({ examples: e.target.value })}
+            rows={7}
+            className={cn(inputClasses, "resize-none text-lg leading-loose")}
+            placeholder="اكتب القصة أو المثال التوضيحي..."
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (stage === "story") {
+    return (
+      <div className="mx-auto max-w-3xl">
+        <div className="rounded-3xl border border-border bg-card p-8">
+          {imageUrl && <img src={imageUrl} alt="صورة القصة" className="mb-4 h-44 w-full rounded-2xl object-cover" />}
+          <p className="mb-3 text-sm font-semibold text-brand">قصة</p>
+          <Textarea
+            value={block.story}
+            onChange={(e) => onChange({ story: e.target.value })}
+            rows={8}
+            className={cn(inputClasses, "resize-none text-lg leading-loose")}
+            placeholder="اكتب القصة التعليمية هنا..."
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (stage === "original") {
+    return (
+      <div className="mx-auto max-w-3xl space-y-6">
+        {imageUrl && <img src={imageUrl} alt="صورة الشريحة" className="h-52 w-full rounded-2xl object-cover" />}
+        <Textarea
+          value={block.full_text}
+          onChange={(e) => onChange({ full_text: e.target.value })}
+          rows={10}
+          className={cn(inputClasses, "resize-y text-lg leading-loose")}
+          placeholder="اكتب النص الأصلي كما سيظهر للطالب..."
+        />
+      </div>
+    );
+  }
+
+  if (stage === "mental") {
+    return (
+      <div className="mx-auto max-w-3xl space-y-6">
+        {imageUrl && <img src={imageUrl} alt="صورة الشريحة" className="h-44 w-full rounded-2xl object-cover" />}
+        <div className="rounded-3xl border-2 border-brand/30 bg-card p-6 text-center">
+          <p className="mb-2 text-xs font-bold uppercase tracking-wider text-brand">اختصار للحفظ</p>
+          <Input
+            value={block.mnemonic}
+            onChange={(e) => onChange({ mnemonic: e.target.value })}
+            className={cn(inputClasses, "text-center text-xl font-bold")}
+            placeholder="اكتب الرابط الذهني المختصر..."
+          />
+        </div>
+        <div className="rounded-3xl bg-warning-soft p-6 text-center">
+          <p className="mb-2 text-xs font-bold uppercase tracking-wider text-foreground/60">رابط فكاهي</p>
+          <Textarea
+            value={block.funny_link}
+            onChange={(e) => onChange({ funny_link: e.target.value })}
+            rows={4}
+            className={cn(inputClasses, "resize-none text-lg leading-loose")}
+            placeholder="اكتب الجملة الفكاهية المساعدة على التذكر..."
+          />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto max-w-2xl">
+      {imageUrl && <img src={imageUrl} alt="صورة الشريحة" className="mb-4 h-44 w-full rounded-2xl object-cover" />}
+      <p className="mb-4 text-center text-sm text-foreground/55">الخريطة الذهنية للفقرة</p>
+      <Input
+        value={block.mind_map_nodes.join("، ")}
+        onChange={(e) =>
+          onChange({
+            mind_map_nodes: e.target.value
+              .split(/[،,]/)
+              .map((t) => t.trim())
+              .filter(Boolean),
+          })
+        }
+        className={cn(inputClasses, "text-center")}
+        placeholder="اكتب العقد مفصولة بفواصل..."
+      />
+    </div>
+  );
+}
+
+function ImageUploaderCompact({ url, onChange }: { url: string; onChange: (url: string) => void }) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  return (
+    <div className="mt-1.5 space-y-1.5">
+      <button
+        onClick={() => fileRef.current?.click()}
+        className="w-full rounded-md border border-border px-2 py-1 text-[10px] font-semibold text-foreground/70 hover:border-brand/40"
+      >
+        رفع/تغيير
+      </button>
+      {url && (
+        <button
+          onClick={() => onChange("")}
+          className="w-full rounded-md border border-destructive/40 px-2 py-1 text-[10px] font-semibold text-destructive"
+        >
+          إزالة
+        </button>
+      )}
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (!f) return;
+          const reader = new FileReader();
+          reader.onload = () => onChange(String(reader.result));
+          reader.readAsDataURL(f);
+        }}
+      />
+    </div>
+  );
+}
+
+function hasStageContent(block: ParagraphBlock, stage: Stage): boolean {
+  switch (stage) {
+    case "short":
+      return block.short_sentence.trim().length > 0;
+    case "story":
+      return block.story.trim().length > 0;
+    case "examples":
+      return block.examples.trim().length > 0;
+    case "original":
+      return block.full_text.trim().length > 0 || (block.visual_url ?? "").trim().length > 0;
+    case "mental":
+      return block.mnemonic.trim().length > 0 || block.funny_link.trim().length > 0;
+    case "mindmap":
+      return block.mind_map_nodes.length > 0;
+  }
+}
+
 /* ---------------- Quizzes Editor ---------------- */
 
 function QuizzesEditor({
   block,
   onChange,
+  type,
 }: {
   block: ParagraphBlock;
   onChange: (patch: Partial<ParagraphBlock>) => void;
+  type: "mcq_fill" | "essay";
 }) {
   const setQuizzes = (patch: Partial<ParagraphBlock["quizzes"]>) =>
     onChange({ quizzes: { ...block.quizzes, ...patch } });
 
   const total =
-    block.quizzes.mcqs.length + block.quizzes.fills.length + block.quizzes.essays.length;
+    type === "mcq_fill"
+      ? block.quizzes.mcqs.length + block.quizzes.fills.length
+      : block.quizzes.essays.length;
 
   return (
     <Section
       title={`أسئلة المراجعة (${total})`}
       subtitle="أضف أي عدد من الأسئلة. اترك الأقسام فارغة إذا لم ترغب باستخدامها."
     >
-      {/* MCQs */}
-      <SubSection
-        title="اختيار من متعدد"
-        action={
-          <button
-            type="button"
-            onClick={() =>
-              setQuizzes({
-                mcqs: [...block.quizzes.mcqs, { question: "", options: ["", "", ""], answer: "" }],
-              })
+      {type === "mcq_fill" ? (
+        <div className="space-y-10">
+          {/* MCQs */}
+          <SubSection
+            title="اختيار من متعدد"
+            action={
+              <button
+                type="button"
+                onClick={() =>
+                  setQuizzes({
+                    mcqs: [
+                      ...block.quizzes.mcqs,
+                      { question: "", options: ["", "", ""], answer: "", image_url: "" },
+                    ],
+                  })
+                }
+                className="inline-flex items-center gap-1 rounded-full border border-dashed border-border bg-background px-3 py-1 text-xs font-semibold text-foreground/70 hover:border-brand/60"
+              >
+                <Plus className="h-3.5 w-3.5" /> سؤال
+              </button>
             }
-            className="inline-flex items-center gap-1 rounded-full border border-dashed border-border bg-background px-3 py-1 text-xs font-semibold text-foreground/70 hover:border-brand/60"
           >
-            <Plus className="h-3.5 w-3.5" /> سؤال
-          </button>
-        }
-      >
-        {block.quizzes.mcqs.length === 0 && <EmptyHint text="لا توجد أسئلة اختيار من متعدد بعد." />}
-        <div className="space-y-4">
-          {block.quizzes.mcqs.map((q, i) => (
-            <McqEditor
-              key={i}
-              num={i + 1}
-              q={q}
-              onChange={(next) =>
-                setQuizzes({
-                  mcqs: block.quizzes.mcqs.map((it, j) => (j === i ? next : it)),
-                })
-              }
-              onRemove={() =>
-                setQuizzes({ mcqs: block.quizzes.mcqs.filter((_, j) => j !== i) })
-              }
-            />
-          ))}
-        </div>
-      </SubSection>
-
-      {/* Fills */}
-      <SubSection
-        title="إكمال الفراغ"
-        action={
-          <button
-            type="button"
-            onClick={() =>
-              setQuizzes({ fills: [...block.quizzes.fills, { question: "", answer: "" }] })
-            }
-            className="inline-flex items-center gap-1 rounded-full border border-dashed border-border bg-background px-3 py-1 text-xs font-semibold text-foreground/70 hover:border-brand/60"
-          >
-            <Plus className="h-3.5 w-3.5" /> سؤال
-          </button>
-        }
-      >
-        {block.quizzes.fills.length === 0 && <EmptyHint text="لا توجد أسئلة إكمال بعد." />}
-        <div className="space-y-3">
-          {block.quizzes.fills.map((q, i) => (
-            <div key={i} className="space-y-2 rounded-2xl border border-border bg-background p-3">
-              <div className="flex items-center justify-between">
-                <div className="text-xs font-bold text-foreground/70">سؤال {i + 1}</div>
-                <button
-                  onClick={() =>
-                    setQuizzes({ fills: block.quizzes.fills.filter((_, j) => j !== i) })
-                  }
-                  className="rounded-lg p-1.5 text-destructive hover:bg-destructive/5"
-                  aria-label="حذف"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </div>
-              <Field label="السؤال (استخدم ____ مكان الفراغ)">
-                <Input
-                  value={q.question}
-                  onChange={(e) =>
+            {block.quizzes.mcqs.length === 0 && (
+              <EmptyHint text="لا توجد أسئلة اختيار من متعدد بعد." />
+            )}
+            <div className="space-y-4">
+              {block.quizzes.mcqs.map((q, i) => (
+                <McqEditor
+                  key={i}
+                  num={i + 1}
+                  q={q}
+                  onChange={(next) =>
                     setQuizzes({
-                      fills: block.quizzes.fills.map((it, j) =>
-                        j === i ? { ...it, question: e.target.value } : it,
-                      ),
+                      mcqs: block.quizzes.mcqs.map((it, j) => (j === i ? next : it)),
                     })
                   }
-                />
-              </Field>
-              <Field label="الإجابة">
-                <Input
-                  value={q.answer}
-                  onChange={(e) =>
-                    setQuizzes({
-                      fills: block.quizzes.fills.map((it, j) =>
-                        j === i ? { ...it, answer: e.target.value } : it,
-                      ),
-                    })
+                  onRemove={() =>
+                    setQuizzes({ mcqs: block.quizzes.mcqs.filter((_, j) => j !== i) })
                   }
                 />
-              </Field>
+              ))}
             </div>
-          ))}
-        </div>
-      </SubSection>
+          </SubSection>
 
-      {/* Essays */}
-      <SubSection
-        title="أسئلة مقالية / علّل"
-        action={
-          <button
-            type="button"
-            onClick={() =>
-              setQuizzes({ essays: [...block.quizzes.essays, { question: "", keywords: [] }] })
+          {/* Fills */}
+          <SubSection
+            title="إكمال الفراغ"
+            action={
+              <button
+                type="button"
+                onClick={() =>
+                  setQuizzes({
+                    fills: [...block.quizzes.fills, { question: "", answer: "", image_url: "" }],
+                  })
+                }
+                className="inline-flex items-center gap-1 rounded-full border border-dashed border-border bg-background px-3 py-1 text-xs font-semibold text-foreground/70 hover:border-brand/60"
+              >
+                <Plus className="h-3.5 w-3.5" /> سؤال
+              </button>
             }
-            className="inline-flex items-center gap-1 rounded-full border border-dashed border-border bg-background px-3 py-1 text-xs font-semibold text-foreground/70 hover:border-brand/60"
           >
-            <Plus className="h-3.5 w-3.5" /> سؤال
-          </button>
-        }
-      >
-        {block.quizzes.essays.length === 0 && <EmptyHint text="لا توجد أسئلة مقالية بعد." />}
-        <div className="space-y-3">
-          {block.quizzes.essays.map((q, i) => (
-            <div key={i} className="space-y-2 rounded-2xl border border-border bg-background p-3">
-              <div className="flex items-center justify-between">
-                <div className="text-xs font-bold text-foreground/70">سؤال {i + 1}</div>
-                <button
-                  onClick={() =>
-                    setQuizzes({ essays: block.quizzes.essays.filter((_, j) => j !== i) })
-                  }
-                  className="rounded-lg p-1.5 text-destructive hover:bg-destructive/5"
-                  aria-label="حذف"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </div>
-              <Field label="السؤال">
-                <Textarea
-                  rows={2}
-                  value={q.question}
-                  onChange={(e) =>
-                    setQuizzes({
-                      essays: block.quizzes.essays.map((it, j) =>
-                        j === i ? { ...it, question: e.target.value } : it,
-                      ),
-                    })
-                  }
-                />
-              </Field>
-              <Field label="الكلمات المفتاحية للإجابة (افصل بفاصلة)">
-                <Input
-                  value={q.keywords.join("، ")}
-                  onChange={(e) =>
-                    setQuizzes({
-                      essays: block.quizzes.essays.map((it, j) =>
-                        j === i
-                          ? {
-                              ...it,
-                              keywords: e.target.value
-                                .split(/[،,]/)
-                                .map((t) => t.trim())
-                                .filter(Boolean),
-                            }
-                          : it,
-                      ),
-                    })
-                  }
-                />
-              </Field>
+            {block.quizzes.fills.length === 0 && <EmptyHint text="لا توجد أسئلة إكمال بعد." />}
+            <div className="space-y-3">
+              {block.quizzes.fills.map((q, i) => (
+                <div key={i} className="space-y-2 rounded-2xl border border-border bg-background p-3">
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs font-bold text-foreground/70">سؤال {i + 1}</div>
+                    <button
+                      onClick={() =>
+                        setQuizzes({ fills: block.quizzes.fills.filter((_, j) => j !== i) })
+                      }
+                      className="rounded-lg p-1.5 text-destructive hover:bg-destructive/5"
+                      aria-label="حذف"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <Field label="السؤال (استخدم ____ مكان الفراغ)">
+                    <Input
+                      value={q.question}
+                      onChange={(e) =>
+                        setQuizzes({
+                          fills: block.quizzes.fills.map((it, j) =>
+                            j === i ? { ...it, question: e.target.value } : it,
+                          ),
+                        })
+                      }
+                    />
+                  </Field>
+                  <QuestionImageEditor
+                    imageUrl={q.image_url ?? ""}
+                    onChange={(image_url) =>
+                      setQuizzes({
+                        fills: block.quizzes.fills.map((it, j) =>
+                          j === i ? { ...it, image_url } : it,
+                        ),
+                      })
+                    }
+                  />
+                  <Field label="الإجابة">
+                    <Input
+                      value={q.answer}
+                      onChange={(e) =>
+                        setQuizzes({
+                          fills: block.quizzes.fills.map((it, j) =>
+                            j === i ? { ...it, answer: e.target.value } : it,
+                          ),
+                        })
+                      }
+                    />
+                  </Field>
+                </div>
+              ))}
             </div>
-          ))}
+          </SubSection>
         </div>
-      </SubSection>
+      ) : (
+        <div className="space-y-10">
+          {/* Essays */}
+          <SubSection
+            title="أسئلة مقالية / علّل"
+            action={
+              <button
+                type="button"
+                onClick={() =>
+                  setQuizzes({
+                    essays: [...block.quizzes.essays, { question: "", keywords: [], image_url: "" }],
+                  })
+                }
+                className="inline-flex items-center gap-1 rounded-full border border-dashed border-border bg-background px-3 py-1 text-xs font-semibold text-foreground/70 hover:border-brand/60"
+              >
+                <Plus className="h-3.5 w-3.5" /> سؤال
+              </button>
+            }
+          >
+            {block.quizzes.essays.length === 0 && <EmptyHint text="لا توجد أسئلة مقالية بعد." />}
+            <div className="space-y-3">
+              {block.quizzes.essays.map((q, i) => (
+                <div key={i} className="space-y-2 rounded-2xl border border-border bg-background p-3">
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs font-bold text-foreground/70">سؤال {i + 1}</div>
+                    <button
+                      onClick={() =>
+                        setQuizzes({ essays: block.quizzes.essays.filter((_, j) => j !== i) })
+                      }
+                      className="rounded-lg p-1.5 text-destructive hover:bg-destructive/5"
+                      aria-label="حذف"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <Field label="السؤال">
+                    <Textarea
+                      rows={2}
+                      value={q.question}
+                      onChange={(e) =>
+                        setQuizzes({
+                          essays: block.quizzes.essays.map((it, j) =>
+                            j === i ? { ...it, question: e.target.value } : it,
+                          ),
+                        })
+                      }
+                    />
+                  </Field>
+                  <QuestionImageEditor
+                    imageUrl={q.image_url ?? ""}
+                    onChange={(image_url) =>
+                      setQuizzes({
+                        essays: block.quizzes.essays.map((it, j) =>
+                          j === i ? { ...it, image_url } : it,
+                        ),
+                      })
+                    }
+                  />
+                  <Field label="الكلمات المفتاحية للإجابة (افصل بفاصلة)">
+                    <Input
+                      value={q.keywords.join("، ")}
+                      onChange={(e) =>
+                        setQuizzes({
+                          essays: block.quizzes.essays.map((it, j) =>
+                            j === i
+                              ? {
+                                  ...it,
+                                  keywords: e.target.value
+                                    .split(/[،,]/)
+                                    .map((t) => t.trim())
+                                    .filter(Boolean),
+                                }
+                              : it,
+                          ),
+                        })
+                      }
+                    />
+                  </Field>
+                </div>
+              ))}
+            </div>
+          </SubSection>
+        </div>
+      )}
     </Section>
   );
 }
@@ -944,8 +1221,8 @@ function McqEditor({
   onRemove,
 }: {
   num: number;
-  q: { question: string; options: string[]; answer: string };
-  onChange: (next: { question: string; options: string[]; answer: string }) => void;
+  q: { question: string; options: string[]; answer: string; image_url?: string };
+  onChange: (next: { question: string; options: string[]; answer: string; image_url?: string }) => void;
   onRemove: () => void;
 }) {
   const setOption = (i: number, val: string) => {
@@ -978,6 +1255,7 @@ function McqEditor({
       <Field label="السؤال">
         <Input value={q.question} onChange={(e) => onChange({ ...q, question: e.target.value })} />
       </Field>
+      <QuestionImageEditor imageUrl={q.image_url ?? ""} onChange={(image_url) => onChange({ ...q, image_url })} />
       <div className="space-y-2">
         <div className="text-xs font-semibold text-foreground/70">الخيارات</div>
         {q.options.map((opt, i) => {
@@ -1026,6 +1304,61 @@ function McqEditor({
           <Plus className="h-3.5 w-3.5" /> خيار جديد
         </button>
       </div>
+    </div>
+  );
+}
+
+function QuestionImageEditor({
+  imageUrl,
+  onChange,
+}: {
+  imageUrl: string;
+  onChange: (image_url: string) => void;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  return (
+    <div className="space-y-2 rounded-xl border border-border bg-background/60 p-3">
+      <div className="text-xs font-semibold text-foreground/70">صورة السؤال (اختياري)</div>
+      <Input
+        value={imageUrl}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="الصق رابط الصورة..."
+        dir="ltr"
+      />
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          className="rounded-lg border border-border px-3 py-1 text-xs font-semibold text-foreground/70 hover:border-brand/50"
+        >
+          رفع صورة محلية
+        </button>
+        {imageUrl && (
+          <button
+            type="button"
+            onClick={() => onChange("")}
+            className="rounded-lg border border-destructive/40 px-3 py-1 text-xs font-semibold text-destructive"
+          >
+            إزالة
+          </button>
+        )}
+      </div>
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (!f) return;
+          const reader = new FileReader();
+          reader.onload = () => onChange(String(reader.result));
+          reader.readAsDataURL(f);
+        }}
+      />
+      {imageUrl && (
+        <img src={imageUrl} alt="معاينة صورة السؤال" className="h-24 w-full rounded-lg object-cover" />
+      )}
     </div>
   );
 }

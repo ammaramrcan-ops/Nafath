@@ -50,10 +50,12 @@ export function ParagraphBlockCard({
   block,
   onComplete,
   stageOrder = DEFAULT_STAGE_ORDER,
+  mode = "student",
 }: {
   block: Block;
   onComplete: () => void;
   stageOrder?: Stage[];
+  mode?: "student" | "teacher";
 }) {
   const STAGES = stageOrder.map((key) => ({ key, label: STAGE_LABELS[key] }));
   const showIntro = STAGES.length > 0 && STAGES[0].key === "short" && block.short_sentence.trim().length > 0;
@@ -63,7 +65,8 @@ export function ParagraphBlockCard({
   const recallRef = useRef<HTMLTextAreaElement>(null);
 
   // Time gating
-  const timeGateSeconds = block.stage_interval ?? DEFAULT_TIME_GATE_SECONDS;
+  const intervalEnabled = block.enable_stage_intervals?.[stage] ?? true;
+  const timeGateSeconds = block.stage_intervals?.[stage] ?? block.stage_interval ?? DEFAULT_TIME_GATE_SECONDS;
   const [stageStartTime, setStageStartTime] = useState<number | null>(null);
   const [timeGateRemaining, setTimeGateRemaining] = useState(timeGateSeconds);
   const [speedChecked, setSpeedChecked] = useState(false);
@@ -76,7 +79,8 @@ export function ParagraphBlockCard({
 
   const recallWordCount = recallText.trim().split(/\s+/).filter(Boolean).length;
   const recallReady = recallWordCount >= MIN_RECALL_WORDS;
-  const timeGatePassed = timeGateRemaining <= 0;
+  const enforceTimeGate = mode === "student" && intervalEnabled;
+  const timeGatePassed = !enforceTimeGate || timeGateRemaining <= 0;
 
   // Time gate countdown
   useEffect(() => {
@@ -187,6 +191,13 @@ export function ParagraphBlockCard({
             <div className="rounded-3xl bg-brand-soft/60 p-8 text-lg leading-loose text-foreground/85">
               <p className="mb-3 text-sm font-semibold text-brand">مثال</p>
               <HardWordText text={block.examples} words={block.hard_words} />
+            </div>
+          )}
+
+          {stage === "story" && (
+            <div className="rounded-3xl border border-border bg-card p-8 text-lg leading-loose text-foreground/85">
+              <p className="mb-3 text-sm font-semibold text-brand">قصة</p>
+              <HardWordText text={block.story} words={block.hard_words} />
             </div>
           )}
 
@@ -306,14 +317,18 @@ export function ParagraphBlockCard({
 
       {/* Nav */}
       <div className="mt-12 flex items-center justify-between gap-3">
-        <button
-          onClick={() => setIdx((i) => Math.max(0, i - 1))}
-          disabled={idx === 0}
-          className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-border bg-background text-foreground transition hover:border-brand/40 disabled:opacity-30"
-          aria-label="السابق"
-        >
-          <ChevronRight className="h-5 w-5" />
-        </button>
+        {mode === "teacher" ? (
+          <button
+            onClick={() => setIdx((i) => Math.max(0, i - 1))}
+            disabled={idx === 0}
+            className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-border bg-background text-foreground transition hover:border-brand/40 disabled:opacity-30"
+            aria-label="السابق"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        ) : (
+          <span className="inline-block h-12 w-12" />
+        )}
 
         <div className="flex flex-col items-center gap-2">
           <span className="text-sm text-foreground/40">
@@ -337,7 +352,7 @@ export function ParagraphBlockCard({
             onClick={onComplete}
             className="rounded-full bg-success px-6 py-3 text-sm font-semibold text-success-foreground shadow-[var(--shadow-soft)] hover:bg-success/90"
           >
-            للاختبار ←
+            التالي ←
           </button>
         ) : (
           <button

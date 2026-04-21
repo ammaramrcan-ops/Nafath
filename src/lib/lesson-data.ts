@@ -5,17 +5,19 @@ export type HardWord = { word: string; meaning: string };
 export type MCQ = { question: string; options: string[]; answer: string };
 export type Fill = { question: string; answer: string };
 export type Essay = { question: string; keywords: string[] };
+export type QuizImage = { image_url?: string };
 
 export type Quizzes = {
-  mcqs: MCQ[];
-  fills: Fill[];
-  essays: Essay[];
+  mcqs: (MCQ & QuizImage)[];
+  fills: (Fill & QuizImage)[];
+  essays: (Essay & QuizImage)[];
 };
 
 export type ParagraphBlock = {
   id: number;
   title: string;
   short_sentence: string;
+  story: string;
   examples: string;
   full_text: string;
   hard_words: HardWord[];
@@ -23,13 +25,17 @@ export type ParagraphBlock = {
   funny_link: string;
   mind_map_nodes: string[];
   visual_url?: string;
+  stage_visuals?: Partial<Record<Stage | "quizzes", string>>;
   /** Per-block overrides. If undefined, global settings apply. */
   enabled_stages?: Stage[];
   stage_order?: Stage[];
   quizzes: Quizzes;
+  quiz_enabled?: boolean;
   enable_break?: boolean;
   break_duration?: number;
   stage_interval?: number;
+  stage_intervals?: Partial<Record<Stage, number>>;
+  enable_stage_intervals?: Partial<Record<Stage, boolean>>;
 };
 
 export type Lesson = {
@@ -65,6 +71,7 @@ export function normalizeBlock(raw: any, idx: number): ParagraphBlock {
     id: typeof raw?.id === "number" ? raw.id : idx + 1,
     title: raw?.title ?? "",
     short_sentence: raw?.short_sentence ?? "",
+    story: raw?.story ?? "",
     examples: raw?.examples ?? "",
     full_text: raw?.full_text ?? "",
     hard_words: Array.isArray(raw?.hard_words) ? raw.hard_words : [],
@@ -72,6 +79,7 @@ export function normalizeBlock(raw: any, idx: number): ParagraphBlock {
     funny_link: raw?.funny_link ?? "",
     mind_map_nodes: Array.isArray(raw?.mind_map_nodes) ? raw.mind_map_nodes : [],
     visual_url: raw?.visual_url ?? "",
+    stage_visuals: raw?.stage_visuals ?? {},
     enabled_stages: Array.isArray(raw?.enabled_stages)
       ? (raw.enabled_stages as Stage[])
       : undefined,
@@ -79,9 +87,12 @@ export function normalizeBlock(raw: any, idx: number): ParagraphBlock {
       ? (raw.stage_order as Stage[])
       : undefined,
     quizzes: { mcqs, fills, essays },
+    quiz_enabled: raw?.quiz_enabled ?? true,
     enable_break: raw?.enable_break ?? true,
     break_duration: raw?.break_duration ?? 60,
     stage_interval: raw?.stage_interval ?? 15,
+    stage_intervals: raw?.stage_intervals ?? {},
+    enable_stage_intervals: raw?.enable_stage_intervals ?? {},
   };
 }
 

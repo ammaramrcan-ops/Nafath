@@ -9,7 +9,7 @@ import { EndScreen } from "@/components/EndScreen";
 import { useSettings } from "@/lib/settings";
 import { effectiveStages } from "@/lib/lesson-data";
 
-type Phase = "welcome" | "lesson" | "quiz" | "break" | "done";
+type Phase = "welcome" | "lesson" | "quiz_mcq_fill" | "quiz_essay" | "break" | "done";
 
 export function LessonFlow({
   lesson,
@@ -42,15 +42,40 @@ export function LessonFlow({
             key={lesson.blocks[blockIdx].id}
             block={lesson.blocks[blockIdx]}
             stageOrder={effectiveStages(lesson.blocks[blockIdx], settings.stageOrder)}
-            onComplete={() => setPhase("quiz")}
+            mode="student"
+            onComplete={() => {
+              if (lesson.blocks[blockIdx].quiz_enabled !== false) {
+                 setPhase("quiz_mcq_fill");
+              } else {
+                 if (blockIdx + 1 >= lesson.blocks.length) {
+                   setPhase("done");
+                 } else if (lesson.blocks[blockIdx].enable_break === false) {
+                   setBlockIdx((i) => i + 1);
+                   setPhase("lesson");
+                 } else {
+                   setPhase("break");
+                 }
+              }
+            }}
           />
         )}
 
-        {phase === "quiz" && (
+        {phase === "quiz_mcq_fill" && (
           <QuizPhase
-            key={`quiz-${blockIdx}`}
+            key={`quiz-mcq-${blockIdx}`}
             lesson={lesson}
             blockIdx={blockIdx}
+            type="mcq_fill"
+            onNext={() => setPhase("quiz_essay")}
+          />
+        )}
+
+        {phase === "quiz_essay" && (
+          <QuizPhase
+            key={`quiz-essay-${blockIdx}`}
+            lesson={lesson}
+            blockIdx={blockIdx}
+            type="essay"
             isLast={blockIdx + 1 >= lesson.blocks.length}
             onNext={() => {
               if (blockIdx + 1 >= lesson.blocks.length) {
@@ -87,11 +112,13 @@ function QuizPhase({
   lesson,
   blockIdx,
   isLast,
+  type,
   onNext,
 }: {
   lesson: Lesson;
   blockIdx: number;
-  isLast: boolean;
+  isLast?: boolean;
+  type: "mcq_fill" | "essay";
   onNext: () => void;
 }) {
   const [passed, setPassed] = useState(false);
@@ -99,6 +126,7 @@ function QuizPhase({
     <div className="mx-auto max-w-2xl px-6 py-12">
       <QuizSection
         quizzes={lesson.blocks[blockIdx].quizzes}
+        type={type}
         onAllCorrect={() => setPassed(true)}
       />
       {passed && (
@@ -107,7 +135,7 @@ function QuizPhase({
             onClick={onNext}
             className="rounded-full bg-success px-10 py-4 text-base font-semibold text-success-foreground shadow-[var(--shadow-soft)] transition hover:bg-success/90"
           >
-            {isLast ? "إنهاء الدرس ←" : "الفقرة التالية ←"}
+            {isLast ? "إنهاء الدرس ←" : "المرحلة التالية ←"}
           </button>
         </div>
       )}
