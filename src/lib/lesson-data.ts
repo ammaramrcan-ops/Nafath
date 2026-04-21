@@ -1,3 +1,5 @@
+import { DEFAULT_STAGE_ORDER, type Stage } from "@/lib/settings";
+
 export type HardWord = { word: string; meaning: string };
 
 export type MCQ = { question: string; options: string[]; answer: string };
@@ -5,9 +7,9 @@ export type Fill = { question: string; answer: string };
 export type Essay = { question: string; keywords: string[] };
 
 export type Quizzes = {
-  mcq: MCQ;
-  fill: Fill;
-  essay: Essay;
+  mcqs: MCQ[];
+  fills: Fill[];
+  essays: Essay[];
 };
 
 export type ParagraphBlock = {
@@ -21,6 +23,9 @@ export type ParagraphBlock = {
   funny_link: string;
   mind_map_nodes: string[];
   visual_url?: string;
+  /** Per-block overrides. If undefined, global settings apply. */
+  enabled_stages?: Stage[];
+  stage_order?: Stage[];
   quizzes: Quizzes;
 };
 
@@ -32,7 +37,67 @@ export type Lesson = {
   blocks: ParagraphBlock[];
 };
 
-export const defaultLesson: Lesson = {
+/** Normalize legacy block shape (singular mcq/fill/essay) into new array form. */
+export function normalizeBlock(raw: any, idx: number): ParagraphBlock {
+  const q = raw?.quizzes ?? {};
+  const mcqs: MCQ[] = Array.isArray(q.mcqs)
+    ? q.mcqs
+    : q.mcq && (q.mcq.question || q.mcq.answer)
+      ? [q.mcq]
+      : [];
+  const fills: Fill[] = Array.isArray(q.fills)
+    ? q.fills
+    : q.fill && (q.fill.question || q.fill.answer)
+      ? [q.fill]
+      : [];
+  const essays: Essay[] = Array.isArray(q.essays)
+    ? q.essays
+    : q.essay && (q.essay.question || (q.essay.keywords?.length ?? 0) > 0)
+      ? [q.essay]
+      : [];
+
+  return {
+    id: typeof raw?.id === "number" ? raw.id : idx + 1,
+    title: raw?.title ?? "",
+    short_sentence: raw?.short_sentence ?? "",
+    examples: raw?.examples ?? "",
+    full_text: raw?.full_text ?? "",
+    hard_words: Array.isArray(raw?.hard_words) ? raw.hard_words : [],
+    mnemonic: raw?.mnemonic ?? "",
+    funny_link: raw?.funny_link ?? "",
+    mind_map_nodes: Array.isArray(raw?.mind_map_nodes) ? raw.mind_map_nodes : [],
+    visual_url: raw?.visual_url ?? "",
+    enabled_stages: Array.isArray(raw?.enabled_stages)
+      ? (raw.enabled_stages as Stage[])
+      : undefined,
+    stage_order: Array.isArray(raw?.stage_order)
+      ? (raw.stage_order as Stage[])
+      : undefined,
+    quizzes: { mcqs, fills, essays },
+  };
+}
+
+export function normalizeLesson(raw: any): Lesson {
+  const blocks: ParagraphBlock[] = Array.isArray(raw?.blocks)
+    ? raw.blocks.map((b: any, i: number) => normalizeBlock(b, i))
+    : [];
+  return {
+    title: raw?.title ?? "درس بدون عنوان",
+    estimatedTime: raw?.estimatedTime ?? "",
+    size: raw?.size ?? "",
+    topics: Array.isArray(raw?.topics) ? raw.topics : [],
+    blocks,
+  };
+}
+
+/** Compute the effective stages for a block by intersecting global order with block's enabled list. */
+export function effectiveStages(block: ParagraphBlock, globalOrder: Stage[]): Stage[] {
+  const order = block.stage_order && block.stage_order.length > 0 ? block.stage_order : globalOrder;
+  const enabled = block.enabled_stages ?? DEFAULT_STAGE_ORDER;
+  return order.filter((s) => enabled.includes(s));
+}
+
+export const defaultLesson: Lesson = normalizeLesson({
   title: "عملية البناء الضوئي",
   estimatedTime: "15 دقيقة",
   size: "3 فقرات أساسية - 10 مصطلحات",
@@ -52,12 +117,18 @@ export const defaultLesson: Lesson = {
       visual_url:
         "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
       quizzes: {
-        mcq: { question: "النبات كائن:", options: ["منتج", "مستهلك", "محلل"], answer: "منتج" },
-        fill: { question: "يصنع النبات غذاءه بنفسه لذا يسمى ذاتي ____", answer: "التغذية" },
-        essay: {
-          question: "كيف تصف عملية صنع الغذاء عند النبات؟",
-          keywords: ["يصنع", "نفسه", "ضوء"],
-        },
+        mcqs: [
+          { question: "النبات كائن:", options: ["منتج", "مستهلك", "محلل"], answer: "منتج" },
+        ],
+        fills: [
+          { question: "يصنع النبات غذاءه بنفسه لذا يسمى ذاتي ____", answer: "التغذية" },
+        ],
+        essays: [
+          {
+            question: "كيف تصف عملية صنع الغذاء عند النبات؟",
+            keywords: ["يصنع", "نفسه", "ضوء"],
+          },
+        ],
       },
     },
     {
@@ -78,19 +149,15 @@ export const defaultLesson: Lesson = {
       visual_url:
         "https://images.unsplash.com/photo-1538370965046-79c0d6907d47?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
       quizzes: {
-        mcq: {
-          question: "ما المادة التي تلتقط ضوء الشمس؟",
-          options: ["الماء", "الكلوروفيل", "الثغور"],
-          answer: "الكلوروفيل",
-        },
-        fill: {
-          question: "يدخل ثاني أكسيد الكربون عبر فتحات تسمى ____",
-          answer: "الثغور",
-        },
-        essay: {
-          question: "ما المكونات الأساسية للبناء الضوئي؟",
-          keywords: ["ماء", "ضوء", "هواء"],
-        },
+        mcqs: [
+          {
+            question: "ما المادة التي تلتقط ضوء الشمس؟",
+            options: ["الماء", "الكلوروفيل", "الثغور"],
+            answer: "الكلوروفيل",
+          },
+        ],
+        fills: [{ question: "يدخل ثاني أكسيد الكربون عبر فتحات تسمى ____", answer: "الثغور" }],
+        essays: [{ question: "ما المكونات الأساسية للبناء الضوئي؟", keywords: ["ماء", "ضوء", "هواء"] }],
       },
     },
     {
@@ -107,33 +174,27 @@ export const defaultLesson: Lesson = {
       visual_url:
         "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
       quizzes: {
-        mcq: {
-          question: "ما الغاز الذي يطلقه النبات؟",
-          options: ["الكربون", "الأكسجين", "النيتروجين"],
-          answer: "الأكسجين",
-        },
-        fill: { question: "نوع السكر الناتج يسمى ____", answer: "الجلوكوز" },
-        essay: {
-          question: "لماذا النباتات مهمة لبقائنا؟",
-          keywords: ["أكسجين", "تنفس", "غذاء"],
-        },
+        mcqs: [
+          { question: "ما الغاز الذي يطلقه النبات؟", options: ["الكربون", "الأكسجين", "النيتروجين"], answer: "الأكسجين" },
+        ],
+        fills: [{ question: "نوع السكر الناتج يسمى ____", answer: "الجلوكوز" }],
+        essays: [{ question: "لماذا النباتات مهمة لبقائنا؟", keywords: ["أكسجين", "تنفس", "غذاء"] }],
       },
     },
   ],
-};
+});
 
 export function parseLessonJson(input: string): Lesson {
   const data = JSON.parse(input);
-  // Accept either a full Lesson object or an array of blocks
   if (Array.isArray(data)) {
-    return {
+    return normalizeLesson({
       title: "درس مخصص",
       estimatedTime: `${Math.max(5, data.length * 5)} دقيقة`,
       size: `${data.length} فقرات`,
-      topics: data.map((b: ParagraphBlock) => b.title),
+      topics: data.map((b: any) => b?.title ?? ""),
       blocks: data,
-    };
+    });
   }
   if (!data.blocks) throw new Error("صيغة غير صالحة: blocks مفقود");
-  return data as Lesson;
+  return normalizeLesson(data);
 }

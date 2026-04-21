@@ -13,13 +13,15 @@ export function CheatSheet({ lesson }: { lesson: Lesson }) {
 
   const essays = useMemo(
     () =>
-      lesson.blocks
-        .filter((b) => b.quizzes?.essay?.question)
-        .map((b) => ({
-          blockTitle: b.title,
-          question: b.quizzes.essay.question,
-          keywords: b.quizzes.essay.keywords ?? [],
-        })),
+      lesson.blocks.flatMap((b) =>
+        (b.quizzes?.essays ?? [])
+          .filter((e) => e.question?.trim())
+          .map((e) => ({
+            blockTitle: b.title,
+            question: e.question,
+            keywords: e.keywords ?? [],
+          })),
+      ),
     [lesson],
   );
 

@@ -56,7 +56,8 @@ export function ParagraphBlockCard({
   stageOrder?: Stage[];
 }) {
   const STAGES = stageOrder.map((key) => ({ key, label: STAGE_LABELS[key] }));
-  const [started, setStarted] = useState(false);
+  const showIntro = STAGES.length > 0 && STAGES[0].key === "short" && block.short_sentence.trim().length > 0;
+  const [started, setStarted] = useState(!showIntro);
   const [idx, setIdx] = useState(0);
   const [recallText, setRecallText] = useState("");
   const recallRef = useRef<HTMLTextAreaElement>(null);
@@ -92,7 +93,7 @@ export function ParagraphBlockCard({
   }, [stage]);
 
   // Intro — short sentence teaser before entering the stage flow
-  if (!started) {
+  if (!started && showIntro) {
     return (
       <div className="mx-auto flex min-h-[60vh] max-w-2xl flex-col items-center justify-center px-6 py-16 text-center">
         <p className="text-2xl sm:text-3xl font-semibold leading-loose text-foreground">

@@ -7,6 +7,7 @@ import { QuizSection } from "@/components/QuizSection";
 import { BreathingBreak } from "@/components/BreathingBreak";
 import { EndScreen } from "@/components/EndScreen";
 import { useSettings } from "@/lib/settings";
+import { effectiveStages } from "@/lib/lesson-data";
 
 type Phase = "welcome" | "lesson" | "quiz" | "break" | "done";
 
@@ -40,7 +41,7 @@ export function LessonFlow({
           <ParagraphBlockCard
             key={lesson.blocks[blockIdx].id}
             block={lesson.blocks[blockIdx]}
-            stageOrder={settings.stageOrder}
+            stageOrder={effectiveStages(lesson.blocks[blockIdx], settings.stageOrder)}
             onComplete={() => setPhase("quiz")}
           />
         )}
