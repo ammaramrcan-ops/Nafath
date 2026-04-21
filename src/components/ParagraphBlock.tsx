@@ -64,6 +64,8 @@ export function ParagraphBlockCard({
   const [recallText, setRecallText] = useState("");
   const recallRef = useRef<HTMLTextAreaElement>(null);
 
+  const stage = STAGES[idx].key;
+
   // Time gating
   const intervalEnabled = block.enable_stage_intervals?.[stage] ?? true;
   const timeGateSeconds = block.stage_intervals?.[stage] ?? block.stage_interval ?? DEFAULT_TIME_GATE_SECONDS;
@@ -74,8 +76,6 @@ export function ParagraphBlockCard({
   // Bored button
   const [showBoredModal, setShowBoredModal] = useState(false);
   const [boredTip, setBoredTip] = useState(BOREDOM_TIPS[0]);
-
-  const stage = STAGES[idx].key;
 
   const recallWordCount = recallText.trim().split(/\s+/).filter(Boolean).length;
   const recallReady = recallWordCount >= MIN_RECALL_WORDS;

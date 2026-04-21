@@ -180,6 +180,20 @@ function TeacherPage() {
               قالب نموذج فقط
             </button>
             <button
+              onClick={() => {
+                if (window.confirm("هل أنت متأكد من مسح الدرس الحالي للبدء من جديد؟")) {
+                  const empty = emptyLesson();
+                  setLesson(empty);
+                  setStep(0);
+                  localStorage.removeItem(STORAGE_KEY);
+                  setLibSaved(false);
+                }
+              }}
+              className="rounded-full border border-border bg-background px-3 py-1.5 text-xs font-semibold text-destructive/80 hover:bg-destructive/10"
+            >
+              مسح وبدء من جديد
+            </button>
+            <button
               onClick={handleSaveToLibrary}
               className={cn(
                 "inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs font-semibold transition",
@@ -189,12 +203,6 @@ function TeacherPage() {
               )}
             >
               {libSaved ? "✓ حُفظ في المكتبة" : "📚 حفظ في المكتبة"}
-            </button>
-            <button
-              onClick={handleSave}
-              className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:border-brand/50"
-            >
-              <Save className="h-3.5 w-3.5" /> حفظ
             </button>
           </div>
         </div>
@@ -516,7 +524,7 @@ function StagesEditor({
               </div>
               {isOn && (
                 <div className="border-t border-border/60 px-4 py-3">
-                  <StageIntervalSettings stage={stage} block={block} onChange={onChange} />
+                  <StageContentField stage={stage} block={block} onChange={onChange} />
                 </div>
               )}
             </div>
@@ -547,6 +555,7 @@ function StageContentField({
               placeholder="مثال: النباتات تصنع طعامها بنفسها باستخدام الضوء."
             />
           </Field>
+          <StageIntervalSettings stage={stage} block={block} onChange={onChange} />
         </div>
       );
     case "story":
@@ -560,6 +569,7 @@ function StageContentField({
               placeholder="اكتب قصة تربط المفهوم بموقف واقعي..."
             />
           </Field>
+          <StageIntervalSettings stage={stage} block={block} onChange={onChange} />
         </div>
       );
     case "examples":
@@ -573,6 +583,7 @@ function StageContentField({
               placeholder="مثال: مثل شجرة التفاح التي تبني خشبها وثمارها من الهواء والماء."
             />
           </Field>
+          <StageIntervalSettings stage={stage} block={block} onChange={onChange} />
         </div>
       );
     case "original":
@@ -593,6 +604,7 @@ function StageContentField({
             url={block.visual_url ?? ""}
             onChange={(visual_url) => onChange({ visual_url })}
           />
+          <StageIntervalSettings stage={stage} block={block} onChange={onChange} />
         </div>
       );
     case "mental":
@@ -612,6 +624,7 @@ function StageContentField({
               placeholder="مثال: النبات كائن فضائي بيشرب من رجله!"
             />
           </Field>
+          <StageIntervalSettings stage={stage} block={block} onChange={onChange} />
         </div>
       );
     case "mindmap":
@@ -631,6 +644,7 @@ function StageContentField({
               placeholder="ذاتي التغذية، صنع الغذاء، طاقة الشمس"
             />
           </Field>
+          <StageIntervalSettings stage={stage} block={block} onChange={onChange} />
         </div>
       );
   }

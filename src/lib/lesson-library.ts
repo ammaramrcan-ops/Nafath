@@ -1,4 +1,4 @@
-import { type Lesson } from "@/lib/lesson-data";
+import { type Lesson, normalizeLesson } from "@/lib/lesson-data";
 
 export type SavedLesson = {
   id: string;
@@ -15,7 +15,11 @@ function readLibrary(): SavedLesson[] {
   try {
     const raw = localStorage.getItem(LIBRARY_KEY);
     if (!raw) return [];
-    return JSON.parse(raw) as SavedLesson[];
+    const parsed = JSON.parse(raw) as SavedLesson[];
+    return parsed.map((entry) => ({
+      ...entry,
+      data: normalizeLesson(entry.data),
+    }));
   } catch {
     return [];
   }
