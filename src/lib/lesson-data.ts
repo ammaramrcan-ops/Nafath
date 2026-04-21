@@ -67,6 +67,48 @@ export function normalizeBlock(raw: any, idx: number): ParagraphBlock {
       ? [q.essay]
       : [];
 
+  let enabled_stages = Array.isArray(raw?.enabled_stages)
+    ? (raw.enabled_stages as Stage[])
+    : undefined;
+  const stage_intervals = raw?.stage_intervals ?? {};
+  const enable_stage_intervals = raw?.enable_stage_intervals ?? {};
+
+  if (raw?.stages) {
+    enabled_stages = [];
+    const order = Array.isArray(raw?.stage_order) ? (raw.stage_order as Stage[]) : DEFAULT_STAGE_ORDER;
+    
+    for (const stage of order) {
+      const sData = raw.stages[stage];
+      if (sData) {
+        if (sData.isActive !== false) {
+          enabled_stages.push(stage);
+        }
+        if (typeof sData.intervalDuration === "number") {
+          stage_intervals[stage] = sData.intervalDuration;
+          enable_stage_intervals[stage] = true;
+        }
+      } else {
+        // If stage is missing in new format but present in order, default to active
+        enabled_stages.push(stage);
+      }
+    }
+
+    if (raw.stages.short) raw.short_sentence = raw.stages.short.content ?? raw.short_sentence;
+    if (raw.stages.story) raw.story = raw.stages.story.content ?? raw.story;
+    if (raw.stages.examples) raw.examples = raw.stages.examples.content ?? raw.examples;
+    if (raw.stages.original) {
+      raw.full_text = raw.stages.original.content ?? raw.full_text;
+      raw.visual_url = raw.stages.original.visual_url ?? raw.visual_url;
+    }
+    if (raw.stages.mental) {
+      raw.mnemonic = raw.stages.mental.mnemonic ?? raw.mnemonic;
+      raw.funny_link = raw.stages.mental.funny_link ?? raw.funny_link;
+    }
+    if (raw.stages.mindmap) {
+      raw.mind_map_nodes = raw.stages.mindmap.nodes ?? raw.mind_map_nodes;
+    }
+  }
+
   return {
     id: typeof raw?.id === "number" ? raw.id : idx + 1,
     title: raw?.title ?? "",
@@ -80,9 +122,7 @@ export function normalizeBlock(raw: any, idx: number): ParagraphBlock {
     mind_map_nodes: Array.isArray(raw?.mind_map_nodes) ? raw.mind_map_nodes : [],
     visual_url: raw?.visual_url ?? "",
     stage_visuals: raw?.stage_visuals ?? {},
-    enabled_stages: Array.isArray(raw?.enabled_stages)
-      ? (raw.enabled_stages as Stage[])
-      : undefined,
+    enabled_stages,
     stage_order: Array.isArray(raw?.stage_order)
       ? (raw.stage_order as Stage[])
       : undefined,
@@ -91,8 +131,8 @@ export function normalizeBlock(raw: any, idx: number): ParagraphBlock {
     enable_break: raw?.enable_break ?? true,
     break_duration: raw?.break_duration ?? 60,
     stage_interval: raw?.stage_interval ?? 15,
-    stage_intervals: raw?.stage_intervals ?? {},
-    enable_stage_intervals: raw?.enable_stage_intervals ?? {},
+    stage_intervals,
+    enable_stage_intervals,
   };
 }
 

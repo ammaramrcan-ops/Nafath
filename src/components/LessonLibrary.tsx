@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { BookOpen, Trash2, Play, Upload, Clock } from "lucide-react";
+import { BookOpen, Trash2, Play, Upload, Clock, Pencil } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
 import {
   getLibrary,
   deleteFromLibrary,
@@ -18,6 +19,7 @@ export function LessonLibrary({ onOpen }: { onOpen: (lesson: Lesson) => void }) 
   const [library, setLibrary] = useState<SavedLesson[]>([]);
   const [importError, setImportError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
 
   const refresh = () => setLibrary(getLibrary());
 
@@ -32,6 +34,15 @@ export function LessonLibrary({ onOpen }: { onOpen: (lesson: Lesson) => void }) 
   const handleDelete = (id: string) => {
     deleteFromLibrary(id);
     refresh();
+  };
+
+  const handleEdit = (lesson: Lesson) => {
+    try {
+      localStorage.setItem("teacher.lesson.draft", JSON.stringify(lesson));
+      navigate({ to: "/teacher" });
+    } catch {
+      console.error("Failed to save draft and navigate");
+    }
   };
 
   const handleImportFile = (file: File) => {
@@ -134,8 +145,17 @@ export function LessonLibrary({ onOpen }: { onOpen: (lesson: Lesson) => void }) 
               </button>
               <div className="w-px bg-border/60" />
               <button
+                onClick={() => handleEdit(saved.data)}
+                className="flex items-center justify-center gap-1 px-4 py-2.5 text-xs font-semibold text-foreground/70 transition hover:bg-muted hover:text-foreground"
+                title="تعديل في واجهة المعلم"
+              >
+                <Pencil className="h-3.5 w-3.5" />
+              </button>
+              <div className="w-px bg-border/60" />
+              <button
                 onClick={() => handleDelete(saved.id)}
                 className="flex items-center justify-center gap-1 px-4 py-2.5 text-xs font-semibold text-destructive transition hover:bg-destructive/5"
+                title="حذف"
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </button>
