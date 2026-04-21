@@ -25,7 +25,7 @@ import { saveToLibrary } from "@/lib/lesson-library";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-type FillStage = Stage | "quizzes_mcq_fill" | "quizzes_essay";
+type FillStage = Stage | "quizzes_mcq" | "quizzes_fill" | "quizzes_essay";
 
 export const Route = createFileRoute("/teacher")({
   component: TeacherPage,
@@ -348,7 +348,12 @@ function BlockStep({
   const [activeStage, setActiveStage] = useState<FillStage | null>(null);
   const previewStages = useMemo(() => {
     const base = effectiveStages(block, settings.stageOrder) as FillStage[];
-    return block.quiz_enabled === false ? base : [...base, "quizzes_mcq_fill", "quizzes_essay"];
+    if (block.quiz_enabled === false) return base;
+    const quizStages: FillStage[] = [];
+    if (block.quizzes.mcqs.length > 0 || true) quizStages.push("quizzes_mcq");
+    if (block.quizzes.fills.length > 0 || true) quizStages.push("quizzes_fill");
+    if (block.quizzes.essays.length > 0 || true) quizStages.push("quizzes_essay");
+    return [...base, ...quizStages];
   }, [block, settings.stageOrder]);
 
   useEffect(() => {
@@ -718,7 +723,8 @@ function ContentFillSurface({
 }) {
   const selectedIndex = selectedStage ? activeStages.indexOf(selectedStage) : -1;
   const stage = selectedStage ?? activeStages[0];
-  const timedStage = stage && stage !== "quizzes_mcq_fill" && stage !== "quizzes_essay" ? stage : null;
+  const isQuizStage = stage === "quizzes_mcq" || stage === "quizzes_fill" || stage === "quizzes_essay";
+  const timedStage = stage && !isQuizStage ? stage : null;
   const stageEnabled = timedStage ? (block.enable_stage_intervals?.[timedStage] ?? true) : true;
   const stageDuration = timedStage ? (block.stage_intervals?.[timedStage] ?? 15) : 15;
   const stageImage = stage ? getStageImage(block, stage) : "";
@@ -771,12 +777,19 @@ function ContentFillSurface({
           </div>
 
           <div className="min-h-[62vh] px-6 py-8 sm:px-10">
-            {stage === "quizzes_mcq_fill" ? (
+            {stage === "quizzes_mcq" ? (
               <div className="mx-auto max-w-3xl">
                 {stageImage && (
                   <img src={stageImage} alt="صورة مرحلة الأسئلة" className="mb-4 h-40 w-full rounded-2xl object-cover" />
                 )}
-                <QuizzesEditor block={block} onChange={onChange} type="mcq_fill" />
+                <QuizzesEditor block={block} onChange={onChange} type="mcq" />
+              </div>
+            ) : stage === "quizzes_fill" ? (
+              <div className="mx-auto max-w-3xl">
+                {stageImage && (
+                  <img src={stageImage} alt="صورة مرحلة الأسئلة" className="mb-4 h-40 w-full rounded-2xl object-cover" />
+                )}
+                <QuizzesEditor block={block} onChange={onChange} type="fill" />
               </div>
             ) : stage === "quizzes_essay" ? (
               <div className="mx-auto max-w-3xl">
@@ -794,7 +807,7 @@ function ContentFillSurface({
             <div className="absolute bottom-4 right-4 z-10 w-36 rounded-xl border border-border bg-background/95 p-2 shadow-sm backdrop-blur">
               <p className="text-[10px] font-semibold text-foreground">صورة الشريحة</p>
               <ImageUploaderCompact url={stageImage} onChange={patchStageImage} />
-              {stage !== "quizzes_mcq_fill" && stage !== "quizzes_essay" && (
+              {!isQuizStage && (
                 <>
               <p className="text-[10px] font-semibold text-foreground">الفاصل الزمني</p>
               <p className="mt-0.5 text-[9px] text-foreground/60">قفل للطالب فقط</p>
@@ -831,9 +844,10 @@ function ContentFillSurface({
 }
 
 function getFillStageLabel(stage: FillStage): string {
-  if (stage === "quizzes_mcq_fill") return "أسئلة: اختر وأكمل";
+  if (stage === "quizzes_mcq")   return "أسئلة: اختر من متعدد";
+  if (stage === "quizzes_fill")  return "أسئلة: إكمال الفراغ";
   if (stage === "quizzes_essay") return "أسئلة: مقالي";
-  return STAGE_LABELS[stage];
+  return STAGE_LABELS[stage as Stage];
 }
 
 function getStageImage(block: ParagraphBlock, stage: FillStage): string {
@@ -1032,22 +1046,22 @@ function QuizzesEditor({
 }: {
   block: ParagraphBlock;
   onChange: (patch: Partial<ParagraphBlock>) => void;
-  type: "mcq_fill" | "essay";
+  type: "mcq" | "fill" | "essay";
 }) {
   const setQuizzes = (patch: Partial<ParagraphBlock["quizzes"]>) =>
     onChange({ quizzes: { ...block.quizzes, ...patch } });
 
   const total =
-    type === "mcq_fill"
-      ? block.quizzes.mcqs.length + block.quizzes.fills.length
-      : block.quizzes.essays.length;
+    type === "mcq"   ? block.quizzes.mcqs.length
+    : type === "fill" ? block.quizzes.fills.length
+    : block.quizzes.essays.length;
 
   return (
     <Section
       title={`أسئلة المراجعة (${total})`}
       subtitle="أضف أي عدد من الأسئلة. اترك الأقسام فارغة إذا لم ترغب باستخدامها."
     >
-      {type === "mcq_fill" ? (
+      {type === "mcq" ? (
         <div className="space-y-10">
           {/* MCQs */}
           <SubSection
@@ -1163,9 +1177,81 @@ function QuizzesEditor({
             </div>
           </SubSection>
         </div>
+      ) : type === "fill" ? (
+        <div className="space-y-10">
+          <SubSection
+            title="إكمال الفراغ"
+            action={
+              <button
+                type="button"
+                onClick={() =>
+                  setQuizzes({
+                    fills: [...block.quizzes.fills, { question: "", answer: "", image_url: "" }],
+                  })
+                }
+                className="inline-flex items-center gap-1 rounded-full border border-dashed border-border bg-background px-3 py-1 text-xs font-semibold text-foreground/70 hover:border-brand/60"
+              >
+                <Plus className="h-3.5 w-3.5" /> سؤال
+              </button>
+            }
+          >
+            {block.quizzes.fills.length === 0 && <EmptyHint text="لا توجد أسئلة إكمال بعد." />}
+            <div className="space-y-3">
+              {block.quizzes.fills.map((q, i) => (
+                <div key={i} className="space-y-2 rounded-2xl border border-border bg-background p-3">
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs font-bold text-foreground/70">سؤال {i + 1}</div>
+                    <button
+                      onClick={() =>
+                        setQuizzes({ fills: block.quizzes.fills.filter((_, j) => j !== i) })
+                      }
+                      className="rounded-lg p-1.5 text-destructive hover:bg-destructive/5"
+                      aria-label="حذف"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <Field label="السؤال (استخدم ____ مكان الفراغ)">
+                    <Input
+                      value={q.question}
+                      onChange={(e) =>
+                        setQuizzes({
+                          fills: block.quizzes.fills.map((it, j) =>
+                            j === i ? { ...it, question: e.target.value } : it,
+                          ),
+                        })
+                      }
+                    />
+                  </Field>
+                  <QuestionImageEditor
+                    imageUrl={q.image_url ?? ""}
+                    onChange={(image_url) =>
+                      setQuizzes({
+                        fills: block.quizzes.fills.map((it, j) =>
+                          j === i ? { ...it, image_url } : it,
+                        ),
+                      })
+                    }
+                  />
+                  <Field label="الإجابة">
+                    <Input
+                      value={q.answer}
+                      onChange={(e) =>
+                        setQuizzes({
+                          fills: block.quizzes.fills.map((it, j) =>
+                            j === i ? { ...it, answer: e.target.value } : it,
+                          ),
+                        })
+                      }
+                    />
+                  </Field>
+                </div>
+              ))}
+            </div>
+          </SubSection>
+        </div>
       ) : (
         <div className="space-y-10">
-          {/* Essays */}
           <SubSection
             title="أسئلة مقالية / علّل"
             action={

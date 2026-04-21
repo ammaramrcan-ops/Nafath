@@ -50,63 +50,69 @@ export type Lesson = {
 
 /** Normalize legacy block shape (singular mcq/fill/essay) into new array form. */
 export function normalizeBlock(raw: any, idx: number): ParagraphBlock {
-  const q = raw?.quizzes ?? {};
-  const mcqs: MCQ[] = Array.isArray(q.mcqs)
-    ? q.mcqs
-    : q.mcq && (q.mcq.question || q.mcq.answer)
-      ? [q.mcq]
-      : [];
-  const fills: Fill[] = Array.isArray(q.fills)
-    ? q.fills
-    : q.fill && (q.fill.question || q.fill.answer)
-      ? [q.fill]
-      : [];
-  const essays: Essay[] = Array.isArray(q.essays)
-    ? q.essays
-    : q.essay && (q.essay.question || (q.essay.keywords?.length ?? 0) > 0)
-      ? [q.essay]
-      : [];
+  // ── Resolve quiz content from either new per-stage or legacy flat structure ──
+  const s = raw?.stages ?? {};
+
+  // MCQ: stages.quizzes_mcq.content[] > stages.quizzes.content.mcq[] > quizzes.mcqs[]
+  const mcqSrc = s.quizzes_mcq?.content ?? s.quizzes?.content?.mcq ?? raw?.quizzes?.mcqs ?? raw?.quizzes?.mcq;
+  const mcqs: MCQ[] = Array.isArray(mcqSrc) ? mcqSrc : mcqSrc && (mcqSrc.question || mcqSrc.answer) ? [mcqSrc] : [];
+
+  // Fill: stages.quizzes_fill.content[] > stages.quizzes.content.fill_in_blank[] > quizzes.fills[]
+  const fillSrc = s.quizzes_fill?.content ?? s.quizzes?.content?.fill_in_blank ?? raw?.quizzes?.fills ?? raw?.quizzes?.fill;
+  const fills: Fill[] = Array.isArray(fillSrc) ? fillSrc : fillSrc && (fillSrc.question || fillSrc.answer) ? [fillSrc] : [];
+
+  // Essay: stages.quizzes_essay.content[] > stages.quizzes.content.essay[] > quizzes.essays[]
+  const essaySrc = s.quizzes_essay?.content ?? s.quizzes?.content?.essay ?? raw?.quizzes?.essays ?? raw?.quizzes?.essay;
+  const essays: Essay[] = Array.isArray(essaySrc) ? essaySrc : essaySrc && essaySrc.question ? [essaySrc] : [];
+
+  // quiz_enabled: false only when ALL three quiz stages are inactive
+  let quiz_enabled = raw?.quiz_enabled ?? true;
+  if (s.quizzes_mcq || s.quizzes_fill || s.quizzes_essay) {
+    const anyActive =
+      s.quizzes_mcq?.isActive !== false ||
+      s.quizzes_fill?.isActive !== false ||
+      s.quizzes_essay?.isActive !== false;
+    quiz_enabled = anyActive;
+  } else if (s.quizzes && typeof s.quizzes.isActive === "boolean") {
+    quiz_enabled = s.quizzes.isActive;
+  }
 
   let enabled_stages = Array.isArray(raw?.enabled_stages)
     ? (raw.enabled_stages as Stage[])
     : undefined;
-  const stage_intervals = raw?.stage_intervals ?? {};
-  const enable_stage_intervals = raw?.enable_stage_intervals ?? {};
+  const stage_intervals: Partial<Record<Stage, number>> = { ...(raw?.stage_intervals ?? {}) };
+  const enable_stage_intervals: Partial<Record<Stage, boolean>> = { ...(raw?.enable_stage_intervals ?? {}) };
 
   if (raw?.stages) {
     enabled_stages = [];
     const order = Array.isArray(raw?.stage_order) ? (raw.stage_order as Stage[]) : DEFAULT_STAGE_ORDER;
-    
+
     for (const stage of order) {
-      const sData = raw.stages[stage];
+      const sData = raw.stages[stage as Stage];
       if (sData) {
-        if (sData.isActive !== false) {
-          enabled_stages.push(stage);
-        }
+        if (sData.isActive !== false) enabled_stages.push(stage);
         if (typeof sData.intervalDuration === "number") {
           stage_intervals[stage] = sData.intervalDuration;
-          enable_stage_intervals[stage] = true;
+          enable_stage_intervals[stage] = sData.intervalDuration > 0;
         }
       } else {
-        // If stage is missing in new format but present in order, default to active
-        enabled_stages.push(stage);
+        enabled_stages.push(stage); // default to active when key absent
       }
     }
 
-    if (raw.stages.short) raw.short_sentence = raw.stages.short.content ?? raw.short_sentence;
-    if (raw.stages.story) raw.story = raw.stages.story.content ?? raw.story;
-    if (raw.stages.examples) raw.examples = raw.stages.examples.content ?? raw.examples;
-    if (raw.stages.original) {
-      raw.full_text = raw.stages.original.content ?? raw.full_text;
-      raw.visual_url = raw.stages.original.visual_url ?? raw.visual_url;
+    // Map stage content into flat fields
+    if (s.short)    raw.short_sentence  = s.short.content   ?? raw.short_sentence;
+    if (s.story)    raw.story           = s.story.content   ?? raw.story;
+    if (s.examples) raw.examples        = s.examples.content ?? raw.examples;
+    if (s.original) {
+      raw.full_text  = s.original.content   ?? raw.full_text;
+      raw.visual_url = s.original.visual_url ?? raw.visual_url;
     }
-    if (raw.stages.mental) {
-      raw.mnemonic = raw.stages.mental.mnemonic ?? raw.mnemonic;
-      raw.funny_link = raw.stages.mental.funny_link ?? raw.funny_link;
+    if (s.mental) {
+      raw.mnemonic   = s.mental.mnemonic   ?? raw.mnemonic;
+      raw.funny_link = s.mental.funny_link ?? raw.funny_link;
     }
-    if (raw.stages.mindmap) {
-      raw.mind_map_nodes = raw.stages.mindmap.nodes ?? raw.mind_map_nodes;
-    }
+    if (s.mindmap) raw.mind_map_nodes = s.mindmap.nodes ?? raw.mind_map_nodes;
   }
 
   return {
@@ -127,7 +133,7 @@ export function normalizeBlock(raw: any, idx: number): ParagraphBlock {
       ? (raw.stage_order as Stage[])
       : undefined,
     quizzes: { mcqs, fills, essays },
-    quiz_enabled: raw?.quiz_enabled ?? true,
+    quiz_enabled,
     enable_break: raw?.enable_break ?? true,
     break_duration: raw?.break_duration ?? 60,
     stage_interval: raw?.stage_interval ?? 15,
