@@ -2,10 +2,11 @@ import { useState, useRef, useEffect } from "react";
 import { ChevronRight, ChevronLeft, RotateCcw, Brain, CircleAlert as AlertCircle, Lightbulb } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
-import type { ParagraphBlock as Block, HardWord } from "@/lib/lesson-data";
+import type { ParagraphBlock as Block } from "@/lib/lesson-data";
 import { HardWordText } from "./HardWordText";
 import { MindMap } from "./MindMap";
 import { cn } from "@/lib/utils";
+import { DEFAULT_STAGE_ORDER, STAGE_LABELS, type Stage } from "@/lib/settings";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -45,69 +46,19 @@ const BOREDOM_TIPS = [
   },
 ];
 
-function ObfuscatedText({
-  text,
-  words,
-  obfuscate,
-}: {
-  text: string;
-  words: HardWord[];
-  obfuscate: boolean;
-}) {
-  if (!words.length) {
-    return (
-      <span style={{ whiteSpace: "pre-wrap", wordSpacing: "0.4em", lineHeight: 2.4 }}>
-        {text}
-      </span>
-    );
-  }
-
-  const sorted = [...words].sort((a, b) => b.word.length - a.word.length);
-  const escaped = sorted.map((w) => w.word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
-  const regex = new RegExp(`(${escaped.join("|")})`, "g");
-  const parts = text.split(regex);
-
-  return (
-    <span style={{ whiteSpace: "pre-wrap", wordSpacing: "0.4em", lineHeight: 2.4 }}>
-      {parts.map((part, i) => {
-        const match = words.find((w) => w.word === part);
-        if (!match) return <span key={i}>{part}</span>;
-        return (
-          <motion.span
-            key={i}
-            animate={obfuscate ? { filter: "blur(6px)", opacity: 0.4 } : { filter: "blur(0px)", opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            className="font-semibold text-brand"
-          >
-            {part}
-          </motion.span>
-        );
-      })}
-    </span>
-  );
-}
-
-type Stage = "short" | "examples" | "original" | "mental" | "mindmap";
-
-const STAGES: { key: Stage; label: string }[] = [
-  { key: "short", label: "الجملة المبسطة" },
-  { key: "examples", label: "أمثلة توضيحية" },
-  { key: "original", label: "النص الأصلي" },
-  { key: "mental", label: "رابط ذهني" },
-  { key: "mindmap", label: "الخريطة الذهنية" },
-];
-
 export function ParagraphBlockCard({
   block,
   onComplete,
+  stageOrder = DEFAULT_STAGE_ORDER,
 }: {
   block: Block;
   onComplete: () => void;
+  stageOrder?: Stage[];
 }) {
+  const STAGES = stageOrder.map((key) => ({ key, label: STAGE_LABELS[key] }));
   const [started, setStarted] = useState(false);
   const [idx, setIdx] = useState(0);
   const [recallText, setRecallText] = useState("");
-  const [isRecallFocused, setIsRecallFocused] = useState(false);
   const recallRef = useRef<HTMLTextAreaElement>(null);
 
   // Time gating
@@ -140,7 +91,7 @@ export function ParagraphBlockCard({
     setSpeedChecked(false);
   }, [stage]);
 
-  // Stage 1 — short sentence with CTA
+  // Intro — short sentence teaser before entering the stage flow
   if (!started) {
     return (
       <div className="mx-auto flex min-h-[60vh] max-w-2xl flex-col items-center justify-center px-6 py-16 text-center">
@@ -150,7 +101,7 @@ export function ParagraphBlockCard({
         <button
           onClick={() => {
             setStarted(true);
-            setIdx(1); // skip "short" since user just saw it
+            setIdx(0);
           }}
           className="mt-12 rounded-full bg-brand px-8 py-4 text-base text-brand-foreground shadow-[var(--shadow-soft)] hover:bg-brand/90"
         >
@@ -192,7 +143,6 @@ export function ParagraphBlockCard({
             setStarted(false);
             setIdx(0);
             setRecallText("");
-            setIsRecallFocused(false);
           }}
           className="inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-sm text-foreground/60 hover:bg-muted"
         >
@@ -250,12 +200,34 @@ export function ParagraphBlockCard({
                   />
                 </div>
               )}
-              <div className="text-lg text-foreground/85">
-                <ObfuscatedText
-                  text={block.full_text}
-                  words={block.hard_words}
-                  obfuscate={isRecallFocused}
-                />
+              <div className="relative text-lg text-foreground/85">
+                <motion.div
+                  animate={
+                    recallText.length > 0
+                      ? { filter: "blur(10px)", opacity: 0.15 }
+                      : { filter: "blur(0px)", opacity: 1 }
+                  }
+                  transition={{ duration: 0.35 }}
+                  aria-hidden={recallText.length > 0}
+                >
+                  <HardWordText text={block.full_text} words={block.hard_words} />
+                </motion.div>
+
+                <AnimatePresence>
+                  {recallText.length > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.25 }}
+                      className="pointer-events-none absolute inset-0 flex items-center justify-center"
+                    >
+                      <div className="rounded-2xl bg-card/80 px-5 py-3 text-sm font-semibold text-foreground/70 shadow-sm backdrop-blur">
+                        النص مخفي — استرجع من ذاكرتك ✍️
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               {/* Active Recall Box */}
@@ -267,14 +239,12 @@ export function ParagraphBlockCard({
                   </p>
                 </div>
                 <p className="mb-4 text-xs text-foreground/50">
-                  ستُعتَم الكلمات المفتاحية بمجرد بدء الكتابة — استرجع من ذاكرتك!
+                  سيختفي النص الأصلي تماماً بمجرد كتابة أول حرف — اعتمد على ذاكرتك!
                 </p>
                 <textarea
                   ref={recallRef}
                   value={recallText}
                   onChange={(e) => setRecallText(e.target.value)}
-                  onFocus={() => setIsRecallFocused(true)}
-                  onBlur={() => setIsRecallFocused(false)}
                   placeholder="اكتب هنا بأسلوبك الخاص..."
                   rows={4}
                   className="w-full resize-none rounded-2xl border border-brand/20 bg-background px-4 py-3 text-base leading-relaxed text-foreground placeholder:text-foreground/30 focus:outline-none focus:ring-2 focus:ring-brand/40"

@@ -6,6 +6,7 @@ import { ParagraphBlockCard } from "@/components/ParagraphBlock";
 import { QuizSection } from "@/components/QuizSection";
 import { BreathingBreak } from "@/components/BreathingBreak";
 import { EndScreen } from "@/components/EndScreen";
+import { useSettings } from "@/lib/settings";
 
 type Phase = "welcome" | "lesson" | "quiz" | "break" | "done";
 
@@ -20,6 +21,7 @@ export function LessonFlow({
 }) {
   const [phase, setPhase] = useState<Phase>("welcome");
   const [blockIdx, setBlockIdx] = useState(0);
+  const { settings } = useSettings();
 
   return (
     <AnimatePresence mode="wait">
@@ -38,6 +40,7 @@ export function LessonFlow({
           <ParagraphBlockCard
             key={lesson.blocks[blockIdx].id}
             block={lesson.blocks[blockIdx]}
+            stageOrder={settings.stageOrder}
             onComplete={() => setPhase("quiz")}
           />
         )}

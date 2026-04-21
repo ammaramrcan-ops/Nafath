@@ -342,30 +342,95 @@ function BlockEditor({
             }
           />
         </Field>
-        <div className="grid gap-3 sm:grid-cols-3">
-          {block.quizzes.mcq.options.map((opt, i) => (
-            <Field key={i} label={`الخيار ${i + 1}`}>
-              <Input
-                value={opt}
-                onChange={(e) => {
-                  const opts = [...block.quizzes.mcq.options];
-                  opts[i] = e.target.value;
-                  updateQuiz({ mcq: { ...block.quizzes.mcq, options: opts } });
-                }}
-              />
-            </Field>
-          ))}
-        </div>
-        <Field label="الإجابة الصحيحة (يجب أن تطابق أحد الخيارات)">
-          <Input
-            value={block.quizzes.mcq.answer}
-            onChange={(e) =>
+        <div className="space-y-2">
+          <div className="text-sm font-semibold text-foreground/80">الخيارات</div>
+          {block.quizzes.mcq.options.map((opt, i) => {
+            const isAnswer =
+              opt.trim().length > 0 &&
+              opt.trim() === block.quizzes.mcq.answer.trim();
+            return (
+              <div key={i} className="flex items-center gap-2">
+                <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-soft text-sm font-bold text-brand">
+                  {i + 1}
+                </span>
+                <Input
+                  value={opt}
+                  placeholder={`الخيار ${i + 1}`}
+                  onChange={(e) => {
+                    const opts = [...block.quizzes.mcq.options];
+                    const oldVal = opts[i];
+                    opts[i] = e.target.value;
+                    const patch: Partial<typeof block.quizzes> = {
+                      mcq: { ...block.quizzes.mcq, options: opts },
+                    };
+                    if (
+                      block.quizzes.mcq.answer &&
+                      block.quizzes.mcq.answer === oldVal
+                    ) {
+                      patch.mcq = { ...patch.mcq!, answer: e.target.value };
+                    }
+                    updateQuiz(patch);
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const opts = [...block.quizzes.mcq.options];
+                    const removed = opts.splice(i, 1)[0];
+                    const patch: Partial<typeof block.quizzes> = {
+                      mcq: { ...block.quizzes.mcq, options: opts },
+                    };
+                    if (block.quizzes.mcq.answer === removed) {
+                      patch.mcq = { ...patch.mcq!, answer: "" };
+                    }
+                    updateQuiz(patch);
+                  }}
+                  disabled={block.quizzes.mcq.options.length <= 2}
+                  className="rounded-xl border border-destructive/40 p-2 text-destructive transition hover:bg-destructive/5 disabled:opacity-30"
+                  aria-label="حذف الخيار"
+                  title={
+                    block.quizzes.mcq.options.length <= 2
+                      ? "يجب وجود خيارين على الأقل"
+                      : "حذف الخيار"
+                  }
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    updateQuiz({
+                      mcq: { ...block.quizzes.mcq, answer: opt },
+                    })
+                  }
+                  disabled={!opt.trim()}
+                  className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                    isAnswer
+                      ? "border-success bg-success-soft text-success"
+                      : "border-border text-foreground/60 hover:border-success/40 hover:text-foreground"
+                  } disabled:opacity-30`}
+                >
+                  {isAnswer ? "✓ الإجابة" : "تعيين كإجابة"}
+                </button>
+              </div>
+            );
+          })}
+          <button
+            type="button"
+            onClick={() =>
               updateQuiz({
-                mcq: { ...block.quizzes.mcq, answer: e.target.value },
+                mcq: {
+                  ...block.quizzes.mcq,
+                  options: [...block.quizzes.mcq.options, ""],
+                },
               })
             }
-          />
-        </Field>
+            className="inline-flex items-center gap-2 rounded-full border border-dashed border-border bg-background px-4 py-2 text-sm font-semibold text-foreground/70 hover:border-brand/60 hover:text-foreground"
+          >
+            <Plus className="h-4 w-4" />
+            إضافة خيار
+          </button>
+        </div>
 
         <Field label="سؤال إكمال (استخدم ____ مكان الفراغ)">
           <Input
