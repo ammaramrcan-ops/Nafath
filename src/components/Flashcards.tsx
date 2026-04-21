@@ -26,7 +26,30 @@ function FlipCard({ front, back }: { front: string; back: string }) {
   );
 }
 
-export function Flashcards({ words, onRestart }: { words: HardWord[]; onRestart: () => void }) {
+export function Flashcards({
+  words,
+  onRestart,
+  embedded = false,
+}: {
+  words: HardWord[];
+  onRestart?: () => void;
+  embedded?: boolean;
+}) {
+  const grid =
+    words.length === 0 ? (
+      <p className="text-center text-foreground/50">لا توجد مصطلحات للمراجعة في هذا الدرس.</p>
+    ) : (
+      <div className="grid gap-5 sm:grid-cols-2">
+        {words.map((w, i) => (
+          <FlipCard key={`${w.word}-${i}`} front={w.word} back={w.meaning} />
+        ))}
+      </div>
+    );
+
+  if (embedded) {
+    return grid;
+  }
+
   return (
     <div className="mx-auto max-w-3xl px-6 py-16">
       <div className="mb-3 text-center text-5xl">🎉</div>
@@ -35,24 +58,18 @@ export function Flashcards({ words, onRestart }: { words: HardWord[]; onRestart:
         بطاقات المراجعة السريعة — انقر على البطاقة لقلبها
       </p>
 
-      {words.length === 0 ? (
-        <p className="text-center text-foreground/50">لا توجد مصطلحات للمراجعة في هذا الدرس.</p>
-      ) : (
-        <div className="grid gap-5 sm:grid-cols-2">
-          {words.map((w, i) => (
-            <FlipCard key={`${w.word}-${i}`} front={w.word} back={w.meaning} />
-          ))}
+      {grid}
+
+      {onRestart && (
+        <div className="mt-12 text-center">
+          <button
+            onClick={onRestart}
+            className="rounded-full bg-brand px-10 py-4 text-base font-semibold text-brand-foreground shadow-[var(--shadow-soft)] hover:bg-brand/90"
+          >
+            ابدأ درساً جديداً
+          </button>
         </div>
       )}
-
-      <div className="mt-12 text-center">
-        <button
-          onClick={onRestart}
-          className="rounded-full bg-brand px-10 py-4 text-base font-semibold text-brand-foreground shadow-[var(--shadow-soft)] hover:bg-brand/90"
-        >
-          ابدأ درساً جديداً
-        </button>
-      </div>
     </div>
   );
 }
