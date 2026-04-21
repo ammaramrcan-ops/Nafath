@@ -7,6 +7,7 @@ import { WelcomeScreen } from "@/components/WelcomeScreen";
 import { ParagraphBlockCard } from "@/components/ParagraphBlock";
 import { QuizSection } from "@/components/QuizSection";
 import { Flashcards } from "@/components/Flashcards";
+import { BreathingBreak } from "@/components/BreathingBreak";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -21,7 +22,7 @@ export const Route = createFileRoute("/")({
   }),
 });
 
-type Phase = "home" | "welcome" | "lesson" | "quiz" | "done";
+type Phase = "home" | "welcome" | "lesson" | "quiz" | "break" | "done";
 
 function Index() {
   const [lesson, setLesson] = useState<Lesson | null>(null);
@@ -76,13 +77,22 @@ function Index() {
               key={`quiz-${blockIdx}`}
               lesson={lesson}
               blockIdx={blockIdx}
+              isLast={blockIdx + 1 >= lesson.blocks.length}
               onNext={() => {
                 if (blockIdx + 1 >= lesson.blocks.length) {
                   setPhase("done");
                 } else {
-                  setBlockIdx((i) => i + 1);
-                  setPhase("lesson");
+                  setPhase("break");
                 }
+              }}
+            />
+          )}
+
+          {phase === "break" && lesson && (
+            <BreathingBreak
+              onComplete={() => {
+                setBlockIdx((i) => i + 1);
+                setPhase("lesson");
               }}
             />
           )}
@@ -99,14 +109,15 @@ function Index() {
 function QuizPhase({
   lesson,
   blockIdx,
+  isLast,
   onNext,
 }: {
   lesson: Lesson;
   blockIdx: number;
+  isLast: boolean;
   onNext: () => void;
 }) {
   const [passed, setPassed] = useState(false);
-  const isLast = blockIdx + 1 >= lesson.blocks.length;
   return (
     <div className="mx-auto max-w-2xl px-6 py-12">
       <QuizSection

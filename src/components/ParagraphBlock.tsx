@@ -1,12 +1,49 @@
-import { useState, useRef } from "react";
-import { ChevronRight, ChevronLeft, RotateCcw, Brain } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { ChevronRight, ChevronLeft, RotateCcw, Brain, CircleAlert as AlertCircle, Lightbulb } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { toast } from "sonner";
 import type { ParagraphBlock as Block, HardWord } from "@/lib/lesson-data";
 import { HardWordText } from "./HardWordText";
 import { MindMap } from "./MindMap";
 import { cn } from "@/lib/utils";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const MIN_RECALL_WORDS = 5;
+const TIME_GATE_SECONDS = 15;
+const SPEED_THRESHOLD_QUICK = 20; // seconds considered "too quick"
+const SPEED_THRESHOLD_SLOW = 45; // seconds considered "good pacing"
+
+const BOREDOM_TIPS = [
+  {
+    title: "حقيقة ممتعة",
+    content:
+      "الدماغ يحتفظ بـ 50% أكثر من المعلومات عندما تكون هناك فترات راحة بين التعلم!",
+  },
+  {
+    title: "نصيحة حركية",
+    content: "قف وامش قليلاً، حرك جسمك! تحسين تدفق الدم يعزز التركيز.",
+  },
+  {
+    title: "حقيقة العقل",
+    content: "العقل ينسى 70% من المعلومات في أول 24 ساعة — المراجعة ضرورية!",
+  },
+  {
+    title: "نصيحة التنفس",
+    content: "خذ نفساً عميقاً 4 ثوان، احبسه 4 ثوان، أفرج 4 ثوان — هدا!",
+  },
+  {
+    title: "حقيقة غريبة",
+    content: "الطلاب الذين يأخذون ملاحظات بخط اليد يتذكرون أكثر من الآخرين!",
+  },
+];
 
 function ObfuscatedText({
   text,
@@ -72,10 +109,36 @@ export function ParagraphBlockCard({
   const [recallText, setRecallText] = useState("");
   const [isRecallFocused, setIsRecallFocused] = useState(false);
   const recallRef = useRef<HTMLTextAreaElement>(null);
+
+  // Time gating
+  const [stageStartTime, setStageStartTime] = useState<number | null>(null);
+  const [timeGateRemaining, setTimeGateRemaining] = useState(TIME_GATE_SECONDS);
+  const [speedChecked, setSpeedChecked] = useState(false);
+
+  // Bored button
+  const [showBoredModal, setShowBoredModal] = useState(false);
+  const [boredTip, setBoredTip] = useState(BOREDOM_TIPS[0]);
+
   const stage = STAGES[idx].key;
 
   const recallWordCount = recallText.trim().split(/\s+/).filter(Boolean).length;
   const recallReady = recallWordCount >= MIN_RECALL_WORDS;
+  const timeGatePassed = timeGateRemaining <= 0;
+
+  // Time gate countdown
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeGateRemaining((prev) => Math.max(0, prev - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Reset stage time when stage changes
+  useEffect(() => {
+    setStageStartTime(Date.now());
+    setTimeGateRemaining(TIME_GATE_SECONDS);
+    setSpeedChecked(false);
+  }, [stage]);
 
   // Stage 1 — short sentence with CTA
   if (!started) {
@@ -98,6 +161,27 @@ export function ParagraphBlockCard({
   }
 
   const isLast = idx === STAGES.length - 1;
+
+  const handleNextClick = () => {
+    if (stage === "original" && !recallReady) return;
+
+    if (!speedChecked && stageStartTime) {
+      const elapsed = Math.floor((Date.now() - stageStartTime) / 1000);
+      setSpeedChecked(true);
+
+      if (elapsed <= SPEED_THRESHOLD_QUICK) {
+        toast("أنت تقرأ بسرعة كبيرة، تأكد من استيعاب التفاصيل 🧠", {
+          duration: 3000,
+        });
+      } else if (elapsed >= SPEED_THRESHOLD_SLOW) {
+        toast("تأنيك في القراءة يبني روابط ذهنية أقوى! 🌟", {
+          duration: 3000,
+        });
+      }
+    }
+
+    setIdx((i) => Math.min(STAGES.length - 1, i + 1));
+  };
 
   return (
     <div className="mx-auto max-w-2xl px-6 py-12">
@@ -249,7 +333,7 @@ export function ParagraphBlockCard({
       </AnimatePresence>
 
       {/* Nav */}
-      <div className="mt-12 flex items-center justify-between">
+      <div className="mt-12 flex items-center justify-between gap-3">
         <button
           onClick={() => setIdx((i) => Math.max(0, i - 1))}
           disabled={idx === 0}
@@ -259,9 +343,22 @@ export function ParagraphBlockCard({
           <ChevronRight className="h-5 w-5" />
         </button>
 
-        <span className="text-sm text-foreground/40">
-          {idx + 1} / {STAGES.length}
-        </span>
+        <div className="flex flex-col items-center gap-2">
+          <span className="text-sm text-foreground/40">
+            {idx + 1} / {STAGES.length}
+          </span>
+          {!timeGatePassed && (
+            <div className="flex items-center gap-2">
+              <motion.div
+                initial={{ scaleX: 1 }}
+                animate={{ scaleX: timeGateRemaining / TIME_GATE_SECONDS }}
+                transition={{ duration: 0.9 }}
+                className="h-1 w-16 origin-right rounded-full bg-brand/60"
+              />
+              <span className="text-xs text-foreground/50">{timeGateRemaining}s</span>
+            </div>
+          )}
+        </div>
 
         {isLast ? (
           <button
@@ -272,17 +369,24 @@ export function ParagraphBlockCard({
           </button>
         ) : (
           <button
-            onClick={() => {
-              if (stage === "original" && !recallReady) return;
-              setIdx((i) => Math.min(STAGES.length - 1, i + 1));
-            }}
-            disabled={stage === "original" && !recallReady}
-            title={stage === "original" && !recallReady ? "أكمل التفريغ الذهني أولاً" : undefined}
+            onClick={handleNextClick}
+            disabled={
+              (stage === "original" && !recallReady) || !timeGatePassed
+            }
+            title={
+              stage === "original" && !recallReady
+                ? "أكمل التفريغ الذهني أولاً"
+                : !timeGatePassed
+                  ? "انتظر قليلاً قبل المتابعة"
+                  : undefined
+            }
             className={cn(
               "flex h-12 w-12 items-center justify-center rounded-full border-2 bg-background text-foreground transition",
               stage === "original" && !recallReady
                 ? "border-border opacity-30 cursor-not-allowed"
-                : "border-border hover:border-brand/40",
+                : !timeGatePassed
+                  ? "border-brand/40 opacity-50 cursor-not-allowed"
+                  : "border-border hover:border-brand/40",
             )}
             aria-label="التالي"
           >
@@ -290,6 +394,50 @@ export function ParagraphBlockCard({
           </button>
         )}
       </div>
+
+      {/* Bored button */}
+      <div className="mt-6 flex justify-center">
+        <button
+          onClick={() => {
+            const randomTip = BOREDOM_TIPS[Math.floor(Math.random() * BOREDOM_TIPS.length)];
+            setBoredTip(randomTip);
+            setShowBoredModal(true);
+          }}
+          className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm text-foreground/50 transition hover:bg-muted hover:text-foreground"
+        >
+          <Lightbulb className="h-4 w-4" />
+          أشعر بالملل
+        </button>
+      </div>
+
+      {/* Bored Modal */}
+      <AlertDialog open={showBoredModal} onOpenChange={setShowBoredModal}>
+        <AlertDialogContent className="rounded-3xl">
+          <AlertDialogHeader className="text-center">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-brand-soft">
+              <Lightbulb className="h-6 w-6 text-brand" />
+            </div>
+            <AlertDialogTitle className="text-lg">{boredTip.title}</AlertDialogTitle>
+            <AlertDialogDescription className="mt-4 text-base leading-relaxed">
+              {boredTip.content}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="flex gap-3">
+            <AlertDialogCancel className="flex-1 rounded-full">
+              إغلاق
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                const randomTip = BOREDOM_TIPS[Math.floor(Math.random() * BOREDOM_TIPS.length)];
+                setBoredTip(randomTip);
+              }}
+              className="flex-1 rounded-full bg-brand hover:bg-brand/90"
+            >
+              نصيحة أخرى
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
