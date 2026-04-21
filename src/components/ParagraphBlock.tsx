@@ -5,8 +5,15 @@ import { toast } from "sonner";
 import type { ParagraphBlock as Block } from "@/lib/lesson-data";
 import { HardWordText } from "./HardWordText";
 import { MindMap } from "./MindMap";
+import { MindBreak } from "./MindBreak";
 import { cn } from "@/lib/utils";
-import { DEFAULT_STAGE_ORDER, STAGE_LABELS, type Stage } from "@/lib/settings";
+import {
+  DEFAULT_STAGE_ORDER,
+  STAGE_LABELS,
+  type Stage,
+  type StagePauseDurations,
+  buildPauseKey,
+} from "@/lib/settings";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -50,10 +57,12 @@ export function ParagraphBlockCard({
   block,
   onComplete,
   stageOrder = DEFAULT_STAGE_ORDER,
+  stagePauseDurations = {},
 }: {
   block: Block;
   onComplete: () => void;
   stageOrder?: Stage[];
+  stagePauseDurations?: StagePauseDurations;
 }) {
   const STAGES = stageOrder.map((key) => ({ key, label: STAGE_LABELS[key] }));
   const showIntro = STAGES.length > 0 && STAGES[0].key === "short" && block.short_sentence.trim().length > 0;
@@ -61,6 +70,14 @@ export function ParagraphBlockCard({
   const [idx, setIdx] = useState(0);
   const [recallText, setRecallText] = useState("");
   const recallRef = useRef<HTMLTextAreaElement>(null);
+
+  // Mind break between stages
+  const [mindBreak, setMindBreak] = useState<{
+    duration: number;
+    fromLabel: string;
+    toLabel: string;
+    nextIdx: number;
+  } | null>(null);
 
   // Time gating
   const [stageStartTime, setStageStartTime] = useState<number | null>(null);
@@ -91,6 +108,21 @@ export function ParagraphBlockCard({
     setTimeGateRemaining(TIME_GATE_SECONDS);
     setSpeedChecked(false);
   }, [stage]);
+
+  // Mind Break screen between stages
+  if (mindBreak) {
+    return (
+      <MindBreak
+        duration={mindBreak.duration}
+        fromLabel={mindBreak.fromLabel}
+        toLabel={mindBreak.toLabel}
+        onComplete={() => {
+          setIdx(mindBreak.nextIdx);
+          setMindBreak(null);
+        }}
+      />
+    );
+  }
 
   // Intro — short sentence teaser before entering the stage flow
   if (!started && showIntro) {
@@ -132,7 +164,22 @@ export function ParagraphBlockCard({
       }
     }
 
-    setIdx((i) => Math.min(STAGES.length - 1, i + 1));
+    const nextIdx = Math.min(STAGES.length - 1, idx + 1);
+
+    // Check if there's a mind break configured between current and next stage
+    const pauseKey = buildPauseKey(STAGES[idx].key, STAGES[nextIdx].key);
+    const pauseDuration = stagePauseDurations[pauseKey] ?? 0;
+
+    if (pauseDuration > 0 && nextIdx !== idx) {
+      setMindBreak({
+        duration: pauseDuration,
+        fromLabel: STAGES[idx].label,
+        toLabel: STAGES[nextIdx].label,
+        nextIdx,
+      });
+    } else {
+      setIdx(nextIdx);
+    }
   };
 
   return (

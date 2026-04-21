@@ -42,6 +42,7 @@ export function LessonFlow({
             key={lesson.blocks[blockIdx].id}
             block={lesson.blocks[blockIdx]}
             stageOrder={effectiveStages(lesson.blocks[blockIdx], settings.stageOrder)}
+            stagePauseDurations={settings.stagePauseDurations}
             onComplete={() => setPhase("quiz")}
           />
         )}
