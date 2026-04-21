@@ -31,6 +31,7 @@ import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/teacher")({
   component: TeacherPage,
+  prerender: true,
   head: () => ({
     meta: [{ title: "محرر الدروس — متكيف" }],
   }),

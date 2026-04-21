@@ -8,6 +8,7 @@ import { SettingsButton } from "@/components/SettingsDialog";
 
 export const Route = createFileRoute("/")({
   component: Index,
+  prerender: true,
   head: () => ({
     meta: [
       { title: "متكيف — منصة التعلم المتكيف" },
