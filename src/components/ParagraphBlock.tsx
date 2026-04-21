@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 const MIN_RECALL_WORDS = 5;
-const TIME_GATE_SECONDS = 15;
+const DEFAULT_TIME_GATE_SECONDS = 15;
 const SPEED_THRESHOLD_QUICK = 20; // seconds considered "too quick"
 const SPEED_THRESHOLD_SLOW = 45; // seconds considered "good pacing"
 
@@ -63,8 +63,9 @@ export function ParagraphBlockCard({
   const recallRef = useRef<HTMLTextAreaElement>(null);
 
   // Time gating
+  const timeGateSeconds = block.stage_interval ?? DEFAULT_TIME_GATE_SECONDS;
   const [stageStartTime, setStageStartTime] = useState<number | null>(null);
-  const [timeGateRemaining, setTimeGateRemaining] = useState(TIME_GATE_SECONDS);
+  const [timeGateRemaining, setTimeGateRemaining] = useState(timeGateSeconds);
   const [speedChecked, setSpeedChecked] = useState(false);
 
   // Bored button
@@ -88,9 +89,9 @@ export function ParagraphBlockCard({
   // Reset stage time when stage changes
   useEffect(() => {
     setStageStartTime(Date.now());
-    setTimeGateRemaining(TIME_GATE_SECONDS);
+    setTimeGateRemaining(timeGateSeconds);
     setSpeedChecked(false);
-  }, [stage]);
+  }, [stage, timeGateSeconds]);
 
   // Intro — short sentence teaser before entering the stage flow
   if (!started && showIntro) {
@@ -322,7 +323,7 @@ export function ParagraphBlockCard({
             <div className="flex items-center gap-2">
               <motion.div
                 initial={{ scaleX: 1 }}
-                animate={{ scaleX: timeGateRemaining / TIME_GATE_SECONDS }}
+                animate={{ scaleX: timeGateSeconds > 0 ? timeGateRemaining / timeGateSeconds : 0 }}
                 transition={{ duration: 0.9 }}
                 className="h-1 w-16 origin-right rounded-full bg-brand/60"
               />

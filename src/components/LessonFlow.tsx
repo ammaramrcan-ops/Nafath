@@ -55,6 +55,9 @@ export function LessonFlow({
             onNext={() => {
               if (blockIdx + 1 >= lesson.blocks.length) {
                 setPhase("done");
+              } else if (lesson.blocks[blockIdx].enable_break === false) {
+                setBlockIdx((i) => i + 1);
+                setPhase("lesson");
               } else {
                 setPhase("break");
               }
@@ -64,6 +67,7 @@ export function LessonFlow({
 
         {phase === "break" && (
           <BreathingBreak
+            duration={lesson.blocks[blockIdx]?.break_duration ?? 60}
             onComplete={() => {
               setBlockIdx((i) => i + 1);
               setPhase("lesson");

@@ -452,6 +452,40 @@ function BlockStep({
           />
 
           <QuizzesEditor block={block} onChange={onChange} />
+
+          <QuizzesEditor block={block} onChange={onChange} />
+
+          <div className="mt-6 space-y-4 rounded-2xl border border-border bg-background p-4">
+            <h3 className="text-sm font-semibold text-foreground">إعدادات الفاصل الزمني (بعد هذه الفقرة)</h3>
+            
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <label className="text-sm font-semibold text-foreground">تفعيل فاصل الراحة</label>
+                <p className="text-xs text-foreground/70">هل تريد إضافة استراحة تنفس بعد إتمام هذه الفقرة؟</p>
+              </div>
+              <button
+                onClick={() => onChange({ enable_break: block.enable_break === false ? true : false })}
+                className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${block.enable_break !== false ? "bg-brand" : "bg-border"}`}
+              >
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-background transition-transform ${block.enable_break !== false ? "-translate-x-6" : "-translate-x-1"}`} />
+              </button>
+            </div>
+
+            {block.enable_break !== false && (
+              <div className="pt-2">
+                <Field label="مدة الاستراحة (بالثواني)">
+                  <Input
+                    type="number"
+                    min={5}
+                    max={300}
+                    value={block.break_duration ?? 60}
+                    onChange={(e) => onChange({ break_duration: parseInt(e.target.value) || 60 })}
+                    placeholder="60"
+                  />
+                </Field>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
@@ -571,25 +605,31 @@ function StageContentField({
   switch (stage) {
     case "short":
       return (
-        <Field label="الجملة المبسطة" hint="جملة واحدة قصيرة تلخّص فكرة الفقرة.">
-          <Textarea
-            value={block.short_sentence}
-            onChange={(e) => onChange({ short_sentence: e.target.value })}
-            rows={2}
-            placeholder="مثال: النباتات تصنع طعامها بنفسها باستخدام الضوء."
-          />
-        </Field>
+        <div className="space-y-3">
+          <Field label="الجملة المبسطة" hint="جملة واحدة قصيرة تلخّص فكرة الفقرة.">
+            <Textarea
+              value={block.short_sentence}
+              onChange={(e) => onChange({ short_sentence: e.target.value })}
+              rows={2}
+              placeholder="مثال: النباتات تصنع طعامها بنفسها باستخدام الضوء."
+            />
+          </Field>
+          <StageIntervalSettings stage={stage} block={block} onChange={onChange} />
+        </div>
       );
     case "examples":
       return (
-        <Field label="مثال توضيحي / قصة" hint="مثال ملموس أو قصة تربط الفكرة بالواقع.">
-          <Textarea
-            value={block.examples}
-            onChange={(e) => onChange({ examples: e.target.value })}
-            rows={3}
-            placeholder="مثال: مثل شجرة التفاح التي تبني خشبها وثمارها من الهواء والماء."
-          />
-        </Field>
+        <div className="space-y-3">
+          <Field label="مثال توضيحي / قصة" hint="مثال ملموس أو قصة تربط الفكرة بالواقع.">
+            <Textarea
+              value={block.examples}
+              onChange={(e) => onChange({ examples: e.target.value })}
+              rows={3}
+              placeholder="مثال: مثل شجرة التفاح التي تبني خشبها وثمارها من الهواء والماء."
+            />
+          </Field>
+          <StageIntervalSettings stage={stage} block={block} onChange={onChange} />
+        </div>
       );
     case "original":
       return (
@@ -609,6 +649,7 @@ function StageContentField({
             url={block.visual_url ?? ""}
             onChange={(visual_url) => onChange({ visual_url })}
           />
+          <StageIntervalSettings stage={stage} block={block} onChange={onChange} />
         </div>
       );
     case "mental":
@@ -628,26 +669,83 @@ function StageContentField({
               placeholder="مثال: النبات كائن فضائي بيشرب من رجله!"
             />
           </Field>
+          <StageIntervalSettings stage={stage} block={block} onChange={onChange} />
         </div>
       );
     case "mindmap":
       return (
-        <Field label="عقد الخريطة الذهنية" hint="افصل بين العقد بفاصلة (،).">
-          <Input
-            value={block.mind_map_nodes.join("، ")}
-            onChange={(e) =>
-              onChange({
-                mind_map_nodes: e.target.value
-                  .split(/[،,]/)
-                  .map((t) => t.trim())
-                  .filter(Boolean),
-              })
-            }
-            placeholder="ذاتي التغذية، صنع الغذاء، طاقة الشمس"
-          />
-        </Field>
+        <div className="space-y-3">
+          <Field label="عقد الخريطة الذهنية" hint="افصل بين العقد بفاصلة (،).">
+            <Input
+              value={block.mind_map_nodes.join("، ")}
+              onChange={(e) =>
+                onChange({
+                  mind_map_nodes: e.target.value
+                    .split(/[،,]/)
+                    .map((t) => t.trim())
+                    .filter(Boolean),
+                })
+              }
+              placeholder="ذاتي التغذية، صنع الغذاء، طاقة الشمس"
+            />
+          </Field>
+          <StageIntervalSettings stage={stage} block={block} onChange={onChange} />
+        </div>
       );
   }
+}
+
+function StageIntervalSettings({
+  stage,
+  block,
+  onChange,
+}: {
+  stage: Stage;
+  block: ParagraphBlock;
+  onChange: (patch: Partial<ParagraphBlock>) => void;
+}) {
+  const enabled = block.enable_stage_intervals?.[stage] ?? true;
+  const duration = block.stage_intervals?.[stage] ?? 15;
+
+  return (
+    <div className="mt-3 rounded-xl border border-border bg-muted/20 p-4">
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <p className="text-sm font-semibold text-foreground">الفاصل الزمني التلقائي</p>
+          <p className="text-xs text-foreground/60 mt-0.5">منع الطالب من التخطي السريع للمرحلة القادمة.</p>
+        </div>
+        <button
+          onClick={() => {
+            const next = { ...(block.enable_stage_intervals || {}) };
+            next[stage] = !enabled;
+            onChange({ enable_stage_intervals: next });
+          }}
+          className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors ${enabled ? "bg-brand" : "bg-border"}`}
+        >
+          <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-background transition-transform ${enabled ? "-translate-x-4" : "-translate-x-0.5"}`} />
+        </button>
+      </div>
+
+      {enabled && (
+        <div className="mt-4 flex items-center gap-3">
+          <label className="text-xs font-semibold text-foreground">الوقت الإلزامي (بالثواني):</label>
+          <Input
+            type="number"
+            min={0}
+            max={300}
+            value={duration}
+            onChange={(e) => {
+              const next = { ...(block.stage_intervals || {}) };
+              next[stage] = parseInt(e.target.value) || 15;
+              onChange({ stage_intervals: next });
+            }}
+            placeholder="15"
+            className="h-8 w-24 text-xs"
+          />
+        </div>
+      )}
+    </div>
+  );
 }
 
 /* ---------------- Quizzes Editor ---------------- */

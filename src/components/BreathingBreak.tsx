@@ -5,13 +5,14 @@ import { Wind } from "lucide-react";
 export function BreathingBreak({
   onComplete,
   showSkip = false,
+  duration = 60,
 }: {
   onComplete: () => void;
   showSkip?: boolean;
+  duration?: number;
 }) {
   const [elapsed, setElapsed] = useState(0);
   const [canSkip, setCanSkip] = useState(showSkip);
-  const duration = 60; // seconds
 
   useEffect(() => {
     const timer = setInterval(() => {

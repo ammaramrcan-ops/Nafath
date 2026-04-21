@@ -27,6 +27,9 @@ export type ParagraphBlock = {
   enabled_stages?: Stage[];
   stage_order?: Stage[];
   quizzes: Quizzes;
+  enable_break?: boolean;
+  break_duration?: number;
+  stage_interval?: number;
 };
 
 export type Lesson = {
@@ -35,6 +38,8 @@ export type Lesson = {
   size: string;
   topics: string[];
   blocks: ParagraphBlock[];
+  enableBreaks?: boolean;
+  breakDuration?: number;
 };
 
 /** Normalize legacy block shape (singular mcq/fill/essay) into new array form. */
@@ -74,6 +79,9 @@ export function normalizeBlock(raw: any, idx: number): ParagraphBlock {
       ? (raw.stage_order as Stage[])
       : undefined,
     quizzes: { mcqs, fills, essays },
+    enable_break: raw?.enable_break ?? true,
+    break_duration: raw?.break_duration ?? 60,
+    stage_interval: raw?.stage_interval ?? 15,
   };
 }
 
@@ -86,6 +94,8 @@ export function normalizeLesson(raw: any): Lesson {
     estimatedTime: raw?.estimatedTime ?? "",
     size: raw?.size ?? "",
     topics: Array.isArray(raw?.topics) ? raw.topics : [],
+    enableBreaks: raw?.enableBreaks ?? true,
+    breakDuration: raw?.breakDuration ?? 60,
     blocks,
   };
 }
@@ -102,6 +112,8 @@ export const defaultLesson: Lesson = normalizeLesson({
   estimatedTime: "15 دقيقة",
   size: "3 فقرات أساسية - 10 مصطلحات",
   topics: ["مقدمة الغذاء", "المكونات السحرية", "النتيجة"],
+  enableBreaks: true,
+  breakDuration: 60,
   blocks: [
     {
       id: 1,
