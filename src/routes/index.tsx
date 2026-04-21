@@ -2,8 +2,10 @@ import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Pencil } from "lucide-react";
 import { type Lesson } from "@/lib/lesson-data";
+import { saveToLibrary } from "@/lib/lesson-library";
 import { HomeUpload } from "@/components/HomeUpload";
 import { LessonFlow } from "@/components/LessonFlow";
+import { LessonLibrary } from "@/components/LessonLibrary";
 import { SettingsButton } from "@/components/SettingsDialog";
 
 export const Route = createFileRoute("/")({
@@ -11,7 +13,7 @@ export const Route = createFileRoute("/")({
   prerender: true,
   head: () => ({
     meta: [
-      { title: "نفاذ — منصة التعلم المتكيف" },
+      { title: "نفاذ" },
       {
         name: "description",
         content: "ارفع درسك واحصل على تجربة تعلم نفاذ بمراحل تدريجية وخرائط ذهنية وبطاقات مراجعة.",
@@ -22,6 +24,11 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const [lesson, setLesson] = useState<Lesson | null>(null);
+
+  const handleLoad = (l: Lesson) => {
+    saveToLibrary(l);
+    setLesson(l);
+  };
 
   return (
     <div dir="rtl" lang="ar" className="min-h-screen bg-background font-sans">
@@ -37,7 +44,10 @@ function Index() {
               واجهة المعلم
             </Link>
           </div>
-          <HomeUpload onLoad={setLesson} />
+          <div className="mx-auto max-w-2xl px-6">
+            <HomeUpload onLoad={handleLoad} />
+            <LessonLibrary onOpen={setLesson} />
+          </div>
         </>
       )}
       {lesson && <LessonFlow lesson={lesson} onExit={() => setLesson(null)} />}

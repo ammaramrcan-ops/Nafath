@@ -21,6 +21,7 @@ import {
   type ParagraphBlock,
 } from "@/lib/lesson-data";
 import { useSettings, STAGE_LABELS, DEFAULT_STAGE_ORDER, type Stage } from "@/lib/settings";
+import { saveToLibrary } from "@/lib/lesson-library";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -30,7 +31,7 @@ export const Route = createFileRoute("/teacher")({
   component: TeacherPage,
   prerender: true,
   head: () => ({
-    meta: [{ title: "محرر الدروس — نفاذ" }],
+    meta: [{ title: "نفاذ" }],
   }),
 });
 
@@ -85,8 +86,9 @@ function TeacherPage() {
     }
     return emptyLesson();
   });
-  const [step, setStep] = useState(0); // 0 = info, 1..N = blocks, N+1 = full preview
+  const [step, setStep] = useState(0);
   const [savedAt, setSavedAt] = useState<string | null>(null);
+  const [libSaved, setLibSaved] = useState(false);
 
   const totalSteps = 1 + lesson.blocks.length; // info + blocks
   const isInfoStep = step === 0;
@@ -128,6 +130,16 @@ function TeacherPage() {
     }
   };
 
+  const handleSaveToLibrary = () => {
+    try {
+      saveToLibrary(lesson);
+      setLibSaved(true);
+      setTimeout(() => setLibSaved(false), 2000);
+    } catch {
+      /* ignore */
+    }
+  };
+
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
@@ -166,6 +178,17 @@ function TeacherPage() {
               className="rounded-full border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground/70 hover:border-brand/50"
             >
               قالب نموذج فقط
+            </button>
+            <button
+              onClick={handleSaveToLibrary}
+              className={cn(
+                "inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs font-semibold transition",
+                libSaved
+                  ? "border-success/50 bg-success-soft text-success"
+                  : "border-brand/40 bg-brand-soft text-brand hover:bg-brand/20",
+              )}
+            >
+              {libSaved ? "✓ حُفظ في المكتبة" : "📚 حفظ في المكتبة"}
             </button>
             <button
               onClick={handleSave}
