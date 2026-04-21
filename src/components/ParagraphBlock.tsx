@@ -1,10 +1,54 @@
-import { useState } from "react";
-import { ChevronRight, ChevronLeft, RotateCcw } from "lucide-react";
+import { useState, useRef } from "react";
+import { ChevronRight, ChevronLeft, RotateCcw, Brain } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-import type { ParagraphBlock as Block } from "@/lib/lesson-data";
+import type { ParagraphBlock as Block, HardWord } from "@/lib/lesson-data";
 import { HardWordText } from "./HardWordText";
 import { MindMap } from "./MindMap";
 import { cn } from "@/lib/utils";
+
+const MIN_RECALL_WORDS = 5;
+
+function ObfuscatedText({
+  text,
+  words,
+  obfuscate,
+}: {
+  text: string;
+  words: HardWord[];
+  obfuscate: boolean;
+}) {
+  if (!words.length) {
+    return (
+      <span style={{ whiteSpace: "pre-wrap", wordSpacing: "0.4em", lineHeight: 2.4 }}>
+        {text}
+      </span>
+    );
+  }
+
+  const sorted = [...words].sort((a, b) => b.word.length - a.word.length);
+  const escaped = sorted.map((w) => w.word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const regex = new RegExp(`(${escaped.join("|")})`, "g");
+  const parts = text.split(regex);
+
+  return (
+    <span style={{ whiteSpace: "pre-wrap", wordSpacing: "0.4em", lineHeight: 2.4 }}>
+      {parts.map((part, i) => {
+        const match = words.find((w) => w.word === part);
+        if (!match) return <span key={i}>{part}</span>;
+        return (
+          <motion.span
+            key={i}
+            animate={obfuscate ? { filter: "blur(6px)", opacity: 0.4 } : { filter: "blur(0px)", opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className="font-semibold text-brand"
+          >
+            {part}
+          </motion.span>
+        );
+      })}
+    </span>
+  );
+}
 
 type Stage = "short" | "examples" | "original" | "mental" | "mindmap";
 
@@ -25,7 +69,13 @@ export function ParagraphBlockCard({
 }) {
   const [started, setStarted] = useState(false);
   const [idx, setIdx] = useState(0);
+  const [recallText, setRecallText] = useState("");
+  const [isRecallFocused, setIsRecallFocused] = useState(false);
+  const recallRef = useRef<HTMLTextAreaElement>(null);
   const stage = STAGES[idx].key;
+
+  const recallWordCount = recallText.trim().split(/\s+/).filter(Boolean).length;
+  const recallReady = recallWordCount >= MIN_RECALL_WORDS;
 
   // Stage 1 — short sentence with CTA
   if (!started) {
@@ -57,6 +107,8 @@ export function ParagraphBlockCard({
           onClick={() => {
             setStarted(false);
             setIdx(0);
+            setRecallText("");
+            setIsRecallFocused(false);
           }}
           className="inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-sm text-foreground/60 hover:bg-muted"
         >
@@ -114,15 +166,54 @@ export function ParagraphBlockCard({
                   />
                 </div>
               )}
-              <div
-                className="text-lg text-foreground/85"
-                style={{
-                  whiteSpace: "pre-wrap",
-                  wordSpacing: "0.4em",
-                  lineHeight: 2.4,
-                }}
-              >
-                <HardWordText text={block.full_text} words={block.hard_words} />
+              <div className="text-lg text-foreground/85">
+                <ObfuscatedText
+                  text={block.full_text}
+                  words={block.hard_words}
+                  obfuscate={isRecallFocused}
+                />
+              </div>
+
+              {/* Active Recall Box */}
+              <div className="mt-10 rounded-3xl border-2 border-brand/20 bg-brand-soft/40 p-6">
+                <div className="mb-3 flex items-center gap-2">
+                  <Brain className="h-5 w-5 text-brand" />
+                  <p className="text-sm font-bold text-brand">
+                    التفريغ الذهني: اكتب ما تتذكره من النص
+                  </p>
+                </div>
+                <p className="mb-4 text-xs text-foreground/50">
+                  ستُعتَم الكلمات المفتاحية بمجرد بدء الكتابة — استرجع من ذاكرتك!
+                </p>
+                <textarea
+                  ref={recallRef}
+                  value={recallText}
+                  onChange={(e) => setRecallText(e.target.value)}
+                  onFocus={() => setIsRecallFocused(true)}
+                  onBlur={() => setIsRecallFocused(false)}
+                  placeholder="اكتب هنا بأسلوبك الخاص..."
+                  rows={4}
+                  className="w-full resize-none rounded-2xl border border-brand/20 bg-background px-4 py-3 text-base leading-relaxed text-foreground placeholder:text-foreground/30 focus:outline-none focus:ring-2 focus:ring-brand/40"
+                />
+                <div className="mt-2 flex items-center justify-between">
+                  <span
+                    className={cn(
+                      "text-xs transition-colors",
+                      recallReady ? "text-success font-semibold" : "text-foreground/40",
+                    )}
+                  >
+                    {recallWordCount} / {MIN_RECALL_WORDS} كلمات
+                  </span>
+                  {!recallReady && (
+                    <span className="text-xs text-foreground/40">
+                      اكتب {MIN_RECALL_WORDS - recallWordCount} كلمة{" "}
+                      {MIN_RECALL_WORDS - recallWordCount === 1 ? "أخرى" : "أخرى"} للمتابعة
+                    </span>
+                  )}
+                  {recallReady && (
+                    <span className="text-xs font-semibold text-success">جاهز للمتابعة</span>
+                  )}
+                </div>
               </div>
             </div>
           )}
@@ -181,8 +272,18 @@ export function ParagraphBlockCard({
           </button>
         ) : (
           <button
-            onClick={() => setIdx((i) => Math.min(STAGES.length - 1, i + 1))}
-            className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-border bg-background text-foreground transition hover:border-brand/40"
+            onClick={() => {
+              if (stage === "original" && !recallReady) return;
+              setIdx((i) => Math.min(STAGES.length - 1, i + 1));
+            }}
+            disabled={stage === "original" && !recallReady}
+            title={stage === "original" && !recallReady ? "أكمل التفريغ الذهني أولاً" : undefined}
+            className={cn(
+              "flex h-12 w-12 items-center justify-center rounded-full border-2 bg-background text-foreground transition",
+              stage === "original" && !recallReady
+                ? "border-border opacity-30 cursor-not-allowed"
+                : "border-border hover:border-brand/40",
+            )}
             aria-label="التالي"
           >
             <ChevronLeft className="h-5 w-5" />
