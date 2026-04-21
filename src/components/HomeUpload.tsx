@@ -27,10 +27,7 @@ export function HomeUpload({ onLoad }: { onLoad: (lesson: Lesson) => void }) {
   return (
     <div className="mx-auto flex min-h-screen max-w-2xl flex-col justify-center px-6 py-16">
       <div className="mb-12 text-center">
-        <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">متكيف</h1>
-        <p className="mt-3 text-base text-foreground/60">
-          ارفع درسك أو الصق محتواه — وسنحوّله لتجربة تعلم متكيفة
-        </p>
+        <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">نفاذ</h1>
       </div>
 
       <Textarea

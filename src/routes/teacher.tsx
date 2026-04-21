@@ -33,7 +33,7 @@ export const Route = createFileRoute("/teacher")({
   component: TeacherPage,
   prerender: true,
   head: () => ({
-    meta: [{ title: "محرر الدروس — متكيف" }],
+    meta: [{ title: "محرر الدروس — نفاذ" }],
   }),
 });
 
