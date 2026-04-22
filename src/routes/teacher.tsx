@@ -365,35 +365,37 @@ function BlockStep({
 
   return (
     <div>
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+      <div className="mb-10 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <div className="text-xs font-semibold text-brand">فقرة {blockNum} / {total}</div>
-          <h2 className="mt-1 text-2xl font-extrabold text-foreground">
+          <div className="text-[12px] font-medium tracking-wide text-zen-primary">
+            فقرة {blockNum} من {total}
+          </div>
+          <h2 className="mt-2 text-[32px] font-medium leading-tight text-zen-on-surface">
             {block.title || "فقرة بدون عنوان"}
           </h2>
         </div>
         {onRemove && (
           <button
             onClick={onRemove}
-            className="inline-flex items-center gap-1 rounded-full border border-destructive/40 px-3 py-1.5 text-xs font-semibold text-destructive hover:bg-destructive/5"
+            className="inline-flex items-center gap-1.5 text-[12px] font-medium text-zen-on-surface-variant transition hover:text-destructive"
           >
-            <Trash2 className="h-3.5 w-3.5" /> حذف الفقرة
+            <Trash2 className="h-3.5 w-3.5" strokeWidth={1.75} /> حذف الفقرة
           </button>
         )}
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div className="flex items-center justify-between gap-3">
           <button
             onClick={() => setShowSequenceEditor((v) => !v)}
-            className="rounded-full border border-border bg-background px-4 py-1.5 text-xs font-semibold text-foreground/70 hover:border-brand/50"
+            className="text-[13px] font-medium text-zen-primary transition hover:opacity-70"
           >
             {showSequenceEditor ? "إغلاق إعداد التسلسل" : "إعداد تسلسل هذه الفقرة"}
           </button>
           {!isLastBlock && activeStage === previewStages[previewStages.length - 1] && (
             <button
               onClick={onNextBlock}
-              className="rounded-full bg-brand px-4 py-1.5 text-xs font-semibold text-brand-foreground hover:bg-brand/90"
+              className="rounded-full bg-zen-primary px-5 py-2 text-[13px] font-medium text-white transition hover:opacity-90"
             >
               الفقرة التالية
             </button>
@@ -403,24 +405,26 @@ function BlockStep({
           value={block.title}
           onChange={(e) => onChange({ title: e.target.value })}
           placeholder="عنوان الفقرة"
-          className="h-11 rounded-2xl text-sm"
+          className="h-12 rounded-2xl border-transparent bg-white px-5 text-[15px] font-medium text-zen-on-surface shadow-[var(--shadow-deep)] placeholder:text-zen-on-surface-variant/50 focus-visible:ring-0"
         />
         {showSequenceEditor ? (
-          <div className="space-y-3 rounded-3xl border border-border bg-card p-4">
+          <div className="space-y-4 rounded-3xl bg-white p-6 shadow-[var(--shadow-deep)]">
             <StagesEditor block={block} onChange={onChange} />
-            <div className="rounded-2xl border border-border bg-background p-4">
+            <div className="rounded-2xl bg-zen-surface-low/60 p-5">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-sm font-semibold text-foreground">فقرة الأسئلة</p>
-                  <p className="text-xs text-foreground/60">إظهار/إخفاء شاشة الأسئلة ضمن هذه الفقرة فقط.</p>
+                  <p className="text-[14px] font-medium text-zen-on-surface">فقرة الأسئلة</p>
+                  <p className="mt-1 text-[12px] text-zen-on-surface-variant">
+                    إظهار/إخفاء شاشة الأسئلة ضمن هذه الفقرة فقط.
+                  </p>
                 </div>
                 <button
                   onClick={() => onChange({ quiz_enabled: block.quiz_enabled === false ? true : false })}
                   className={cn(
-                    "rounded-full border px-3 py-1 text-xs font-semibold transition",
+                    "rounded-full px-4 py-1.5 text-[12px] font-medium transition",
                     block.quiz_enabled !== false
-                      ? "border-success/40 bg-success-soft text-success"
-                      : "border-border text-foreground/60",
+                      ? "bg-zen-primary text-white"
+                      : "bg-white text-zen-on-surface-variant",
                   )}
                 >
                   {block.quiz_enabled !== false ? "مفعّلة" : "معطّلة"}
