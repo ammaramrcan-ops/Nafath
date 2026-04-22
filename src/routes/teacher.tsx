@@ -485,53 +485,53 @@ function StagesEditor({
             <div
               key={stage}
               className={cn(
-                "rounded-2xl border bg-background transition",
-                isOn ? "border-border" : "border-dashed border-border/50 opacity-70",
+                "rounded-2xl bg-zen-surface-low/50 transition",
+                isOn ? "" : "opacity-60",
               )}
             >
-              <div className="flex items-center justify-between gap-2 px-4 py-3">
-                <div className="flex items-center gap-2">
-                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-brand-soft text-xs font-bold text-brand">
+              <div className="flex items-center justify-between gap-2 px-5 py-3.5">
+                <div className="flex items-center gap-3">
+                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white text-[12px] font-medium text-zen-primary">
                     {i + 1}
                   </span>
-                  <span className="text-sm font-bold text-foreground">{STAGE_LABELS[stage]}</span>
+                  <span className="text-[14px] font-medium text-zen-on-surface">{STAGE_LABELS[stage]}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => move(i, -1)}
                     disabled={i === 0}
-                    className="rounded-lg p-1.5 text-foreground/60 hover:bg-muted disabled:opacity-30"
+                    className="rounded-lg p-1.5 text-zen-on-surface-variant transition hover:bg-white disabled:opacity-30"
                     aria-label="إلى الأعلى"
                     title="إلى الأعلى"
                   >
-                    <ArrowUp className="h-4 w-4" />
+                    <ArrowUp className="h-4 w-4" strokeWidth={1.75} />
                   </button>
                   <button
                     onClick={() => move(i, 1)}
                     disabled={i === order.length - 1}
-                    className="rounded-lg p-1.5 text-foreground/60 hover:bg-muted disabled:opacity-30"
+                    className="rounded-lg p-1.5 text-zen-on-surface-variant transition hover:bg-white disabled:opacity-30"
                     aria-label="إلى الأسفل"
                     title="إلى الأسفل"
                   >
-                    <ArrowDown className="h-4 w-4" />
+                    <ArrowDown className="h-4 w-4" strokeWidth={1.75} />
                   </button>
                   <button
                     onClick={() => setEnabled(stage, !isOn)}
                     className={cn(
-                      "inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-semibold transition",
+                      "inline-flex items-center gap-1 rounded-full px-3 py-1 text-[12px] font-medium transition",
                       isOn
-                        ? "border-success/40 bg-success-soft text-success"
-                        : "border-border bg-background text-foreground/50",
+                        ? "bg-zen-primary text-white"
+                        : "bg-white text-zen-on-surface-variant",
                     )}
                     title={isOn ? "إخفاء هذه المرحلة" : "تفعيل هذه المرحلة"}
                   >
-                    {isOn ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
+                    {isOn ? <Eye className="h-3.5 w-3.5" strokeWidth={1.75} /> : <EyeOff className="h-3.5 w-3.5" strokeWidth={1.75} />}
                     {isOn ? "مفعّلة" : "معطّلة"}
                   </button>
                 </div>
               </div>
               {isOn && (
-                <div className="border-t border-border/60 px-4 py-3">
+                <div className="border-t border-white/80 px-5 py-4">
                   <StageContentField stage={stage} block={block} onChange={onChange} />
                 </div>
               )}
@@ -671,11 +671,13 @@ function StageIntervalSettings({
   const duration = block.stage_intervals?.[stage] ?? 15;
 
   return (
-    <div className="mt-3 rounded-xl border border-border bg-muted/20 p-4">
+    <div className="mt-4 rounded-2xl bg-white p-5 shadow-[var(--shadow-deep)]">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <p className="text-sm font-semibold text-foreground">الفاصل الزمني التلقائي</p>
-          <p className="text-xs text-foreground/60 mt-0.5">منع الطالب من التخطي السريع للمرحلة القادمة.</p>
+          <p className="text-[15px] font-medium text-zen-on-surface">الفاصل الزمني التلقائي</p>
+          <p className="mt-1 text-[12px] text-zen-on-surface-variant">
+            منع الطالب من التخطي السريع للمرحلة القادمة.
+          </p>
         </div>
         <button
           onClick={() => {
@@ -683,28 +685,32 @@ function StageIntervalSettings({
             next[stage] = !enabled;
             onChange({ enable_stage_intervals: next });
           }}
-          className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors ${enabled ? "bg-brand" : "bg-border"}`}
+          className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${enabled ? "bg-zen-primary" : "bg-zen-surface-container"}`}
+          aria-label={enabled ? "تعطيل" : "تفعيل"}
         >
-          <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-background transition-transform ${enabled ? "-translate-x-4" : "-translate-x-0.5"}`} />
+          <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${enabled ? "-translate-x-6" : "-translate-x-1"}`} />
         </button>
       </div>
 
       {enabled && (
-        <div className="mt-4 flex items-center gap-3">
-          <label className="text-xs font-semibold text-foreground">الوقت الإلزامي (بالثواني):</label>
-          <Input
-            type="number"
-            min={0}
-            max={300}
-            value={duration}
-            onChange={(e) => {
-              const next = { ...(block.stage_intervals || {}) };
-              next[stage] = parseInt(e.target.value) || 15;
-              onChange({ stage_intervals: next });
-            }}
-            placeholder="15"
-            className="h-8 w-24 text-xs"
-          />
+        <div className="mt-5 flex items-center gap-4">
+          <label className="text-[13px] font-medium text-zen-on-surface">الوقت الإلزامي</label>
+          <div className="flex items-center gap-2">
+            <Input
+              type="number"
+              min={0}
+              max={300}
+              value={duration}
+              onChange={(e) => {
+                const next = { ...(block.stage_intervals || {}) };
+                next[stage] = parseInt(e.target.value) || 15;
+                onChange({ stage_intervals: next });
+              }}
+              placeholder="15"
+              className="h-10 w-24 rounded-xl border-transparent bg-zen-surface-low text-center text-[14px] font-medium text-zen-on-surface focus-visible:ring-0"
+            />
+            <span className="text-[13px] font-medium text-zen-on-surface-variant">ثانية</span>
+          </div>
         </div>
       )}
     </div>
@@ -755,23 +761,25 @@ function ContentFillSurface({
       {activeStages.length === 0 ? (
         <EmptyHint text="لا توجد مراحل مفعلة. فعّل مرحلة واحدة على الأقل من إعداد التسلسل." />
       ) : (
-        <div className="relative overflow-hidden rounded-3xl border border-border bg-card">
-          <div className="flex items-center justify-between border-b border-border/60 px-5 py-3">
-            <div className="text-xs font-semibold text-foreground/55">
+        <div className="relative overflow-hidden rounded-3xl bg-white shadow-[var(--shadow-deep)]">
+          <div className="flex items-center justify-between px-7 py-4">
+            <div className="text-[12px] font-medium text-zen-on-surface-variant">
               شريحة {selectedIndex + 1} من {activeStages.length}
             </div>
-            <div className="text-xs font-semibold text-brand">{stage ? getFillStageLabel(stage) : ""}</div>
+            <div className="text-[12px] font-medium tracking-wide text-zen-primary">
+              {stage ? getFillStageLabel(stage) : ""}
+            </div>
           </div>
-          <div className="flex flex-wrap gap-2 border-b border-border/60 px-5 py-2">
+          <div className="flex flex-wrap gap-2 px-7 pb-4">
             {activeStages.map((s, i) => (
               <button
                 key={s}
                 onClick={() => onSelectStage(s)}
                 className={cn(
-                  "rounded-full border px-3 py-1 text-[11px] font-semibold transition",
+                  "rounded-full px-3 py-1 text-[11px] font-medium transition",
                   s === stage
-                    ? "border-brand bg-brand-soft text-brand"
-                    : "border-border text-foreground/60 hover:border-brand/40",
+                    ? "bg-zen-primary text-white"
+                    : "bg-zen-surface-low text-zen-on-surface-variant hover:bg-zen-surface-container",
                 )}
               >
                 {i + 1}
@@ -779,7 +787,7 @@ function ContentFillSurface({
             ))}
           </div>
 
-          <div className="min-h-[62vh] px-6 py-8 sm:px-10">
+          <div className="min-h-[62vh] px-8 py-12 sm:px-12">
             {stage === "quizzes_mcq" ? (
               <div className="mx-auto max-w-3xl">
                 {stageImage && (
@@ -807,35 +815,36 @@ function ContentFillSurface({
           </div>
 
           {stage && (
-            <div className="absolute bottom-4 right-4 z-10 w-36 rounded-xl border border-border bg-background/95 p-2 shadow-sm backdrop-blur">
-              <p className="text-[10px] font-semibold text-foreground">صورة الشريحة</p>
+            <div className="absolute bottom-4 right-4 z-10 w-44 rounded-2xl bg-white/95 p-3 shadow-[var(--shadow-deep)] backdrop-blur">
+              <p className="text-[11px] font-medium text-zen-on-surface">صورة الشريحة</p>
               <ImageUploaderCompact url={stageImage} onChange={patchStageImage} />
               {!isQuizStage && (
                 <>
-              <p className="text-[10px] font-semibold text-foreground">الفاصل الزمني</p>
-              <p className="mt-0.5 text-[9px] text-foreground/60">قفل للطالب فقط</p>
-              <button
-                onClick={() => patchInterval({ enabled: !stageEnabled })}
-                className={cn(
-                  "mt-2 w-full rounded-full border px-2 py-1 text-[10px] font-semibold transition",
-                  stageEnabled
-                    ? "border-success/40 bg-success-soft text-success"
-                    : "border-border text-foreground/60",
-                )}
-              >
-                {stageEnabled ? "مفعّل" : "معطّل"}
-              </button>
-              {stageEnabled && (
-                <Input
-                  type="number"
-                  min={0}
-                  max={300}
-                  value={stageDuration}
-                  onChange={(e) => patchInterval({ duration: parseInt(e.target.value, 10) || 15 })}
-                  className="mt-1.5 h-7 text-[10px]"
-                  placeholder="15 ث"
-                />
-              )}
+                  <div className="my-3 h-px bg-zen-surface-low" />
+                  <p className="text-[11px] font-medium text-zen-on-surface">الفاصل الزمني</p>
+                  <p className="mt-0.5 text-[10px] text-zen-on-surface-variant">قفل للطالب فقط</p>
+                  <button
+                    onClick={() => patchInterval({ enabled: !stageEnabled })}
+                    className={cn(
+                      "mt-2 w-full rounded-full px-2 py-1 text-[10px] font-medium transition",
+                      stageEnabled
+                        ? "bg-zen-primary text-white"
+                        : "bg-zen-surface-low text-zen-on-surface-variant",
+                    )}
+                  >
+                    {stageEnabled ? "مفعّل" : "معطّل"}
+                  </button>
+                  {stageEnabled && (
+                    <Input
+                      type="number"
+                      min={0}
+                      max={300}
+                      value={stageDuration}
+                      onChange={(e) => patchInterval({ duration: parseInt(e.target.value, 10) || 15 })}
+                      className="mt-1.5 h-8 rounded-lg border-transparent bg-zen-surface-low text-center text-[11px] focus-visible:ring-0"
+                      placeholder="15 ث"
+                    />
+                  )}
                 </>
               )}
             </div>
@@ -1629,15 +1638,17 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-7">
-      <div className="mb-4 flex items-start justify-between gap-3">
+    <section className="rounded-3xl bg-white p-8 shadow-[var(--shadow-deep)] sm:p-10">
+      <div className="mb-7 flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-base font-bold text-foreground">{title}</h2>
-          {subtitle && <p className="mt-1 text-xs text-foreground/55">{subtitle}</p>}
+          <h2 className="text-[22px] font-medium leading-tight text-zen-on-surface">{title}</h2>
+          {subtitle && (
+            <p className="mt-2 text-[13px] font-medium text-zen-on-surface-variant">{subtitle}</p>
+          )}
         </div>
         {action}
       </div>
-      <div className="space-y-4">{children}</div>
+      <div className="space-y-6">{children}</div>
     </section>
   );
 }
@@ -1652,9 +1663,9 @@ function SubSection({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-background/50 p-4">
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <h3 className="text-sm font-bold text-foreground/80">{title}</h3>
+    <div className="rounded-2xl bg-zen-surface-low/50 p-5">
+      <div className="mb-4 flex items-center justify-between gap-2">
+        <h3 className="text-[15px] font-medium text-zen-on-surface">{title}</h3>
         {action}
       </div>
       <div className="space-y-3">{children}</div>
@@ -1673,16 +1684,18 @@ function Field({
 }) {
   return (
     <label className="block">
-      <div className="mb-1 text-sm font-semibold text-foreground/80">{label}</div>
+      <div className="mb-2 text-[13px] font-medium text-zen-on-surface">{label}</div>
       {children}
-      {hint && <div className="mt-1 text-xs text-foreground/50">{hint}</div>}
+      {hint && (
+        <div className="mt-1.5 text-[12px] text-zen-on-surface-variant">{hint}</div>
+      )}
     </label>
   );
 }
 
 function EmptyHint({ text }: { text: string }) {
   return (
-    <p className="rounded-2xl border border-dashed border-border bg-background/50 p-4 text-center text-xs text-foreground/50">
+    <p className="rounded-2xl bg-zen-surface-low/60 p-5 text-center text-[13px] font-medium text-zen-on-surface-variant">
       {text}
     </p>
   );
