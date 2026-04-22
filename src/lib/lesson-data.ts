@@ -25,7 +25,7 @@ export type ParagraphBlock = {
   funny_link: string;
   mind_map_nodes: string[];
   visual_url?: string;
-  stage_visuals?: Partial<Record<Stage | "quizzes", string>>;
+  stage_visuals?: Partial<Record<Stage | "quizzes" | "quizzes_mcq" | "quizzes_fill" | "quizzes_essay", string>>;
   /** Per-block overrides. If undefined, global settings apply. */
   enabled_stages?: Stage[];
   stage_order?: Stage[];
