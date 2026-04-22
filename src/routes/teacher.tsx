@@ -154,29 +154,29 @@ function TeacherPage() {
   };
 
   return (
-    <div dir="rtl" lang="ar" className="min-h-screen bg-background font-sans">
-      <header className="sticky top-0 z-20 border-b border-border bg-card/95 backdrop-blur">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-6 py-3">
-          <div className="flex items-center gap-3">
+    <div dir="rtl" lang="ar" className="min-h-screen bg-zen-surface text-zen-on-surface antialiased font-sans">
+      <header className="sticky top-0 z-20 bg-zen-surface/85 backdrop-blur-md">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-8 py-5">
+          <div className="flex items-center gap-4">
             <Link
               to="/"
-              className="inline-flex items-center gap-1 text-sm font-semibold text-foreground/60 hover:text-foreground"
+              className="inline-flex items-center gap-1.5 text-[13px] font-medium text-zen-on-surface-variant transition hover:text-zen-on-surface"
             >
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="h-4 w-4" strokeWidth={1.75} />
               الرئيسية
             </Link>
-            <div className="hidden h-6 w-px bg-border sm:block" />
-            <div className="hidden sm:block">
-              <h1 className="text-base font-extrabold text-foreground">محرر الدروس</h1>
-            </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            {savedAt && <span className="text-xs text-foreground/50">حُفظت {savedAt}</span>}
+          <div className="flex flex-wrap items-center gap-3">
+            {savedAt && (
+              <span className="text-[12px] font-medium text-zen-on-surface-variant/70">
+                حُفظت {savedAt}
+              </span>
+            )}
             <button
               onClick={loadDefault}
-              className="rounded-full border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground/70 hover:border-brand/50"
+              className="text-[13px] font-medium text-zen-on-surface-variant transition hover:text-zen-on-surface"
             >
-              قالب نموذج فقط
+              قالب نموذج
             </button>
             <button
               onClick={() => {
@@ -188,27 +188,27 @@ function TeacherPage() {
                   setLibSaved(false);
                 }
               }}
-              className="rounded-full border border-border bg-background px-3 py-1.5 text-xs font-semibold text-destructive/80 hover:bg-destructive/10"
+              className="text-[13px] font-medium text-zen-on-surface-variant transition hover:text-destructive"
             >
-              مسح وبدء من جديد
+              مسح
             </button>
             <button
               onClick={handleSaveToLibrary}
               className={cn(
-                "inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs font-semibold transition",
+                "rounded-full px-5 py-2 text-[13px] font-medium tracking-wide transition",
                 libSaved
-                  ? "border-success/50 bg-success-soft text-success"
-                  : "border-brand/40 bg-brand-soft text-brand hover:bg-brand/20",
+                  ? "bg-zen-surface-container text-zen-primary"
+                  : "bg-zen-primary text-white hover:opacity-90",
               )}
             >
-              {libSaved ? "✓ حُفظ في المكتبة" : "📚 حفظ في المكتبة"}
+              {libSaved ? "✓ حُفظ" : "حفظ في المكتبة"}
             </button>
           </div>
         </div>
 
         {/* Step indicator */}
-        <div className="border-t border-border/60 bg-background/50 px-6 py-3">
-          <div className="mx-auto flex max-w-5xl items-center gap-2 overflow-x-auto">
+        <div className="px-8 pb-5">
+          <div className="mx-auto flex max-w-5xl items-center gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <StepChip
               label="معلومات الدرس"
               active={step === 0}
@@ -226,16 +226,16 @@ function TeacherPage() {
             ))}
             <button
               onClick={addBlock}
-              className="inline-flex shrink-0 items-center gap-1 rounded-full border border-dashed border-border px-3 py-1.5 text-xs font-semibold text-foreground/60 hover:border-brand/50 hover:text-foreground"
+              className="inline-flex shrink-0 items-center gap-1 rounded-full px-4 py-1.5 text-[12px] font-medium text-zen-on-surface-variant transition hover:bg-zen-surface-low hover:text-zen-on-surface"
             >
-              <Plus className="h-3.5 w-3.5" />
+              <Plus className="h-3.5 w-3.5" strokeWidth={1.75} />
               فقرة
             </button>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-6 py-8">
+      <main className="mx-auto max-w-3xl px-8 py-12">
         {isInfoStep ? (
           <LessonInfoStep lesson={lesson} onChange={updateLesson} />
         ) : (
@@ -267,10 +267,10 @@ function StepChip({
     <button
       onClick={onClick}
       className={cn(
-        "shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold transition",
+        "shrink-0 rounded-full px-4 py-1.5 text-[12px] font-medium tracking-wide transition",
         active
-          ? "bg-brand text-brand-foreground shadow-sm"
-          : "border border-border bg-background text-foreground/70 hover:border-brand/50 hover:text-foreground",
+          ? "bg-white text-zen-on-surface shadow-[var(--shadow-deep)]"
+          : "text-zen-on-surface-variant hover:bg-zen-surface-low hover:text-zen-on-surface",
       )}
     >
       {label}
