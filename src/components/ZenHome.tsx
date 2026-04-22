@@ -1,17 +1,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Settings, Bell, BookOpen, ChevronLeft, FlaskConical, Compass, LayoutGrid, Trash2 } from "lucide-react";
+import { Settings, Bell, BookOpen, ChevronLeft, ChevronDown, LayoutGrid, Trash2 } from "lucide-react";
 import { getLibrary, deleteFromLibrary, type SavedLesson } from "@/lib/lesson-library";
 import { type Lesson } from "@/lib/lesson-data";
 import { SettingsDialog } from "@/components/SettingsDialog";
 import { RestoreDialog } from "@/components/RestoreDialog";
 
-const MATERIAL_ICONS = [BookOpen, FlaskConical, Compass];
-
 export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => void }) {
   const [library, setLibrary] = useState<SavedLesson[]>([]);
   const [restoreOpen, setRestoreOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [biologyOpen, setBiologyOpen] = useState(true);
   const navigate = useNavigate();
 
   const refresh = () => setLibrary(getLibrary());
@@ -28,14 +27,10 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
     onOpenLesson(lesson);
   };
 
-  // Materials are derived from unique lesson titles' first chunks (placeholder grouping)
-  const materials = library.length > 0
-    ? library.slice(0, 3).map((l, i) => ({ id: l.id, title: l.title, Icon: MATERIAL_ICONS[i % MATERIAL_ICONS.length] }))
-    : [
-        { id: "m1", title: "مادة ١", Icon: BookOpen },
-        { id: "m2", title: "مادة ٢", Icon: FlaskConical },
-        { id: "m3", title: "مادة ٣", Icon: Compass },
-      ];
+  // Single default material containing every saved lesson.
+  const materialsCount = 1;
+  const showAllLessons = library.length > 2;
+  const showAllMaterials = materialsCount > 2;
 
   return (
     <div dir="rtl" lang="ar" className="min-h-screen bg-zen-surface text-zen-on-surface antialiased">
@@ -81,12 +76,11 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
               >
                 استرداد
               </button>
-              <button
-                disabled
-                className="text-[13px] font-medium tracking-wide text-zen-primary opacity-50"
-              >
-                عرض الكل
-              </button>
+              {showAllLessons && (
+                <button className="text-[13px] font-medium tracking-wide text-zen-primary transition hover:opacity-70">
+                  عرض الكل
+                </button>
+              )}
             </div>
           </div>
 
@@ -140,31 +134,62 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
         <section className="mb-20">
           <div className="mb-6 flex items-center justify-between">
             <h2 className="text-[28px] font-medium leading-tight text-zen-on-surface">المواد</h2>
-            <div className="flex gap-5">
-              <button
-                disabled
-                className="text-[13px] font-medium tracking-wide text-zen-primary opacity-50"
-              >
+            {showAllMaterials && (
+              <button className="text-[13px] font-medium tracking-wide text-zen-primary transition hover:opacity-70">
                 عرض الكل
               </button>
-            </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 gap-5">
-            {materials.map(({ id, title, Icon }) => (
-              <div
-                key={id}
-                className="flex items-center justify-between rounded-2xl border border-white bg-white px-8 py-7 shadow-[var(--shadow-deep)]"
+            <div className="overflow-hidden rounded-2xl border border-white bg-white shadow-[var(--shadow-deep)]">
+              <button
+                onClick={() => setBiologyOpen((v) => !v)}
+                className="flex w-full items-center justify-between px-8 py-7 text-right transition hover:bg-zen-surface-low/40"
               >
                 <div className="flex items-center gap-5">
                   <div className="flex h-14 w-14 items-center justify-center rounded-full bg-zen-surface-container text-zen-primary">
-                    <Icon className="h-6 w-6" strokeWidth={1.75} />
+                    <BookOpen className="h-6 w-6" strokeWidth={1.75} />
                   </div>
-                  <h3 className="text-[20px] font-medium text-zen-on-surface">{title}</h3>
+                  <div>
+                    <h3 className="text-[20px] font-medium text-zen-on-surface">الأحياء</h3>
+                    <p className="mt-1 text-[13px] font-medium text-zen-on-surface-variant">
+                      {library.length} درس
+                    </p>
+                  </div>
                 </div>
-                <ChevronLeft className="h-5 w-5 text-zen-surface-container" strokeWidth={2} />
-              </div>
-            ))}
+                <ChevronDown
+                  className={`h-5 w-5 text-zen-on-surface-variant transition-transform ${biologyOpen ? "rotate-180" : ""}`}
+                  strokeWidth={2}
+                />
+              </button>
+
+              {biologyOpen && (
+                <div className="border-t border-zen-surface-low px-3 py-3">
+                  {library.length === 0 ? (
+                    <p className="px-5 py-6 text-center text-[13px] font-medium text-zen-on-surface-variant">
+                      لا توجد دروس بعد. اضغط «استرداد» لإضافة أول درس.
+                    </p>
+                  ) : (
+                    <ul className="divide-y divide-zen-surface-low">
+                      {library.map((saved) => (
+                        <li key={saved.id}>
+                          <button
+                            onClick={() => onOpenLesson(saved.data)}
+                            className="flex w-full items-center justify-between rounded-xl px-5 py-4 text-right transition hover:bg-zen-surface-low/60"
+                          >
+                            <span className="text-[15px] font-medium text-zen-on-surface">
+                              {saved.title}
+                            </span>
+                            <ChevronLeft className="h-4 w-4 text-zen-on-surface-variant/60" strokeWidth={2} />
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </section>
 
