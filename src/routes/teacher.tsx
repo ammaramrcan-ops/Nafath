@@ -29,7 +29,6 @@ type FillStage = Stage | "quizzes_mcq" | "quizzes_fill" | "quizzes_essay";
 
 export const Route = createFileRoute("/teacher")({
   component: TeacherPage,
-  prerender: true,
   head: () => ({
     meta: [{ title: "نفاذ" }],
   }),

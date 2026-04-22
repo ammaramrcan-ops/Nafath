@@ -1,102 +1,76 @@
 import { useState } from "react";
-import { Settings as SettingsIcon, ArrowUp, ArrowDown, RotateCcw } from "lucide-react";
+import { Settings as SettingsIcon } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useSettings, STAGE_LABELS, type Stage } from "@/lib/settings";
 
-export function SettingsButton({ className }: { className?: string }) {
-  const [open, setOpen] = useState(false);
-  const { settings, update, reset } = useSettings();
-
-  const move = (idx: number, dir: -1 | 1) => {
-    const next = [...settings.stageOrder];
-    const target = idx + dir;
-    if (target < 0 || target >= next.length) return;
-    [next[idx], next[target]] = [next[target], next[idx]];
-    update({ stageOrder: next });
-  };
-
+/**
+ * Settings dialog — outer shell only.
+ * Per current spec: do NOT add any options/features inside yet;
+ * future stages will populate this.
+ */
+export function SettingsDialog({
+  open,
+  onOpenChange,
+}: {
+  open?: boolean;
+  onOpenChange?: (v: boolean) => void;
+}) {
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <button
-          className={
-            className ??
-            "inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold text-foreground/80 transition hover:border-brand/50 hover:text-foreground"
-          }
-        >
-          <SettingsIcon className="h-4 w-4" />
-          الإعدادات
-        </button>
-      </DialogTrigger>
-
-      <DialogContent dir="rtl" className="max-w-lg rounded-3xl">
-        <DialogHeader className="text-right">
-          <DialogTitle className="text-lg">إعدادات تسلسل الدرس</DialogTitle>
-          <DialogDescription>
-            رتّب مراحل عرض كل فقرة بالترتيب الذي يناسبك. على سبيل المثال، يمكنك بدء كل فقرة بالقصة (الأمثلة) قبل الجملة المبسطة.
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent
+        dir="rtl"
+        className="max-w-md gap-0 overflow-hidden rounded-[1.5rem] border-0 bg-zen-surface p-0 shadow-[var(--shadow-deep)]"
+      >
+        <DialogHeader className="px-7 pt-6 text-right">
+          <DialogTitle className="text-[22px] font-semibold tracking-tight text-zen-on-surface">
+            الإعدادات
+          </DialogTitle>
+          <DialogDescription className="text-[13px] text-zen-on-surface-variant">
+            مساحة هادئة لتخصيص تجربتك. سيتم إضافة الخيارات قريباً.
           </DialogDescription>
         </DialogHeader>
 
-        <ol className="mt-2 space-y-2">
-          {settings.stageOrder.map((stage, idx) => (
-            <li
-              key={stage}
-              className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-card px-4 py-3"
-            >
-              <div className="flex items-center gap-3">
-                <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-brand-soft text-sm font-bold text-brand">
-                  {idx + 1}
-                </span>
-                <span className="text-sm font-semibold text-foreground">
-                  {STAGE_LABELS[stage as Stage]}
-                </span>
-              </div>
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => move(idx, -1)}
-                  disabled={idx === 0}
-                  className="rounded-lg p-2 text-foreground/60 hover:bg-muted disabled:opacity-30"
-                  aria-label="إلى الأعلى"
-                >
-                  <ArrowUp className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={() => move(idx, 1)}
-                  disabled={idx === settings.stageOrder.length - 1}
-                  className="rounded-lg p-2 text-foreground/60 hover:bg-muted disabled:opacity-30"
-                  aria-label="إلى الأسفل"
-                >
-                  <ArrowDown className="h-4 w-4" />
-                </button>
-              </div>
-            </li>
-          ))}
-        </ol>
-
-        <DialogFooter className="sm:justify-between">
-          <button
-            onClick={reset}
-            className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold text-foreground/70 hover:border-brand/40"
-          >
-            <RotateCcw className="h-4 w-4" />
-            استعادة الافتراضي
-          </button>
-          <button
-            onClick={() => setOpen(false)}
-            className="rounded-full bg-brand px-5 py-2 text-sm font-semibold text-brand-foreground hover:bg-brand/90"
-          >
-            تم
-          </button>
-        </DialogFooter>
+        <div className="px-7 pb-8 pt-6">
+          <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-zen-surface-container bg-white/40 px-6 py-12 text-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zen-surface-low text-zen-primary">
+              <SettingsIcon className="h-5 w-5" strokeWidth={1.75} />
+            </div>
+            <p className="text-sm font-medium text-zen-on-surface">لا توجد إعدادات بعد</p>
+            <p className="max-w-[260px] text-xs leading-relaxed text-zen-on-surface-variant">
+              سيتم تفعيل خيارات تخصيص الدرس والتسلسل والمظهر في تحديث قادم.
+            </p>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+/** Compatibility wrapper — kept so existing trigger buttons keep working. */
+export function SettingsButton({ className }: { className?: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <button
+            className={
+              className ??
+              "inline-flex items-center gap-2 rounded-full border border-zen-surface-container bg-white px-4 py-2 text-sm font-semibold text-zen-on-surface-variant transition hover:border-zen-primary-container hover:text-zen-on-surface"
+            }
+          >
+            <SettingsIcon className="h-4 w-4" />
+            الإعدادات
+          </button>
+        </DialogTrigger>
+      </Dialog>
+      <SettingsDialog open={open} onOpenChange={setOpen} />
+    </>
   );
 }

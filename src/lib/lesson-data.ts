@@ -2,15 +2,15 @@ import { DEFAULT_STAGE_ORDER, type Stage } from "@/lib/settings";
 
 export type HardWord = { word: string; meaning: string };
 
-export type MCQ = { question: string; options: string[]; answer: string };
-export type Fill = { question: string; answer: string };
-export type Essay = { question: string; keywords: string[] };
 export type QuizImage = { image_url?: string };
+export type MCQ = { question: string; options: string[]; answer: string } & QuizImage;
+export type Fill = { question: string; answer: string } & QuizImage;
+export type Essay = { question: string; keywords: string[] } & QuizImage;
 
 export type Quizzes = {
-  mcqs: (MCQ & QuizImage)[];
-  fills: (Fill & QuizImage)[];
-  essays: (Essay & QuizImage)[];
+  mcqs: MCQ[];
+  fills: Fill[];
+  essays: Essay[];
 };
 
 export type ParagraphBlock = {
@@ -25,7 +25,7 @@ export type ParagraphBlock = {
   funny_link: string;
   mind_map_nodes: string[];
   visual_url?: string;
-  stage_visuals?: Partial<Record<Stage | "quizzes", string>>;
+  stage_visuals?: Partial<Record<Stage | "quizzes" | "quizzes_mcq" | "quizzes_fill" | "quizzes_essay", string>>;
   /** Per-block overrides. If undefined, global settings apply. */
   enabled_stages?: Stage[];
   stage_order?: Stage[];
