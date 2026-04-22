@@ -2,15 +2,15 @@ import { DEFAULT_STAGE_ORDER, type Stage } from "@/lib/settings";
 
 export type HardWord = { word: string; meaning: string };
 
-export type MCQ = { question: string; options: string[]; answer: string };
-export type Fill = { question: string; answer: string };
-export type Essay = { question: string; keywords: string[] };
 export type QuizImage = { image_url?: string };
+export type MCQ = { question: string; options: string[]; answer: string } & QuizImage;
+export type Fill = { question: string; answer: string } & QuizImage;
+export type Essay = { question: string; keywords: string[] } & QuizImage;
 
 export type Quizzes = {
-  mcqs: (MCQ & QuizImage)[];
-  fills: (Fill & QuizImage)[];
-  essays: (Essay & QuizImage)[];
+  mcqs: MCQ[];
+  fills: Fill[];
+  essays: Essay[];
 };
 
 export type ParagraphBlock = {
