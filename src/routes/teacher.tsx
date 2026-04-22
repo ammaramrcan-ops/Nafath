@@ -410,26 +410,53 @@ function BlockStep({
         {showSequenceEditor ? (
           <div className="space-y-4 rounded-3xl bg-white p-6 shadow-[var(--shadow-deep)]">
             <StagesEditor block={block} onChange={onChange} />
-            <div className="rounded-2xl bg-zen-surface-low/60 p-5">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-[14px] font-medium text-zen-on-surface">فقرة الأسئلة</p>
-                  <p className="mt-1 text-[12px] text-zen-on-surface-variant">
-                    إظهار/إخفاء شاشة الأسئلة ضمن هذه الفقرة فقط.
-                  </p>
-                </div>
-                <button
-                  onClick={() => onChange({ quiz_enabled: block.quiz_enabled === false ? true : false })}
-                  className={cn(
-                    "rounded-full px-4 py-1.5 text-[12px] font-medium transition",
-                    block.quiz_enabled !== false
-                      ? "bg-zen-primary text-white"
-                      : "bg-white text-zen-on-surface-variant",
-                  )}
-                >
-                  {block.quiz_enabled !== false ? "مفعّلة" : "معطّلة"}
-                </button>
-              </div>
+            <div className="space-y-2">
+              <p className="px-1 text-[12px] font-medium text-zen-on-surface-variant">
+                مراحل الأسئلة (تظهر بنفس الترتيب)
+              </p>
+              {(() => {
+                const contentCount = (block.enabled_stages ?? DEFAULT_STAGE_ORDER).length;
+                return [
+                  { key: "quiz_mcq_enabled" as const, label: "أسئلة: اختر من متعدد", num: contentCount + 1 },
+                  { key: "quiz_fill_enabled" as const, label: "أسئلة: إكمال الفراغ", num: contentCount + 2 },
+                  { key: "quiz_essay_enabled" as const, label: "أسئلة: مقالي", num: contentCount + 3 },
+                ];
+              })().map((row) => {
+                const isOn = block[row.key] !== false && block.quiz_enabled !== false;
+                return (
+                  <div
+                    key={row.key}
+                    className={cn(
+                      "rounded-2xl bg-zen-surface-low/50 transition",
+                      isOn ? "" : "opacity-60",
+                    )}
+                  >
+                    <div className="flex items-center justify-between gap-2 px-5 py-3.5">
+                      <div className="flex items-center gap-3">
+                        <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white text-[12px] font-medium text-zen-primary">
+                          {row.num}
+                        </span>
+                        <span className="text-[14px] font-medium text-zen-on-surface">{row.label}</span>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const patch: Partial<ParagraphBlock> = { [row.key]: !isOn } as Partial<ParagraphBlock>;
+                          if (!isOn && block.quiz_enabled === false) patch.quiz_enabled = true;
+                          onChange(patch);
+                        }}
+                        className={cn(
+                          "inline-flex items-center gap-1 rounded-full px-3 py-1 text-[12px] font-medium transition",
+                          isOn ? "bg-zen-primary text-white" : "bg-white text-zen-on-surface-variant",
+                        )}
+                        title={isOn ? "إخفاء هذه المرحلة" : "تفعيل هذه المرحلة"}
+                      >
+                        {isOn ? <Eye className="h-3.5 w-3.5" strokeWidth={1.75} /> : <EyeOff className="h-3.5 w-3.5" strokeWidth={1.75} />}
+                        {isOn ? "مفعّلة" : "معطّلة"}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         ) : (
@@ -1049,7 +1076,9 @@ function hasStageContent(block: ParagraphBlock, stage: Stage): boolean {
     case "original":
       return block.full_text.trim().length > 0 || (block.visual_url ?? "").trim().length > 0;
     case "mental":
-      return block.mnemonic.trim().length > 0 || block.funny_link.trim().length > 0;
+      return block.mnemonic.trim().length > 0;
+    case "funny":
+      return block.funny_link.trim().length > 0;
     case "mindmap":
       return block.mind_map_nodes.length > 0;
   }

@@ -31,6 +31,9 @@ export type ParagraphBlock = {
   stage_order?: Stage[];
   quizzes: Quizzes;
   quiz_enabled?: boolean;
+  quiz_mcq_enabled?: boolean;
+  quiz_fill_enabled?: boolean;
+  quiz_essay_enabled?: boolean;
   enable_break?: boolean;
   break_duration?: number;
   stage_interval?: number;
@@ -134,6 +137,9 @@ export function normalizeBlock(raw: any, idx: number): ParagraphBlock {
       : undefined,
     quizzes: { mcqs, fills, essays },
     quiz_enabled,
+    quiz_mcq_enabled: raw?.quiz_mcq_enabled ?? true,
+    quiz_fill_enabled: raw?.quiz_fill_enabled ?? true,
+    quiz_essay_enabled: raw?.quiz_essay_enabled ?? true,
     enable_break: raw?.enable_break ?? true,
     break_duration: raw?.break_duration ?? 60,
     stage_interval: raw?.stage_interval ?? 15,

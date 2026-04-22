@@ -11,21 +11,38 @@ import { effectiveStages } from "@/lib/lesson-data";
 
 type Phase = "welcome" | "lesson" | "quiz_mcq" | "quiz_fill" | "quiz_essay" | "break" | "done";
 
+type QuizP = "quiz_mcq" | "quiz_fill" | "quiz_essay";
+
+function quizPhaseAvailable(
+  phase: QuizP,
+  block: {
+    quizzes: { mcqs: unknown[]; fills: unknown[]; essays: unknown[] };
+    quiz_mcq_enabled?: boolean;
+    quiz_fill_enabled?: boolean;
+    quiz_essay_enabled?: boolean;
+  },
+): boolean {
+  if (phase === "quiz_mcq") return block.quiz_mcq_enabled !== false && block.quizzes.mcqs.length > 0;
+  if (phase === "quiz_fill") return block.quiz_fill_enabled !== false && block.quizzes.fills.length > 0;
+  return block.quiz_essay_enabled !== false && block.quizzes.essays.length > 0;
+}
+
 function nextQuizPhase(
-  current: "quiz_mcq" | "quiz_fill" | "quiz_essay",
-  block: { quizzes: { mcqs: unknown[]; fills: unknown[]; essays: unknown[] } },
-): "quiz_fill" | "quiz_essay" | null {
-  if (current === "quiz_mcq" && block.quizzes.fills.length > 0) return "quiz_fill";
-  if ((current === "quiz_mcq" || current === "quiz_fill") && block.quizzes.essays.length > 0) return "quiz_essay";
+  current: QuizP,
+  block: Parameters<typeof quizPhaseAvailable>[1],
+): QuizP | null {
+  const order: QuizP[] = ["quiz_mcq", "quiz_fill", "quiz_essay"];
+  const start = order.indexOf(current) + 1;
+  for (let i = start; i < order.length; i++) {
+    if (quizPhaseAvailable(order[i], block)) return order[i];
+  }
   return null;
 }
 
-function firstQuizPhase(block: {
-  quizzes: { mcqs: unknown[]; fills: unknown[]; essays: unknown[] };
-}): "quiz_mcq" | "quiz_fill" | "quiz_essay" | null {
-  if (block.quizzes.mcqs.length > 0) return "quiz_mcq";
-  if (block.quizzes.fills.length > 0) return "quiz_fill";
-  if (block.quizzes.essays.length > 0) return "quiz_essay";
+function firstQuizPhase(block: Parameters<typeof quizPhaseAvailable>[1]): QuizP | null {
+  for (const p of ["quiz_mcq", "quiz_fill", "quiz_essay"] as QuizP[]) {
+    if (quizPhaseAvailable(p, block)) return p;
+  }
   return null;
 }
 
