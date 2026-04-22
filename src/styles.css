@@ -67,6 +67,13 @@
   --color-success-soft: var(--success-soft);
   --color-warning: var(--warning);
   --color-warning-soft: var(--warning-soft);
+  --color-zen-surface: var(--zen-surface);
+  --color-zen-surface-low: var(--zen-surface-low);
+  --color-zen-surface-container: var(--zen-surface-container);
+  --color-zen-primary: var(--zen-primary);
+  --color-zen-primary-container: var(--zen-primary-container);
+  --color-zen-on-surface: var(--zen-on-surface);
+  --color-zen-on-surface-variant: var(--zen-on-surface-variant);
   --font-sans: "Tajawal", "Cairo", system-ui, sans-serif;
 }
 
@@ -86,6 +93,16 @@
   --gradient-card: linear-gradient(180deg, oklch(1 0 0), oklch(0.98 0.02 230));
   --shadow-soft: 0 4px 20px -8px oklch(0.65 0.15 230 / 0.25);
   --shadow-glow: 0 0 0 4px oklch(0.65 0.15 230 / 0.15);
+  --shadow-deep: 0 20px 50px -10px oklch(0.7 0.05 230 / 0.18), 0 4px 12px -4px oklch(0.7 0.05 230 / 0.08);
+  --shadow-fab: 0 12px 32px -8px oklch(0.45 0.04 235 / 0.45);
+  /* Zen design tokens (mapped from main-design.html) */
+  --zen-surface: oklch(0.99 0.01 260);
+  --zen-surface-low: oklch(0.97 0.015 260);
+  --zen-surface-container: oklch(0.94 0.02 260);
+  --zen-primary: oklch(0.48 0.035 235);
+  --zen-primary-container: oklch(0.82 0.04 230);
+  --zen-on-surface: oklch(0.25 0.04 260);
+  --zen-on-surface-variant: oklch(0.5 0.025 250);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.129 0.042 264.695);
   --popover: oklch(1 0 0);
