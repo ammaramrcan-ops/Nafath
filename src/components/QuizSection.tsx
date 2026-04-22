@@ -18,14 +18,17 @@ export function QuizSection({
   onAllCorrect,
 }: {
   quizzes: Quizzes;
-  type?: "mcq_fill" | "essay" | "all";
+  type?: "mcq" | "fill" | "essay" | "all";
   onAllCorrect: () => void;
 }) {
-  const mcqs = type === "essay" ? [] : quizzes.mcqs.filter(
+  const showMcq = type === "all" || type === "mcq";
+  const showFill = type === "all" || type === "fill";
+  const showEssay = type === "all" || type === "essay";
+  const mcqs = !showMcq ? [] : quizzes.mcqs.filter(
     (q) => (q.question.trim() || q.image_url?.trim()) && q.options.some((o) => o.trim()),
   );
-  const fills = type === "essay" ? [] : quizzes.fills.filter((q) => (q.question.trim() || q.image_url?.trim()) && q.answer.trim());
-  const essays = type === "mcq_fill" ? [] : quizzes.essays.filter((q) => q.question.trim() || q.image_url?.trim());
+  const fills = !showFill ? [] : quizzes.fills.filter((q) => (q.question.trim() || q.image_url?.trim()) && q.answer.trim());
+  const essays = !showEssay ? [] : quizzes.essays.filter((q) => q.question.trim() || q.image_url?.trim());
 
   const total = mcqs.length + fills.length + essays.length;
   const [statuses, setStatuses] = useState<Record<string, Status>>({});

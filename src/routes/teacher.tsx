@@ -625,6 +625,12 @@ function StageContentField({
               placeholder="مثال: نبات = مصنع صامت."
             />
           </Field>
+          <StageIntervalSettings stage={stage} block={block} onChange={onChange} />
+        </div>
+      );
+    case "funny":
+      return (
+        <div className="space-y-3">
           <Field label="رابط ظريف يساعد على التذكر">
             <Input
               value={block.funny_link}

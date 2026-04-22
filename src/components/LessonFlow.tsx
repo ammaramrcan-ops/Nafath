@@ -9,7 +9,25 @@ import { EndScreen } from "@/components/EndScreen";
 import { useSettings } from "@/lib/settings";
 import { effectiveStages } from "@/lib/lesson-data";
 
-type Phase = "welcome" | "lesson" | "quiz_mcq_fill" | "quiz_essay" | "break" | "done";
+type Phase = "welcome" | "lesson" | "quiz_mcq" | "quiz_fill" | "quiz_essay" | "break" | "done";
+
+function nextQuizPhase(
+  current: "quiz_mcq" | "quiz_fill" | "quiz_essay",
+  block: { quizzes: { mcqs: unknown[]; fills: unknown[]; essays: unknown[] } },
+): "quiz_fill" | "quiz_essay" | null {
+  if (current === "quiz_mcq" && block.quizzes.fills.length > 0) return "quiz_fill";
+  if ((current === "quiz_mcq" || current === "quiz_fill") && block.quizzes.essays.length > 0) return "quiz_essay";
+  return null;
+}
+
+function firstQuizPhase(block: {
+  quizzes: { mcqs: unknown[]; fills: unknown[]; essays: unknown[] };
+}): "quiz_mcq" | "quiz_fill" | "quiz_essay" | null {
+  if (block.quizzes.mcqs.length > 0) return "quiz_mcq";
+  if (block.quizzes.fills.length > 0) return "quiz_fill";
+  if (block.quizzes.essays.length > 0) return "quiz_essay";
+  return null;
+}
 
 export function LessonFlow({
   lesson,
@@ -44,40 +62,38 @@ export function LessonFlow({
             stageOrder={effectiveStages(lesson.blocks[blockIdx], settings.stageOrder)}
             mode="student"
             onComplete={() => {
-              if (lesson.blocks[blockIdx].quiz_enabled !== false) {
-                 setPhase("quiz_mcq_fill");
+              const block = lesson.blocks[blockIdx];
+              const first = block.quiz_enabled !== false ? firstQuizPhase(block) : null;
+              if (first) {
+                setPhase(first);
+              } else if (blockIdx + 1 >= lesson.blocks.length) {
+                setPhase("done");
+              } else if (block.enable_break === false) {
+                setBlockIdx((i) => i + 1);
+                setPhase("lesson");
               } else {
-                 if (blockIdx + 1 >= lesson.blocks.length) {
-                   setPhase("done");
-                 } else if (lesson.blocks[blockIdx].enable_break === false) {
-                   setBlockIdx((i) => i + 1);
-                   setPhase("lesson");
-                 } else {
-                   setPhase("break");
-                 }
+                setPhase("break");
               }
             }}
           />
         )}
 
-        {phase === "quiz_mcq_fill" && (
+        {(phase === "quiz_mcq" || phase === "quiz_fill" || phase === "quiz_essay") && (
           <QuizPhase
-            key={`quiz-mcq-${blockIdx}`}
+            key={`${phase}-${blockIdx}`}
             lesson={lesson}
             blockIdx={blockIdx}
-            type="mcq_fill"
-            onNext={() => setPhase("quiz_essay")}
-          />
-        )}
-
-        {phase === "quiz_essay" && (
-          <QuizPhase
-            key={`quiz-essay-${blockIdx}`}
-            lesson={lesson}
-            blockIdx={blockIdx}
-            type="essay"
-            isLast={blockIdx + 1 >= lesson.blocks.length}
+            type={phase === "quiz_mcq" ? "mcq" : phase === "quiz_fill" ? "fill" : "essay"}
+            isLast={
+              blockIdx + 1 >= lesson.blocks.length &&
+              nextQuizPhase(phase, lesson.blocks[blockIdx]) === null
+            }
             onNext={() => {
+              const next = nextQuizPhase(phase, lesson.blocks[blockIdx]);
+              if (next) {
+                setPhase(next);
+                return;
+              }
               if (blockIdx + 1 >= lesson.blocks.length) {
                 setPhase("done");
               } else if (lesson.blocks[blockIdx].enable_break === false) {
@@ -118,7 +134,7 @@ function QuizPhase({
   lesson: Lesson;
   blockIdx: number;
   isLast?: boolean;
-  type: "mcq_fill" | "essay";
+  type: "mcq" | "fill" | "essay";
   onNext: () => void;
 }) {
   const [passed, setPassed] = useState(false);

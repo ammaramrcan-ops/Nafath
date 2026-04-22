@@ -286,21 +286,22 @@ export function ParagraphBlockCard({
           )}
 
           {stage === "mental" && (
-            <div className="space-y-6">
-              <div className="rounded-3xl border-2 border-brand/30 bg-card p-6 text-center">
-                <p className="mb-2 text-xs font-bold uppercase tracking-wider text-brand">
-                  اختصار للحفظ
-                </p>
-                <p className="text-xl font-bold leading-relaxed text-foreground">
-                  {block.mnemonic}
-                </p>
-              </div>
-              <div className="rounded-3xl bg-warning-soft p-6 text-center">
-                <p className="mb-2 text-xs font-bold uppercase tracking-wider text-foreground/60">
-                  رابط فكاهي 😄
-                </p>
-                <p className="text-lg leading-loose text-foreground/85">{block.funny_link}</p>
-              </div>
+            <div className="rounded-3xl border-2 border-brand/30 bg-card p-6 text-center">
+              <p className="mb-2 text-xs font-bold uppercase tracking-wider text-brand">
+                اختصار للحفظ
+              </p>
+              <p className="text-xl font-bold leading-relaxed text-foreground">
+                {block.mnemonic}
+              </p>
+            </div>
+          )}
+
+          {stage === "funny" && (
+            <div className="rounded-3xl bg-warning-soft p-6 text-center">
+              <p className="mb-2 text-xs font-bold uppercase tracking-wider text-foreground/60">
+                رابط فكاهي 😄
+              </p>
+              <p className="text-lg leading-loose text-foreground/85">{block.funny_link}</p>
             </div>
           )}
 

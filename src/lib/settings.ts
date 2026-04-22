@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 
-export type Stage = "short" | "story" | "examples" | "original" | "mental" | "mindmap";
+export type Stage = "short" | "story" | "examples" | "original" | "mental" | "funny" | "mindmap";
 
 export const STAGE_LABELS: Record<Stage, string> = {
   short: "الجملة المبسطة",
@@ -8,6 +8,7 @@ export const STAGE_LABELS: Record<Stage, string> = {
   examples: "أمثلة توضيحية",
   original: "النص الأصلي",
   mental: "رابط ذهني",
+  funny: "رابط فكاهي",
   mindmap: "الخريطة الذهنية",
 };
 
@@ -17,6 +18,7 @@ export const DEFAULT_STAGE_ORDER: Stage[] = [
   "examples",
   "original",
   "mental",
+  "funny",
   "mindmap",
 ];
 
