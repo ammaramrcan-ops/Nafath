@@ -1,0 +1,21 @@
+name: ✨ اقتراح ميزة
+description: اقترح ميزة جديدة لتطبيق نفاذ
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: ما المشكلة التي تحلّها هذه الميزة؟
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: الحل المقترح
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: بدائل درستها
