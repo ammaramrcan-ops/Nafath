@@ -8,7 +8,7 @@ pnpm-debug.log*
 lerna-debug.log*
 build_log*.txt
 
-# Dependencies & build output
+# Dependencies / build output
 node_modules
 dist
 dist-ssr
@@ -17,24 +17,15 @@ dist-ssr
 .tanstack/**
 .nitro
 *.local
+
+# Environment files (NEVER commit real secrets)
 .env
 .env.*
 !.env.example
 
-# Keep only bun lockfile (project uses bun + bunfig.toml)
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
-
 # Wrangler / Cloudflare
 .wrangler/
 .dev.vars
-
-# Replit / shell leftovers (should never be committed)
-.bash_logout
-.bashrc
-.profile
-.blink-template-revision
 
 # Editor directories and files
 .vscode/*
@@ -46,3 +37,12 @@ pnpm-lock.yaml
 *.njsproj
 *.sln
 *.sw?
+
+# Shell / Replit sandbox dotfiles (should not be in repo)
+.bashrc
+.bash_logout
+.profile
+.blink-template-revision
+
+# OS / misc
+Thumbs.db
