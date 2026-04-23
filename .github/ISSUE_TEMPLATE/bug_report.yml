@@ -1,0 +1,31 @@
+name: 🐛 تقرير خطأ
+description: أبلغ عن خطأ في تطبيق نفاذ
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: ماذا حدث؟
+      placeholder: عند الضغط على ...
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: خطوات إعادة الإنتاج
+      placeholder: |
+        1. افتح صفحة ...
+        2. اضغط على ...
+        3. لاحظ الخطأ
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: السلوك المتوقع
+  - type: input
+    id: browser
+    attributes:
+      label: المتصفح / الجهاز
+      placeholder: Chrome 120 على macOS
