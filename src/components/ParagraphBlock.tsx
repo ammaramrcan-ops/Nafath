@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { ChevronRight, ChevronLeft, RotateCcw, Brain, CircleAlert as AlertCircle, Lightbulb } from "lucide-react";
+import { ChevronRight, ChevronLeft, RotateCcw, Brain, Lightbulb } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
 import type { ParagraphBlock as Block } from "@/lib/lesson-data";
@@ -19,31 +19,15 @@ import {
 
 const MIN_RECALL_WORDS = 5;
 const DEFAULT_TIME_GATE_SECONDS = 15;
-const SPEED_THRESHOLD_QUICK = 20; // seconds considered "too quick"
-const SPEED_THRESHOLD_SLOW = 45; // seconds considered "good pacing"
+const SPEED_THRESHOLD_QUICK = 20;
+const SPEED_THRESHOLD_SLOW = 45;
 
 const BOREDOM_TIPS = [
-  {
-    title: "حقيقة ممتعة",
-    content:
-      "الدماغ يحتفظ بـ 50% أكثر من المعلومات عندما تكون هناك فترات راحة بين التعلم!",
-  },
-  {
-    title: "نصيحة حركية",
-    content: "قف وامش قليلاً، حرك جسمك! تحسين تدفق الدم يعزز التركيز.",
-  },
-  {
-    title: "حقيقة العقل",
-    content: "العقل ينسى 70% من المعلومات في أول 24 ساعة — المراجعة ضرورية!",
-  },
-  {
-    title: "نصيحة التنفس",
-    content: "خذ نفساً عميقاً 4 ثوان، احبسه 4 ثوان، أفرج 4 ثوان — هدا!",
-  },
-  {
-    title: "حقيقة غريبة",
-    content: "الطلاب الذين يأخذون ملاحظات بخط اليد يتذكرون أكثر من الآخرين!",
-  },
+  { title: "حقيقة ممتعة", content: "الدماغ يحتفظ بـ 50% أكثر من المعلومات عندما تكون هناك فترات راحة بين التعلم!" },
+  { title: "نصيحة حركية", content: "قف وامش قليلاً، حرك جسمك! تحسين تدفق الدم يعزز التركيز." },
+  { title: "حقيقة العقل", content: "العقل ينسى 70% من المعلومات في أول 24 ساعة — المراجعة ضرورية!" },
+  { title: "نصيحة التنفس", content: "خذ نفساً عميقاً 4 ثوان، احبسه 4 ثوان، أفرج 4 ثوان — هدا!" },
+  { title: "حقيقة غريبة", content: "الطلاب الذين يأخذون ملاحظات بخط اليد يتذكرون أكثر من الآخرين!" },
 ];
 
 export function ParagraphBlockCard({
@@ -66,14 +50,12 @@ export function ParagraphBlockCard({
 
   const stage = STAGES[idx].key;
 
-  // Time gating
   const intervalEnabled = block.enable_stage_intervals?.[stage] ?? true;
   const timeGateSeconds = block.stage_intervals?.[stage] ?? block.stage_interval ?? DEFAULT_TIME_GATE_SECONDS;
   const [stageStartTime, setStageStartTime] = useState<number | null>(null);
   const [timeGateRemaining, setTimeGateRemaining] = useState(timeGateSeconds);
   const [speedChecked, setSpeedChecked] = useState(false);
 
-  // Bored button
   const [showBoredModal, setShowBoredModal] = useState(false);
   const [boredTip, setBoredTip] = useState(BOREDOM_TIPS[0]);
 
@@ -82,7 +64,6 @@ export function ParagraphBlockCard({
   const enforceTimeGate = mode === "student" && intervalEnabled;
   const timeGatePassed = !enforceTimeGate || timeGateRemaining <= 0;
 
-  // Time gate countdown
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeGateRemaining((prev) => Math.max(0, prev - 1));
@@ -90,18 +71,19 @@ export function ParagraphBlockCard({
     return () => clearInterval(timer);
   }, []);
 
-  // Reset stage time when stage changes
   useEffect(() => {
     setStageStartTime(Date.now());
     setTimeGateRemaining(timeGateSeconds);
     setSpeedChecked(false);
   }, [stage, timeGateSeconds]);
 
-  // Intro — short sentence teaser before entering the stage flow
   if (!started && showIntro) {
     return (
-      <div className="mx-auto flex min-h-[60vh] max-w-2xl flex-col items-center justify-center px-6 py-16 text-center">
-        <p className="text-2xl sm:text-3xl font-semibold leading-loose text-foreground">
+      <div className="mx-auto flex min-h-[70vh] max-w-[640px] flex-col items-center justify-center px-6 py-16 text-center">
+        <p className="mb-6 text-[12px] font-medium tracking-wide text-zen-on-surface-variant">
+          الفكرة الأولى
+        </p>
+        <p className="text-[24px] font-light leading-loose text-zen-on-surface sm:text-[28px]">
           <HardWordText text={block.short_sentence} words={block.hard_words} />
         </p>
         <button
@@ -109,7 +91,7 @@ export function ParagraphBlockCard({
             setStarted(true);
             setIdx(0);
           }}
-          className="mt-12 rounded-full bg-brand px-8 py-4 text-base text-brand-foreground shadow-[var(--shadow-soft)] hover:bg-brand/90"
+          className="mt-14 rounded-full bg-zen-primary px-10 py-3.5 text-[14px] font-medium text-white shadow-[var(--shadow-fab)] transition hover:opacity-90"
         >
           فهمت الفكرة، اعرض التفاصيل
         </button>
@@ -127,13 +109,9 @@ export function ParagraphBlockCard({
       setSpeedChecked(true);
 
       if (elapsed <= SPEED_THRESHOLD_QUICK) {
-        toast("أنت تقرأ بسرعة كبيرة، تأكد من استيعاب التفاصيل 🧠", {
-          duration: 3000,
-        });
+        toast("أنت تقرأ بسرعة، تأكد من استيعاب التفاصيل", { duration: 3000 });
       } else if (elapsed >= SPEED_THRESHOLD_SLOW) {
-        toast("تأنيك في القراءة يبني روابط ذهنية أقوى! 🌟", {
-          duration: 3000,
-        });
+        toast("تأنيك في القراءة يبني روابط ذهنية أقوى", { duration: 3000 });
       }
     }
 
@@ -141,18 +119,18 @@ export function ParagraphBlockCard({
   };
 
   return (
-    <div className="mx-auto max-w-2xl px-6 py-12">
+    <div className="mx-auto max-w-[640px] px-6 py-12">
       {/* Stepper header */}
-      <div className="mb-10 flex items-center justify-between gap-3">
+      <div className="mb-12 flex items-center justify-between gap-3">
         <button
           onClick={() => {
             setStarted(false);
             setIdx(0);
             setRecallText("");
           }}
-          className="inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-sm text-foreground/60 hover:bg-muted"
+          className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium text-zen-on-surface-variant transition hover:bg-zen-surface-low"
         >
-          <RotateCcw className="h-4 w-4" />
+          <RotateCcw className="h-3.5 w-3.5" strokeWidth={1.75} />
           رجوع
         </button>
 
@@ -161,14 +139,14 @@ export function ParagraphBlockCard({
             <span
               key={i}
               className={cn(
-                "h-1.5 rounded-full transition-all",
-                i === idx ? "w-6 bg-brand" : "w-1.5 bg-border",
+                "h-[3px] rounded-full transition-all",
+                i === idx ? "w-7 bg-zen-primary" : "w-1.5 bg-zen-surface-container",
               )}
             />
           ))}
         </div>
 
-        <span className="min-w-24 text-sm text-foreground/50 text-center">
+        <span className="min-w-20 text-center text-[12px] font-light text-zen-on-surface-variant">
           {STAGES[idx].label}
         </span>
       </div>
@@ -176,35 +154,43 @@ export function ParagraphBlockCard({
       <AnimatePresence mode="wait">
         <motion.div
           key={stage}
-          initial={{ opacity: 0, x: 24 }}
+          initial={{ opacity: 0, x: 16 }}
           animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -24 }}
+          exit={{ opacity: 0, x: -16 }}
           transition={{ duration: 0.35, ease: "easeOut" }}
         >
           {stage === "short" && (
-            <p className="text-center text-2xl font-semibold leading-loose text-foreground">
+            <p className="text-center text-[24px] font-light leading-loose text-zen-on-surface">
               <HardWordText text={block.short_sentence} words={block.hard_words} />
             </p>
           )}
 
           {stage === "examples" && (
-            <div className="rounded-3xl bg-brand-soft/60 p-8 text-lg leading-loose text-foreground/85">
-              <p className="mb-3 text-sm font-semibold text-brand">مثال</p>
-              <HardWordText text={block.examples} words={block.hard_words} />
+            <div className="rounded-[24px] bg-white p-8 shadow-[var(--shadow-soft)]">
+              <p className="mb-3 text-[12px] font-medium tracking-wide text-zen-on-surface-variant">
+                مثال
+              </p>
+              <div className="text-[16px] font-light leading-loose text-zen-on-surface">
+                <HardWordText text={block.examples} words={block.hard_words} />
+              </div>
             </div>
           )}
 
           {stage === "story" && (
-            <div className="rounded-3xl border border-border bg-card p-8 text-lg leading-loose text-foreground/85">
-              <p className="mb-3 text-sm font-semibold text-brand">قصة</p>
-              <HardWordText text={block.story} words={block.hard_words} />
+            <div className="rounded-[24px] bg-white p-8 shadow-[var(--shadow-soft)]">
+              <p className="mb-3 text-[12px] font-medium tracking-wide text-zen-on-surface-variant">
+                قصة
+              </p>
+              <div className="text-[16px] font-light leading-loose text-zen-on-surface">
+                <HardWordText text={block.story} words={block.hard_words} />
+              </div>
             </div>
           )}
 
           {stage === "original" && (
             <div>
               {block.visual_url && (
-                <div className="mb-8 overflow-hidden rounded-2xl">
+                <div className="mb-8 overflow-hidden rounded-[24px] shadow-[var(--shadow-soft)]">
                   <img
                     src={block.visual_url}
                     alt={block.title}
@@ -213,7 +199,7 @@ export function ParagraphBlockCard({
                   />
                 </div>
               )}
-              <div className="relative text-lg text-foreground/85">
+              <div className="relative text-[16px] font-light leading-loose text-zen-on-surface">
                 <motion.div
                   animate={
                     recallText.length > 0
@@ -235,8 +221,8 @@ export function ParagraphBlockCard({
                       transition={{ duration: 0.25 }}
                       className="pointer-events-none absolute inset-0 flex items-center justify-center"
                     >
-                      <div className="rounded-2xl bg-card/80 px-5 py-3 text-sm font-semibold text-foreground/70 shadow-sm backdrop-blur">
-                        النص مخفي — استرجع من ذاكرتك ✍️
+                      <div className="rounded-full bg-white px-5 py-2.5 text-[12px] font-medium text-zen-on-surface-variant shadow-[var(--shadow-soft)] backdrop-blur">
+                        النص مخفي — استرجع من ذاكرتك
                       </div>
                     </motion.div>
                   )}
@@ -244,15 +230,15 @@ export function ParagraphBlockCard({
               </div>
 
               {/* Active Recall Box */}
-              <div className="mt-10 rounded-3xl border-2 border-brand/20 bg-brand-soft/40 p-6">
-                <div className="mb-3 flex items-center gap-2">
-                  <Brain className="h-5 w-5 text-brand" />
-                  <p className="text-sm font-bold text-brand">
-                    التفريغ الذهني: اكتب ما تتذكره من النص
+              <div className="mt-10 rounded-[24px] bg-white p-6 shadow-[var(--shadow-soft)]">
+                <div className="mb-2.5 flex items-center gap-2">
+                  <Brain className="h-4 w-4 text-zen-primary" strokeWidth={1.75} />
+                  <p className="text-[13px] font-medium text-zen-on-surface">
+                    التفريغ الذهني
                   </p>
                 </div>
-                <p className="mb-4 text-xs text-foreground/50">
-                  سيختفي النص الأصلي تماماً بمجرد كتابة أول حرف — اعتمد على ذاكرتك!
+                <p className="mb-4 text-[12px] font-light text-zen-on-surface-variant">
+                  سيختفي النص الأصلي بمجرد كتابة أول حرف — اعتمد على ذاكرتك
                 </p>
                 <textarea
                   ref={recallRef}
@@ -260,25 +246,24 @@ export function ParagraphBlockCard({
                   onChange={(e) => setRecallText(e.target.value)}
                   placeholder="اكتب هنا بأسلوبك الخاص..."
                   rows={4}
-                  className="w-full resize-none rounded-2xl border border-brand/20 bg-background px-4 py-3 text-base leading-relaxed text-foreground placeholder:text-foreground/30 focus:outline-none focus:ring-2 focus:ring-brand/40"
+                  className="w-full resize-none rounded-2xl bg-zen-surface-low px-4 py-3 text-[14px] font-light leading-relaxed text-zen-on-surface outline-none placeholder:text-zen-on-surface-variant/60 focus:bg-zen-surface-container"
                 />
-                <div className="mt-2 flex items-center justify-between">
+                <div className="mt-3 flex items-center justify-between">
                   <span
                     className={cn(
-                      "text-xs transition-colors",
-                      recallReady ? "text-success font-semibold" : "text-foreground/40",
+                      "text-[11px] font-light transition-colors",
+                      recallReady ? "font-medium text-zen-primary" : "text-zen-on-surface-variant",
                     )}
                   >
                     {recallWordCount} / {MIN_RECALL_WORDS} كلمات
                   </span>
                   {!recallReady && (
-                    <span className="text-xs text-foreground/40">
-                      اكتب {MIN_RECALL_WORDS - recallWordCount} كلمة{" "}
-                      {MIN_RECALL_WORDS - recallWordCount === 1 ? "أخرى" : "أخرى"} للمتابعة
+                    <span className="text-[11px] font-light text-zen-on-surface-variant">
+                      اكتب {MIN_RECALL_WORDS - recallWordCount} كلمة أخرى للمتابعة
                     </span>
                   )}
                   {recallReady && (
-                    <span className="text-xs font-semibold text-success">جاهز للمتابعة</span>
+                    <span className="text-[11px] font-medium text-zen-primary">جاهز للمتابعة</span>
                   )}
                 </div>
               </div>
@@ -286,28 +271,30 @@ export function ParagraphBlockCard({
           )}
 
           {stage === "mental" && (
-            <div className="rounded-3xl border-2 border-brand/30 bg-card p-6 text-center">
-              <p className="mb-2 text-xs font-bold uppercase tracking-wider text-brand">
+            <div className="rounded-[24px] bg-white p-8 text-center shadow-[var(--shadow-soft)]">
+              <p className="mb-3 text-[12px] font-medium tracking-wide text-zen-on-surface-variant">
                 اختصار للحفظ
               </p>
-              <p className="text-xl font-bold leading-relaxed text-foreground">
+              <p className="text-[20px] font-medium leading-relaxed text-zen-on-surface">
                 {block.mnemonic}
               </p>
             </div>
           )}
 
           {stage === "funny" && (
-            <div className="rounded-3xl bg-warning-soft p-6 text-center">
-              <p className="mb-2 text-xs font-bold uppercase tracking-wider text-foreground/60">
-                رابط فكاهي 😄
+            <div className="rounded-[24px] bg-warning-soft/60 p-8 text-center shadow-[var(--shadow-soft)]">
+              <p className="mb-3 text-[12px] font-medium tracking-wide text-zen-on-surface-variant">
+                رابط فكاهي
               </p>
-              <p className="text-lg leading-loose text-foreground/85">{block.funny_link}</p>
+              <p className="text-[16px] font-light leading-loose text-zen-on-surface">
+                {block.funny_link}
+              </p>
             </div>
           )}
 
           {stage === "mindmap" && (
             <div>
-              <p className="mb-6 text-center text-sm text-foreground/50">
+              <p className="mb-8 text-center text-[12px] font-medium tracking-wide text-zen-on-surface-variant">
                 الخريطة الذهنية للفقرة
               </p>
               <MindMap title={block.title} nodes={block.mind_map_nodes} />
@@ -317,22 +304,22 @@ export function ParagraphBlockCard({
       </AnimatePresence>
 
       {/* Nav */}
-      <div className="mt-12 flex items-center justify-between gap-3">
+      <div className="mt-14 flex items-center justify-between gap-3">
         {mode === "teacher" ? (
           <button
             onClick={() => setIdx((i) => Math.max(0, i - 1))}
             disabled={idx === 0}
-            className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-border bg-background text-foreground transition hover:border-brand/40 disabled:opacity-30"
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-zen-on-surface shadow-[var(--shadow-soft)] transition hover:bg-zen-surface-low disabled:opacity-30"
             aria-label="السابق"
           >
-            <ChevronRight className="h-5 w-5" />
+            <ChevronRight className="h-4 w-4" strokeWidth={1.75} />
           </button>
         ) : (
-          <span className="inline-block h-12 w-12" />
+          <span className="inline-block h-11 w-11" />
         )}
 
         <div className="flex flex-col items-center gap-2">
-          <span className="text-sm text-foreground/40">
+          <span className="text-[12px] font-light text-zen-on-surface-variant">
             {idx + 1} / {STAGES.length}
           </span>
           {!timeGatePassed && (
@@ -341,9 +328,11 @@ export function ParagraphBlockCard({
                 initial={{ scaleX: 1 }}
                 animate={{ scaleX: timeGateSeconds > 0 ? timeGateRemaining / timeGateSeconds : 0 }}
                 transition={{ duration: 0.9 }}
-                className="h-1 w-16 origin-right rounded-full bg-brand/60"
+                className="h-[2px] w-16 origin-right rounded-full bg-zen-primary/60"
               />
-              <span className="text-xs text-foreground/50">{timeGateRemaining}s</span>
+              <span className="text-[11px] font-light text-zen-on-surface-variant">
+                {timeGateRemaining}s
+              </span>
             </div>
           )}
         </div>
@@ -351,16 +340,14 @@ export function ParagraphBlockCard({
         {isLast ? (
           <button
             onClick={onComplete}
-            className="rounded-full bg-success px-6 py-3 text-sm font-semibold text-success-foreground shadow-[var(--shadow-soft)] hover:bg-success/90"
+            className="rounded-full bg-zen-primary px-6 py-3 text-[13px] font-medium text-white shadow-[var(--shadow-fab)] transition hover:opacity-90"
           >
             التالي ←
           </button>
         ) : (
           <button
             onClick={handleNextClick}
-            disabled={
-              (stage === "original" && !recallReady) || !timeGatePassed
-            }
+            disabled={(stage === "original" && !recallReady) || !timeGatePassed}
             title={
               stage === "original" && !recallReady
                 ? "أكمل التفريغ الذهني أولاً"
@@ -369,49 +356,49 @@ export function ParagraphBlockCard({
                   : undefined
             }
             className={cn(
-              "flex h-12 w-12 items-center justify-center rounded-full border-2 bg-background text-foreground transition",
-              stage === "original" && !recallReady
-                ? "border-border opacity-30 cursor-not-allowed"
-                : !timeGatePassed
-                  ? "border-brand/40 opacity-50 cursor-not-allowed"
-                  : "border-border hover:border-brand/40",
+              "flex h-11 w-11 items-center justify-center rounded-full bg-white text-zen-on-surface shadow-[var(--shadow-soft)] transition",
+              (stage === "original" && !recallReady) || !timeGatePassed
+                ? "opacity-30 cursor-not-allowed"
+                : "hover:bg-zen-surface-low",
             )}
             aria-label="التالي"
           >
-            <ChevronLeft className="h-5 w-5" />
+            <ChevronLeft className="h-4 w-4" strokeWidth={1.75} />
           </button>
         )}
       </div>
 
       {/* Bored button */}
-      <div className="mt-6 flex justify-center">
+      <div className="mt-8 flex justify-center">
         <button
           onClick={() => {
             const randomTip = BOREDOM_TIPS[Math.floor(Math.random() * BOREDOM_TIPS.length)];
             setBoredTip(randomTip);
             setShowBoredModal(true);
           }}
-          className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm text-foreground/50 transition hover:bg-muted hover:text-foreground"
+          className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-[12px] font-medium text-zen-on-surface-variant transition hover:bg-zen-surface-low"
         >
-          <Lightbulb className="h-4 w-4" />
+          <Lightbulb className="h-3.5 w-3.5" strokeWidth={1.75} />
           أشعر بالملل
         </button>
       </div>
 
       {/* Bored Modal */}
       <AlertDialog open={showBoredModal} onOpenChange={setShowBoredModal}>
-        <AlertDialogContent className="rounded-3xl">
+        <AlertDialogContent className="rounded-[28px] border-0 shadow-[var(--shadow-deep)]">
           <AlertDialogHeader className="text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-brand-soft">
-              <Lightbulb className="h-6 w-6 text-brand" />
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-zen-surface-low">
+              <Lightbulb className="h-5 w-5 text-zen-primary" strokeWidth={1.75} />
             </div>
-            <AlertDialogTitle className="text-lg">{boredTip.title}</AlertDialogTitle>
-            <AlertDialogDescription className="mt-4 text-base leading-relaxed">
+            <AlertDialogTitle className="text-[16px] font-medium text-zen-on-surface">
+              {boredTip.title}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="mt-3 text-[14px] font-light leading-relaxed text-zen-on-surface-variant">
               {boredTip.content}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="flex gap-3">
-            <AlertDialogCancel className="flex-1 rounded-full">
+            <AlertDialogCancel className="flex-1 rounded-full border-0 bg-zen-surface-low text-zen-on-surface hover:bg-zen-surface-container">
               إغلاق
             </AlertDialogCancel>
             <AlertDialogAction
@@ -419,7 +406,7 @@ export function ParagraphBlockCard({
                 const randomTip = BOREDOM_TIPS[Math.floor(Math.random() * BOREDOM_TIPS.length)];
                 setBoredTip(randomTip);
               }}
-              className="flex-1 rounded-full bg-brand hover:bg-brand/90"
+              className="flex-1 rounded-full bg-zen-primary text-white hover:opacity-90"
             >
               نصيحة أخرى
             </AlertDialogAction>

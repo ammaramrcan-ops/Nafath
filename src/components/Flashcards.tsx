@@ -15,10 +15,10 @@ function FlipCard({ front, back }: { front: string; back: string }) {
         transition={{ duration: 0.5 }}
         className="relative h-full w-full [transform-style:preserve-3d]"
       >
-        <div className="absolute inset-0 flex items-center justify-center rounded-2xl border border-border bg-gradient-to-br from-brand-soft to-background p-6 text-center text-xl font-bold text-foreground [backface-visibility:hidden]">
+        <div className="absolute inset-0 flex items-center justify-center rounded-3xl bg-white p-6 text-center text-[20px] font-medium text-zen-on-surface shadow-[var(--shadow-soft)] [backface-visibility:hidden]">
           {front}
         </div>
-        <div className="absolute inset-0 flex items-center justify-center rounded-2xl border border-success/30 bg-success-soft p-6 text-center text-base leading-relaxed text-foreground [backface-visibility:hidden] [transform:rotateY(180deg)]">
+        <div className="absolute inset-0 flex items-center justify-center rounded-3xl bg-zen-primary-container/40 p-6 text-center text-[15px] font-light leading-relaxed text-zen-on-surface shadow-[var(--shadow-soft)] [backface-visibility:hidden] [transform:rotateY(180deg)]">
           {back}
         </div>
       </motion.div>
@@ -37,7 +37,9 @@ export function Flashcards({
 }) {
   const grid =
     words.length === 0 ? (
-      <p className="text-center text-foreground/50">لا توجد مصطلحات للمراجعة في هذا الدرس.</p>
+      <p className="text-center text-[14px] font-light text-zen-on-surface-variant">
+        لا توجد مصطلحات للمراجعة في هذا الدرس.
+      </p>
     ) : (
       <div className="grid gap-5 sm:grid-cols-2">
         {words.map((w, i) => (
@@ -46,25 +48,26 @@ export function Flashcards({
       </div>
     );
 
-  if (embedded) {
-    return grid;
-  }
+  if (embedded) return grid;
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-16">
-      <div className="mb-3 text-center text-5xl">🎉</div>
-      <h2 className="mb-2 text-center text-3xl font-extrabold">أحسنت! أتممت الدرس</h2>
-      <p className="mb-10 text-center text-foreground/60">
-        بطاقات المراجعة السريعة — انقر على البطاقة لقلبها
-      </p>
+      <div className="mb-12 text-center">
+        <h2 className="text-[32px] font-medium leading-tight text-zen-on-surface">
+          بطاقات المراجعة
+        </h2>
+        <p className="mt-3 text-[14px] font-light text-zen-on-surface-variant">
+          انقر على البطاقة لقلبها وعرض التعريف
+        </p>
+      </div>
 
       {grid}
 
       {onRestart && (
-        <div className="mt-12 text-center">
+        <div className="mt-14 text-center">
           <button
             onClick={onRestart}
-            className="rounded-full bg-brand px-10 py-4 text-base font-semibold text-brand-foreground shadow-[var(--shadow-soft)] hover:bg-brand/90"
+            className="rounded-full bg-zen-primary px-12 py-4 text-[15px] font-medium text-white shadow-[var(--shadow-fab)] transition hover:opacity-90"
           >
             ابدأ درساً جديداً
           </button>

@@ -156,17 +156,17 @@ function QuizPhase({
 }) {
   const [passed, setPassed] = useState(false);
   return (
-    <div className="mx-auto max-w-2xl px-6 py-12">
+    <div className="mx-auto max-w-[640px] px-6 py-12">
       <QuizSection
         quizzes={lesson.blocks[blockIdx].quizzes}
         type={type}
         onAllCorrect={() => setPassed(true)}
       />
       {passed && (
-        <div className="mt-10 text-center">
+        <div className="mt-12 text-center">
           <button
             onClick={onNext}
-            className="rounded-full bg-success px-10 py-4 text-base font-semibold text-success-foreground shadow-[var(--shadow-soft)] transition hover:bg-success/90"
+            className="rounded-full bg-zen-primary px-10 py-3.5 text-[14px] font-medium text-white shadow-[var(--shadow-fab)] transition hover:opacity-90"
           >
             {isLast ? "إنهاء الدرس ←" : "المرحلة التالية ←"}
           </button>

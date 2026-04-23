@@ -1,9 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, XCircle } from "lucide-react";
 import type { Quizzes, MCQ, Fill, Essay } from "@/lib/lesson-data";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
 type Status = "idle" | "correct" | "wrong";
@@ -45,14 +42,12 @@ export function QuizSection({
       const next = { ...prev, [key]: status };
       const correct = Object.values(next).filter((s) => s === "correct").length;
       if (total === 0 || correct === total) {
-        // Defer to avoid setState-in-render warnings if parent transitions
         queueMicrotask(() => onAllCorrect());
       }
       return next;
     });
   };
 
-  // Auto-complete on mount if there are no quizzes at all
   useEffect(() => {
     if (total === 0) onAllCorrect();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -60,13 +55,22 @@ export function QuizSection({
 
   let n = 0;
   return (
-    <div className="mt-12 space-y-10 border-t border-border/50 pt-10">
-      <h3 className="text-center text-xl font-bold text-foreground">
-        تحقق من فهمك {total > 0 && <span className="text-sm text-foreground/50">({correctCount}/{total})</span>}
-      </h3>
+    <div className="space-y-10">
+      <div className="text-center">
+        <p className="text-[13px] font-medium tracking-wide text-zen-on-surface-variant">
+          تحقق من فهمك
+        </p>
+        {total > 0 && (
+          <p className="mt-2 text-[12px] font-light text-zen-on-surface-variant">
+            {correctCount} / {total}
+          </p>
+        )}
+      </div>
 
       {total === 0 && (
-        <p className="text-center text-sm text-foreground/50">لا توجد أسئلة لهذه الفقرة.</p>
+        <p className="text-center text-[13px] font-light text-zen-on-surface-variant">
+          لا توجد أسئلة لهذه الفقرة.
+        </p>
       )}
 
       {mcqs.map((q, i) => {
@@ -86,11 +90,31 @@ export function QuizSection({
       })}
 
       {allCorrect && total > 0 && (
-        <div className="rounded-2xl bg-success-soft p-4 text-center text-success font-semibold">
-          🎉 ممتاز! اكتملت الفقرة، يمكنك المتابعة.
+        <div className="rounded-2xl bg-zen-primary-container/40 p-5 text-center text-[14px] font-medium text-zen-on-surface">
+          اكتملت الفقرة، يمكنك المتابعة.
         </div>
       )}
     </div>
+  );
+}
+
+function QuestionShell({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="rounded-[24px] bg-white p-6 shadow-[var(--shadow-soft)] sm:p-8">
+      <div className="space-y-4">{children}</div>
+    </div>
+  );
+}
+
+function CheckButton({ onClick, disabled }: { onClick: () => void; disabled?: boolean }) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className="rounded-full bg-zen-on-surface px-6 py-2.5 text-[13px] font-medium text-white transition hover:opacity-90 disabled:opacity-30"
+    >
+      تحقق
+    </button>
   );
 }
 
@@ -111,12 +135,14 @@ function McqItem({
     setStatus(sel === q.answer ? "correct" : "wrong");
   };
   return (
-    <div className="space-y-3">
+    <QuestionShell>
       {q.image_url && (
-        <img src={q.image_url} alt={`صورة السؤال ${num}`} className="h-44 w-full rounded-xl object-cover" />
+        <img src={q.image_url} alt={`صورة السؤال ${num}`} className="h-44 w-full rounded-2xl object-cover" />
       )}
-      <p className="font-semibold leading-relaxed">{num}. {q.question}</p>
-      <div className="grid gap-2">
+      <p className="text-[15px] font-medium leading-relaxed text-zen-on-surface">
+        {num}. {q.question}
+      </p>
+      <div className="grid gap-2.5">
         {q.options.filter((o) => o.trim()).map((opt) => {
           const isSel = sel === opt;
           const showCorrect = status !== "idle" && opt === q.answer;
@@ -127,26 +153,22 @@ function McqItem({
               onClick={() => status !== "correct" && setSel(opt)}
               disabled={status === "correct"}
               className={cn(
-                "flex items-center justify-between rounded-xl border-2 px-4 py-3 text-right text-base transition",
-                "border-border bg-background hover:border-brand/40",
-                isSel && status === "idle" && "border-brand bg-brand-soft",
-                showCorrect && "border-success bg-success-soft",
-                showWrong && "border-destructive bg-destructive/10",
+                "flex items-center justify-between rounded-2xl bg-zen-surface-low px-5 py-3.5 text-right text-[14px] font-light text-zen-on-surface transition",
+                "hover:bg-zen-surface-container",
+                isSel && status === "idle" && "bg-zen-primary-container/50",
+                showCorrect && "bg-zen-primary-container/60",
+                showWrong && "bg-destructive/10",
               )}
             >
               <span>{opt}</span>
-              {showCorrect && <CheckCircle2 className="h-5 w-5 text-success" />}
-              {showWrong && <XCircle className="h-5 w-5 text-destructive" />}
+              {showCorrect && <CheckCircle2 className="h-4 w-4 text-zen-primary" strokeWidth={1.75} />}
+              {showWrong && <XCircle className="h-4 w-4 text-destructive" strokeWidth={1.75} />}
             </button>
           );
         })}
       </div>
-      {status !== "correct" && (
-        <Button onClick={check} disabled={!sel} variant="outline" className="rounded-full">
-          تحقق
-        </Button>
-      )}
-    </div>
+      {status !== "correct" && <CheckButton onClick={check} disabled={!sel} />}
+    </QuestionShell>
   );
 }
 
@@ -164,30 +186,32 @@ function FillItem({
   const [val, setVal] = useState("");
   const check = () => setStatus(normalize(val) === normalize(q.answer) ? "correct" : "wrong");
   return (
-    <div className="space-y-3">
+    <QuestionShell>
       {q.image_url && (
-        <img src={q.image_url} alt={`صورة السؤال ${num}`} className="h-44 w-full rounded-xl object-cover" />
+        <img src={q.image_url} alt={`صورة السؤال ${num}`} className="h-44 w-full rounded-2xl object-cover" />
       )}
-      <p className="font-semibold leading-relaxed">{num}. {q.question}</p>
-      <Input
+      <p className="text-[15px] font-medium leading-relaxed text-zen-on-surface">
+        {num}. {q.question}
+      </p>
+      <input
         value={val}
         onChange={(e) => setVal(e.target.value)}
         disabled={status === "correct"}
         placeholder="اكتب الإجابة هنا..."
         className={cn(
-          "h-12 rounded-xl text-right text-base",
-          status === "correct" && "border-success bg-success-soft",
-          status === "wrong" && "border-destructive bg-destructive/10",
+          "h-12 w-full rounded-2xl bg-zen-surface-low px-5 text-right text-[14px] font-light text-zen-on-surface outline-none placeholder:text-zen-on-surface-variant/60 focus:bg-zen-surface-container",
+          status === "correct" && "bg-zen-primary-container/50",
+          status === "wrong" && "bg-destructive/10",
         )}
       />
-      {status !== "correct" && (
-        <Button onClick={check} disabled={!val.trim()} variant="outline" className="rounded-full">
-          تحقق
-        </Button>
+      {status !== "correct" && <CheckButton onClick={check} disabled={!val.trim()} />}
+      {status === "wrong" && (
+        <p className="text-[12px] font-light text-destructive">إجابة غير صحيحة، حاول مرة أخرى.</p>
       )}
-      {status === "wrong" && <p className="text-sm text-destructive">إجابة غير صحيحة، حاول مرة أخرى.</p>}
-      {status === "correct" && <p className="text-sm font-semibold text-success">✓ إجابة صحيحة</p>}
-    </div>
+      {status === "correct" && (
+        <p className="text-[12px] font-medium text-zen-primary">إجابة صحيحة</p>
+      )}
+    </QuestionShell>
   );
 }
 
@@ -214,38 +238,36 @@ function EssayItem({
     setStatus(ok ? "correct" : "wrong");
   };
   return (
-    <div className="space-y-3">
+    <QuestionShell>
       {q.image_url && (
-        <img src={q.image_url} alt={`صورة السؤال ${num}`} className="h-44 w-full rounded-xl object-cover" />
+        <img src={q.image_url} alt={`صورة السؤال ${num}`} className="h-44 w-full rounded-2xl object-cover" />
       )}
-      <p className="font-semibold leading-relaxed">{num}. {q.question}</p>
-      <Textarea
+      <p className="text-[15px] font-medium leading-relaxed text-zen-on-surface">
+        {num}. {q.question}
+      </p>
+      <textarea
         value={val}
         onChange={(e) => setVal(e.target.value)}
         disabled={status === "correct"}
         placeholder="اكتب إجابتك بأسلوبك الخاص..."
         rows={4}
         className={cn(
-          "rounded-xl text-right text-base leading-relaxed",
-          status === "correct" && "border-success bg-success-soft",
-          status === "wrong" && "border-destructive bg-destructive/10",
+          "w-full resize-none rounded-2xl bg-zen-surface-low px-5 py-3 text-right text-[14px] font-light leading-relaxed text-zen-on-surface outline-none placeholder:text-zen-on-surface-variant/60 focus:bg-zen-surface-container",
+          status === "correct" && "bg-zen-primary-container/50",
+          status === "wrong" && "bg-destructive/10",
         )}
       />
-      {status !== "correct" && (
-        <Button onClick={check} disabled={!val.trim()} variant="outline" className="rounded-full">
-          تحقق من الإجابة
-        </Button>
-      )}
+      {status !== "correct" && <CheckButton onClick={check} disabled={!val.trim()} />}
       {status !== "idle" && q.keywords.length > 0 && (
-        <p className={cn("text-sm", status === "correct" ? "text-success font-semibold" : "text-foreground/70")}>
+        <p className={cn("text-[12px] font-light", status === "correct" ? "text-zen-primary font-medium" : "text-zen-on-surface-variant")}>
           {status === "correct"
-            ? `✓ إجابة جيدة! ذكرت: ${matched.join("، ")}`
+            ? `ذكرت: ${matched.join("، ")}`
             : `حاول تضمين كلمات مفتاحية أكثر. ذكرت: ${matched.join("، ") || "لا شيء"} من أصل ${q.keywords.length}.`}
         </p>
       )}
       {status === "correct" && q.keywords.length === 0 && (
-        <p className="text-sm font-semibold text-success">✓ تم تسجيل إجابتك</p>
+        <p className="text-[12px] font-medium text-zen-primary">تم تسجيل إجابتك</p>
       )}
-    </div>
+    </QuestionShell>
   );
 }

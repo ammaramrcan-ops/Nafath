@@ -4,7 +4,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 export function HardWordText({ text, words }: { text: string; words: HardWord[] }) {
   if (!words.length) return <>{text}</>;
 
-  // Build regex matching any of the hard words (longest first to avoid partial overlap)
   const sorted = [...words].sort((a, b) => b.word.length - a.word.length);
   const escaped = sorted.map((w) => w.word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
   const regex = new RegExp(`(${escaped.join("|")})`, "g");
@@ -19,12 +18,12 @@ export function HardWordText({ text, words }: { text: string; words: HardWord[] 
           return (
             <Tooltip key={i}>
               <TooltipTrigger asChild>
-                <span className="cursor-help font-semibold text-brand underline decoration-dashed decoration-brand/60 underline-offset-4">
+                <span className="cursor-help font-medium text-zen-primary underline decoration-dotted decoration-zen-primary/40 underline-offset-[6px]">
                   {part}
                 </span>
               </TooltipTrigger>
-              <TooltipContent side="top" className="max-w-xs text-right">
-                <p className="text-sm">{match.meaning}</p>
+              <TooltipContent side="top" className="max-w-xs rounded-2xl bg-zen-on-surface px-4 py-2.5 text-right text-white">
+                <p className="text-[13px] font-light leading-relaxed">{match.meaning}</p>
               </TooltipContent>
             </Tooltip>
           );
