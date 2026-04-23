@@ -167,6 +167,11 @@ function TeacherPage() {
     setStep(1);
   };
 
+  // Calculate if we're on last block and last stage (for save button display)
+  const shouldShowSaveButton = !isInfoStep &&
+    blockIdx === lesson.blocks.length - 1 &&
+    introStage === null;
+
   return (
     <div dir="rtl" lang="ar" className="min-h-screen bg-zen-surface text-zen-on-surface antialiased font-sans">
       <header className="sticky top-0 z-20 bg-zen-surface/85 backdrop-blur-md">
@@ -201,7 +206,7 @@ function TeacherPage() {
               >
                 مسح
               </button>
-              {isLastBlock && isLastStage && (
+              {shouldShowSaveButton && (
                 <button
                   onClick={handleSaveToLibrary}
                   className={cn(
