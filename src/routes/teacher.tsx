@@ -86,6 +86,7 @@ function TeacherPage() {
     return emptyLesson();
   });
   const [step, setStep] = useState(0);
+  const [introStage, setIntroStage] = useState<'start' | 'lesson-info' | null>('start');
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [libSaved, setLibSaved] = useState(false);
 
@@ -150,8 +151,26 @@ function TeacherPage() {
 
   const loadDefault = () => {
     setLesson(defaultLesson);
+    setIntroStage('lesson-info');
     setStep(0);
   };
+
+  const startFromEmpty = () => {
+    const empty = emptyLesson();
+    setLesson(empty);
+    setIntroStage('lesson-info');
+    setStep(0);
+  };
+
+  const handleLessonInfoComplete = () => {
+    setIntroStage(null);
+    setStep(1);
+  };
+
+  // Calculate if we're on last block and last stage (for save button display)
+  const shouldShowSaveButton = !isInfoStep &&
+    blockIdx === lesson.blocks.length - 1 &&
+    introStage === null;
 
   return (
     <div dir="rtl" lang="ar" className="min-h-screen bg-zen-surface text-zen-on-surface antialiased font-sans">
@@ -166,78 +185,63 @@ function TeacherPage() {
               الرئيسية
             </Link>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
-            {savedAt && (
-              <span className="text-[12px] font-medium text-zen-on-surface-variant/70">
-                حُفظت {savedAt}
-              </span>
-            )}
-            <button
-              onClick={loadDefault}
-              className="text-[13px] font-medium text-zen-on-surface-variant transition hover:text-zen-on-surface"
-            >
-              قالب نموذج
-            </button>
-            <button
-              onClick={() => {
-                if (window.confirm("هل أنت متأكد من مسح الدرس الحالي للبدء من جديد؟")) {
-                  const empty = emptyLesson();
-                  setLesson(empty);
-                  setStep(0);
-                  localStorage.removeItem(STORAGE_KEY);
-                  setLibSaved(false);
-                }
-              }}
-              className="text-[13px] font-medium text-zen-on-surface-variant transition hover:text-destructive"
-            >
-              مسح
-            </button>
-            <button
-              onClick={handleSaveToLibrary}
-              className={cn(
-                "rounded-full px-5 py-2 text-[13px] font-medium tracking-wide transition",
-                libSaved
-                  ? "bg-zen-surface-container text-zen-primary"
-                  : "bg-zen-primary text-white hover:opacity-90",
+          {introStage === null && (
+            <div className="flex flex-wrap items-center gap-3">
+              {savedAt && (
+                <span className="text-[12px] font-medium text-zen-on-surface-variant/70">
+                  حُفظت {savedAt}
+                </span>
               )}
-            >
-              {libSaved ? "✓ حُفظ" : "حفظ في المكتبة"}
-            </button>
-          </div>
-        </div>
-
-        {/* Step indicator */}
-        <div className="px-8 pb-5">
-          <div className="mx-auto flex max-w-5xl items-center gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            <StepChip
-              label="معلومات الدرس"
-              active={step === 0}
-              onClick={() => setStep(0)}
-            />
-            {lesson.blocks.map((b, i) => (
-              <StepChip
-                key={i}
-                label={`فقرة ${i + 1}${b.title ? `: ${b.title}` : ""}`}
-                active={step === i + 1}
+              <button
                 onClick={() => {
-                  if (i + 1 <= step || i + 1 === 1) setStep(i + 1);
+                  if (window.confirm("هل أنت متأكد من مسح الدرس الحالي للبدء من جديد؟")) {
+                    const empty = emptyLesson();
+                    setLesson(empty);
+                    setStep(0);
+                    localStorage.removeItem(STORAGE_KEY);
+                    setLibSaved(false);
+                  }
                 }}
-              />
-            ))}
-            <button
-              onClick={addBlock}
-              className="inline-flex shrink-0 items-center gap-1 rounded-full px-4 py-1.5 text-[12px] font-medium text-zen-on-surface-variant transition hover:bg-zen-surface-low hover:text-zen-on-surface"
-            >
-              <Plus className="h-3.5 w-3.5" strokeWidth={1.75} />
-              فقرة
-            </button>
-          </div>
+                className="text-[13px] font-medium text-zen-on-surface-variant transition hover:text-destructive"
+              >
+                مسح
+              </button>
+              {shouldShowSaveButton && (
+                <button
+                  onClick={handleSaveToLibrary}
+                  className={cn(
+                    "rounded-full px-5 py-2 text-[13px] font-medium tracking-wide transition",
+                    libSaved
+                      ? "bg-zen-surface-container text-zen-primary"
+                      : "bg-zen-primary text-white hover:opacity-90",
+                  )}
+                >
+                  {libSaved ? "✓ حُفظ" : "حفظ في المكتبة"}
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </header>
 
       <main className="mx-auto max-w-3xl px-8 py-12">
-        {isInfoStep ? (
-          <LessonInfoStep lesson={lesson} onChange={updateLesson} />
+        {introStage === 'start' ? (
+          <IntroductionScreen
+            onStartEmpty={startFromEmpty}
+            onLoadDefault={loadDefault}
+          />
+        ) : introStage === 'lesson-info' ? (
+          <LessonInfoStep
+            lesson={lesson}
+            onChange={updateLesson}
+            onNext={handleLessonInfoComplete}
+          />
+        ) : isInfoStep ? (
+          <LessonInfoStep
+            lesson={lesson}
+            onChange={updateLesson}
+            onNext={handleLessonInfoComplete}
+          />
         ) : (
           <BlockStep
             block={lesson.blocks[blockIdx]}
@@ -247,6 +251,9 @@ function TeacherPage() {
             onRemove={lesson.blocks.length > 1 ? () => removeBlock(blockIdx) : undefined}
             onNextBlock={() => setStep((s) => Math.min(totalSteps - 1, s + 1))}
             isLastBlock={blockIdx === lesson.blocks.length - 1}
+            blockIndex={blockIdx}
+            totalBlocks={lesson.blocks.length}
+            onAddBlock={() => addBlock()}
           />
         )}
       </main>
@@ -278,12 +285,49 @@ function StepChip({
   );
 }
 
+function IntroductionScreen({
+  onStartEmpty,
+  onLoadDefault,
+}: {
+  onStartEmpty: () => void;
+  onLoadDefault: () => void;
+}) {
+  return (
+    <div className="mx-auto max-w-2xl">
+      <div className="mb-12 text-center">
+        <h1 className="text-4xl font-semibold text-zen-on-surface mb-3">أنشئ درسك</h1>
+        <p className="text-zen-on-surface-variant text-lg">اختر طريقة البدء:</p>
+      </div>
+
+      <div className="space-y-4">
+        <button
+          onClick={onStartEmpty}
+          className="w-full rounded-3xl bg-white shadow-[var(--shadow-deep)] p-8 text-right transition hover:shadow-lg hover:scale-105 active:scale-95"
+        >
+          <div className="text-2xl font-semibold text-zen-on-surface mb-2">ابدأ من الصفر</div>
+          <p className="text-zen-on-surface-variant">ابدأ بدرس فارغ تماماً وأنشئ محتواك من البداية</p>
+        </button>
+
+        <button
+          onClick={onLoadDefault}
+          className="w-full rounded-3xl bg-white shadow-[var(--shadow-deep)] p-8 text-right transition hover:shadow-lg hover:scale-105 active:scale-95"
+        >
+          <div className="text-2xl font-semibold text-zen-on-surface mb-2">استرجع القالب التجريبي</div>
+          <p className="text-zen-on-surface-variant">حمّل قالب نموذج واستخدمه كنقطة انطلاق، ثم عدّله حسب احتياجاتك</p>
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function LessonInfoStep({
   lesson,
   onChange,
+  onNext,
 }: {
   lesson: Lesson;
   onChange: (patch: Partial<Lesson>) => void;
+  onNext: () => void;
 }) {
   return (
     <Section title="معلومات الدرس" subtitle="ابدأ بتعريف الدرس وتحديد محاوره الأساسية.">
@@ -321,6 +365,14 @@ function LessonInfoStep({
           placeholder="مقدمة، التفاصيل، النتائج"
         />
       </Field>
+      <div className="mt-8 flex justify-end">
+        <button
+          onClick={onNext}
+          className="rounded-full bg-zen-primary px-8 py-3 text-white font-medium transition hover:opacity-90"
+        >
+          التالي
+        </button>
+      </div>
     </Section>
   );
 }
@@ -333,6 +385,9 @@ function BlockStep({
   onRemove,
   onNextBlock,
   isLastBlock,
+  blockIndex,
+  totalBlocks,
+  onAddBlock,
 }: {
   block: ParagraphBlock;
   blockNum: number;
@@ -341,10 +396,15 @@ function BlockStep({
   onRemove?: () => void;
   onNextBlock: () => void;
   isLastBlock: boolean;
+  blockIndex: number;
+  totalBlocks: number;
+  onAddBlock: () => void;
 }) {
   const { settings } = useSettings();
   const [showSequenceEditor, setShowSequenceEditor] = useState(false);
   const [activeStage, setActiveStage] = useState<FillStage | null>(null);
+  const [blockNameEdit, setBlockNameEdit] = useState(false);
+
   const previewStages = useMemo(() => {
     const base = effectiveStages(block, settings.stageOrder) as FillStage[];
     if (block.quiz_enabled === false) return base;
@@ -354,6 +414,9 @@ function BlockStep({
     if (block.quizzes.essays.length > 0 || true) quizStages.push("quizzes_essay");
     return [...base, ...quizStages];
   }, [block, settings.stageOrder]);
+
+  const isLastStage = activeStage === previewStages[previewStages.length - 1];
+  const isLastBlockStage = blockIndex === totalBlocks - 1 && isLastStage;
 
   useEffect(() => {
     if (previewStages.length === 0) {
@@ -385,87 +448,88 @@ function BlockStep({
       </div>
 
       <div className="space-y-6">
-        <div className="flex items-center justify-between gap-3">
-          <button
-            onClick={() => setShowSequenceEditor((v) => !v)}
-            className="text-[13px] font-medium text-zen-primary transition hover:opacity-70"
-          >
-            {showSequenceEditor ? "إغلاق إعداد التسلسل" : "إعداد تسلسل هذه الفقرة"}
-          </button>
-          {!isLastBlock && activeStage === previewStages[previewStages.length - 1] && (
-            <button
-              onClick={onNextBlock}
-              className="rounded-full bg-zen-primary px-5 py-2 text-[13px] font-medium text-white transition hover:opacity-90"
-            >
-              الفقرة التالية
-            </button>
-          )}
-        </div>
-        <Input
-          value={block.title}
-          onChange={(e) => onChange({ title: e.target.value })}
-          placeholder="عنوان الفقرة"
-          className="h-12 rounded-2xl border-transparent bg-white px-5 text-[15px] font-medium text-zen-on-surface shadow-[var(--shadow-deep)] placeholder:text-zen-on-surface-variant/50 focus-visible:ring-0"
-        />
-        {showSequenceEditor ? (
-          <div className="space-y-4 rounded-3xl bg-white p-6 shadow-[var(--shadow-deep)]">
-            <StagesEditor block={block} onChange={onChange} />
-            <div className="space-y-2">
-              <p className="px-1 text-[12px] font-medium text-zen-on-surface-variant">
-                مراحل الأسئلة (تظهر بنفس الترتيب)
-              </p>
-              {(() => {
-                const contentCount = (block.enabled_stages ?? DEFAULT_STAGE_ORDER).length;
-                return [
-                  { key: "quiz_mcq_enabled" as const, label: "أسئلة: اختر من متعدد", num: contentCount + 1 },
-                  { key: "quiz_fill_enabled" as const, label: "أسئلة: إكمال الفراغ", num: contentCount + 2 },
-                  { key: "quiz_essay_enabled" as const, label: "أسئلة: مقالي", num: contentCount + 3 },
-                ];
-              })().map((row) => {
-                const isOn = block[row.key] !== false && block.quiz_enabled !== false;
-                return (
-                  <div
-                    key={row.key}
-                    className={cn(
-                      "rounded-2xl bg-zen-surface-low/50 transition",
-                      isOn ? "" : "opacity-60",
-                    )}
-                  >
-                    <div className="flex items-center justify-between gap-2 px-5 py-3.5">
-                      <div className="flex items-center gap-3">
-                        <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white text-[12px] font-medium text-zen-primary">
-                          {row.num}
-                        </span>
-                        <span className="text-[14px] font-medium text-zen-on-surface">{row.label}</span>
-                      </div>
-                      <button
-                        onClick={() => {
-                          const patch: Partial<ParagraphBlock> = { [row.key]: !isOn } as Partial<ParagraphBlock>;
-                          if (!isOn && block.quiz_enabled === false) patch.quiz_enabled = true;
-                          onChange(patch);
-                        }}
-                        className={cn(
-                          "inline-flex items-center gap-1 rounded-full px-3 py-1 text-[12px] font-medium transition",
-                          isOn ? "bg-zen-primary text-white" : "bg-white text-zen-on-surface-variant",
-                        )}
-                        title={isOn ? "إخفاء هذه المرحلة" : "تفعيل هذه المرحلة"}
-                      >
-                        {isOn ? <Eye className="h-3.5 w-3.5" strokeWidth={1.75} /> : <EyeOff className="h-3.5 w-3.5" strokeWidth={1.75} />}
-                        {isOn ? "مفعّلة" : "معطّلة"}
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
+        {blockIndex === 0 ? (
+          // First block: show inline name editing
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-[20px] font-medium text-zen-on-surface">عنوان الفقرة</h2>
             </div>
+            <Input
+              value={block.title}
+              onChange={(e) => onChange({ title: e.target.value })}
+              placeholder="عنوان الفقرة"
+              className="h-12 rounded-2xl border-transparent bg-white px-5 text-[15px] font-medium text-zen-on-surface shadow-[var(--shadow-deep)] placeholder:text-zen-on-surface-variant/50 focus-visible:ring-0"
+            />
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowSequenceEditor(true)}
+                className="flex-1 rounded-full bg-zen-primary px-5 py-3 text-[13px] font-medium text-white transition hover:opacity-90"
+              >
+                تعديل التسلسل
+              </button>
+              <button
+                onClick={() => onChange({ title: block.title })}
+                className="flex-1 rounded-full border border-zen-primary px-5 py-3 text-[13px] font-medium text-zen-primary transition hover:bg-zen-surface-low"
+              >
+                الدخول للمرحلة الأولى
+              </button>
+            </div>
+            {blockIndex < totalBlocks - 1 && (
+              <button
+                onClick={onAddBlock}
+                className="w-full rounded-full border border-dashed border-zen-primary px-5 py-3 text-[13px] font-medium text-zen-primary transition hover:bg-zen-surface-low flex items-center justify-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                إضافة فقرة جديدة
+              </button>
+            )}
           </div>
         ) : (
+          // Other blocks: show inline name editing
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div className="flex-1">
+              <div className="text-[12px] font-medium tracking-wide text-zen-primary mb-2">
+                فقرة {blockNum} من {total}
+              </div>
+              <Input
+                value={block.title}
+                onChange={(e) => onChange({ title: e.target.value })}
+                placeholder="عنوان الفقرة"
+                className="h-12 rounded-2xl border-transparent bg-white px-5 text-[15px] font-medium text-zen-on-surface shadow-[var(--shadow-deep)] placeholder:text-zen-on-surface-variant/50 focus-visible:ring-0"
+              />
+            </div>
+            {onRemove && (
+              <button
+                onClick={onRemove}
+                className="inline-flex items-center gap-1.5 text-[12px] font-medium text-zen-on-surface-variant transition hover:text-destructive"
+              >
+                <Trash2 className="h-3.5 w-3.5" strokeWidth={1.75} /> حذف
+              </button>
+            )}
+          </div>
+        )}
+
+        {showSequenceEditor && (
+          <div className="space-y-4 rounded-3xl bg-white p-6 shadow-[var(--shadow-deep)]">
+            <button
+              onClick={() => setShowSequenceEditor(false)}
+              className="text-[13px] font-medium text-zen-primary transition hover:opacity-70"
+            >
+              ← إغلاق إعداد التسلسل
+            </button>
+            <StagesEditor block={block} onChange={onChange} />
+          </div>
+        )}
+
+        {!showSequenceEditor && (
           <ContentFillSurface
             block={block}
             activeStages={previewStages}
             selectedStage={activeStage}
             onSelectStage={setActiveStage}
             onChange={onChange}
+            isLastBlockLastStage={isLastBlockStage}
+            onTransitionToParagraphs={() => setStep(1)}
           />
         )}
       </div>
@@ -516,32 +580,14 @@ function StagesEditor({
                 isOn ? "" : "opacity-60",
               )}
             >
-              <div className="flex items-center justify-between gap-2 px-5 py-3.5">
-                <div className="flex items-center gap-3">
-                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white text-[12px] font-medium text-zen-primary">
-                    {i + 1}
-                  </span>
-                  <span className="text-[14px] font-medium text-zen-on-surface">{STAGE_LABELS[stage]}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => move(i, -1)}
-                    disabled={i === 0}
-                    className="rounded-lg p-1.5 text-zen-on-surface-variant transition hover:bg-white disabled:opacity-30"
-                    aria-label="إلى الأعلى"
-                    title="إلى الأعلى"
-                  >
-                    <ArrowUp className="h-4 w-4" strokeWidth={1.75} />
-                  </button>
-                  <button
-                    onClick={() => move(i, 1)}
-                    disabled={i === order.length - 1}
-                    className="rounded-lg p-1.5 text-zen-on-surface-variant transition hover:bg-white disabled:opacity-30"
-                    aria-label="إلى الأسفل"
-                    title="إلى الأسفل"
-                  >
-                    <ArrowDown className="h-4 w-4" strokeWidth={1.75} />
-                  </button>
+              <div className="space-y-4 px-5 py-3.5">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-3">
+                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white text-[12px] font-medium text-zen-primary">
+                      {i + 1}
+                    </span>
+                    <span className="text-[14px] font-medium text-zen-on-surface">{STAGE_LABELS[stage]}</span>
+                  </div>
                   <button
                     onClick={() => setEnabled(stage, !isOn)}
                     className={cn(
@@ -556,12 +602,55 @@ function StagesEditor({
                     {isOn ? "مفعّلة" : "معطّلة"}
                   </button>
                 </div>
-              </div>
-              {isOn && (
-                <div className="border-t border-white/80 px-5 py-4">
-                  <StageContentField stage={stage} block={block} onChange={onChange} />
+
+                {/* Time interval section */}
+                {isOn && (
+                  <div className="rounded-xl bg-white p-3 border border-zen-surface-low">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-[12px] font-medium text-zen-on-surface">الفاصل الزمني</p>
+                        <p className="mt-0.5 text-[10px] text-zen-on-surface-variant">منع التخطي السريع</p>
+                      </div>
+                      <input
+                        type="number"
+                        min={0}
+                        max={300}
+                        defaultValue={block.stage_intervals?.[stage] ?? 15}
+                        onChange={(e) => {
+                          const next = { ...(block.stage_intervals || {}) };
+                          next[stage] = parseInt(e.target.value) || 15;
+                          onChange({ stage_intervals: next });
+                        }}
+                        className="h-8 w-16 rounded-lg border border-zen-surface-container bg-zen-surface-low text-center text-[12px] focus-visible:ring-2 focus-visible:ring-zen-primary"
+                        placeholder="15"
+                      />
+                      <span className="text-[12px] text-zen-on-surface-variant">ثانية</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Ordering buttons */}
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => move(i, -1)}
+                    disabled={i === 0}
+                    className="flex-1 rounded-lg p-2 text-zen-on-surface-variant transition hover:bg-white disabled:opacity-30"
+                    aria-label="إلى الأعلى"
+                    title="إلى الأعلى"
+                  >
+                    <ArrowUp className="h-4 w-4 mx-auto" strokeWidth={1.75} />
+                  </button>
+                  <button
+                    onClick={() => move(i, 1)}
+                    disabled={i === order.length - 1}
+                    className="flex-1 rounded-lg p-2 text-zen-on-surface-variant transition hover:bg-white disabled:opacity-30"
+                    aria-label="إلى الأسفل"
+                    title="إلى الأسفل"
+                  >
+                    <ArrowDown className="h-4 w-4 mx-auto" strokeWidth={1.75} />
+                  </button>
                 </div>
-              )}
+              </div>
             </div>
           );
         })}
@@ -756,12 +845,16 @@ function ContentFillSurface({
   selectedStage,
   onSelectStage,
   onChange,
+  isLastBlockLastStage,
+  onTransitionToParagraphs,
 }: {
   block: ParagraphBlock;
   activeStages: FillStage[];
   selectedStage: FillStage | null;
   onSelectStage: (stage: FillStage) => void;
   onChange: (patch: Partial<ParagraphBlock>) => void;
+  isLastBlockLastStage?: boolean;
+  onTransitionToParagraphs?: () => void;
 }) {
   const selectedIndex = selectedStage ? activeStages.indexOf(selectedStage) : -1;
   const stage = selectedStage ?? activeStages[0];
@@ -790,56 +883,50 @@ function ContentFillSurface({
   };
 
   return (
-    <div className="relative">
+    <div className="relative h-screen flex flex-col">
       {activeStages.length === 0 ? (
         <EmptyHint text="لا توجد مراحل مفعلة. فعّل مرحلة واحدة على الأقل من إعداد التسلسل." />
       ) : (
-        <div className="relative overflow-hidden rounded-3xl bg-white shadow-[var(--shadow-deep)]">
-          <div className="flex items-center justify-between px-7 py-4">
-            <div className="text-[12px] font-medium text-zen-on-surface-variant">
-              شريحة {selectedIndex + 1} من {activeStages.length}
+        <div className="relative overflow-hidden bg-white shadow-[var(--shadow-deep)] flex-1 flex flex-col">
+          {/* Header with image and title */}
+          <div className="px-7 py-4 border-b border-zen-surface-low">
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-[12px] font-medium tracking-wide text-zen-primary">
+                {stage ? getFillStageLabel(stage) : ""}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {activeStages.map((s, i) => (
+                  <button
+                    key={s}
+                    onClick={() => onSelectStage(s)}
+                    className={cn(
+                      "rounded-full px-3 py-1 text-[11px] font-medium transition",
+                      s === stage
+                        ? "bg-zen-primary text-white"
+                        : "bg-zen-surface-low text-zen-on-surface-variant hover:bg-zen-surface-container",
+                    )}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+              </div>
             </div>
-            <div className="text-[12px] font-medium tracking-wide text-zen-primary">
-              {stage ? getFillStageLabel(stage) : ""}
-            </div>
-          </div>
-          <div className="flex flex-wrap gap-2 px-7 pb-4">
-            {activeStages.map((s, i) => (
-              <button
-                key={s}
-                onClick={() => onSelectStage(s)}
-                className={cn(
-                  "rounded-full px-3 py-1 text-[11px] font-medium transition",
-                  s === stage
-                    ? "bg-zen-primary text-white"
-                    : "bg-zen-surface-low text-zen-on-surface-variant hover:bg-zen-surface-container",
-                )}
-              >
-                {i + 1}
-              </button>
-            ))}
+            {stageImage && isQuizStage && (
+              <img src={stageImage} alt="صورة المرحلة" className="w-full h-40 rounded-2xl object-cover" />
+            )}
           </div>
 
-          <div className="min-h-[62vh] px-8 py-12 sm:px-12">
+          <div className="flex-1 overflow-y-auto px-8 py-12 sm:px-12">
             {stage === "quizzes_mcq" ? (
               <div className="mx-auto max-w-3xl">
-                {stageImage && (
-                  <img src={stageImage} alt="صورة مرحلة الأسئلة" className="mb-4 h-40 w-full rounded-2xl object-cover" />
-                )}
                 <QuizzesEditor block={block} onChange={onChange} type="mcq" />
               </div>
             ) : stage === "quizzes_fill" ? (
               <div className="mx-auto max-w-3xl">
-                {stageImage && (
-                  <img src={stageImage} alt="صورة مرحلة الأسئلة" className="mb-4 h-40 w-full rounded-2xl object-cover" />
-                )}
                 <QuizzesEditor block={block} onChange={onChange} type="fill" />
               </div>
             ) : stage === "quizzes_essay" ? (
               <div className="mx-auto max-w-3xl">
-                {stageImage && (
-                  <img src={stageImage} alt="صورة مرحلة الأسئلة" className="mb-4 h-40 w-full rounded-2xl object-cover" />
-                )}
                 <QuizzesEditor block={block} onChange={onChange} type="essay" />
               </div>
             ) : (
@@ -847,39 +934,23 @@ function ContentFillSurface({
             )}
           </div>
 
-          {stage && (
-            <div className="absolute bottom-4 right-4 z-10 w-44 rounded-2xl bg-white/95 p-3 shadow-[var(--shadow-deep)] backdrop-blur">
-              <p className="text-[11px] font-medium text-zen-on-surface">صورة الشريحة</p>
+          {/* Image uploader in header for quiz stages, at bottom for other stages */}
+          {stage && isQuizStage && (
+            <div className="border-t border-zen-surface-low px-7 py-4">
+              <p className="text-[11px] font-medium text-zen-on-surface mb-2">رفع صورة</p>
               <ImageUploaderCompact url={stageImage} onChange={patchStageImage} />
-              {!isQuizStage && (
-                <>
-                  <div className="my-3 h-px bg-zen-surface-low" />
-                  <p className="text-[11px] font-medium text-zen-on-surface">الفاصل الزمني</p>
-                  <p className="mt-0.5 text-[10px] text-zen-on-surface-variant">قفل للطالب فقط</p>
-                  <button
-                    onClick={() => patchInterval({ enabled: !stageEnabled })}
-                    className={cn(
-                      "mt-2 w-full rounded-full px-2 py-1 text-[10px] font-medium transition",
-                      stageEnabled
-                        ? "bg-zen-primary text-white"
-                        : "bg-zen-surface-low text-zen-on-surface-variant",
-                    )}
-                  >
-                    {stageEnabled ? "مفعّل" : "معطّل"}
-                  </button>
-                  {stageEnabled && (
-                    <Input
-                      type="number"
-                      min={0}
-                      max={300}
-                      value={stageDuration}
-                      onChange={(e) => patchInterval({ duration: parseInt(e.target.value, 10) || 15 })}
-                      className="mt-1.5 h-8 rounded-lg border-transparent bg-zen-surface-low text-center text-[11px] focus-visible:ring-0"
-                      placeholder="15 ث"
-                    />
-                  )}
-                </>
-              )}
+            </div>
+          )}
+
+          {/* Bottom action buttons */}
+          {isLastBlockLastStage && (
+            <div className="border-t border-zen-surface-low px-7 py-4 bg-zen-surface-low/30">
+              <button
+                onClick={onTransitionToParagraphs}
+                className="w-full rounded-full bg-zen-primary px-5 py-3 text-[13px] font-medium text-white transition hover:opacity-90"
+              >
+                الانتقال للفقرات
+              </button>
             </div>
           )}
         </div>
