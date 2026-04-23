@@ -389,6 +389,7 @@ function BlockStep({
   blockIndex,
   totalBlocks,
   onAddBlock,
+  onGotoStep,
 }: {
   block: ParagraphBlock;
   blockNum: number;
@@ -400,6 +401,7 @@ function BlockStep({
   blockIndex: number;
   totalBlocks: number;
   onAddBlock: () => void;
+  onGotoStep: (step: number) => void;
 }) {
   const { settings } = useSettings();
   const [showSequenceEditor, setShowSequenceEditor] = useState(false);
@@ -530,7 +532,7 @@ function BlockStep({
             onSelectStage={setActiveStage}
             onChange={onChange}
             isLastBlockLastStage={isLastBlockStage}
-            onTransitionToParagraphs={() => setStep(1)}
+            onTransitionToParagraphs={() => onGotoStep(1)}
           />
         )}
       </div>
