@@ -8,9 +8,11 @@ import {
   Eye,
   EyeOff,
   ImagePlus,
+  Maximize2,
   Plus,
   Save,
   Trash2,
+  X,
 } from "lucide-react";
 import {
   defaultLesson,
@@ -254,6 +256,7 @@ function TeacherPage() {
             blockIndex={blockIdx}
             totalBlocks={lesson.blocks.length}
             onAddBlock={() => addBlock()}
+            onGotoStep={(s) => setStep(s)}
           />
         )}
       </main>
@@ -388,6 +391,7 @@ function BlockStep({
   blockIndex,
   totalBlocks,
   onAddBlock,
+  onGotoStep,
 }: {
   block: ParagraphBlock;
   blockNum: number;
@@ -399,6 +403,7 @@ function BlockStep({
   blockIndex: number;
   totalBlocks: number;
   onAddBlock: () => void;
+  onGotoStep: (step: number) => void;
 }) {
   const { settings } = useSettings();
   const [showSequenceEditor, setShowSequenceEditor] = useState(false);
@@ -467,12 +472,6 @@ function BlockStep({
               >
                 تعديل التسلسل
               </button>
-              <button
-                onClick={() => onChange({ title: block.title })}
-                className="flex-1 rounded-full border border-zen-primary px-5 py-3 text-[13px] font-medium text-zen-primary transition hover:bg-zen-surface-low"
-              >
-                الدخول للمرحلة الأولى
-              </button>
             </div>
             {blockIndex < totalBlocks - 1 && (
               <button
@@ -529,7 +528,7 @@ function BlockStep({
             onSelectStage={setActiveStage}
             onChange={onChange}
             isLastBlockLastStage={isLastBlockStage}
-            onTransitionToParagraphs={() => setStep(1)}
+            onTransitionToParagraphs={() => onGotoStep(1)}
           />
         )}
       </div>
@@ -882,15 +881,47 @@ function ContentFillSurface({
     onChange(patch);
   };
 
+  const [zoomed, setZoomed] = useState(false);
+
+  const renderStageBody = () => (
+    <>
+      {stage === "quizzes_mcq" ? (
+        <div className="mx-auto max-w-3xl">
+          <QuizzesEditor block={block} onChange={onChange} type="mcq" />
+        </div>
+      ) : stage === "quizzes_fill" ? (
+        <div className="mx-auto max-w-3xl">
+          <QuizzesEditor block={block} onChange={onChange} type="fill" />
+        </div>
+      ) : stage === "quizzes_essay" ? (
+        <div className="mx-auto max-w-3xl">
+          <QuizzesEditor block={block} onChange={onChange} type="essay" />
+        </div>
+      ) : (
+        stage && <InlineStageCanvas stage={stage} block={block} onChange={onChange} imageUrl={stageImage} />
+      )}
+    </>
+  );
+
   return (
     <div className="relative h-screen flex flex-col">
       {activeStages.length === 0 ? (
         <EmptyHint text="لا توجد مراحل مفعلة. فعّل مرحلة واحدة على الأقل من إعداد التسلسل." />
       ) : (
         <div className="relative overflow-hidden bg-white shadow-[var(--shadow-deep)] flex-1 flex flex-col">
+          {/* Zoom button — top corner */}
+          <button
+            onClick={() => setZoomed(true)}
+            className="absolute top-3 left-3 z-10 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-zen-on-surface-variant shadow-sm backdrop-blur transition hover:bg-white hover:text-zen-primary"
+            aria-label="ملء الشاشة"
+            title="ملء الشاشة"
+          >
+            <Maximize2 className="h-4 w-4" strokeWidth={1.75} />
+          </button>
+
           {/* Header with image and title */}
           <div className="px-7 py-4 border-b border-zen-surface-low">
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between mb-3 ps-10">
               <div className="text-[12px] font-medium tracking-wide text-zen-primary">
                 {stage ? getFillStageLabel(stage) : ""}
               </div>
@@ -917,27 +948,13 @@ function ContentFillSurface({
           </div>
 
           <div className="flex-1 overflow-y-auto px-8 py-12 sm:px-12">
-            {stage === "quizzes_mcq" ? (
-              <div className="mx-auto max-w-3xl">
-                <QuizzesEditor block={block} onChange={onChange} type="mcq" />
-              </div>
-            ) : stage === "quizzes_fill" ? (
-              <div className="mx-auto max-w-3xl">
-                <QuizzesEditor block={block} onChange={onChange} type="fill" />
-              </div>
-            ) : stage === "quizzes_essay" ? (
-              <div className="mx-auto max-w-3xl">
-                <QuizzesEditor block={block} onChange={onChange} type="essay" />
-              </div>
-            ) : (
-              stage && <InlineStageCanvas stage={stage} block={block} onChange={onChange} imageUrl={stageImage} />
-            )}
+            {renderStageBody()}
           </div>
 
-          {/* Image uploader in header for quiz stages, at bottom for other stages */}
-          {stage && isQuizStage && (
+          {/* Image uploader available for ALL stages */}
+          {stage && (
             <div className="border-t border-zen-surface-low px-7 py-4">
-              <p className="text-[11px] font-medium text-zen-on-surface mb-2">رفع صورة</p>
+              <p className="text-[11px] font-medium text-zen-on-surface mb-2">رفع صورة لهذه المرحلة</p>
               <ImageUploaderCompact url={stageImage} onChange={patchStageImage} />
             </div>
           )}
@@ -953,6 +970,49 @@ function ContentFillSurface({
               </button>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Fullscreen / Zoom Mode */}
+      {zoomed && stage && (
+        <div
+          dir="rtl"
+          className="fixed inset-0 z-50 bg-white flex flex-col"
+        >
+          {/* Close button */}
+          <button
+            onClick={() => setZoomed(false)}
+            className="absolute top-4 left-4 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full bg-zen-surface-low text-zen-on-surface-variant transition hover:bg-zen-surface-container hover:text-zen-on-surface"
+            aria-label="خروج من ملء الشاشة"
+            title="خروج"
+          >
+            <X className="h-5 w-5" strokeWidth={1.75} />
+          </button>
+
+          {/* Stage content */}
+          <div className="flex-1 overflow-y-auto px-8 py-16 sm:px-16">
+            {renderStageBody()}
+          </div>
+
+          {/* Numbers navigation only */}
+          <div className="border-t border-zen-surface-low px-7 py-5 bg-zen-surface/80 backdrop-blur">
+            <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-center gap-2">
+              {activeStages.map((s, i) => (
+                <button
+                  key={s}
+                  onClick={() => onSelectStage(s)}
+                  className={cn(
+                    "h-9 w-9 rounded-full text-[12px] font-medium transition",
+                    s === stage
+                      ? "bg-zen-primary text-white"
+                      : "bg-zen-surface-low text-zen-on-surface-variant hover:bg-zen-surface-container",
+                  )}
+                >
+                  {i + 1}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       )}
     </div>
