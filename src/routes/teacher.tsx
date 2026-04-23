@@ -254,6 +254,7 @@ function TeacherPage() {
             blockIndex={blockIdx}
             totalBlocks={lesson.blocks.length}
             onAddBlock={() => addBlock()}
+            onGotoStep={(s) => setStep(s)}
           />
         )}
       </main>
