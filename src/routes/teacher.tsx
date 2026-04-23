@@ -470,12 +470,6 @@ function BlockStep({
               >
                 تعديل التسلسل
               </button>
-              <button
-                onClick={() => onChange({ title: block.title })}
-                className="flex-1 rounded-full border border-zen-primary px-5 py-3 text-[13px] font-medium text-zen-primary transition hover:bg-zen-surface-low"
-              >
-                الدخول للمرحلة الأولى
-              </button>
             </div>
             {blockIndex < totalBlocks - 1 && (
               <button
