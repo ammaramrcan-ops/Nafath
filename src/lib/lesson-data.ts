@@ -3,9 +3,9 @@ import { DEFAULT_STAGE_ORDER, type Stage } from "@/lib/settings";
 export type HardWord = { word: string; meaning: string };
 
 export type QuizImage = { image_url?: string };
-export type MCQ = { question: string; options: string[]; answer: string } & QuizImage;
-export type Fill = { question: string; answer: string } & QuizImage;
-export type Essay = { question: string; keywords: string[] } & QuizImage;
+export type MCQ = { question: string; options: string[]; answer: string; difficulty?: 'easy' | 'medium' | 'hard'; estimated_time?: number } & QuizImage;
+export type Fill = { question: string; answer: string; difficulty?: 'easy' | 'medium' | 'hard'; estimated_time?: number } & QuizImage;
+export type Essay = { question: string; keywords: string[]; hint?: string; difficulty?: 'easy' | 'medium' | 'hard'; estimated_time?: number } & QuizImage;
 
 export type Quizzes = {
   mcqs: MCQ[];
@@ -58,15 +58,15 @@ export function normalizeBlock(raw: any, idx: number): ParagraphBlock {
 
   // MCQ: stages.quizzes_mcq.content[] > stages.quizzes.content.mcq[] > quizzes.mcqs[]
   const mcqSrc = s.quizzes_mcq?.content ?? s.quizzes?.content?.mcq ?? raw?.quizzes?.mcqs ?? raw?.quizzes?.mcq;
-  const mcqs: MCQ[] = Array.isArray(mcqSrc) ? mcqSrc : mcqSrc && (mcqSrc.question || mcqSrc.answer) ? [mcqSrc] : [];
+  const mcqs: MCQ[] = Array.isArray(mcqSrc) ? mcqSrc.map(m => ({...m, difficulty: m.difficulty || 'medium', estimated_time: m.estimated_time || 30})) : mcqSrc && (mcqSrc.question || mcqSrc.answer) ? [{...mcqSrc, difficulty: mcqSrc.difficulty || 'medium', estimated_time: mcqSrc.estimated_time || 30}] : [];
 
   // Fill: stages.quizzes_fill.content[] > stages.quizzes.content.fill_in_blank[] > quizzes.fills[]
   const fillSrc = s.quizzes_fill?.content ?? s.quizzes?.content?.fill_in_blank ?? raw?.quizzes?.fills ?? raw?.quizzes?.fill;
-  const fills: Fill[] = Array.isArray(fillSrc) ? fillSrc : fillSrc && (fillSrc.question || fillSrc.answer) ? [fillSrc] : [];
+  const fills: Fill[] = Array.isArray(fillSrc) ? fillSrc.map(f => ({...f, difficulty: f.difficulty || 'medium', estimated_time: f.estimated_time || 30})) : fillSrc && (fillSrc.question || fillSrc.answer) ? [{...fillSrc, difficulty: fillSrc.difficulty || 'medium', estimated_time: fillSrc.estimated_time || 30}] : [];
 
   // Essay: stages.quizzes_essay.content[] > stages.quizzes.content.essay[] > quizzes.essays[]
   const essaySrc = s.quizzes_essay?.content ?? s.quizzes?.content?.essay ?? raw?.quizzes?.essays ?? raw?.quizzes?.essay;
-  const essays: Essay[] = Array.isArray(essaySrc) ? essaySrc : essaySrc && essaySrc.question ? [essaySrc] : [];
+  const essays: Essay[] = Array.isArray(essaySrc) ? essaySrc.map(e => ({...e, hint: e.hint || '', difficulty: e.difficulty || 'medium', estimated_time: e.estimated_time || 60})) : essaySrc && essaySrc.question ? [{...essaySrc, hint: essaySrc.hint || '', difficulty: essaySrc.difficulty || 'medium', estimated_time: essaySrc.estimated_time || 60}] : [];
 
   // quiz_enabled: false only when ALL three quiz stages are inactive
   let quiz_enabled = raw?.quiz_enabled ?? true;
