@@ -18,31 +18,37 @@ export function EndScreen({
   );
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-12">
-      <div className="mb-8 text-center">
-        <div className="mb-3 text-5xl">🎉</div>
-        <h1 className="text-3xl font-extrabold text-foreground sm:text-4xl">
-          أحسنت! أتممت الدرس
+    <div className="mx-auto max-w-4xl px-6 py-16">
+      <div className="mb-12 text-center">
+        <p className="mb-3 text-[13px] font-medium tracking-wide text-zen-on-surface-variant">
+          أحسنت
+        </p>
+        <h1 className="text-[40px] font-medium leading-[1.2] text-zen-on-surface">
+          أتممت الدرس
         </h1>
-        <p className="mt-2 text-foreground/60">
+        <p className="mt-4 text-[14px] font-light text-zen-on-surface-variant">
           راجع الزتونة ثم ثبّت المعلومات بالبطاقات أدناه
         </p>
       </div>
 
       <CheatSheet lesson={lesson} />
 
-      <div className="mt-12">
-        <h2 className="mb-2 text-center text-2xl font-extrabold">بطاقات المراجعة</h2>
-        <p className="mb-8 text-center text-sm text-foreground/60">
-          انقر على البطاقة لقلبها وعرض التعريف
-        </p>
+      <div className="mt-16">
+        <div className="mb-10 text-center">
+          <h2 className="text-[28px] font-medium leading-tight text-zen-on-surface">
+            بطاقات المراجعة
+          </h2>
+          <p className="mt-3 text-[13px] font-light text-zen-on-surface-variant">
+            انقر على البطاقة لقلبها وعرض التعريف
+          </p>
+        </div>
         <Flashcards words={allHardWords} embedded />
       </div>
 
-      <div className="mt-12 text-center">
+      <div className="mt-16 text-center">
         <button
           onClick={onRestart}
-          className="rounded-full bg-brand px-10 py-4 text-base font-semibold text-brand-foreground shadow-[var(--shadow-soft)] transition hover:bg-brand/90"
+          className="rounded-full bg-zen-primary px-12 py-4 text-[15px] font-medium text-white shadow-[var(--shadow-fab)] transition hover:opacity-90"
         >
           {restartLabel ?? "ابدأ درساً جديداً"}
         </button>

@@ -37,20 +37,20 @@ export function CheatSheet({ lesson }: { lesson: Lesson }) {
   );
 
   return (
-    <section className="rounded-3xl border border-border bg-card p-6 shadow-[var(--shadow-soft)] sm:p-10">
-      <header className="mb-8 text-center">
-        <div className="mx-auto mb-3 inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand-soft text-brand">
-          <Sparkles className="h-7 w-7" />
+    <section className="rounded-[28px] bg-white p-8 shadow-[var(--shadow-deep)] sm:p-12">
+      <header className="mb-12 text-center">
+        <div className="mx-auto mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-zen-surface-low text-zen-primary">
+          <Sparkles className="h-5 w-5" strokeWidth={1.75} />
         </div>
-        <h2 className="text-3xl font-extrabold text-foreground">الزتونة</h2>
-        <p className="mt-2 text-sm text-foreground/60">
+        <h2 className="text-[28px] font-medium leading-tight text-zen-on-surface">الزتونة</h2>
+        <p className="mt-3 text-[13px] font-light leading-relaxed text-zen-on-surface-variant">
           ملخص شامل لأهم ما ورد في الدرس — التعاريف، أسئلة علّل، والتفسيرات الذكية
         </p>
       </header>
 
-      <div className="space-y-10">
+      <div className="space-y-12">
         <CheatBlock
-          icon={<BookOpen className="h-5 w-5" />}
+          icon={<BookOpen className="h-4 w-4" strokeWidth={1.75} />}
           title="أهم التعريفات"
           count={definitions.length}
         >
@@ -59,13 +59,12 @@ export function CheatSheet({ lesson }: { lesson: Lesson }) {
           ) : (
             <ul className="grid gap-3 sm:grid-cols-2">
               {definitions.map((d, i) => (
-                <li
-                  key={`${d.word}-${i}`}
-                  className="rounded-2xl border border-border bg-background p-4"
-                >
-                  <div className="text-xs font-medium text-foreground/40">{d.blockTitle}</div>
-                  <div className="mt-1 text-base font-bold text-brand">{d.word}</div>
-                  <div className="mt-1 text-sm leading-relaxed text-foreground/80">
+                <li key={`${d.word}-${i}`} className="rounded-2xl bg-zen-surface-low p-5">
+                  <div className="text-[11px] font-light text-zen-on-surface-variant">
+                    {d.blockTitle}
+                  </div>
+                  <div className="mt-1.5 text-[15px] font-medium text-zen-primary">{d.word}</div>
+                  <div className="mt-1.5 text-[13px] font-light leading-relaxed text-zen-on-surface">
                     {d.meaning}
                   </div>
                 </li>
@@ -75,7 +74,7 @@ export function CheatSheet({ lesson }: { lesson: Lesson }) {
         </CheatBlock>
 
         <CheatBlock
-          icon={<HelpCircle className="h-5 w-5" />}
+          icon={<HelpCircle className="h-4 w-4" strokeWidth={1.75} />}
           title="أسئلة علّل"
           count={essays.length}
         >
@@ -84,12 +83,11 @@ export function CheatSheet({ lesson }: { lesson: Lesson }) {
           ) : (
             <ol className="space-y-3">
               {essays.map((e, i) => (
-                <li
-                  key={i}
-                  className="rounded-2xl border border-border bg-background p-4"
-                >
-                  <div className="text-xs font-medium text-foreground/40">{e.blockTitle}</div>
-                  <div className="mt-1 text-base font-semibold text-foreground">
+                <li key={i} className="rounded-2xl bg-zen-surface-low p-5">
+                  <div className="text-[11px] font-light text-zen-on-surface-variant">
+                    {e.blockTitle}
+                  </div>
+                  <div className="mt-1.5 text-[14px] font-medium leading-relaxed text-zen-on-surface">
                     {e.question}
                   </div>
                   {e.keywords.length > 0 && (
@@ -97,7 +95,7 @@ export function CheatSheet({ lesson }: { lesson: Lesson }) {
                       {e.keywords.map((k) => (
                         <span
                           key={k}
-                          className="rounded-full bg-success-soft px-3 py-1 text-xs font-medium text-foreground/80"
+                          className="rounded-full bg-white px-3 py-1 text-[11px] font-light text-zen-on-surface-variant"
                         >
                           {k}
                         </span>
@@ -111,27 +109,28 @@ export function CheatSheet({ lesson }: { lesson: Lesson }) {
         </CheatBlock>
 
         <CheatBlock
-          icon={<Lightbulb className="h-5 w-5" />}
+          icon={<Lightbulb className="h-4 w-4" strokeWidth={1.75} />}
           title="التفسيرات والروابط الذكية"
           count={explanations.length}
         >
           <ul className="space-y-3">
             {explanations.map((e, i) => (
-              <li
-                key={i}
-                className="rounded-2xl border border-border bg-background p-4"
-              >
-                <div className="text-xs font-medium text-foreground/40">{e.blockTitle}</div>
-                <div className="mt-1 text-base font-semibold text-foreground">{e.short}</div>
+              <li key={i} className="rounded-2xl bg-zen-surface-low p-5">
+                <div className="text-[11px] font-light text-zen-on-surface-variant">
+                  {e.blockTitle}
+                </div>
+                <div className="mt-1.5 text-[14px] font-medium leading-relaxed text-zen-on-surface">
+                  {e.short}
+                </div>
                 {e.mnemonic && (
-                  <div className="mt-2 text-sm text-foreground/80">
-                    <span className="font-semibold text-brand">قاعدة سريعة: </span>
+                  <div className="mt-2 text-[13px] font-light leading-relaxed text-zen-on-surface">
+                    <span className="font-medium text-zen-primary">قاعدة سريعة: </span>
                     {e.mnemonic}
                   </div>
                 )}
                 {e.funny && (
-                  <div className="mt-1 text-sm text-foreground/70">
-                    <span className="font-semibold text-warning">رابط ظريف: </span>
+                  <div className="mt-1 text-[13px] font-light leading-relaxed text-zen-on-surface-variant">
+                    <span className="font-medium text-zen-on-surface">رابط ظريف: </span>
                     {e.funny}
                   </div>
                 )}
@@ -157,14 +156,12 @@ function CheatBlock({
 }) {
   return (
     <div>
-      <div className="mb-4 flex items-center gap-3">
-        <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-brand-soft text-brand">
+      <div className="mb-5 flex items-center gap-3">
+        <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-zen-surface-low text-zen-primary">
           {icon}
         </span>
-        <h3 className="text-lg font-bold text-foreground">{title}</h3>
-        <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-semibold text-foreground/60">
-          {count}
-        </span>
+        <h3 className="text-[16px] font-medium text-zen-on-surface">{title}</h3>
+        <span className="text-[11px] font-light text-zen-on-surface-variant">{count}</span>
       </div>
       {children}
     </div>
@@ -173,7 +170,7 @@ function CheatBlock({
 
 function Empty({ children }: { children: React.ReactNode }) {
   return (
-    <p className="rounded-2xl border border-dashed border-border bg-background/50 p-4 text-center text-sm text-foreground/50">
+    <p className="rounded-2xl bg-zen-surface-low p-5 text-center text-[13px] font-light text-zen-on-surface-variant">
       {children}
     </p>
   );
