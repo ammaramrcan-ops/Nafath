@@ -1,0 +1,38 @@
+
+> build
+> vite build
+
+vite v7.3.2 building client environment for production...
+transforming...
+✓ 2337 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/client/assets/styles-DTtTV3xT.css         102.61 kB │ gzip:  16.53 kB
+dist/client/assets/lesson-library-kDRkKfL3.js   11.78 kB │ gzip:   4.52 kB
+dist/client/assets/teacher-VoVb6tce.js          33.27 kB │ gzip:   7.92 kB
+dist/client/assets/index-B6Ca-cWB.js           282.79 kB │ gzip:  86.72 kB
+dist/client/assets/index-1hvQzhqX.js           353.38 kB │ gzip: 112.83 kB
+✓ built in 8.12s
+vite v7.3.2 building ssr environment for production...
+transforming...
+"createRequestHandler", "defineHandlerCallback", "transformPipeableStreamWithRouter" and "transformReadableStreamWithRouter" are imported from external module "@tanstack/router-core/ssr/server" but never used in "node_modules/@tanstack/start-server-core/dist/esm/index.js".
+"RawStream" is imported from external module "@tanstack/router-core" but never used in "node_modules/@tanstack/start-client-core/dist/esm/index.js".
+"hydrate" and "json" are imported from external module "@tanstack/router-core/ssr/client" but never used in "node_modules/@tanstack/start-client-core/dist/esm/index.js".
+✓ 71 modules transformed.
+rendering chunks...
+dist/server/assets/start-HYkvq4Ni.js                                0.06 kB
+dist/server/assets/__23tanstack-start-plugin-adapters-Cwee5PKy.js   0.14 kB
+dist/server/assets/_tanstack-start-manifest_v-oZ_RD11L.js           0.61 kB
+dist/server/assets/router-0_wg1DSc.js                               8.64 kB
+dist/server/assets/lesson-library-BtOImkwk.js                      14.41 kB
+dist/server/server.js                                              38.66 kB
+dist/server/assets/teacher-CwktRYmm.js                             48.45 kB
+dist/server/assets/index-4t0luvfO.js                               93.48 kB
+✓ built in 1.46s
+[prerender] Prerendering pages...
+[prerender] Concurrency: 2
+[prerender] Crawling: /
+[prerender] Crawling: /teacher
+[prerender] Prerendered 2 pages:
+[prerender] - /teacher
+[prerender] - /
