@@ -62,8 +62,14 @@ function NavItem({ item, collapsed }: { item: NavItemDef; collapsed: boolean }) 
     <TooltipProvider delayDuration={0}>
       <Tooltip>
         <TooltipTrigger asChild>{link}</TooltipTrigger>
-        {/* @ts-ignore */}
-        <TooltipContent side="right">{item.label}</TooltipContent>
+        <TooltipContent
+          side="right"
+          placeholder=""
+          onPointerEnterCapture={() => {}}
+          onPointerLeaveCapture={() => {}}
+        >
+          {item.label}
+        </TooltipContent>
       </Tooltip>
     </TooltipProvider>
   )
@@ -123,8 +129,12 @@ export function AppSidebarShell() {
                 />
               </Button>
             </TooltipTrigger>
-            {/* @ts-ignore */}
-            <TooltipContent side="right">
+            <TooltipContent
+              side="right"
+              placeholder=""
+              onPointerEnterCapture={() => {}}
+              onPointerLeaveCapture={() => {}}
+            >
               {collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             </TooltipContent>
           </Tooltip>
@@ -154,22 +164,48 @@ export function AppSidebarShell() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <button className="flex items-center justify-center h-8 w-8 rounded-md hover:bg-accent transition-colors cursor-pointer">
-                  {/* @ts-ignore */}
-                  <Avatar className="h-6 w-6 shrink-0">
-                    {/* @ts-ignore */}
-                    <AvatarFallback className="text-[10px] bg-muted">U</AvatarFallback>
+                  <Avatar
+                    className="h-6 w-6 shrink-0"
+                    placeholder=""
+                    onPointerEnterCapture={() => {}}
+                    onPointerLeaveCapture={() => {}}
+                  >
+                    <AvatarFallback
+                      className="text-[10px] bg-muted"
+                      placeholder=""
+                      onPointerEnterCapture={() => {}}
+                      onPointerLeaveCapture={() => {}}
+                    >
+                      U
+                    </AvatarFallback>
                   </Avatar>
                 </button>
               </TooltipTrigger>
-              {/* @ts-ignore */}
-              <TooltipContent side="right">User · user@example.com</TooltipContent>
+              <TooltipContent
+                side="right"
+                placeholder=""
+                onPointerEnterCapture={() => {}}
+                onPointerLeaveCapture={() => {}}
+              >
+                User · user@example.com
+              </TooltipContent>
             </Tooltip>
           ) : (
             <button className="flex items-center gap-2 rounded-md hover:bg-accent transition-colors cursor-pointer w-full px-2 py-1.5">
-              {/* @ts-ignore */}
-              <Avatar className="h-6 w-6 shrink-0">
-                {/* @ts-ignore */}
-                <AvatarFallback className="text-[10px] bg-muted">U</AvatarFallback>
+              <Avatar
+                className="h-6 w-6 shrink-0"
+                placeholder=""
+                onPointerEnterCapture={() => {}}
+                onPointerLeaveCapture={() => {}}
+              >
+                <AvatarFallback
+                  className="text-[10px] bg-muted"
+                  placeholder=""
+                  onPointerEnterCapture={() => {}}
+                  onPointerLeaveCapture={() => {}}
+                >
+                  U
+                </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0 text-left">
                 <p className="text-xs font-medium leading-tight truncate">User</p>
@@ -193,8 +229,14 @@ export function AppSidebarShell() {
                   <LogOut className="h-4 w-4 shrink-0" />
                 </Button>
               </TooltipTrigger>
-              {/* @ts-ignore */}
-              <TooltipContent side="right">Sign out</TooltipContent>
+              <TooltipContent
+                side="right"
+                placeholder=""
+                onPointerEnterCapture={() => {}}
+                onPointerLeaveCapture={() => {}}
+              >
+                Sign out
+              </TooltipContent>
             </Tooltip>
           ) : (
             <Button
