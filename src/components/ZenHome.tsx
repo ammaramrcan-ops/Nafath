@@ -9,12 +9,15 @@ import { RestoreDialog } from "@/components/RestoreDialog";
 
 export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => void }) {
   const [library, setLibrary] = useState<SavedLesson[]>([]);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
   const [restoreOpen, setRestoreOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [biologyOpen, setBiologyOpen] = useState(true);
   const navigate = useNavigate();
 
-  const refresh = () => setLibrary(getLibrary());
+  const refresh = () => {
+    setLibrary(getLibrary());
+    setSubjects(getCurriculum().subjects);
+  };
 
   useEffect(() => {
     refresh();
@@ -28,10 +31,10 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
     onOpenLesson(lesson);
   };
 
-  // Single default material containing every saved lesson.
-  const materialsCount = 1;
+  const assigned = getAssignedLessonIds();
+  const uncategorizedCount = library.filter((l) => !assigned.has(l.id)).length;
   const showAllLessons = library.length > 2;
-  const showAllMaterials = materialsCount > 2;
+  const showAllMaterials = subjects.length > 2;
 
   return (
     <div dir="rtl" lang="ar" className="min-h-screen bg-zen-surface text-zen-on-surface antialiased">
