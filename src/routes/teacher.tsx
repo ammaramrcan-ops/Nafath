@@ -408,7 +408,34 @@ function BlockStep({
   onAddBlock: () => void;
   onGotoStep: (step: number) => void;
 }) {
-...
+  const { settings } = useSettings();
+  const [showSequenceEditor, setShowSequenceEditor] = useState(false);
+  const [activeStage, setActiveStage] = useState<FillStage | null>(null);
+  const [blockNameEdit, setBlockNameEdit] = useState(false);
+
+  const previewStages = useMemo(() => {
+    const base = effectiveStages(block, settings.stageOrder) as FillStage[];
+    if (block.quiz_enabled === false) return base;
+    const quizStages: FillStage[] = [];
+    if (block.quizzes.mcqs.length > 0 || true) quizStages.push("quizzes_mcq");
+    if (block.quizzes.fills.length > 0 || true) quizStages.push("quizzes_fill");
+    if (block.quizzes.essays.length > 0 || true) quizStages.push("quizzes_essay");
+    return [...base, ...quizStages];
+  }, [block, settings.stageOrder]);
+
+  const isLastStage = activeStage === previewStages[previewStages.length - 1];
+  const isLastBlockStage = blockIndex === totalBlocks - 1 && isLastStage;
+
+  useEffect(() => {
+    if (previewStages.length === 0) {
+      setActiveStage(null);
+      return;
+    }
+    setActiveStage((prev) => (prev && previewStages.includes(prev) ? prev : previewStages[0]));
+  }, [previewStages]);
+
+  return (
+    <div>
       <div className="mb-10 flex flex-wrap items-end justify-between gap-3">
         <div>
           <div className="text-[12px] font-medium tracking-wide text-zen-primary">
