@@ -466,14 +466,24 @@ function BlockStep({
               className="h-12 rounded-2xl border-transparent bg-white px-5 text-[15px] font-medium text-zen-on-surface shadow-[var(--shadow-deep)] placeholder:text-zen-on-surface-variant/50 focus-visible:ring-0"
             />
             <div className="flex gap-3">
-              <button
-                onClick={() => setShowSequenceEditor(true)}
-                className="flex-1 rounded-full bg-zen-primary px-5 py-3 text-[13px] font-medium text-white transition hover:opacity-90"
-              >
-                تعديل التسلسل
-              </button>
+              {!showSequenceEditor && (
+                <button
+                  onClick={() => setShowSequenceEditor(true)}
+                  className="flex-1 rounded-full bg-zen-primary px-5 py-3 text-[13px] font-medium text-white transition hover:opacity-90"
+                >
+                  تعديل التسلسل
+                </button>
+              )}
+              {showSequenceEditor && (
+                <button
+                  onClick={() => setShowSequenceEditor(false)}
+                  className="flex-1 rounded-full bg-zen-primary px-5 py-3 text-[13px] font-medium text-white transition hover:opacity-90"
+                >
+                  ← الخروج والعودة للمراحل
+                </button>
+              )}
             </div>
-            {blockIndex < totalBlocks - 1 && (
+            {blockIndex < totalBlocks - 1 && !showSequenceEditor && (
               <button
                 onClick={onAddBlock}
                 className="w-full rounded-full border border-dashed border-zen-primary px-5 py-3 text-[13px] font-medium text-zen-primary transition hover:bg-zen-surface-low flex items-center justify-center gap-2"
@@ -862,6 +872,7 @@ function ContentFillSurface({
   const stageEnabled = timedStage ? (block.enable_stage_intervals?.[timedStage] ?? true) : true;
   const stageDuration = timedStage ? (block.stage_intervals?.[timedStage] ?? 15) : 15;
   const stageImage = stage ? getStageImage(block, stage) : "";
+  const stageAudio = stage ? getStageAudio(block, stage) : "";
 
   const patchInterval = (patch: { enabled?: boolean; duration?: number }) => {
     if (!timedStage) return;
@@ -879,6 +890,15 @@ function ContentFillSurface({
     const patch: Partial<ParagraphBlock> = { stage_visuals: nextVisuals };
     if (stage === "original") patch.visual_url = url;
     onChange(patch);
+  };
+
+  const patchStageAudio = (url: string) => {
+    if (!stage) return;
+    const isQuizStage = stage === "quizzes_mcq" || stage === "quizzes_fill" || stage === "quizzes_essay";
+    if (isQuizStage) return;
+    const nextAudio = { ...(block.stage_audio || {}) };
+    nextAudio[stage as Stage] = url;
+    onChange({ stage_audio: nextAudio });
   };
 
   const [zoomed, setZoomed] = useState(false);
@@ -951,11 +971,17 @@ function ContentFillSurface({
             {renderStageBody()}
           </div>
 
-          {/* Image uploader available for ALL stages */}
-          {stage && (
-            <div className="border-t border-zen-surface-low px-7 py-4">
-              <p className="text-[11px] font-medium text-zen-on-surface mb-2">رفع صورة لهذه المرحلة</p>
-              <ImageUploaderCompact url={stageImage} onChange={patchStageImage} />
+          {/* Image and Audio uploader available for non-quiz stages */}
+          {stage && !(stage === "quizzes_mcq" || stage === "quizzes_fill" || stage === "quizzes_essay") && (
+            <div className="border-t border-zen-surface-low px-7 py-4 space-y-4">
+              <div>
+                <p className="text-[11px] font-medium text-zen-on-surface mb-2">رفع صورة لهذه المرحلة</p>
+                <ImageUploaderCompact url={stageImage} onChange={patchStageImage} />
+              </div>
+              <div>
+                <p className="text-[11px] font-medium text-zen-on-surface mb-2">رفع ملف صوتي لهذه المرحلة</p>
+                <AudioUploaderCompact url={stageAudio} onChange={patchStageAudio} />
+              </div>
             </div>
           )}
 
@@ -1029,6 +1055,12 @@ function getFillStageLabel(stage: FillStage): string {
 function getStageImage(block: ParagraphBlock, stage: FillStage): string {
   if (stage === "original") return block.stage_visuals?.original ?? block.visual_url ?? "";
   return block.stage_visuals?.[stage] ?? "";
+}
+
+function getStageAudio(block: ParagraphBlock, stage: FillStage): string {
+  const isQuizStage = stage === "quizzes_mcq" || stage === "quizzes_fill" || stage === "quizzes_essay";
+  if (isQuizStage) return "";
+  return block.stage_audio?.[stage as Stage] ?? "";
 }
 
 function InlineStageCanvas({
@@ -1183,6 +1215,52 @@ function ImageUploaderCompact({ url, onChange }: { url: string; onChange: (url: 
         ref={fileRef}
         type="file"
         accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (!f) return;
+          const reader = new FileReader();
+          reader.onload = () => onChange(String(reader.result));
+          reader.readAsDataURL(f);
+        }}
+      />
+    </div>
+  );
+}
+
+function AudioUploaderCompact({ url, onChange }: { url: string; onChange: (url: string) => void }) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  return (
+    <div className="mt-1.5 space-y-1.5">
+      <button
+        onClick={() => fileRef.current?.click()}
+        className="w-full rounded-md border border-border px-2 py-1 text-[10px] font-semibold text-foreground/70 hover:border-brand/40"
+      >
+        رفع/تغيير
+      </button>
+      {url && (
+        <div className="flex gap-1.5">
+          <button
+            onClick={() => {
+              const audio = new Audio(url);
+              audio.play();
+            }}
+            className="flex-1 rounded-md border border-zen-primary/40 px-2 py-1 text-[10px] font-semibold text-zen-primary hover:border-zen-primary/60"
+          >
+            تشغيل
+          </button>
+          <button
+            onClick={() => onChange("")}
+            className="flex-1 rounded-md border border-destructive/40 px-2 py-1 text-[10px] font-semibold text-destructive"
+          >
+            إزالة
+          </button>
+        </div>
+      )}
+      <input
+        ref={fileRef}
+        type="file"
+        accept="audio/*"
         className="hidden"
         onChange={(e) => {
           const f = e.target.files?.[0];
