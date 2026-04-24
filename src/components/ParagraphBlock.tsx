@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { ChevronRight, ChevronLeft, RotateCcw, Brain, Lightbulb } from "lucide-react";
+import { ChevronRight, ChevronLeft, RotateCcw, Brain, Lightbulb, Play, Pause } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
 import type { ParagraphBlock as Block } from "@/lib/lesson-data";
@@ -58,6 +58,10 @@ export function ParagraphBlockCard({
 
   const [showBoredModal, setShowBoredModal] = useState(false);
   const [boredTip, setBoredTip] = useState(BOREDOM_TIPS[0]);
+  const [audioRef] = useState<HTMLAudioElement | null>(null);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+
+  const stageAudio = block.stage_audio?.[stage] ?? "";
 
   const recallWordCount = recallText.trim().split(/\s+/).filter(Boolean).length;
   const recallReady = recallWordCount >= MIN_RECALL_WORDS;
@@ -122,17 +126,38 @@ export function ParagraphBlockCard({
     <div className="mx-auto max-w-[640px] px-6 py-12">
       {/* Stepper header */}
       <div className="mb-12 flex items-center justify-between gap-3">
-        <button
-          onClick={() => {
-            setStarted(false);
-            setIdx(0);
-            setRecallText("");
-          }}
-          className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium text-zen-on-surface-variant transition hover:bg-zen-surface-low"
-        >
-          <RotateCcw className="h-3.5 w-3.5" strokeWidth={1.75} />
-          رجوع
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => {
+              setStarted(false);
+              setIdx(0);
+              setRecallText("");
+            }}
+            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium text-zen-on-surface-variant transition hover:bg-zen-surface-low"
+          >
+            <RotateCcw className="h-3.5 w-3.5" strokeWidth={1.75} />
+            رجوع
+          </button>
+          {stageAudio && mode === "student" && (
+            <button
+              onClick={() => {
+                const audio = new Audio(stageAudio);
+                audio.play();
+                setIsAudioPlaying(true);
+                audio.onended = () => setIsAudioPlaying(false);
+              }}
+              className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium text-zen-primary transition hover:bg-zen-surface-low"
+              title="تشغيل الصوت"
+            >
+              {isAudioPlaying ? (
+                <Pause className="h-3.5 w-3.5" strokeWidth={1.75} />
+              ) : (
+                <Play className="h-3.5 w-3.5" strokeWidth={1.75} />
+              )}
+              صوت
+            </button>
+          )}
+        </div>
 
         <div className="flex items-center gap-1.5">
           {STAGES.map((_, i) => (

@@ -26,6 +26,8 @@ export type ParagraphBlock = {
   mind_map_nodes: string[];
   visual_url?: string;
   stage_visuals?: Partial<Record<Stage | "quizzes" | "quizzes_mcq" | "quizzes_fill" | "quizzes_essay", string>>;
+  /** Audio files per stage (excluding quizzes) */
+  stage_audio?: Partial<Record<Stage, string>>;
   /** Per-block overrides. If undefined, global settings apply. */
   enabled_stages?: Stage[];
   stage_order?: Stage[];
@@ -131,6 +133,7 @@ export function normalizeBlock(raw: any, idx: number): ParagraphBlock {
     mind_map_nodes: Array.isArray(raw?.mind_map_nodes) ? raw.mind_map_nodes : [],
     visual_url: raw?.visual_url ?? "",
     stage_visuals: raw?.stage_visuals ?? {},
+    stage_audio: raw?.stage_audio ?? {},
     enabled_stages,
     stage_order: Array.isArray(raw?.stage_order)
       ? (raw.stage_order as Stage[])
