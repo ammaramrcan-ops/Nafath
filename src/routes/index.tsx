@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { type Lesson } from "@/lib/lesson-data";
+import { type Lesson, normalizeLesson } from "@/lib/lesson-data";
 import { saveToLibrary } from "@/lib/lesson-library";
 import { LessonFlow } from "@/components/LessonFlow";
 import { ZenHome } from "@/components/ZenHome";
