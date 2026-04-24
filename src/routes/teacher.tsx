@@ -252,6 +252,7 @@ function TeacherPage() {
             onChange={(patch) => updateBlock(blockIdx, patch)}
             onRemove={lesson.blocks.length > 1 ? () => removeBlock(blockIdx) : undefined}
             onNextBlock={() => setStep((s) => Math.min(totalSteps - 1, s + 1))}
+            onPrevBlock={() => setStep((s) => Math.max(1, s - 1))}
             isLastBlock={blockIdx === lesson.blocks.length - 1}
             blockIndex={blockIdx}
             totalBlocks={lesson.blocks.length}
@@ -387,6 +388,7 @@ function BlockStep({
   onChange,
   onRemove,
   onNextBlock,
+  onPrevBlock,
   isLastBlock,
   blockIndex,
   totalBlocks,
@@ -399,40 +401,14 @@ function BlockStep({
   onChange: (patch: Partial<ParagraphBlock>) => void;
   onRemove?: () => void;
   onNextBlock: () => void;
+  onPrevBlock: () => void;
   isLastBlock: boolean;
   blockIndex: number;
   totalBlocks: number;
   onAddBlock: () => void;
   onGotoStep: (step: number) => void;
 }) {
-  const { settings } = useSettings();
-  const [showSequenceEditor, setShowSequenceEditor] = useState(false);
-  const [activeStage, setActiveStage] = useState<FillStage | null>(null);
-  const [blockNameEdit, setBlockNameEdit] = useState(false);
-
-  const previewStages = useMemo(() => {
-    const base = effectiveStages(block, settings.stageOrder) as FillStage[];
-    if (block.quiz_enabled === false) return base;
-    const quizStages: FillStage[] = [];
-    if (block.quizzes.mcqs.length > 0 || true) quizStages.push("quizzes_mcq");
-    if (block.quizzes.fills.length > 0 || true) quizStages.push("quizzes_fill");
-    if (block.quizzes.essays.length > 0 || true) quizStages.push("quizzes_essay");
-    return [...base, ...quizStages];
-  }, [block, settings.stageOrder]);
-
-  const isLastStage = activeStage === previewStages[previewStages.length - 1];
-  const isLastBlockStage = blockIndex === totalBlocks - 1 && isLastStage;
-
-  useEffect(() => {
-    if (previewStages.length === 0) {
-      setActiveStage(null);
-      return;
-    }
-    setActiveStage((prev) => (prev && previewStages.includes(prev) ? prev : previewStages[0]));
-  }, [previewStages]);
-
-  return (
-    <div>
+...
       <div className="mb-10 flex flex-wrap items-end justify-between gap-3">
         <div>
           <div className="text-[12px] font-medium tracking-wide text-zen-primary">
@@ -442,14 +418,40 @@ function BlockStep({
             {block.title || "فقرة بدون عنوان"}
           </h2>
         </div>
-        {onRemove && (
-          <button
-            onClick={onRemove}
-            className="inline-flex items-center gap-1.5 text-[12px] font-medium text-zen-on-surface-variant transition hover:text-destructive"
-          >
-            <Trash2 className="h-3.5 w-3.5" strokeWidth={1.75} /> حذف الفقرة
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {/* أزرار الانتقال بين الفقرات */}
+          {totalBlocks > 1 && (
+            <div className="flex items-center gap-1 rounded-full bg-white p-1 shadow-[var(--shadow-soft)]">
+              <button
+                onClick={onPrevBlock}
+                disabled={blockIndex === 0}
+                title="الفقرة السابقة"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-full text-zen-on-surface-variant transition hover:bg-zen-surface-low hover:text-zen-on-surface disabled:cursor-not-allowed disabled:opacity-30"
+              >
+                <ArrowRight className="h-4 w-4" strokeWidth={1.75} />
+              </button>
+              <span className="px-2 text-[12px] font-medium text-zen-on-surface-variant tabular-nums">
+                {blockNum}/{total}
+              </span>
+              <button
+                onClick={onNextBlock}
+                disabled={blockIndex === totalBlocks - 1}
+                title="الفقرة التالية"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-full text-zen-on-surface-variant transition hover:bg-zen-surface-low hover:text-zen-on-surface disabled:cursor-not-allowed disabled:opacity-30"
+              >
+                <ArrowLeft className="h-4 w-4" strokeWidth={1.75} />
+              </button>
+            </div>
+          )}
+          {onRemove && (
+            <button
+              onClick={onRemove}
+              className="inline-flex items-center gap-1.5 text-[12px] font-medium text-zen-on-surface-variant transition hover:text-destructive"
+            >
+              <Trash2 className="h-3.5 w-3.5" strokeWidth={1.75} /> حذف الفقرة
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="space-y-6">
