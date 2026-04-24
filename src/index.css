@@ -6,7 +6,6 @@
    BlinkUIProvider adds .theme-{name} + .dark/.light to <html>,
    activating the matching CSS variable set below.
    ───────────────────────────────────────────────────────────────────────────── */
-@import '@blinkdotnew/ui/styles';
 
 @tailwind base;
 @tailwind components;
