@@ -55,6 +55,7 @@ export function saveToLibrary(lesson: Lesson): string {
     return lib[existingIdx].id;
   }
   writeLibrary([entry, ...lib]);
+  window.dispatchEvent(new Event("library-updated"));
   return id;
 }
 

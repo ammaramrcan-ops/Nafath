@@ -28,7 +28,11 @@ export function LessonLibrary({ onOpen }: { onOpen: (lesson: Lesson) => void }) 
     // Re-read whenever tab becomes visible (user just came back from teacher)
     const onFocus = () => refresh();
     window.addEventListener("focus", onFocus);
-    return () => window.removeEventListener("focus", onFocus);
+    window.addEventListener("library-updated", refresh);
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      window.removeEventListener("library-updated", refresh);
+    };
   }, []);
 
   const handleDelete = (id: string) => {
