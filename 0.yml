@@ -1,0 +1,24 @@
+name: Fix bun.lockb
+
+on:
+  workflow_dispatch:  # تتيح لك تشغيل الأمر يدوياً
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.2.15
+      - name: Remove old lockfile and reinstall
+        run: |
+          rm -f bun.lockb
+          bun install
+      - name: Commit and push new lockfile
+        run: |
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
+          git add bun.lockb
+          git commit -m "chore: regenerate bun.lockb" || echo "No changes"
+          git push
