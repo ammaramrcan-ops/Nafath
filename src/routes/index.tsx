@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { type Lesson } from "@/lib/lesson-data";
+import { type Lesson, normalizeLesson } from "@/lib/lesson-data";
 import { saveToLibrary } from "@/lib/lesson-library";
 import { LessonFlow } from "@/components/LessonFlow";
 import { ZenHome } from "@/components/ZenHome";
@@ -20,6 +20,20 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const [lesson, setLesson] = useState<Lesson | null>(null);
+
+  // Pick up a lesson opened from the unit page via localStorage handoff.
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("nafath.openLesson");
+      if (raw) {
+        localStorage.removeItem("nafath.openLesson");
+        const parsed = JSON.parse(raw);
+        setLesson(normalizeLesson(parsed));
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   const handleLoad = (l: Lesson) => {
     saveToLibrary(l);

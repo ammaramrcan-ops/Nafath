@@ -1,19 +1,23 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Settings, Bell, BookOpen, ChevronLeft, ChevronDown, LayoutGrid, Trash2 } from "lucide-react";
+import { Settings, Bell, BookOpen, ChevronLeft, LayoutGrid, Trash2, Plus, FolderOpen } from "lucide-react";
 import { getLibrary, deleteFromLibrary, type SavedLesson } from "@/lib/lesson-library";
 import { type Lesson } from "@/lib/lesson-data";
+import { getCurriculum, getAssignedLessonIds, type Subject } from "@/lib/curriculum";
 import { SettingsDialog } from "@/components/SettingsDialog";
 import { RestoreDialog } from "@/components/RestoreDialog";
 
 export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => void }) {
   const [library, setLibrary] = useState<SavedLesson[]>([]);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
   const [restoreOpen, setRestoreOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [biologyOpen, setBiologyOpen] = useState(true);
   const navigate = useNavigate();
 
-  const refresh = () => setLibrary(getLibrary());
+  const refresh = () => {
+    setLibrary(getLibrary());
+    setSubjects(getCurriculum().subjects);
+  };
 
   useEffect(() => {
     refresh();
@@ -27,10 +31,10 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
     onOpenLesson(lesson);
   };
 
-  // Single default material containing every saved lesson.
-  const materialsCount = 1;
+  const assigned = getAssignedLessonIds();
+  const uncategorizedCount = library.filter((l) => !assigned.has(l.id)).length;
   const showAllLessons = library.length > 2;
-  const showAllMaterials = materialsCount > 2;
+  const showAllMaterials = subjects.length > 2;
 
   return (
     <div dir="rtl" lang="ar" className="min-h-screen bg-zen-surface text-zen-on-surface antialiased">
@@ -134,63 +138,71 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
         <section className="mb-20">
           <div className="mb-6 flex items-center justify-between">
             <h2 className="text-[28px] font-medium leading-tight text-zen-on-surface">المواد</h2>
-            {showAllMaterials && (
-              <button className="text-[13px] font-medium tracking-wide text-zen-primary transition hover:opacity-70">
-                عرض الكل
-              </button>
-            )}
-          </div>
-
-          <div className="grid grid-cols-1 gap-5">
-            <div className="overflow-hidden rounded-2xl border border-white bg-white shadow-[var(--shadow-deep)]">
+            <div className="flex gap-5">
               <button
-                onClick={() => setBiologyOpen((v) => !v)}
-                className="flex w-full items-center justify-between px-8 py-7 text-right transition hover:bg-zen-surface-low/40"
+                onClick={() => navigate({ to: "/subjects" })}
+                className="inline-flex items-center gap-1 text-[13px] font-medium tracking-wide text-zen-primary transition hover:opacity-70"
               >
-                <div className="flex items-center gap-5">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-zen-surface-container text-zen-primary">
-                    <BookOpen className="h-6 w-6" strokeWidth={1.75} />
-                  </div>
-                  <div>
-                    <h3 className="text-[20px] font-medium text-zen-on-surface">الأحياء</h3>
-                    <p className="mt-1 text-[13px] font-medium text-zen-on-surface-variant">
-                      {library.length} درس
-                    </p>
-                  </div>
-                </div>
-                <ChevronDown
-                  className={`h-5 w-5 text-zen-on-surface-variant transition-transform ${biologyOpen ? "rotate-180" : ""}`}
-                  strokeWidth={2}
-                />
+                <Plus className="h-3.5 w-3.5" strokeWidth={2.25} />
+                إضافة مادة
               </button>
-
-              {biologyOpen && (
-                <div className="border-t border-zen-surface-low px-3 py-3">
-                  {library.length === 0 ? (
-                    <p className="px-5 py-6 text-center text-[13px] font-medium text-zen-on-surface-variant">
-                      لا توجد دروس بعد. اضغط «استرداد» لإضافة أول درس.
-                    </p>
-                  ) : (
-                    <ul className="divide-y divide-zen-surface-low">
-                      {library.map((saved) => (
-                        <li key={saved.id}>
-                          <button
-                            onClick={() => onOpenLesson(saved.data)}
-                            className="flex w-full items-center justify-between rounded-xl px-5 py-4 text-right transition hover:bg-zen-surface-low/60"
-                          >
-                            <span className="text-[15px] font-medium text-zen-on-surface">
-                              {saved.title}
-                            </span>
-                            <ChevronLeft className="h-4 w-4 text-zen-on-surface-variant/60" strokeWidth={2} />
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
+              {showAllMaterials && (
+                <button
+                  onClick={() => navigate({ to: "/subjects" })}
+                  className="text-[13px] font-medium tracking-wide text-zen-primary transition hover:opacity-70"
+                >
+                  عرض الكل
+                </button>
               )}
             </div>
           </div>
+
+          {subjects.length === 0 ? (
+            <button
+              onClick={() => navigate({ to: "/subjects" })}
+              className="flex h-40 w-full flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-zen-surface-container bg-white/40 p-8 text-zen-on-surface-variant transition hover:border-zen-primary-container hover:bg-white"
+            >
+              <FolderOpen className="h-7 w-7 opacity-40" strokeWidth={1.5} />
+              <p className="text-sm font-medium">أضف أول مادة لتنظيم دروسك</p>
+            </button>
+          ) : (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {subjects.slice(0, 4).map((s) => {
+                const lessonsCount = s.units.reduce((acc, u) => acc + u.lessonIds.length, 0);
+                return (
+                  <button
+                    key={s.id}
+                    onClick={() =>
+                      navigate({ to: "/subjects/$subjectId", params: { subjectId: s.id } })
+                    }
+                    className="rounded-2xl border border-white bg-white p-6 text-right shadow-[var(--shadow-deep)] transition hover:-translate-y-0.5"
+                  >
+                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-zen-surface-container text-zen-primary">
+                      <BookOpen className="h-5 w-5" strokeWidth={1.75} />
+                    </div>
+                    <h3 className="text-[18px] font-medium text-zen-on-surface line-clamp-1">
+                      {s.name}
+                    </h3>
+                    <p className="mt-1 text-[12px] font-medium text-zen-on-surface-variant">
+                      {s.units.length} وحدة · {lessonsCount} درس
+                    </p>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {uncategorizedCount > 0 && (
+            <button
+              onClick={() => navigate({ to: "/subjects" })}
+              className="mt-4 flex w-full items-center justify-between rounded-2xl border border-dashed border-zen-surface-container bg-white/40 px-5 py-4 text-right transition hover:bg-white"
+            >
+              <span className="text-[13px] font-medium text-zen-on-surface-variant">
+                غير مصنّف · {uncategorizedCount} درس
+              </span>
+              <ChevronLeft className="h-4 w-4 text-zen-on-surface-variant/60" strokeWidth={2} />
+            </button>
+          )}
         </section>
 
         {/* Teacher entry — discreet */}
