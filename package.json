@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
-    "postbuild": "node -e \"const fs=require('fs');const f='dist/client/wrangler.json';if(fs.existsSync(f)){const c=JSON.parse(fs.readFileSync(f,'utf8'));delete c.triggers;fs.writeFileSync(f,JSON.stringify(c,null,2));console.log('✅ Removed invalid triggers field from dist/client/wrangler.json');}\"",
+    "postbuild": "node -e \"const fs=require('fs');const f='dist/client/wrangler.json';if(fs.existsSync(f)){const c=JSON.parse(fs.readFileSync(f,'utf8'));const forbidden=['triggers','assets','definedEnvironments','ai_search_namespaces','ai_search','secrets_store_secrets','artifacts','unsafe_hello_world','flagship','worker_loaders','ratelimits','vpc_services','vpc_networks','python_modules'];forbidden.forEach(k=>delete c[k]);if(c.dev){delete c.dev.enable_containers;delete c.dev.generate_types;}fs.writeFileSync(f,JSON.stringify(c,null,2));console.log('✅ Cleaned wrangler.json for Cloudflare Pages');}else{console.log('⚠️ wrangler.json not found');}\" ",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
