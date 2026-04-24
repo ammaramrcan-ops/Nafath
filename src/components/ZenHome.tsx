@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Settings, Bell, BookOpen, ChevronLeft, ChevronDown, LayoutGrid, Trash2 } from "lucide-react";
+import { Settings, Bell, BookOpen, ChevronLeft, LayoutGrid, Trash2, Plus, FolderOpen } from "lucide-react";
 import { getLibrary, deleteFromLibrary, type SavedLesson } from "@/lib/lesson-library";
 import { type Lesson } from "@/lib/lesson-data";
+import { getCurriculum, getAssignedLessonIds, type Subject } from "@/lib/curriculum";
 import { SettingsDialog } from "@/components/SettingsDialog";
 import { RestoreDialog } from "@/components/RestoreDialog";
 
