@@ -1,6 +1,17 @@
 import { useEffect, useState, useCallback } from "react";
 
-export type Stage = "short" | "story" | "examples" | "original" | "mental" | "funny" | "mindmap";
+export type Stage =
+  | "short"
+  | "story"
+  | "examples"
+  | "original"
+  | "mental"
+  | "funny"
+  | "mindmap"
+  | "quizzes_mcq"
+  | "quizzes_fill"
+  | "quizzes_essay"
+  | "zaitouna";
 
 export const STAGE_LABELS: Record<Stage, string> = {
   short: "الجملة المبسطة",
@@ -10,6 +21,10 @@ export const STAGE_LABELS: Record<Stage, string> = {
   mental: "رابط ذهني",
   funny: "رابط فكاهي",
   mindmap: "الخريطة الذهنية",
+  quizzes_mcq: "اختبار (اختيار من متعدد)",
+  quizzes_fill: "اختبار (أكمل الفراغ)",
+  quizzes_essay: "اختبار (سؤال مقالي)",
+  zaitouna: "الزتونة (ملخص الفقرة)",
 };
 
 export const DEFAULT_STAGE_ORDER: Stage[] = [
@@ -20,6 +35,10 @@ export const DEFAULT_STAGE_ORDER: Stage[] = [
   "mental",
   "funny",
   "mindmap",
+  "quizzes_mcq",
+  "quizzes_fill",
+  "quizzes_essay",
+  "zaitouna",
 ];
 
 export type Settings = {

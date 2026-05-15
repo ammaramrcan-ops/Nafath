@@ -13,6 +13,12 @@ export type Quizzes = {
   essays: Essay[];
 };
 
+export type Zaitouna = {
+  definitions: string;
+  reasoning: string;
+  links: string;
+};
+
 export type ParagraphBlock = {
   id: number;
   title: string;
@@ -41,6 +47,7 @@ export type ParagraphBlock = {
   stage_interval?: number;
   stage_intervals?: Partial<Record<Stage, number>>;
   enable_stage_intervals?: Partial<Record<Stage, boolean>>;
+  zaitouna?: Zaitouna;
 };
 
 export type Lesson = {
@@ -148,6 +155,11 @@ export function normalizeBlock(raw: any, idx: number): ParagraphBlock {
     stage_interval: raw?.stage_interval ?? 15,
     stage_intervals,
     enable_stage_intervals,
+    zaitouna: {
+      definitions: raw?.zaitouna?.definitions ?? "",
+      reasoning: raw?.zaitouna?.reasoning ?? "",
+      links: raw?.zaitouna?.links ?? "",
+    },
   };
 }
 
@@ -168,7 +180,13 @@ export function normalizeLesson(raw: any): Lesson {
 
 /** Compute the effective stages for a block by intersecting global order with block's enabled list. */
 export function effectiveStages(block: ParagraphBlock, globalOrder: Stage[]): Stage[] {
-  const order = block.stage_order && block.stage_order.length > 0 ? block.stage_order : globalOrder;
+  const rawOrder = block.stage_order && block.stage_order.length > 0 ? block.stage_order : globalOrder;
+  
+  // Sanitize: ensure all current DEFAULT_STAGE_ORDER items are included in the calculation
+  const valid = rawOrder.filter((s) => (DEFAULT_STAGE_ORDER as string[]).includes(s));
+  const missing = DEFAULT_STAGE_ORDER.filter((s) => !valid.includes(s));
+  const order = [...valid, ...missing];
+
   const enabled = block.enabled_stages ?? DEFAULT_STAGE_ORDER;
   return order.filter((s) => enabled.includes(s));
 }

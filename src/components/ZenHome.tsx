@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Settings, Bell, BookOpen, ChevronLeft, LayoutGrid, Trash2, Plus, FolderOpen } from "lucide-react";
+import { Settings, Bell, BookOpen, ChevronLeft, LayoutGrid, Trash2, Plus, FolderOpen, Pencil } from "lucide-react";
 import { getLibrary, deleteFromLibrary, type SavedLesson } from "@/lib/lesson-library";
 import { type Lesson } from "@/lib/lesson-data";
 import { getCurriculum, getAssignedLessonIds, type Subject } from "@/lib/curriculum";
@@ -103,17 +103,34 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
                   key={saved.id}
                   className="group relative flex h-52 min-w-[280px] snap-start flex-col justify-between rounded-2xl border border-white bg-white p-8 shadow-[var(--shadow-deep)]"
                 >
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      deleteFromLibrary(saved.id);
-                      refresh();
-                    }}
-                    className="absolute left-3 top-3 rounded-full p-1.5 text-zen-on-surface-variant/40 opacity-0 transition group-hover:opacity-100 hover:bg-zen-surface-low hover:text-destructive"
-                    aria-label="حذف"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
+                  <div className="absolute left-3 top-3 flex gap-1 opacity-0 transition group-hover:opacity-100">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        try {
+                          localStorage.setItem("teacher.lesson.draft", JSON.stringify(saved.data));
+                          navigate({ to: "/teacher" });
+                        } catch (err) {
+                          console.error("Failed to save draft:", err);
+                        }
+                      }}
+                      className="rounded-full p-1.5 text-zen-on-surface-variant/40 transition hover:bg-zen-surface-low hover:text-zen-primary"
+                      aria-label="تعديل"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteFromLibrary(saved.id);
+                        refresh();
+                      }}
+                      className="rounded-full p-1.5 text-zen-on-surface-variant/40 transition hover:bg-zen-surface-low hover:text-destructive"
+                      aria-label="حذف"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
                   <button
                     onClick={() => onOpenLesson(saved.data)}
                     className="flex h-full flex-col justify-between text-right"

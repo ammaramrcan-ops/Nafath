@@ -87,8 +87,14 @@ function TeacherPage() {
     }
     return emptyLesson();
   });
-  const [step, setStep] = useState(0);
-  const [introStage, setIntroStage] = useState<'start' | 'lesson-info' | null>('start');
+  const [step, setStep] = useState(() => {
+    if (typeof window === "undefined") return 0;
+    return localStorage.getItem(STORAGE_KEY) ? 1 : 0;
+  });
+  const [introStage, setIntroStage] = useState<'start' | 'lesson-info' | null>(() => {
+    if (typeof window === "undefined") return 'start';
+    return localStorage.getItem(STORAGE_KEY) ? null : 'start';
+  });
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [libSaved, setLibSaved] = useState(false);
 
@@ -414,13 +420,7 @@ function BlockStep({
   const [blockNameEdit, setBlockNameEdit] = useState(false);
 
   const previewStages = useMemo(() => {
-    const base = effectiveStages(block, settings.stageOrder) as FillStage[];
-    if (block.quiz_enabled === false) return base;
-    const quizStages: FillStage[] = [];
-    if (block.quizzes.mcqs.length > 0 || true) quizStages.push("quizzes_mcq");
-    if (block.quizzes.fills.length > 0 || true) quizStages.push("quizzes_fill");
-    if (block.quizzes.essays.length > 0 || true) quizStages.push("quizzes_essay");
-    return [...base, ...quizStages];
+    return effectiveStages(block, settings.stageOrder) as FillStage[];
   }, [block, settings.stageOrder]);
 
   const isLastStage = activeStage === previewStages[previewStages.length - 1];
@@ -584,10 +584,13 @@ function StagesEditor({
   block: ParagraphBlock;
   onChange: (patch: Partial<ParagraphBlock>) => void;
 }) {
-  const order: Stage[] =
-    block.stage_order && block.stage_order.length === DEFAULT_STAGE_ORDER.length
-      ? block.stage_order
-      : DEFAULT_STAGE_ORDER;
+  const order = useMemo(() => {
+    const base = Array.isArray(block.stage_order) ? block.stage_order : DEFAULT_STAGE_ORDER;
+    const valid = base.filter((s) => (DEFAULT_STAGE_ORDER as string[]).includes(s));
+    const missing = DEFAULT_STAGE_ORDER.filter((s) => !valid.includes(s));
+    return [...valid, ...missing];
+  }, [block.stage_order]);
+
   const enabled = new Set<Stage>(block.enabled_stages ?? DEFAULT_STAGE_ORDER);
 
   const setOrder = (next: Stage[]) => onChange({ stage_order: next });
@@ -595,7 +598,16 @@ function StagesEditor({
     const next = new Set(enabled);
     if (on) next.add(s);
     else next.delete(s);
-    onChange({ enabled_stages: Array.from(next) });
+    
+    const patch: Partial<ParagraphBlock> = { 
+      enabled_stages: Array.from(next),
+      stage_order: order // Ensure the full order is saved once modified
+    };
+    if (s === "quizzes_mcq") patch.quiz_mcq_enabled = on;
+    if (s === "quizzes_fill") patch.quiz_fill_enabled = on;
+    if (s === "quizzes_essay") patch.quiz_essay_enabled = on;
+    
+    onChange(patch);
   };
 
   const move = (i: number, dir: -1 | 1) => {
@@ -1196,6 +1208,45 @@ function InlineStageCanvas({
             className={cn(inputClasses, "resize-none text-lg leading-loose")}
             placeholder="اكتب الجملة الفكاهية المساعدة على التذكر..."
           />
+        </div>
+      </div>
+    );
+  }
+
+  if (stage === "zaitouna") {
+    return (
+      <div className="mx-auto max-w-3xl space-y-6">
+        <div className="rounded-3xl bg-zen-surface-low p-8 space-y-6">
+          <div>
+            <p className="mb-3 text-sm font-semibold text-zen-primary">أهم التعريفات</p>
+            <Textarea
+              value={block.zaitouna?.definitions || ""}
+              onChange={(e) => onChange({ zaitouna: { ...(block.zaitouna || { definitions: "", reasoning: "", links: "" }), definitions: e.target.value } })}
+              rows={4}
+              className={cn(inputClasses, "bg-white/50 text-sm leading-relaxed")}
+              placeholder="اكتب أهم المصطلحات والتعريفات هنا..."
+            />
+          </div>
+          <div>
+            <p className="mb-3 text-sm font-semibold text-zen-primary">أسئلة علّل / تفسيرات</p>
+            <Textarea
+              value={block.zaitouna?.reasoning || ""}
+              onChange={(e) => onChange({ zaitouna: { ...(block.zaitouna || { definitions: "", reasoning: "", links: "" }), reasoning: e.target.value } })}
+              rows={4}
+              className={cn(inputClasses, "bg-white/50 text-sm leading-relaxed")}
+              placeholder="اكتب أسئلة 'بما تفسر' أو 'علل' وإجاباتها المختصرة..."
+            />
+          </div>
+          <div>
+            <p className="mb-3 text-sm font-semibold text-zen-primary">روابط وملاحظات هامة</p>
+            <Textarea
+              value={block.zaitouna?.links || ""}
+              onChange={(e) => onChange({ zaitouna: { ...(block.zaitouna || { definitions: "", reasoning: "", links: "" }), links: e.target.value } })}
+              rows={3}
+              className={cn(inputClasses, "bg-white/50 text-sm leading-relaxed")}
+              placeholder="أضف أي روابط أو ملاحظات ختامية للفقرة..."
+            />
+          </div>
         </div>
       </div>
     );

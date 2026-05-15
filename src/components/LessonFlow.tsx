@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { Pencil } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
 import { type Lesson } from "@/lib/lesson-data";
 import { WelcomeScreen } from "@/components/WelcomeScreen";
 import { ParagraphBlockCard } from "@/components/ParagraphBlock";
@@ -9,42 +11,7 @@ import { EndScreen } from "@/components/EndScreen";
 import { useSettings } from "@/lib/settings";
 import { effectiveStages } from "@/lib/lesson-data";
 
-type Phase = "welcome" | "lesson" | "quiz_mcq" | "quiz_fill" | "quiz_essay" | "break" | "done";
-
-type QuizP = "quiz_mcq" | "quiz_fill" | "quiz_essay";
-
-function quizPhaseAvailable(
-  phase: QuizP,
-  block: {
-    quizzes: { mcqs: unknown[]; fills: unknown[]; essays: unknown[] };
-    quiz_mcq_enabled?: boolean;
-    quiz_fill_enabled?: boolean;
-    quiz_essay_enabled?: boolean;
-  },
-): boolean {
-  if (phase === "quiz_mcq") return block.quiz_mcq_enabled !== false && block.quizzes.mcqs.length > 0;
-  if (phase === "quiz_fill") return block.quiz_fill_enabled !== false && block.quizzes.fills.length > 0;
-  return block.quiz_essay_enabled !== false && block.quizzes.essays.length > 0;
-}
-
-function nextQuizPhase(
-  current: QuizP,
-  block: Parameters<typeof quizPhaseAvailable>[1],
-): QuizP | null {
-  const order: QuizP[] = ["quiz_mcq", "quiz_fill", "quiz_essay"];
-  const start = order.indexOf(current) + 1;
-  for (let i = start; i < order.length; i++) {
-    if (quizPhaseAvailable(order[i], block)) return order[i];
-  }
-  return null;
-}
-
-function firstQuizPhase(block: Parameters<typeof quizPhaseAvailable>[1]): QuizP | null {
-  for (const p of ["quiz_mcq", "quiz_fill", "quiz_essay"] as QuizP[]) {
-    if (quizPhaseAvailable(p, block)) return p;
-  }
-  return null;
-}
+type Phase = "welcome" | "lesson" | "break" | "done";
 
 export function LessonFlow({
   lesson,
@@ -58,9 +25,25 @@ export function LessonFlow({
   const [phase, setPhase] = useState<Phase>("welcome");
   const [blockIdx, setBlockIdx] = useState(0);
   const { settings } = useSettings();
+  const navigate = useNavigate();
+
+  const handleEdit = () => {
+    localStorage.setItem("teacher.lesson.draft", JSON.stringify(lesson));
+    navigate({ to: "/teacher" });
+  };
 
   return (
-    <AnimatePresence mode="wait">
+    <div className="relative">
+      {/* Quick Edit Shortcut */}
+      <button
+        onClick={handleEdit}
+        className="fixed left-6 top-6 z-50 rounded-full bg-white/40 p-2 text-zen-on-surface-variant/40 backdrop-blur-sm transition hover:bg-white hover:text-zen-primary hover:shadow-sm"
+        title="تعديل الدرس"
+      >
+        <Pencil className="h-4 w-4" />
+      </button>
+
+      <AnimatePresence mode="wait">
       <motion.div
         key={`${phase}-${blockIdx}`}
         initial={{ opacity: 0, y: 12 }}
@@ -80,40 +63,9 @@ export function LessonFlow({
             mode="student"
             onComplete={() => {
               const block = lesson.blocks[blockIdx];
-              const first = block.quiz_enabled !== false ? firstQuizPhase(block) : null;
-              if (first) {
-                setPhase(first);
-              } else if (blockIdx + 1 >= lesson.blocks.length) {
-                setPhase("done");
-              } else if (block.enable_break === false) {
-                setBlockIdx((i) => i + 1);
-                setPhase("lesson");
-              } else {
-                setPhase("break");
-              }
-            }}
-          />
-        )}
-
-        {(phase === "quiz_mcq" || phase === "quiz_fill" || phase === "quiz_essay") && (
-          <QuizPhase
-            key={`${phase}-${blockIdx}`}
-            lesson={lesson}
-            blockIdx={blockIdx}
-            type={phase === "quiz_mcq" ? "mcq" : phase === "quiz_fill" ? "fill" : "essay"}
-            isLast={
-              blockIdx + 1 >= lesson.blocks.length &&
-              nextQuizPhase(phase, lesson.blocks[blockIdx]) === null
-            }
-            onNext={() => {
-              const next = nextQuizPhase(phase, lesson.blocks[blockIdx]);
-              if (next) {
-                setPhase(next);
-                return;
-              }
               if (blockIdx + 1 >= lesson.blocks.length) {
                 setPhase("done");
-              } else if (lesson.blocks[blockIdx].enable_break === false) {
+              } else if (block.enable_break === false) {
                 setBlockIdx((i) => i + 1);
                 setPhase("lesson");
               } else {
@@ -137,41 +89,7 @@ export function LessonFlow({
           <EndScreen lesson={lesson} onRestart={onExit} restartLabel={exitLabel} />
         )}
       </motion.div>
-    </AnimatePresence>
-  );
-}
-
-function QuizPhase({
-  lesson,
-  blockIdx,
-  isLast,
-  type,
-  onNext,
-}: {
-  lesson: Lesson;
-  blockIdx: number;
-  isLast?: boolean;
-  type: "mcq" | "fill" | "essay";
-  onNext: () => void;
-}) {
-  const [passed, setPassed] = useState(false);
-  return (
-    <div className="mx-auto max-w-[640px] px-6 py-12">
-      <QuizSection
-        quizzes={lesson.blocks[blockIdx].quizzes}
-        type={type}
-        onAllCorrect={() => setPassed(true)}
-      />
-      {passed && (
-        <div className="mt-12 text-center">
-          <button
-            onClick={onNext}
-            className="rounded-full bg-zen-primary px-10 py-3.5 text-[14px] font-medium text-white shadow-[var(--shadow-fab)] transition hover:opacity-90"
-          >
-            {isLast ? "إنهاء الدرس ←" : "المرحلة التالية ←"}
-          </button>
-        </div>
-      )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -32,6 +32,7 @@ export function CheatSheet({ lesson }: { lesson: Lesson }) {
         short: b.short_sentence,
         mnemonic: b.mnemonic,
         funny: b.funny_link,
+        zaitouna: b.zaitouna,
       })),
     [lesson],
   );
@@ -132,6 +133,27 @@ export function CheatSheet({ lesson }: { lesson: Lesson }) {
                   <div className="mt-1 text-[13px] font-light leading-relaxed text-zen-on-surface-variant">
                     <span className="font-medium text-zen-on-surface">رابط ظريف: </span>
                     {e.funny}
+                  </div>
+                )}
+                {(e.zaitouna?.definitions || e.zaitouna?.reasoning || e.zaitouna?.links) && (
+                  <div className="mt-4 space-y-3 rounded-xl bg-white/60 p-4 border border-zen-surface-container/30">
+                    {e.zaitouna?.definitions && (
+                      <div className="text-[13px] font-light leading-relaxed text-zen-on-surface">
+                        <span className="font-medium text-zen-primary">تعريفات: </span>
+                        {e.zaitouna.definitions}
+                      </div>
+                    )}
+                    {e.zaitouna?.reasoning && (
+                      <div className="text-[13px] font-light leading-relaxed text-zen-on-surface">
+                        <span className="font-medium text-zen-primary">علّل/تفسير: </span>
+                        {e.zaitouna.reasoning}
+                      </div>
+                    )}
+                    {e.zaitouna?.links && (
+                      <div className="text-[13px] font-light leading-relaxed text-zen-on-surface-variant italic">
+                        {e.zaitouna.links}
+                      </div>
+                    )}
                   </div>
                 )}
               </li>

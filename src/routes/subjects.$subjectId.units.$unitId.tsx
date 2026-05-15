@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ChevronLeft, Plus, BookOpen, Trash2, Upload, Play } from "lucide-react";
+import { ChevronLeft, Plus, BookOpen, Trash2, Upload, Play, Pencil } from "lucide-react";
 import {
   getSubject,
   getUnit,
@@ -151,18 +151,34 @@ function UnitPage() {
                 key={l.id}
                 className="group relative rounded-2xl border border-white bg-white p-6 shadow-[var(--shadow-deep)] transition hover:-translate-y-0.5"
               >
-                <button
-                  onClick={() => {
-                    if (confirm(`إزالة "${l.title}" من هذه الوحدة؟`)) {
-                      removeLessonFromUnit(subjectId, unitId, l.id);
-                      refresh();
-                    }
-                  }}
-                  className="absolute left-3 top-3 rounded-full p-1.5 text-zen-on-surface-variant/40 opacity-0 transition group-hover:opacity-100 hover:bg-zen-surface-low hover:text-destructive"
-                  aria-label="إزالة"
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
+                <div className="absolute left-3 top-3 flex gap-1 opacity-0 transition group-hover:opacity-100">
+                  <button
+                    onClick={() => {
+                      try {
+                        localStorage.setItem("teacher.lesson.draft", JSON.stringify(l.data));
+                        navigate({ to: "/teacher" });
+                      } catch (err) {
+                        console.error("Failed to save draft:", err);
+                      }
+                    }}
+                    className="rounded-full p-1.5 text-zen-on-surface-variant/40 transition hover:bg-zen-surface-low hover:text-zen-primary"
+                    aria-label="تعديل"
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (confirm(`إزالة "${l.title}" من هذه الوحدة؟`)) {
+                        removeLessonFromUnit(subjectId, unitId, l.id);
+                        refresh();
+                      }
+                    }}
+                    className="rounded-full p-1.5 text-zen-on-surface-variant/40 transition hover:bg-zen-surface-low hover:text-destructive"
+                    aria-label="إزالة"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
                 <span className="mb-3 inline-block rounded-full bg-zen-surface-low px-3 py-1 text-[12px] font-medium text-zen-primary">
                   درس
                 </span>

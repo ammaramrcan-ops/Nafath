@@ -16,6 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { QuizSection } from "./QuizSection";
 
 const MIN_RECALL_WORDS = 5;
 const DEFAULT_TIME_GATE_SECONDS = 15;
@@ -49,6 +50,8 @@ export function ParagraphBlockCard({
   const recallRef = useRef<HTMLTextAreaElement>(null);
 
   const stage = STAGES[idx].key;
+  const isQuiz = stage.startsWith("quizzes_");
+  const [isQuizDone, setIsQuizDone] = useState(false);
 
   const intervalEnabled = block.enable_stage_intervals?.[stage] ?? true;
   const timeGateSeconds = block.stage_intervals?.[stage] ?? block.stage_interval ?? DEFAULT_TIME_GATE_SECONDS;
@@ -65,8 +68,12 @@ export function ParagraphBlockCard({
 
   const recallWordCount = recallText.trim().split(/\s+/).filter(Boolean).length;
   const recallReady = recallWordCount >= MIN_RECALL_WORDS;
-  const enforceTimeGate = mode === "student" && intervalEnabled;
+  const enforceTimeGate = mode === "student" && intervalEnabled && !isQuiz;
   const timeGatePassed = !enforceTimeGate || timeGateRemaining <= 0;
+
+  useEffect(() => {
+    setIsQuizDone(false);
+  }, [stage]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -325,6 +332,66 @@ export function ParagraphBlockCard({
               <MindMap title={block.title} nodes={block.mind_map_nodes} />
             </div>
           )}
+
+          {stage === "quizzes_mcq" && (
+            <QuizSection
+              quizzes={block.quizzes}
+              type="mcq"
+              onAllCorrect={() => setIsQuizDone(true)}
+            />
+          )}
+
+          {stage === "quizzes_fill" && (
+            <QuizSection
+              quizzes={block.quizzes}
+              type="fill"
+              onAllCorrect={() => setIsQuizDone(true)}
+            />
+          )}
+
+          {stage === "quizzes_essay" && (
+            <QuizSection
+              quizzes={block.quizzes}
+              type="essay"
+              onAllCorrect={() => setIsQuizDone(true)}
+            />
+          )}
+
+          {stage === "zaitouna" && (
+            <div className="rounded-[24px] bg-white p-8 shadow-[var(--shadow-soft)] space-y-8">
+              <div className="text-center">
+                 <p className="mb-2 text-[12px] font-medium tracking-wide text-zen-primary uppercase">الزتونة</p>
+                 <h3 className="text-[18px] font-medium text-zen-on-surface">ملخص الفقرة الذكي</h3>
+              </div>
+              
+              {block.zaitouna?.definitions && (
+                <div>
+                  <p className="mb-3 text-[13px] font-medium text-zen-primary">أهم التعريفات</p>
+                  <p className="text-[14px] font-light leading-relaxed text-zen-on-surface whitespace-pre-wrap">
+                    {block.zaitouna.definitions}
+                  </p>
+                </div>
+              )}
+
+              {block.zaitouna?.reasoning && (
+                <div>
+                  <p className="mb-3 text-[13px] font-medium text-zen-primary">أسئلة علّل / تفسيرات</p>
+                  <p className="text-[14px] font-light leading-relaxed text-zen-on-surface whitespace-pre-wrap">
+                    {block.zaitouna.reasoning}
+                  </p>
+                </div>
+              )}
+
+              {block.zaitouna?.links && (
+                <div>
+                  <p className="mb-3 text-[13px] font-medium text-zen-primary">ملاحظات وروابط</p>
+                  <p className="text-[14px] font-light leading-relaxed text-zen-on-surface whitespace-pre-wrap">
+                    {block.zaitouna.links}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </motion.div>
       </AnimatePresence>
 
@@ -347,7 +414,7 @@ export function ParagraphBlockCard({
           <span className="text-[12px] font-light text-zen-on-surface-variant">
             {idx + 1} / {STAGES.length}
           </span>
-          {!timeGatePassed && (
+          {!timeGatePassed && !isQuiz && (
             <div className="flex items-center gap-2">
               <motion.div
                 initial={{ scaleX: 1 }}
@@ -362,35 +429,32 @@ export function ParagraphBlockCard({
           )}
         </div>
 
-        {isLast ? (
-          <button
-            onClick={onComplete}
-            className="rounded-full bg-zen-primary px-6 py-3 text-[13px] font-medium text-white shadow-[var(--shadow-fab)] transition hover:opacity-90"
-          >
-            التالي ←
-          </button>
-        ) : (
-          <button
-            onClick={handleNextClick}
-            disabled={(stage === "original" && !recallReady) || !timeGatePassed}
-            title={
-              stage === "original" && !recallReady
-                ? "أكمل التفريغ الذهني أولاً"
-                : !timeGatePassed
-                  ? "انتظر قليلاً قبل المتابعة"
-                  : undefined
-            }
-            className={cn(
-              "flex h-11 w-11 items-center justify-center rounded-full bg-white text-zen-on-surface shadow-[var(--shadow-soft)] transition",
-              (stage === "original" && !recallReady) || !timeGatePassed
-                ? "opacity-30 cursor-not-allowed"
-                : "hover:bg-zen-surface-low",
-            )}
-            aria-label="التالي"
-          >
-            <ChevronLeft className="h-4 w-4" strokeWidth={1.75} />
-          </button>
-        )}
+        <AnimatePresence>
+          {timeGatePassed && (stage !== "original" || recallReady) && (!isQuiz || isQuizDone) && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+            >
+              {isLast ? (
+                <button
+                  onClick={onComplete}
+                  className="rounded-full bg-zen-primary px-6 py-3 text-[13px] font-medium text-white shadow-[var(--shadow-fab)] transition hover:opacity-90"
+                >
+                  التالي ←
+                </button>
+              ) : (
+                <button
+                  onClick={handleNextClick}
+                  className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-zen-on-surface shadow-[var(--shadow-soft)] transition hover:bg-zen-surface-low"
+                  aria-label="التالي"
+                >
+                  <ChevronLeft className="h-4 w-4" strokeWidth={1.75} />
+                </button>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Bored button */}

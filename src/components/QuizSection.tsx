@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { CheckCircle2, XCircle, Lightbulb, Clock, Tag } from "lucide-react";
+import { CheckCircle2, XCircle, Lightbulb, Tag } from "lucide-react";
 import type { Quizzes, MCQ, Fill, Essay } from "@/lib/lesson-data";
 import { cn } from "@/lib/utils";
 
@@ -7,23 +7,16 @@ type Status = "idle" | "correct" | "wrong";
 
 type QuestionMetrics = {
   status: Status;
-  secondsElapsed: number;
   errorCount: number;
   hintUsed: boolean;
   userDifficulty?: 'easy' | 'medium' | 'hard';
-  timerStarted: boolean;
 };
 
 function normalize(s: string) {
   return s.trim().replace(/\s+/g, " ").toLowerCase();
 }
 
-function formatTime(seconds: number): string {
-  if (seconds < 60) return `${seconds}ث`;
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  return `${mins}د ${secs}ث`;
-}
+
 
 export function QuizSection({
   quizzes,
@@ -55,9 +48,14 @@ export function QuizSection({
 
   const setMetric = (key: string, metric: Partial<QuestionMetrics>) => {
     setMetrics((prev) => {
+      const current = prev[key] || {
+        status: "idle",
+        errorCount: 0,
+        hintUsed: false,
+      };
       const next = {
         ...prev,
-        [key]: { ...prev[key], ...metric },
+        [key]: { ...current, ...metric },
       };
       const correct = Object.values(next).filter((m) => m.status === "correct").length;
       if (total === 0 || correct === total) {
@@ -78,21 +76,7 @@ export function QuizSection({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [total]);
 
-  // مؤقت عام لتحديث الثواني
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setMetrics((prev) => {
-        const next = { ...prev };
-        Object.keys(next).forEach((key) => {
-          if (next[key].timerStarted && next[key].status !== "correct") {
-            next[key].secondsElapsed += 1;
-          }
-        });
-        return next;
-      });
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
+
 
   let n = 0;
   return (
@@ -119,10 +103,8 @@ export function QuizSection({
         const key = `mcq-${i}`;
         const metric = metrics[key] || {
           status: "idle",
-          secondsElapsed: 0,
           errorCount: 0,
           hintUsed: false,
-          timerStarted: false,
         };
         return (
           <McqItem
@@ -139,10 +121,8 @@ export function QuizSection({
         const key = `fill-${i}`;
         const metric = metrics[key] || {
           status: "idle",
-          secondsElapsed: 0,
           errorCount: 0,
           hintUsed: false,
-          timerStarted: false,
         };
         return (
           <FillItem
@@ -159,10 +139,8 @@ export function QuizSection({
         const key = `essay-${i}`;
         const metric = metrics[key] || {
           status: "idle",
-          secondsElapsed: 0,
           errorCount: 0,
           hintUsed: false,
-          timerStarted: false,
         };
         return (
           <EssayItem
@@ -205,8 +183,10 @@ function CheckButton({ onClick, disabled }: { onClick: () => void; disabled?: bo
 }
 
 function DifficultyRating({
+  selected,
   onRate,
 }: {
+  selected?: 'easy' | 'medium' | 'hard';
   onRate: (difficulty: 'easy' | 'medium' | 'hard') => void;
 }) {
   return (
@@ -216,20 +196,24 @@ function DifficultyRating({
         كم كانت صعوبة هذا السؤال؟
       </p>
       <div className="flex gap-2">
-        {(['easy', 'medium', 'hard'] as const).map((diff) => (
-          <button
-            key={diff}
-            onClick={() => onRate(diff)}
-            className={cn(
-              "flex-1 rounded-lg px-3 py-2 text-[12px] font-light transition",
-              diff === 'easy' && "bg-green-100 text-green-700 hover:bg-green-200",
-              diff === 'medium' && "bg-yellow-100 text-yellow-700 hover:bg-yellow-200",
-              diff === 'hard' && "bg-red-100 text-red-700 hover:bg-red-200",
-            )}
-          >
-            {diff === 'easy' ? 'سهل' : diff === 'medium' ? 'متوسط' : 'صعب'}
-          </button>
-        ))}
+        {(['easy', 'medium', 'hard'] as const).map((diff) => {
+          const isSelected = selected === diff;
+          return (
+            <button
+              key={diff}
+              onClick={() => onRate(diff)}
+              className={cn(
+                "flex-1 rounded-lg px-3 py-2 text-[12px] font-medium transition-all duration-200 border-2",
+                diff === 'easy' && (isSelected ? "bg-green-500 text-white border-green-500 shadow-sm" : "bg-green-50 text-green-700 border-transparent hover:bg-green-100"),
+                diff === 'medium' && (isSelected ? "bg-yellow-500 text-white border-yellow-500 shadow-sm" : "bg-yellow-50 text-yellow-700 border-transparent hover:bg-yellow-100"),
+                diff === 'hard' && (isSelected ? "bg-red-500 text-white border-red-500 shadow-sm" : "bg-red-50 text-red-700 border-transparent hover:bg-red-100"),
+                !isSelected && "opacity-70 hover:opacity-100"
+              )}
+            >
+              {diff === 'easy' ? 'سهل' : diff === 'medium' ? 'متوسط' : 'صعب'}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -249,7 +233,7 @@ function McqItem({
   const [sel, setSel] = useState<string | null>(null);
   const check = () => {
     if (!sel) return;
-    const isCorrect = sel === q.answer;
+    const isCorrect = normalize(sel) === normalize(q.answer);
     if (isCorrect) {
       setMetric({ status: "correct" });
     } else {
@@ -266,10 +250,6 @@ function McqItem({
         <p className="text-[15px] font-medium leading-relaxed text-zen-on-surface flex-1">
           {num}. {q.question}
         </p>
-        <div className="flex items-center gap-2 text-[12px] text-zen-on-surface-variant">
-          <Clock className="h-4 w-4" />
-          <span>{formatTime(metric.secondsElapsed)}</span>
-        </div>
       </div>
       <div className="grid gap-2.5">
         {q.options.filter((o) => o.trim()).map((opt) => {
@@ -280,7 +260,6 @@ function McqItem({
             <button
               key={opt}
               onClick={() => {
-                if (!metric.timerStarted) setMetric({ timerStarted: true });
                 if (metric.status !== "correct") setSel(opt);
               }}
               disabled={metric.status === "correct"}
@@ -303,7 +282,10 @@ function McqItem({
       {metric.status === "correct" && (
         <div className="space-y-3">
           <p className="text-[12px] font-medium text-zen-primary">إجابة صحيحة</p>
-          <DifficultyRating onRate={(diff) => setMetric({ userDifficulty: diff })} />
+          <DifficultyRating 
+            selected={metric.userDifficulty}
+            onRate={(diff) => setMetric({ userDifficulty: diff })} 
+          />
         </div>
       )}
     </QuestionShell>
@@ -340,17 +322,10 @@ function FillItem({
         <p className="text-[15px] font-medium leading-relaxed text-zen-on-surface flex-1">
           {num}. {q.question}
         </p>
-        <div className="flex items-center gap-2 text-[12px] text-zen-on-surface-variant">
-          <Clock className="h-4 w-4" />
-          <span>{formatTime(metric.secondsElapsed)}</span>
-        </div>
       </div>
       <input
         value={val}
         onChange={(e) => setVal(e.target.value)}
-        onFocus={() => {
-          if (!metric.timerStarted) setMetric({ timerStarted: true });
-        }}
         disabled={metric.status === "correct"}
         placeholder="اكتب الإجابة هنا..."
         className={cn(
@@ -366,7 +341,10 @@ function FillItem({
       {metric.status === "correct" && (
         <div className="space-y-3">
           <p className="text-[12px] font-medium text-zen-primary">إجابة صحيحة</p>
-          <DifficultyRating onRate={(diff) => setMetric({ userDifficulty: diff })} />
+          <DifficultyRating 
+            selected={metric.userDifficulty}
+            onRate={(diff) => setMetric({ userDifficulty: diff })} 
+          />
         </div>
       )}
     </QuestionShell>
@@ -412,17 +390,10 @@ function EssayItem({
         <p className="text-[15px] font-medium leading-relaxed text-zen-on-surface flex-1">
           {num}. {q.question}
         </p>
-        <div className="flex items-center gap-2 text-[12px] text-zen-on-surface-variant">
-          <Clock className="h-4 w-4" />
-          <span>{formatTime(metric.secondsElapsed)}</span>
-        </div>
       </div>
       <textarea
         value={val}
         onChange={(e) => setVal(e.target.value)}
-        onFocus={() => {
-          if (!metric.timerStarted) setMetric({ timerStarted: true });
-        }}
         disabled={metric.status === "correct"}
         placeholder="اكتب إجابتك بأسلوبك الخاص..."
         rows={4}
@@ -465,7 +436,10 @@ function EssayItem({
       {metric.status === "correct" && (
         <div className="space-y-3">
           <p className="text-[12px] font-medium text-zen-primary">تم تسجيل إجابتك</p>
-          <DifficultyRating onRate={(diff) => setMetric({ userDifficulty: diff })} />
+          <DifficultyRating 
+            selected={metric.userDifficulty}
+            onRate={(diff) => setMetric({ userDifficulty: diff })} 
+          />
         </div>
       )}
     </QuestionShell>

@@ -20,10 +20,10 @@ export function BreathingBreak({
         const next = prev + 1;
         if (next >= duration) {
           clearInterval(timer);
+          setCanSkip(true);
           onComplete();
           return duration;
         }
-        if (next >= 10) setCanSkip(true);
         return next;
       });
     }, 1000);
