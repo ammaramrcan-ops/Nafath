@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { CheckCircle2, XCircle, Lightbulb, Tag } from "lucide-react";
 import type { Quizzes, MCQ, Fill, Essay } from "@/lib/lesson-data";
 import { cn } from "@/lib/utils";
@@ -46,6 +46,17 @@ export function QuizSection({
 
   const allCorrect = total === 0 || correctCount === total;
 
+  const onAllCorrectRef = useRef(onAllCorrect);
+  useEffect(() => {
+    onAllCorrectRef.current = onAllCorrect;
+  });
+
+  useEffect(() => {
+    if (total === 0 || correctCount === total) {
+      onAllCorrectRef.current();
+    }
+  }, [correctCount, total]);
+
   const setMetric = (key: string, metric: Partial<QuestionMetrics>) => {
     setMetrics((prev) => {
       const current = prev[key] || {
@@ -57,24 +68,18 @@ export function QuizSection({
         ...prev,
         [key]: { ...current, ...metric },
       };
-      const correct = Object.values(next).filter((m) => m.status === "correct").length;
-      if (total === 0 || correct === total) {
+      
+      if (total === 0 || Object.values(next).filter((m) => m.status === "correct").length === total) {
         // حفظ الإحصائيات في localStorage
         const stats = Object.entries(next).map(([id, m]) => ({
           id,
           ...m,
         }));
         localStorage.setItem("nafath_quiz_stats", JSON.stringify(stats));
-        queueMicrotask(() => onAllCorrect());
       }
       return next;
     });
   };
-
-  useEffect(() => {
-    if (total === 0) onAllCorrect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [total]);
 
 
 

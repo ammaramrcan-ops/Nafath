@@ -76,17 +76,16 @@ export function ParagraphBlockCard({
   }, [stage]);
 
   useEffect(() => {
+    setTimeGateRemaining(timeGateSeconds);
+    setSpeedChecked(false);
+    setStageStartTime(Date.now());
+
     const timer = setInterval(() => {
       setTimeGateRemaining((prev) => Math.max(0, prev - 1));
     }, 1000);
-    return () => clearInterval(timer);
-  }, []);
 
-  useEffect(() => {
-    setStageStartTime(Date.now());
-    setTimeGateRemaining(timeGateSeconds);
-    setSpeedChecked(false);
-  }, [stage, timeGateSeconds]);
+    return () => clearInterval(timer);
+  }, [stage]);
 
   if (!started && showIntro) {
     return (

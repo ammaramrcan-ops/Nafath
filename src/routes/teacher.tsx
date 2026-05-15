@@ -1370,6 +1370,16 @@ function hasStageContent(block: ParagraphBlock, stage: Stage): boolean {
       return block.funny_link.trim().length > 0;
     case "mindmap":
       return block.mind_map_nodes.length > 0;
+    case "quizzes_mcq":
+      return block.quizzes.mcqs.length > 0;
+    case "quizzes_fill":
+      return block.quizzes.fills.length > 0;
+    case "quizzes_essay":
+      return block.quizzes.essays.length > 0;
+    case "zaitouna":
+      return !!(block.zaitouna?.definitions || block.zaitouna?.reasoning || block.zaitouna?.links);
+    default:
+      return false;
   }
 }
 

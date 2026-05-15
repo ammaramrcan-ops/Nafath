@@ -1,41 +1,50 @@
 import { useMemo } from "react";
 import { BookOpen, HelpCircle, Lightbulb, Sparkles } from "lucide-react";
-import type { Lesson } from "@/lib/lesson-data";
+import { type Lesson, effectiveStages } from "@/lib/lesson-data";
+import { useSettings } from "@/lib/settings";
 
 export function CheatSheet({ lesson }: { lesson: Lesson }) {
-  const definitions = useMemo(
-    () =>
-      lesson.blocks.flatMap((b) =>
-        b.hard_words.map((w) => ({ ...w, blockTitle: b.title })),
-      ),
-    [lesson],
-  );
+  const { settings } = useSettings();
 
-  const essays = useMemo(
-    () =>
-      lesson.blocks.flatMap((b) =>
-        (b.quizzes?.essays ?? [])
-          .filter((e) => e.question?.trim())
-          .map((e) => ({
-            blockTitle: b.title,
-            question: e.question,
-            keywords: e.keywords ?? [],
-          })),
-      ),
-    [lesson],
-  );
+  const definitions = useMemo(() => {
+    return lesson.blocks.flatMap((b) => {
+      return b.hard_words.map((w) => ({ ...w, blockTitle: b.title }));
+    });
+  }, [lesson]);
 
-  const explanations = useMemo(
-    () =>
-      lesson.blocks.map((b) => ({
-        blockTitle: b.title,
-        short: b.short_sentence,
-        mnemonic: b.mnemonic,
-        funny: b.funny_link,
-        zaitouna: b.zaitouna,
-      })),
-    [lesson],
-  );
+  const essays = useMemo(() => {
+    return lesson.blocks.flatMap((b) => {
+      return (b.quizzes?.essays ?? [])
+        .filter((e) => e.question?.trim())
+        .map((e) => ({
+          blockTitle: b.title,
+          question: e.question,
+          keywords: e.keywords ?? [],
+        }));
+    });
+  }, [lesson]);
+
+  const explanations = useMemo(() => {
+    return lesson.blocks
+      .map((b) => {
+        const hasContent =
+          b.short_sentence ||
+          b.mnemonic ||
+          b.funny_link ||
+          (b.zaitouna?.definitions || b.zaitouna?.reasoning || b.zaitouna?.links);
+
+        if (!hasContent) return null;
+
+        return {
+          blockTitle: b.title,
+          short: b.short_sentence || "",
+          mnemonic: b.mnemonic || "",
+          funny: b.funny_link || "",
+          zaitouna: b.zaitouna,
+        };
+      })
+      .filter((e): e is NonNullable<typeof e> => e !== null);
+  }, [lesson]);
 
   return (
     <section className="rounded-[28px] bg-white p-8 shadow-[var(--shadow-deep)] sm:p-12">
@@ -43,7 +52,9 @@ export function CheatSheet({ lesson }: { lesson: Lesson }) {
         <div className="mx-auto mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-zen-surface-low text-zen-primary">
           <Sparkles className="h-5 w-5" strokeWidth={1.75} />
         </div>
-        <h2 className="text-[28px] font-medium leading-tight text-zen-on-surface">الزتونة</h2>
+        <h2 className="text-[28px] font-medium leading-tight text-zen-on-surface">
+          الزتونة
+        </h2>
         <p className="mt-3 text-[13px] font-light leading-relaxed text-zen-on-surface-variant">
           ملخص شامل لأهم ما ورد في الدرس — التعاريف، أسئلة علّل، والتفسيرات الذكية
         </p>
@@ -55,9 +66,7 @@ export function CheatSheet({ lesson }: { lesson: Lesson }) {
           title="أهم التعريفات"
           count={definitions.length}
         >
-          {definitions.length === 0 ? (
-            <Empty>لا توجد مصطلحات مسجّلة في هذا الدرس.</Empty>
-          ) : (
+          {definitions.length > 0 && (
             <ul className="grid gap-3 sm:grid-cols-2">
               {definitions.map((d, i) => (
                 <li key={`${d.word}-${i}`} className="rounded-2xl bg-zen-surface-low p-5">
@@ -79,9 +88,7 @@ export function CheatSheet({ lesson }: { lesson: Lesson }) {
           title="أسئلة علّل"
           count={essays.length}
         >
-          {essays.length === 0 ? (
-            <Empty>لا توجد أسئلة مقالية لهذا الدرس.</Empty>
-          ) : (
+          {essays.length > 0 && (
             <ol className="space-y-3">
               {essays.map((e, i) => (
                 <li key={i} className="rounded-2xl bg-zen-surface-low p-5">
