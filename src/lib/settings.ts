@@ -38,6 +38,7 @@ export const DEFAULT_STAGE_ORDER: Stage[] = [
   "quizzes_mcq",
   "quizzes_fill",
   "quizzes_essay",
+  "zaitouna",
 ];
 
 export type Settings = {

@@ -21,10 +21,12 @@ function normalize(s: string) {
 export function QuizSection({
   quizzes,
   type = "all",
+  stage,
   onAllCorrect,
 }: {
   quizzes: Quizzes;
   type?: "mcq" | "fill" | "essay" | "all";
+  stage?: string;
   onAllCorrect: () => void;
 }) {
   const showMcq = type === "all" || type === "mcq";
@@ -47,12 +49,19 @@ export function QuizSection({
   const allCorrect = total === 0 || correctCount === total;
 
   const onAllCorrectRef = useRef(onAllCorrect);
+  const hasCalledOnAllCorrect = useRef(false);
+
   useEffect(() => {
     onAllCorrectRef.current = onAllCorrect;
   });
 
   useEffect(() => {
-    if (total === 0 || correctCount === total) {
+    hasCalledOnAllCorrect.current = false;
+  }, [stage]);
+
+  useEffect(() => {
+    if ((total === 0 || correctCount === total) && !hasCalledOnAllCorrect.current) {
+      hasCalledOnAllCorrect.current = true;
       onAllCorrectRef.current();
     }
   }, [correctCount, total]);
@@ -71,11 +80,15 @@ export function QuizSection({
       
       if (total === 0 || Object.values(next).filter((m) => m.status === "correct").length === total) {
         // حفظ الإحصائيات في localStorage
-        const stats = Object.entries(next).map(([id, m]) => ({
-          id,
-          ...m,
-        }));
-        localStorage.setItem("nafath_quiz_stats", JSON.stringify(stats));
+        const stats = Object.fromEntries(
+          Object.entries(next).map(([id, m]) => [id, m])
+        );
+        
+        const existingStats = JSON.parse(
+          localStorage.getItem("nafath_quiz_stats") ?? "{}"
+        );
+        const mergedStats = { ...existingStats, ...stats };
+        localStorage.setItem("nafath_quiz_stats", JSON.stringify(mergedStats));
       }
       return next;
     });

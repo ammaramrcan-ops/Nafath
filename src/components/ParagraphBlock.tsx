@@ -336,6 +336,7 @@ export function ParagraphBlockCard({
             <QuizSection
               quizzes={block.quizzes}
               type="mcq"
+              stage={stage}
               onAllCorrect={() => setIsQuizDone(true)}
             />
           )}
@@ -344,6 +345,7 @@ export function ParagraphBlockCard({
             <QuizSection
               quizzes={block.quizzes}
               type="fill"
+              stage={stage}
               onAllCorrect={() => setIsQuizDone(true)}
             />
           )}
@@ -352,6 +354,7 @@ export function ParagraphBlockCard({
             <QuizSection
               quizzes={block.quizzes}
               type="essay"
+              stage={stage}
               onAllCorrect={() => setIsQuizDone(true)}
             />
           )}
