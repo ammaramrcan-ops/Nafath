@@ -8,19 +8,36 @@ export function CheatSheet({ lesson }: { lesson: Lesson }) {
 
   const definitions = useMemo(() => {
     return lesson.blocks.flatMap((b) => {
-      return b.hard_words.map((w) => ({ ...w, blockTitle: b.title }));
+      const words = b.hard_words.map((w) => ({ ...w, blockTitle: b.title }));
+      if (b.zaitouna?.definitions) {
+        words.unshift({
+          word: "مفهوم البند الرئيسي",
+          meaning: b.zaitouna.definitions,
+          blockTitle: b.title,
+        });
+      }
+      return words;
     });
   }, [lesson]);
 
   const essays = useMemo(() => {
     return lesson.blocks.flatMap((b) => {
-      return (b.quizzes?.essays ?? [])
+      const list = (b.quizzes?.essays ?? [])
         .filter((e) => e.question?.trim())
         .map((e) => ({
           blockTitle: b.title,
           question: e.question,
           keywords: e.keywords ?? [],
         }));
+
+      if (b.zaitouna?.reasoning && list.length === 0) {
+        list.push({
+          blockTitle: b.title,
+          question: `علّل: ${b.zaitouna.reasoning}`,
+          keywords: ["#تعليل", "#فهم", "#تكامل"],
+        });
+      }
+      return list;
     });
   }, [lesson]);
 
@@ -37,9 +54,9 @@ export function CheatSheet({ lesson }: { lesson: Lesson }) {
 
         return {
           blockTitle: b.title,
-          short: b.short_sentence || "",
-          mnemonic: b.mnemonic || "",
-          funny: b.funny_link || "",
+          short: b.short_sentence || b.zaitouna?.definitions || "",
+          mnemonic: b.mnemonic || "قاعدة سريعة لترسيخ الفهم المستدام للدرس.",
+          funny: b.funny_link || b.zaitouna?.links || "رابط ذكي لربط المفهوم بالواقع والذاكرة.",
           zaitouna: b.zaitouna,
         };
       })
@@ -47,126 +64,130 @@ export function CheatSheet({ lesson }: { lesson: Lesson }) {
   }, [lesson]);
 
   return (
-    <section className="rounded-[28px] bg-white p-8 shadow-[var(--shadow-deep)] sm:p-12">
-      <header className="mb-12 text-center">
-        <div className="mx-auto mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-zen-surface-low text-zen-primary">
-          <Sparkles className="h-5 w-5" strokeWidth={1.75} />
+    <section className="space-y-12 text-right dir-rtl" dir="rtl">
+      {/* Zaitouna Header Section */}
+      <div className="text-center space-y-3">
+        <div className="w-12 h-12 bg-[#eff4ff] border border-[#e0c0b1]/50 rounded-2xl flex items-center justify-center mx-auto shadow-2xs text-[#9d4300]">
+          <Sparkles className="h-6 w-6" />
         </div>
-        <h2 className="text-[28px] font-medium leading-tight text-zen-on-surface">
-          الزتونة
+        <h2 className="text-2xl sm:text-3xl font-black text-[#0b1c30]">
+          الزيتونة والملخص الشامل
         </h2>
-        <p className="mt-3 text-[13px] font-light leading-relaxed text-zen-on-surface-variant">
-          ملخص شامل لأهم ما ورد في الدرس — التعاريف، أسئلة علّل، والتفسيرات الذكية
+        <p className="text-xs sm:text-sm font-semibold text-slate-500 max-w-2xl mx-auto">
+          ملخص شامل لأهم ما ورد في الدرس — التعاريف، أسئلة علّل، والتفسيرات والروابط الذكية
         </p>
-      </header>
+      </div>
 
-      <div className="space-y-12">
-        <CheatBlock
-          icon={<BookOpen className="h-4 w-4" strokeWidth={1.75} />}
-          title="أهم التعريفات"
-          count={definitions.length}
-        >
-          {definitions.length > 0 && (
-            <ul className="grid gap-3 sm:grid-cols-2">
-              {definitions.map((d, i) => (
-                <li key={`${d.word}-${i}`} className="rounded-2xl bg-zen-surface-low p-5">
-                  <div className="text-[11px] font-light text-zen-on-surface-variant">
-                    {d.blockTitle}
-                  </div>
-                  <div className="mt-1.5 text-[15px] font-medium text-zen-primary">{d.word}</div>
-                  <div className="mt-1.5 text-[13px] font-light leading-relaxed text-zen-on-surface">
-                    {d.meaning}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </CheatBlock>
+      {/* Section 1: Definitions Bento Grid (أهم التعريفات) */}
+      <div className="space-y-6">
+        <div className="flex items-center gap-3 border-b border-[#e0c0b1]/40 pb-3">
+          <BookOpen className="h-5 w-5 text-[#8127cf]" />
+          <h3 className="text-base sm:text-lg font-black text-[#0b1c30]">أهم التعريفات المفتاحية</h3>
+          <span className="mr-auto text-xs font-bold text-slate-400">
+            {definitions.length} تعريفات
+          </span>
+        </div>
 
-        <CheatBlock
-          icon={<HelpCircle className="h-4 w-4" strokeWidth={1.75} />}
-          title="أسئلة علّل"
-          count={essays.length}
-        >
-          {essays.length > 0 && (
-            <ol className="space-y-3">
-              {essays.map((e, i) => (
-                <li key={i} className="rounded-2xl bg-zen-surface-low p-5">
-                  <div className="text-[11px] font-light text-zen-on-surface-variant">
-                    {e.blockTitle}
-                  </div>
-                  <div className="mt-1.5 text-[14px] font-medium leading-relaxed text-zen-on-surface">
-                    {e.question}
-                  </div>
-                  {e.keywords.length > 0 && (
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {e.keywords.map((k) => (
-                        <span
-                          key={k}
-                          className="rounded-full bg-white px-3 py-1 text-[11px] font-light text-zen-on-surface-variant"
-                        >
-                          {k}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </li>
-              ))}
-            </ol>
-          )}
-        </CheatBlock>
-
-        <CheatBlock
-          icon={<Lightbulb className="h-4 w-4" strokeWidth={1.75} />}
-          title="التفسيرات والروابط الذكية"
-          count={explanations.length}
-        >
-          <ul className="space-y-3">
-            {explanations.map((e, i) => (
-              <li key={i} className="rounded-2xl bg-zen-surface-low p-5">
-                <div className="text-[11px] font-light text-zen-on-surface-variant">
-                  {e.blockTitle}
-                </div>
-                <div className="mt-1.5 text-[14px] font-medium leading-relaxed text-zen-on-surface">
-                  {e.short}
-                </div>
-                {e.mnemonic && (
-                  <div className="mt-2 text-[13px] font-light leading-relaxed text-zen-on-surface">
-                    <span className="font-medium text-zen-primary">قاعدة سريعة: </span>
-                    {e.mnemonic}
-                  </div>
-                )}
-                {e.funny && (
-                  <div className="mt-1 text-[13px] font-light leading-relaxed text-zen-on-surface-variant">
-                    <span className="font-medium text-zen-on-surface">رابط ظريف: </span>
-                    {e.funny}
-                  </div>
-                )}
-                {(e.zaitouna?.definitions || e.zaitouna?.reasoning || e.zaitouna?.links) && (
-                  <div className="mt-4 space-y-3 rounded-xl bg-white/60 p-4 border border-zen-surface-container/30">
-                    {e.zaitouna?.definitions && (
-                      <div className="text-[13px] font-light leading-relaxed text-zen-on-surface">
-                        <span className="font-medium text-zen-primary">تعريفات: </span>
-                        {e.zaitouna.definitions}
-                      </div>
-                    )}
-                    {e.zaitouna?.reasoning && (
-                      <div className="text-[13px] font-light leading-relaxed text-zen-on-surface">
-                        <span className="font-medium text-zen-primary">علّل/تفسير: </span>
-                        {e.zaitouna.reasoning}
-                      </div>
-                    )}
-                    {e.zaitouna?.links && (
-                      <div className="text-[13px] font-light leading-relaxed text-zen-on-surface-variant italic">
-                        {e.zaitouna.links}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </li>
+        {definitions.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {definitions.map((d, i) => (
+              <div
+                key={`${d.word}-${i}`}
+                className="zen-card bg-[#eff4ff] p-6 rounded-3xl border border-[#e0c0b1]/40 shadow-2xs space-y-2 hover:-translate-y-1 transition"
+              >
+                <span className="text-[11px] font-extrabold text-[#8127cf] block">
+                  {d.blockTitle}
+                </span>
+                <h4 className="text-sm font-extrabold text-[#0b1c30]">{d.word}</h4>
+                <p className="text-xs font-semibold text-slate-600 leading-relaxed">
+                  {d.meaning}
+                </p>
+              </div>
             ))}
-          </ul>
-        </CheatBlock>
+          </div>
+        ) : (
+          <div className="bg-[#eff4ff] p-6 rounded-3xl text-center text-xs font-bold text-slate-500">
+            جميع التعريفات محددة ومحفوظة بنجاح.
+          </div>
+        )}
+      </div>
+
+      {/* Section 2: Rationales (أسئلة علّل) */}
+      <div className="space-y-6">
+        <div className="flex items-center gap-3 border-b border-[#e0c0b1]/40 pb-3">
+          <HelpCircle className="h-5 w-5 text-[#8127cf]" />
+          <h3 className="text-base sm:text-lg font-black text-[#0b1c30]">أسئلة علّل واسترجاع المفاهيم</h3>
+          <span className="mr-auto text-xs font-bold text-slate-400">
+            {essays.length} أسئلة
+          </span>
+        </div>
+
+        {essays.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {essays.map((e, i) => (
+              <div
+                key={i}
+                className="zen-card bg-white p-6 rounded-3xl border border-[#e0c0b1]/40 shadow-2xs space-y-4"
+              >
+                <span className="text-[11px] font-bold text-slate-400 block">{e.blockTitle}</span>
+                <h4 className="text-xs sm:text-sm font-extrabold text-[#0b1c30] leading-relaxed">
+                  {e.question}
+                </h4>
+                {e.keywords.length > 0 && (
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {e.keywords.map((k) => (
+                      <span
+                        key={k}
+                        className="px-3.5 py-1 bg-[#eff4ff] rounded-full text-[11px] font-bold text-[#0b1c30]"
+                      >
+                        {k.startsWith("#") ? k : `#${k}`}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="bg-white p-6 rounded-3xl border border-[#e0c0b1]/40 text-center text-xs font-bold text-slate-500">
+            جميع أسئلة علّل مستوعبة بالكامل.
+          </div>
+        )}
+      </div>
+
+      {/* Section 3: Smart Explanations & Links (التفسيرات والروابط الذكية) */}
+      <div className="space-y-6">
+        <div className="flex items-center gap-3 border-b border-[#e0c0b1]/40 pb-3">
+          <Lightbulb className="h-5 w-5 text-[#8127cf]" />
+          <h3 className="text-base sm:text-lg font-black text-[#0b1c30]">التفسيرات والروابط الذكية</h3>
+          <span className="mr-auto text-xs font-bold text-slate-400">
+            {explanations.length} قواعد ذكية
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {explanations.map((e, i) => (
+            <div
+              key={i}
+              className="zen-card bg-[#fffbf9] p-7 rounded-3xl border border-[#ffdbca] space-y-4 shadow-2xs"
+            >
+              <span className="text-[11px] font-extrabold text-[#9d4300] block">{e.blockTitle}</span>
+              <h4 className="text-xs sm:text-sm font-bold text-[#0b1c30] leading-relaxed">
+                {e.short || "الخلاصة التراكمية للمفهوم والفهم الفقهي والربط بالواقع."}
+              </h4>
+              <div className="grid grid-cols-1 gap-3 pt-2">
+                <div className="bg-white p-4 rounded-2xl border-r-4 border-[#9d4300] shadow-2xs">
+                  <span className="text-[11px] font-black text-[#9d4300] block mb-1">📌 قاعدة سريعة:</span>
+                  <p className="text-xs font-bold text-slate-700">{e.mnemonic}</p>
+                </div>
+                <div className="bg-white p-4 rounded-2xl border-r-4 border-[#8127cf] shadow-2xs">
+                  <span className="text-[11px] font-black text-[#8127cf] block mb-1">💡 رابط ظريف للذاكرة:</span>
+                  <p className="text-xs font-bold text-slate-700">{e.funny}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

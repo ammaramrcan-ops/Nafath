@@ -1,8 +1,8 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Upload, PenLine, X, FileJson, Sparkles } from "lucide-react";
+import { Upload, PenLine, X, FileJson, Sparkles, ScrollText, Leaf } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { defaultLesson, parseLessonJson, type Lesson } from "@/lib/lesson-data";
+import { defaultLesson, khulLesson, parseLessonJson, type Lesson } from "@/lib/lesson-data";
 import { saveToLibrary } from "@/lib/lesson-library";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -67,7 +67,7 @@ export function RestoreDialog({
           </h2>
           <button
             onClick={() => close(false)}
-            className="rounded-full p-2 text-zen-on-surface-variant transition hover:bg-zen-surface-low"
+            className="rounded-full p-2 text-zen-on-surface-variant transition hover:bg-zen-surface-low cursor-pointer"
             aria-label="إغلاق"
           >
             <X className="h-5 w-5" />
@@ -77,19 +77,19 @@ export function RestoreDialog({
         {mode === "choice" && (
           <div className="space-y-4 px-7 pt-4 pb-8">
             <p className="text-sm leading-relaxed text-zen-on-surface-variant">
-              اختر طريقة بدء الدرس
+              اختر طريقة بدء الدرس أو اختر أحد القوالب الافتراضية
             </p>
 
             <button
               onClick={() => setMode("json")}
-              className="group flex w-full items-center gap-5 rounded-[1rem] border border-zen-surface-container bg-white p-6 text-right transition hover:-translate-y-0.5 hover:border-zen-primary-container hover:shadow-[var(--shadow-deep)]"
+              className="group flex w-full items-center gap-5 rounded-[1rem] border border-zen-surface-container bg-white p-5 text-right transition hover:-translate-y-0.5 hover:border-zen-primary-container hover:shadow-md cursor-pointer"
             >
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-zen-surface-low text-zen-primary">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-zen-surface-low text-zen-primary">
                 <Upload className="h-6 w-6" />
               </div>
               <div className="flex-1">
-                <p className="text-[17px] font-semibold text-zen-on-surface">رفع كود JSON</p>
-                <p className="mt-1 text-[13px] leading-relaxed text-zen-on-surface-variant">
+                <p className="text-[16px] font-semibold text-zen-on-surface">رفع كود JSON</p>
+                <p className="mt-0.5 text-[12px] leading-relaxed text-zen-on-surface-variant">
                   ألصق أو ارفع ملف يحتوي على بنية الدرس
                 </p>
               </div>
@@ -100,14 +100,14 @@ export function RestoreDialog({
                 close(false);
                 navigate({ to: "/teacher" });
               }}
-              className="group flex w-full items-center gap-5 rounded-[1rem] border border-zen-surface-container bg-white p-6 text-right transition hover:-translate-y-0.5 hover:border-zen-primary-container hover:shadow-[var(--shadow-deep)]"
+              className="group flex w-full items-center gap-5 rounded-[1rem] border border-zen-surface-container bg-white p-5 text-right transition hover:-translate-y-0.5 hover:border-zen-primary-container hover:shadow-md cursor-pointer"
             >
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-zen-surface-low text-zen-primary">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-zen-surface-low text-zen-primary">
                 <PenLine className="h-6 w-6" />
               </div>
               <div className="flex-1">
-                <p className="text-[17px] font-semibold text-zen-on-surface">تصميم درس من الصفر</p>
-                <p className="mt-1 text-[13px] leading-relaxed text-zen-on-surface-variant">
+                <p className="text-[16px] font-semibold text-zen-on-surface">تصميم درس من الصفر</p>
+                <p className="mt-0.5 text-[12px] leading-relaxed text-zen-on-surface-variant">
                   ابنِ المحتوى بالكامل عبر واجهة المعلم
                 </p>
               </div>
@@ -115,20 +115,34 @@ export function RestoreDialog({
 
             <div className="flex items-center gap-3 pt-2 text-[11px] text-zen-on-surface-variant/70">
               <span className="h-px flex-1 bg-zen-surface-container" />
-              أو جرّب
+              أو اختر من القوالب الافتراضية
               <span className="h-px flex-1 bg-zen-surface-container" />
             </div>
 
-            <button
-              onClick={() => {
-                onLoad(defaultLesson);
-                close(false);
-              }}
-              className="flex w-full items-center justify-center gap-2 rounded-full bg-zen-surface-low py-3 text-sm font-semibold text-zen-primary transition hover:bg-zen-surface-container"
-            >
-              <Sparkles className="h-4 w-4" />
-              القالب الافتراضي
-            </button>
+            {/* Default Templates Selection */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button
+                onClick={() => {
+                  onLoad(defaultLesson);
+                  close(false);
+                }}
+                className="flex items-center justify-center gap-2 rounded-2xl border border-zen-primary/20 bg-zen-surface-low p-3.5 text-xs font-bold text-zen-primary transition hover:bg-zen-primary hover:text-white cursor-pointer shadow-sm"
+              >
+                <Leaf className="h-4 w-4" />
+                قالب البناء الضوئي 🌿
+              </button>
+
+              <button
+                onClick={() => {
+                  onLoad(khulLesson);
+                  close(false);
+                }}
+                className="flex items-center justify-center gap-2 rounded-2xl border border-amber-300/40 bg-amber-50 p-3.5 text-xs font-bold text-amber-900 transition hover:bg-amber-700 hover:text-white cursor-pointer shadow-sm"
+              >
+                <ScrollText className="h-4 w-4 text-amber-700" />
+                قالب فقه الخُلع 📜
+              </button>
+            </div>
           </div>
         )}
 
@@ -150,7 +164,7 @@ export function RestoreDialog({
                 disabled={!text.trim()}
                 className={cn(
                   "inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-zen-primary px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90",
-                  "disabled:opacity-40",
+                  "disabled:opacity-40 cursor-pointer",
                 )}
               >
                 <FileJson className="h-4 w-4" />
@@ -158,7 +172,7 @@ export function RestoreDialog({
               </button>
               <button
                 onClick={() => fileRef.current?.click()}
-                className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-zen-surface-container bg-white px-6 py-3 text-sm font-semibold text-zen-on-surface transition hover:border-zen-primary-container"
+                className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-zen-surface-container bg-white px-6 py-3 text-sm font-semibold text-zen-on-surface transition hover:border-zen-primary-container cursor-pointer"
               >
                 <Upload className="h-4 w-4" />
                 رفع ملف
@@ -177,7 +191,7 @@ export function RestoreDialog({
 
             <button
               onClick={() => setMode("choice")}
-              className="mx-auto block text-xs font-semibold text-zen-on-surface-variant hover:text-zen-on-surface"
+              className="mx-auto block text-xs font-semibold text-zen-on-surface-variant hover:text-zen-on-surface cursor-pointer"
             >
               ← رجوع للخيارات
             </button>

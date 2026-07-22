@@ -1,5 +1,21 @@
 import { useState } from "react";
-import { Settings as SettingsIcon } from "lucide-react";
+import {
+  Settings as SettingsIcon,
+  Copy,
+  Check,
+  Sparkles,
+  Code2,
+  Bot,
+  Key,
+  Cpu,
+  Eye,
+  EyeOff,
+  Zap,
+  CheckCircle2,
+  XCircle,
+  Loader2,
+} from "lucide-react";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -8,12 +24,31 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useAiSettings, type AiProvider } from "@/lib/ai-settings";
+import { testAiConnection } from "@/lib/ai-assistant-service";
 
-/**
- * Settings dialog — outer shell only.
- * Per current spec: do NOT add any options/features inside yet;
- * future stages will populate this.
- */
+import { useSettings } from "@/lib/settings";
+
+const NAFATH_JSON_PROMPT = `أنت خبير في التصميم التعليمي وتحويل المناهج إلى دروس تفاعلية ممتعة ومبسطة لمنصة "نفاذ - Nafath".
+المطلوب منك تحويل النص/الموضوع الذي سأرفقه لك في نهاية هذه الرسالة إلى كود JSON دقيق ومطابق بنسبة 100% للهيكل التفاعلي لمنصة نفاذ.
+
+اتبع الشروط الصارمة التالية:
+1. قم بتقسيم الدرس إلى فقرات منطقية متوازنة (من 2 إلى 5 فقرات).
+2. بالنسبة لكل فقرة، صغ التالي بعناية:
+   - story: قصة تشبيهية عامية أو مبسطة تشرح المفهوم بأسلوب دايركت طريف وعملي بالبلدي.
+   - examples: مثال تطبيقي من الحياة اليومية.
+   - full_text: النص العلمي الكامل والمشروح بدقة.
+   - hard_words: قائمة بالمصطلحات الصعبة وتفسيرها اللغوي والمفهومي بالبلدي بين قوسين.
+   - highlights: كلمات هامة للتظليل مع لونها (yellow, green, blue, pink, purple).
+   - mnemonic: جملة تذكّر ذكية ومختصرة لبناء رابط ذهني.
+   - funny_link: ربط طريف أو فكاهي لترسيخ المعلومة في الذاكرة بعيدة المدى.
+   - mind_map_nodes: قائمة بأهم العناصر لتشكيل الخريطة الذهنية ["عنصر 1", "عنصر 2"] أو كائن خريطة تفاعلي يحتوي على { id, title, rootId, nodes: [...] } بخصائص Shapes والألوان والأسهم 2D.
+   - meta_card: بطاقة نظرة سريعة (understanding_level, memorization_level, estimated_time_range, info_count).
+   - quizzes: mcqs (5 أسئلة للمستوى الأول), fills (للمستوى الثاني), essays (للمستويين الثاني والثالث).
+   - zaitouna: خلاصة الزيتونة (definitions, reasoning, links).
+
+3. أخرج النتيجة في مربع كود JSON الصافي وبدون أي مقدمات أو شروحات جانبية.`;
+
 export function SettingsDialog({
   open,
   onOpenChange,
@@ -21,38 +56,344 @@ export function SettingsDialog({
   open?: boolean;
   onOpenChange?: (v: boolean) => void;
 }) {
+  const [tab, setTab] = useState<"ai" | "prompt" | "dev">("ai");
+  const [copied, setCopied] = useState(false);
+  const [showApiKey, setShowApiKey] = useState(false);
+  const { aiSettings, updateAiSettings } = useAiSettings();
+  const { isLocalhost, devModeActive, settings, updateDevMode } = useSettings();
+
+  // API Live Testing State
+  const [isTesting, setIsTesting] = useState(false);
+  const [testResult, setTestResult] = useState<{
+    ok: boolean;
+    text: string;
+    error?: string;
+  } | null>(null);
+
+  const handleCopyPrompt = () => {
+    navigator.clipboard.writeText(NAFATH_JSON_PROMPT);
+    setCopied(true);
+    toast.success("تم نسخ دليل كود JSON والبرومبت بنجاح! 📋");
+    setTimeout(() => setCopied(false), 3000);
+  };
+
+  const handleRunLiveTest = async () => {
+    if (!aiSettings.apiKey || aiSettings.apiKey.trim().length < 4) {
+      toast.error("يرجى إدخال مفتاح API أولاً لاختبار الاتصال!");
+      return;
+    }
+
+    setIsTesting(true);
+    setTestResult(null);
+
+    const result = await testAiConnection(aiSettings);
+    setTestResult(result);
+    setIsTesting(false);
+
+    if (result.ok) {
+      toast.success("نجح الاتصال بالنموذج حياً! 🎉");
+    } else {
+      toast.error("فشل الاتصال بالـ API. راجع المفتاح أو الرابط.");
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         dir="rtl"
-        className="max-w-md gap-0 overflow-hidden rounded-[1.5rem] border-0 bg-zen-surface p-0 shadow-[var(--shadow-deep)]"
+        className="max-w-3xl max-h-[88vh] overflow-y-auto gap-0 rounded-[1.5rem] border-0 bg-zen-surface p-0 shadow-[var(--shadow-deep)] text-right dir-rtl"
       >
-        <DialogHeader className="px-7 pt-6 text-right">
-          <DialogTitle className="text-[22px] font-semibold tracking-tight text-zen-on-surface">
-            الإعدادات
-          </DialogTitle>
-          <DialogDescription className="text-[13px] text-zen-on-surface-variant">
-            مساحة هادئة لتخصيص تجربتك. سيتم إضافة الخيارات قريباً.
+        <DialogHeader className="px-7 pt-6 text-right border-b border-zen-surface-container/60 pb-4">
+          <div className="flex items-center gap-2">
+            <SettingsIcon className="h-5 w-5 text-zen-primary" />
+            <DialogTitle className="text-[20px] font-bold tracking-tight text-zen-on-surface">
+              إعدادات المنصة المتقدمة
+            </DialogTitle>
+          </div>
+          <DialogDescription className="text-[13px] text-zen-on-surface-variant pt-1">
+            تأكيد وتفعيل مفاتيح الـ API، والبرومبت، ووضع المطور المباشر.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="px-7 pb-8 pt-6">
-          <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-zen-surface-container bg-white/40 px-6 py-12 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zen-surface-low text-zen-primary">
-              <SettingsIcon className="h-5 w-5" strokeWidth={1.75} />
+        {/* Tab Navigation */}
+        <div className="flex flex-wrap border-b border-zen-surface-container/80 bg-zen-surface-low px-7">
+          <button
+            type="button"
+            onClick={() => setTab("ai")}
+            className={`px-5 py-3 text-xs font-bold transition border-b-2 cursor-pointer flex items-center gap-1.5 ${
+              tab === "ai"
+                ? "border-amber-600 text-amber-950 font-black bg-amber-50/60"
+                : "border-transparent text-zen-on-surface-variant hover:text-zen-on-surface"
+            }`}
+          >
+            <Bot className="h-4 w-4 text-amber-600" />
+            <span>إعدادات الذكاء الاصطناعي الـ API</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setTab("prompt")}
+            className={`px-5 py-3 text-xs font-bold transition border-b-2 cursor-pointer flex items-center gap-1.5 ${
+              tab === "prompt"
+                ? "border-amber-600 text-amber-950 font-black bg-amber-50/60"
+                : "border-transparent text-zen-on-surface-variant hover:text-zen-on-surface"
+            }`}
+          >
+            <Code2 className="h-4 w-4 text-amber-600" />
+            <span>البرومبت الصريح 📋</span>
+          </button>
+
+          {isLocalhost && (
+            <button
+              type="button"
+              onClick={() => setTab("dev")}
+              className={`px-5 py-3 text-xs font-bold transition border-b-2 cursor-pointer flex items-center gap-1.5 ${
+                tab === "dev"
+                  ? "border-[#9d4300] text-[#9d4300] font-black bg-[#ffdbca]/40"
+                  : "border-transparent text-zen-on-surface-variant hover:text-zen-on-surface"
+              }`}
+            >
+              <Zap className="h-4 w-4 text-[#9d4300]" />
+              <span>وضع المطور ⚡ (محلي فقط)</span>
+            </button>
+          )}
+        </div>
+
+        <div className="px-7 py-6 space-y-6">
+          {tab === "ai" && (
+            <div className="space-y-5">
+              {/* Provider Selection */}
+              <div className="rounded-2xl bg-white p-5 border border-zen-surface-container shadow-xs space-y-3">
+                <label className="text-xs font-black text-amber-950 flex items-center gap-1.5">
+                  <Cpu className="h-4 w-4 text-amber-600" />
+                  مزود خدمة الذكاء الاصطناعي (AI Provider):
+                </label>
+
+                <select
+                  value={aiSettings.provider}
+                  onChange={(e) => {
+                    const p = e.target.value as AiProvider;
+                    let defaultModel = aiSettings.modelName;
+                    let defaultUrl = aiSettings.baseUrl;
+                    if (p === "nvidia_nim") {
+                      defaultModel = "meta/llama-3.1-70b-instruct";
+                      defaultUrl = "https://integrate.api.nvidia.com/v1";
+                    } else if (p === "openai") {
+                      defaultModel = "gpt-4o-mini";
+                      defaultUrl = "https://api.openai.com/v1";
+                    } else if (p === "google_gemini") {
+                      defaultModel = "gemini-1.5-flash";
+                      defaultUrl = "https://generativelanguage.googleapis.com/v1beta";
+                    }
+                    updateAiSettings({ provider: p, modelName: defaultModel, baseUrl: defaultUrl });
+                    setTestResult(null);
+                    toast.success("تم تحديث مزود الخدمة");
+                  }}
+                  className="w-full h-11 rounded-xl bg-zen-surface-low px-4 text-xs font-bold text-zen-on-surface outline-none border border-zen-surface-container focus:ring-2 focus:ring-amber-500"
+                >
+                  <option value="nvidia_nim">⚡ NVIDIA NIM (nim.nvidia.com - المفضل)</option>
+                  <option value="openai">🤖 OpenAI ChatGPT (gpt-4o-mini)</option>
+                  <option value="google_gemini">✨ Google Gemini (gemini-1.5-flash)</option>
+                  <option value="anthropic">🧠 Anthropic Claude (claude-3-5-sonnet)</option>
+                  <option value="custom">💻 خادم مخصص / محلي (Ollama / VLLM)</option>
+                </select>
+              </div>
+
+              {/* API Key Input */}
+              <div className="rounded-2xl bg-white p-5 border border-zen-surface-container shadow-xs space-y-3">
+                <label className="text-xs font-black text-amber-950 flex items-center gap-1.5">
+                  <Key className="h-4 w-4 text-amber-600" />
+                  مفتاح الـ API Key الخاص بك:
+                </label>
+
+                <div className="relative">
+                  <input
+                    type={showApiKey ? "text" : "password"}
+                    value={aiSettings.apiKey}
+                    onChange={(e) => {
+                      updateAiSettings({ apiKey: e.target.value });
+                      setTestResult(null);
+                    }}
+                    placeholder="nvapi-... أو sk-..."
+                    className="w-full h-11 rounded-xl bg-zen-surface-low px-4 text-xs font-mono font-bold text-zen-on-surface outline-none border border-zen-surface-container focus:ring-2 focus:ring-amber-500 pl-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowApiKey(!showApiKey)}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-zen-on-surface-variant hover:text-zen-on-surface p-1"
+                  >
+                    {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+                <p className="text-[11px] text-zen-on-surface-variant font-medium">
+                  يتم حفظ المفتاح محلياً في متصفحك فقط لاستدعاء النموذج المباشر.
+                </p>
+              </div>
+
+              {/* Model Name & Base URL */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="rounded-2xl bg-white p-4 border border-zen-surface-container shadow-xs space-y-2">
+                  <label className="text-xs font-bold text-amber-950">اسم النموذج (Model Name):</label>
+                  <input
+                    type="text"
+                    value={aiSettings.modelName}
+                    onChange={(e) => {
+                      updateAiSettings({ modelName: e.target.value });
+                      setTestResult(null);
+                    }}
+                    placeholder="meta/llama-3.1-70b-instruct"
+                    className="w-full h-10 rounded-xl bg-zen-surface-low px-3 text-xs font-mono font-bold text-zen-on-surface outline-none border border-zen-surface-container"
+                  />
+                </div>
+
+                <div className="rounded-2xl bg-white p-4 border border-zen-surface-container shadow-xs space-y-2">
+                  <label className="text-xs font-bold text-amber-950">رابط الخدمة (Base URL):</label>
+                  <input
+                    type="text"
+                    value={aiSettings.baseUrl}
+                    onChange={(e) => {
+                      updateAiSettings({ baseUrl: e.target.value });
+                      setTestResult(null);
+                    }}
+                    placeholder="https://integrate.api.nvidia.com/v1"
+                    className="w-full h-10 rounded-xl bg-zen-surface-low px-3 text-xs font-mono font-bold text-zen-on-surface outline-none border border-zen-surface-container"
+                  />
+                </div>
+              </div>
+
+              {/* Live API Connection Test Box */}
+              <div className="rounded-2xl bg-amber-50/90 p-5 border border-amber-200 space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="space-y-0.5">
+                    <h4 className="text-xs font-black text-amber-950 flex items-center gap-1.5">
+                      <Zap className="h-4 w-4 text-amber-600" />
+                      اختبار الاتصال المباشر بالنموذج والـ API
+                    </h4>
+                    <p className="text-[11px] font-semibold text-amber-800">
+                      يرسل سؤالاً بسيطاً (5 * 5) لاختبار الاستجابة المباشرة من خادم الذكاء الاصطناعي.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleRunLiveTest}
+                    disabled={isTesting}
+                    className="inline-flex items-center gap-2 rounded-xl bg-amber-600 px-5 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-amber-700 disabled:opacity-50 transition cursor-pointer"
+                  >
+                    {isTesting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />}
+                    <span>{isTesting ? "جاري تجربة الاتصال..." : "🧪 اختبار الاتصال حياً (5 * 5)"}</span>
+                  </button>
+                </div>
+
+                {/* Display Test Result */}
+                {testResult && (
+                  <div
+                    className={`rounded-xl p-4 text-xs font-bold space-y-1.5 border ${
+                      testResult.ok
+                        ? "bg-emerald-50 text-emerald-950 border-emerald-300"
+                        : "bg-rose-50 text-rose-950 border-rose-300"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 font-black">
+                      {testResult.ok ? (
+                        <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                      ) : (
+                        <XCircle className="h-4 w-4 text-rose-600" />
+                      )}
+                      <span>{testResult.ok ? "🟢 نجح الاتصال بالذكاء الاصطناعي حياً!" : "🔴 فشل الاتصال بالـ API"}</span>
+                    </div>
+
+                    {testResult.ok ? (
+                      <div className="pt-1">
+                        <span className="text-[11px] text-emerald-800 block">إجابة النموذج المباشرة:</span>
+                        <p className="font-mono bg-white p-2.5 rounded-lg border border-emerald-200 mt-1 text-slate-900 leading-relaxed">
+                          {testResult.text}
+                        </p>
+                      </div>
+                    ) : (
+                      <p className="font-mono bg-white p-2.5 rounded-lg border border-rose-200 mt-1 text-rose-700 leading-relaxed">
+                        {testResult.error}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
-            <p className="text-sm font-medium text-zen-on-surface">لا توجد إعدادات بعد</p>
-            <p className="max-w-[260px] text-xs leading-relaxed text-zen-on-surface-variant">
-              سيتم تفعيل خيارات تخصيص الدرس والتسلسل والمظهر في تحديث قادم.
-            </p>
-          </div>
+          )}
+
+          {tab === "prompt" && (
+            <div className="space-y-6 py-4">
+              <div className="rounded-2xl bg-amber-50/90 p-8 border border-amber-200/90 space-y-5 text-center">
+                <div className="flex flex-col items-center gap-2.5">
+                  <Sparkles className="h-8 w-8 text-amber-600" />
+                  <h3 className="text-base font-black text-amber-950">
+                    أمر البرومبت المعتمد لتوليد الدروس بنقرة واحدة 📋
+                  </h3>
+                  <p className="text-xs font-bold text-amber-900 leading-relaxed max-w-md">
+                    اضغط الزر أدناه لنسخ البرومبت بالكامل ولصقه فوراً في ChatGPT أو Claude أو Gemini لتحويل أي منهج إلى درس نفاذ!
+                  </p>
+                </div>
+
+                <div className="pt-2 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={handleCopyPrompt}
+                    className="inline-flex items-center gap-2.5 rounded-full bg-amber-600 px-10 py-4 text-sm font-black text-white shadow-md hover:bg-amber-700 transition cursor-pointer"
+                  >
+                    {copied ? <Check className="h-5 w-5" /> : <Copy className="h-5 w-5" />}
+                    <span>{copied ? "تم النسخ بنجاح! 🎉" : "نسخ البرومبت بالكامل بنقرة واحدة 📋"}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {tab === "dev" && isLocalhost && (
+            <div className="space-y-6 py-2 dir-rtl text-right">
+              <div className="rounded-3xl bg-[#fffbf9] p-6 border-2 border-dashed border-[#ffdbca] space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <h3 className="text-sm font-extrabold text-[#9d4300] flex items-center gap-2">
+                      <Zap className="h-5 w-5 text-[#9d4300]" />
+                      <span>تفعيل وضع المطور السريع (Developer Mode ⚡)</span>
+                    </h3>
+                    <p className="text-xs font-semibold text-slate-500">
+                      يظهر هذا الخيار فقط أثناء التشغيل على السيرفر المحلي (Localhost) لتسهيل وتنسيق التجربة واختبار الواجهات بسرعة.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => updateDevMode(!settings.devModeEnabled)}
+                    className={`px-6 py-2.5 rounded-full text-xs font-extrabold transition cursor-pointer flex items-center gap-2 shadow-xs ${
+                      settings.devModeEnabled
+                        ? "bg-[#00875a] text-white"
+                        : "bg-slate-200 text-slate-600 hover:bg-slate-300"
+                    }`}
+                  >
+                    <span>{settings.devModeEnabled ? "مفعّل 🟢" : "معطّل ⚪"}</span>
+                  </button>
+                </div>
+
+                {settings.devModeEnabled && (
+                  <div className="rounded-2xl bg-white p-4 border border-[#e0c0b1]/40 text-xs font-bold text-[#0b1c30] space-y-2">
+                    <span className="text-[#9d4300] font-extrabold block">✨ الاختصارات المتاحة عند تفعيل وضع المطور:</span>
+                    <ul className="list-disc list-inside space-y-1 text-slate-600 font-semibold">
+                      <li>تخطي تمارین ودقائق تمرين التنفس والتأمل في نافذة الاستعداد بنقرة واحدة.</li>
+                      <li>إظهار زر "⚡ تخطي السؤال وحله فوراً" داخل بطاقات الأسئلة للاختبار السريع.</li>
+                      <li>التنقل الفوري والسريع بين كافة مراحل الفقرات دون قيود وقت.</li>
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>
   );
 }
 
-/** Compatibility wrapper — kept so existing trigger buttons keep working. */
 export function SettingsButton({ className }: { className?: string }) {
   const [open, setOpen] = useState(false);
   return (
@@ -62,7 +403,7 @@ export function SettingsButton({ className }: { className?: string }) {
           <button
             className={
               className ??
-              "inline-flex items-center gap-2 rounded-full border border-zen-surface-container bg-white px-4 py-2 text-sm font-semibold text-zen-on-surface-variant transition hover:border-zen-primary-container hover:text-zen-on-surface"
+              "inline-flex items-center gap-2 rounded-full border border-zen-surface-container bg-white px-4 py-2 text-sm font-semibold text-zen-on-surface-variant transition hover:border-zen-primary-container hover:text-zen-on-surface cursor-pointer"
             }
           >
             <SettingsIcon className="h-4 w-4" />

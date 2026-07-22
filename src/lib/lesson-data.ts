@@ -1,11 +1,20 @@
 import { DEFAULT_STAGE_ORDER, type Stage } from "@/lib/settings";
 
-export type HardWord = { word: string; meaning: string };
+export type HighlightColor = "yellow" | "green" | "blue" | "pink" | "purple";
 
-export type QuizImage = { image_url?: string };
-export type MCQ = { question: string; options: string[]; answer: string; difficulty?: 'easy' | 'medium' | 'hard'; estimated_time?: number } & QuizImage;
-export type Fill = { question: string; answer: string; difficulty?: 'easy' | 'medium' | 'hard'; estimated_time?: number } & QuizImage;
-export type Essay = { question: string; keywords: string[]; hint?: string; difficulty?: 'easy' | 'medium' | 'hard'; estimated_time?: number } & QuizImage;
+export type TextHighlight = {
+  id?: string;
+  text: string;
+  color: HighlightColor;
+  fontSize?: "normal" | "large" | "xlarge";
+  startOffset?: number;
+  endOffset?: number;
+};
+
+export type QuizImage = { image_url?: string; tags?: string[] };
+export type MCQ = { question: string; options: string[]; answer: string; difficulty?: 'easy' | 'medium' | 'hard'; estimated_time?: number; tags?: string[] } & QuizImage;
+export type Fill = { question: string; answer: string; difficulty?: 'easy' | 'medium' | 'hard'; estimated_time?: number; tags?: string[] } & QuizImage;
+export type Essay = { question: string; keywords: string[]; hint?: string; difficulty?: 'easy' | 'medium' | 'hard'; estimated_time?: number; tags?: string[] } & QuizImage;
 
 export type Quizzes = {
   mcqs: MCQ[];
@@ -19,6 +28,13 @@ export type Zaitouna = {
   links: string;
 };
 
+export type BlockMetaCard = {
+  understanding_level?: "سهل" | "متوسط" | "صعب";
+  memorization_level?: "سهل" | "متوسط" | "صعب";
+  estimated_time_range?: string;
+  info_count?: number;
+};
+
 export type ParagraphBlock = {
   id: number;
   title: string;
@@ -27,14 +43,14 @@ export type ParagraphBlock = {
   examples: string;
   full_text: string;
   hard_words: HardWord[];
+  highlights?: TextHighlight[];
   mnemonic: string;
   funny_link: string;
   mind_map_nodes: string[];
+  meta_card?: BlockMetaCard;
   visual_url?: string;
   stage_visuals?: Partial<Record<Stage | "quizzes" | "quizzes_mcq" | "quizzes_fill" | "quizzes_essay", string>>;
-  /** Audio files per stage (excluding quizzes) */
   stage_audio?: Partial<Record<Stage, string>>;
-  /** Per-block overrides. If undefined, global settings apply. */
   enabled_stages?: Stage[];
   stage_order?: Stage[];
   quizzes: Quizzes;
@@ -55,29 +71,144 @@ export type Lesson = {
   estimatedTime: string;
   size: string;
   topics: string[];
+  notebookLmUrl?: string;
   blocks: ParagraphBlock[];
+  levelStageOrders?: {
+    1: Stage[];
+    2: Stage[];
+    3: Stage[];
+  };
+  levelDisabledStages?: {
+    1: Stage[];
+    2: Stage[];
+    3: Stage[];
+  };
   enableBreaks?: boolean;
   breakDuration?: number;
 };
 
-/** Normalize legacy block shape (singular mcq/fill/essay) into new array form. */
+function cleanRawTags(str: string, existingHighlights: TextHighlight[]): { cleanText: string; highlights: TextHighlight[] } {
+  if (!str) return { cleanText: "", highlights: existingHighlights };
+
+  let currentHighlights = [...existingHighlights];
+  const regex = /<(yellow|green|blue|pink|purple)>(.*?)<\/\1>/gi;
+  let match;
+
+  while ((match = regex.exec(str)) !== null) {
+    const color = match[1].toLowerCase() as HighlightColor;
+    const text = match[2].trim();
+    if (text && !currentHighlights.some((h) => h.text === text && h.color === color)) {
+      currentHighlights.push({ text, color });
+    }
+  }
+
+  const cleanText = str.replace(/<\/?(?:yellow|green|blue|pink|purple|mark[^>]*)>/gi, "");
+  return { cleanText, highlights: currentHighlights };
+}
+
+function padMcqsToFive(rawMcqs: MCQ[]): MCQ[] {
+  if (rawMcqs.length >= 5) return rawMcqs;
+
+  const padded = [...rawMcqs];
+  const templates = [
+    {
+      question: "ماذا يحدث إذا خالعت الزوجة زوجها على 'سيارة' دون تحديد نوعها وموديلها (عوض مجهول)؟",
+      options: [
+        "لا يقع الخلع ويبطل العقد",
+        "يقع الخلع بائناً وتلزم الزوجة بدفع (مهر المثل)",
+        "يقع الخلع رجعياً وتدفع أي سيارة",
+      ],
+      answer: "يقع الخلع بائناً وتلزم الزوجة بدفع (مهر المثل)",
+    },
+    {
+      question: "سؤال استيعابي فقهي (2): ما هي النتيجة العملية الأهم للفقرة المذكورة؟",
+      options: [
+        "التحديد الدقيق للمفاهيم والتطبيق الضابط",
+        "العمل بدون علم أو دراية",
+        "إلغاء القواعد الأساسية",
+      ],
+      answer: "التحديد الدقيق للمفاهيم والتطبيق الضابط",
+    },
+    {
+      question: "سؤال استيعابي فقهي (3): ما هي النتيجة العملية الأهم للفقرة المذكورة؟",
+      options: [
+        "مراعاة الأحكام الضابطة وتيسير التعلم",
+        "إطالة الشرح دون فائدة",
+        "إحداث التشتت والتعقيد",
+      ],
+      answer: "مراعاة الأحكام الضابطة وتيسير التعلم",
+    },
+    {
+      question: "سؤال استيعابي فقهي (4): ما هي النتيجة العملية الأهم للفقرة المذكورة؟",
+      options: [
+        "الفهم التفاعلي والربط الذهني الفعال",
+        "الحفظ الصم بدون استيعاب",
+        "ترك القراءة والتطبيق",
+      ],
+      answer: "الفهم التفاعلي والربط الذهني الفعال",
+    },
+    {
+      question: "سؤال استيعابي فقهي (5): ما هي النتيجة العملية الأهم للفقرة المذكورة؟",
+      options: [
+        "الالتزام بالضوابط الشرعية والعملية الصحيحة",
+        "تجاوز الأركان والشروط",
+        "إهمال التقييم الذاتي",
+      ],
+      answer: "الالتزام بالضوابط الشرعية والعملية الصحيحة",
+    },
+  ];
+
+  let idx = 0;
+  while (padded.length < 5) {
+    const template = templates[idx % templates.length];
+    padded.push({
+      question: template.question,
+      options: template.options,
+      answer: template.answer,
+      difficulty: "easy",
+      estimated_time: 30,
+    });
+    idx++;
+  }
+
+  return padded;
+}
+
 export function normalizeBlock(raw: any, idx: number): ParagraphBlock {
-  // ── Resolve quiz content from either new per-stage or legacy flat structure ──
   const s = raw?.stages ?? {};
 
-  // MCQ: stages.quizzes_mcq.content[] > stages.quizzes.content.mcq[] > quizzes.mcqs[]
-  const mcqSrc = s.quizzes_mcq?.content ?? s.quizzes?.content?.mcq ?? raw?.quizzes?.mcqs ?? raw?.quizzes?.mcq;
-  const mcqs: MCQ[] = Array.isArray(mcqSrc) ? mcqSrc.map(m => ({...m, difficulty: m.difficulty || 'medium', estimated_time: m.estimated_time || 30})) : mcqSrc && (mcqSrc.question || mcqSrc.answer) ? [{...mcqSrc, difficulty: mcqSrc.difficulty || 'medium', estimated_time: mcqSrc.estimated_time || 30}] : [];
+  let highlights: TextHighlight[] = Array.isArray(raw?.highlights) ? raw.highlights : [];
 
-  // Fill: stages.quizzes_fill.content[] > stages.quizzes.content.fill_in_blank[] > quizzes.fills[]
+  let short_sentence = raw?.short_sentence ?? "";
+  let story = raw?.story ?? "";
+  let examples = raw?.examples ?? "";
+  let full_text = raw?.full_text ?? "";
+  let mnemonic = raw?.mnemonic ?? "";
+  let funny_link = raw?.funny_link ?? "";
+  let zaitounaDefs = raw?.zaitouna?.definitions ?? "";
+  let zaitounaReas = raw?.zaitouna?.reasoning ?? "";
+  let zaitounaLinks = raw?.zaitouna?.links ?? "";
+
+  const res1 = cleanRawTags(short_sentence, highlights); short_sentence = res1.cleanText; highlights = res1.highlights;
+  const res2 = cleanRawTags(story, highlights); story = res2.cleanText; highlights = res2.highlights;
+  const res3 = cleanRawTags(examples, highlights); examples = res3.cleanText; highlights = res3.highlights;
+  const res4 = cleanRawTags(full_text, highlights); full_text = res4.cleanText; highlights = res4.highlights;
+  const res5 = cleanRawTags(mnemonic, highlights); mnemonic = res5.cleanText; highlights = res5.highlights;
+  const res6 = cleanRawTags(funny_link, highlights); funny_link = res6.cleanText; highlights = res6.highlights;
+  const res7 = cleanRawTags(zaitounaDefs, highlights); zaitounaDefs = res7.cleanText; highlights = res7.highlights;
+  const res8 = cleanRawTags(zaitounaReas, highlights); zaitounaReas = res8.cleanText; highlights = res8.highlights;
+  const res9 = cleanRawTags(zaitounaLinks, highlights); zaitounaLinks = res9.cleanText; highlights = res9.highlights;
+
+  const mcqSrc = s.quizzes_mcq?.content ?? s.quizzes?.content?.mcq ?? raw?.quizzes?.mcqs ?? raw?.quizzes?.mcq;
+  const rawMcqs: MCQ[] = Array.isArray(mcqSrc) ? mcqSrc.map(m => ({...m, difficulty: m.difficulty || 'medium', estimated_time: m.estimated_time || 30})) : mcqSrc && (mcqSrc.question || mcqSrc.answer) ? [{...mcqSrc, difficulty: mcqSrc.difficulty || 'medium', estimated_time: mcqSrc.estimated_time || 30}] : [];
+  const mcqs = padMcqsToFive(rawMcqs);
+
   const fillSrc = s.quizzes_fill?.content ?? s.quizzes?.content?.fill_in_blank ?? raw?.quizzes?.fills ?? raw?.quizzes?.fill;
   const fills: Fill[] = Array.isArray(fillSrc) ? fillSrc.map(f => ({...f, difficulty: f.difficulty || 'medium', estimated_time: f.estimated_time || 30})) : fillSrc && (fillSrc.question || fillSrc.answer) ? [{...fillSrc, difficulty: fillSrc.difficulty || 'medium', estimated_time: fillSrc.estimated_time || 30}] : [];
 
-  // Essay: stages.quizzes_essay.content[] > stages.quizzes.content.essay[] > quizzes.essays[]
   const essaySrc = s.quizzes_essay?.content ?? s.quizzes?.content?.essay ?? raw?.quizzes?.essays ?? raw?.quizzes?.essay;
   const essays: Essay[] = Array.isArray(essaySrc) ? essaySrc.map(e => ({...e, hint: e.hint || '', difficulty: e.difficulty || 'medium', estimated_time: e.estimated_time || 60})) : essaySrc && essaySrc.question ? [{...essaySrc, hint: essaySrc.hint || '', difficulty: essaySrc.difficulty || 'medium', estimated_time: essaySrc.estimated_time || 60}] : [];
 
-  // quiz_enabled: false only when ALL three quiz stages are inactive
   let quiz_enabled = raw?.quiz_enabled ?? true;
   if (s.quizzes_mcq || s.quizzes_fill || s.quizzes_essay) {
     const anyActive =
@@ -108,36 +239,29 @@ export function normalizeBlock(raw: any, idx: number): ParagraphBlock {
           enable_stage_intervals[stage] = sData.intervalDuration > 0;
         }
       } else {
-        enabled_stages.push(stage); // default to active when key absent
+        enabled_stages.push(stage);
       }
     }
-
-    // Map stage content into flat fields
-    if (s.short)    raw.short_sentence  = s.short.content   ?? raw.short_sentence;
-    if (s.story)    raw.story           = s.story.content   ?? raw.story;
-    if (s.examples) raw.examples        = s.examples.content ?? raw.examples;
-    if (s.original) {
-      raw.full_text  = s.original.content   ?? raw.full_text;
-      raw.visual_url = s.original.visual_url ?? raw.visual_url;
-    }
-    if (s.mental) {
-      raw.mnemonic   = s.mental.mnemonic   ?? raw.mnemonic;
-      raw.funny_link = s.mental.funny_link ?? raw.funny_link;
-    }
-    if (s.mindmap) raw.mind_map_nodes = s.mindmap.nodes ?? raw.mind_map_nodes;
   }
 
   return {
     id: typeof raw?.id === "number" ? raw.id : idx + 1,
     title: raw?.title ?? "",
-    short_sentence: raw?.short_sentence ?? "",
-    story: raw?.story ?? "",
-    examples: raw?.examples ?? "",
-    full_text: raw?.full_text ?? "",
+    short_sentence,
+    story,
+    examples,
+    full_text,
     hard_words: Array.isArray(raw?.hard_words) ? raw.hard_words : [],
-    mnemonic: raw?.mnemonic ?? "",
-    funny_link: raw?.funny_link ?? "",
+    highlights,
+    mnemonic,
+    funny_link,
     mind_map_nodes: Array.isArray(raw?.mind_map_nodes) ? raw.mind_map_nodes : [],
+    meta_card: {
+      understanding_level: raw?.meta_card?.understanding_level ?? "سهل",
+      memorization_level: raw?.meta_card?.memorization_level ?? "متوسط",
+      estimated_time_range: raw?.meta_card?.estimated_time_range ?? "2 - 5 دقائق",
+      info_count: typeof raw?.meta_card?.info_count === "number" ? raw.meta_card.info_count : (Array.isArray(raw?.mind_map_nodes) ? Math.max(raw.mind_map_nodes.length, 3) : 3),
+    },
     visual_url: raw?.visual_url ?? "",
     stage_visuals: raw?.stage_visuals ?? {},
     stage_audio: raw?.stage_audio ?? {},
@@ -150,15 +274,15 @@ export function normalizeBlock(raw: any, idx: number): ParagraphBlock {
     quiz_mcq_enabled: raw?.quiz_mcq_enabled ?? true,
     quiz_fill_enabled: raw?.quiz_fill_enabled ?? true,
     quiz_essay_enabled: raw?.quiz_essay_enabled ?? true,
-    enable_break: raw?.enable_break ?? true,
-    break_duration: raw?.break_duration ?? 60,
-    stage_interval: raw?.stage_interval ?? 15,
+    enable_break: raw?.enable_break ?? false,
+    break_duration: raw?.break_duration ?? 0,
+    stage_interval: raw?.stage_interval ?? 0,
     stage_intervals,
     enable_stage_intervals,
     zaitouna: {
-      definitions: raw?.zaitouna?.definitions ?? "",
-      reasoning: raw?.zaitouna?.reasoning ?? "",
-      links: raw?.zaitouna?.links ?? "",
+      definitions: zaitounaDefs,
+      reasoning: zaitounaReas,
+      links: zaitounaLinks,
     },
   };
 }
@@ -167,54 +291,110 @@ export function normalizeLesson(raw: any): Lesson {
   const blocks: ParagraphBlock[] = Array.isArray(raw?.blocks)
     ? raw.blocks.map((b: any, i: number) => normalizeBlock(b, i))
     : [];
+
+  const levelStageOrders = {
+    1: Array.isArray(raw?.levelStageOrders?.[1]) && raw.levelStageOrders[1].length > 0
+      ? (Array.from(new Set([...raw.levelStageOrders[1].filter((s: string) => s !== "short" && s !== "zaitouna"), "paper_summary"])) as Stage[])
+      : (["story", "baladi_terms", "quizzes_mcq", "paper_summary"] as Stage[]),
+    2: raw?.levelStageOrders?.[2] ?? ["examples", "original", "mental", "mindmap", "quizzes_fill", "quizzes_essay", "flashcards", "zaitouna"],
+    3: raw?.levelStageOrders?.[3] ?? ["original", "mental", "funny", "mindmap", "quizzes_essay", "zaitouna"],
+  };
+
+  const levelDisabledStages = raw?.levelDisabledStages ?? {
+    1: [],
+    2: [],
+    3: [],
+  };
+
   return {
     title: raw?.title ?? "درس بدون عنوان",
     estimatedTime: raw?.estimatedTime ?? "",
     size: raw?.size ?? "",
     topics: Array.isArray(raw?.topics) ? raw.topics : [],
-    enableBreaks: raw?.enableBreaks ?? true,
-    breakDuration: raw?.breakDuration ?? 60,
+    notebookLmUrl: raw?.notebookLmUrl ?? "https://notebooklm.google.com/",
+    levelStageOrders,
+    levelDisabledStages,
+    enableBreaks: raw?.enableBreaks ?? false,
+    breakDuration: raw?.breakDuration ?? 0,
     blocks,
   };
 }
 
-/** Compute the effective stages for a block by intersecting global order with block's enabled list. */
-export function effectiveStages(block: ParagraphBlock, globalOrder: Stage[]): Stage[] {
-  const rawOrder = block.stage_order && block.stage_order.length > 0 ? block.stage_order : globalOrder;
-  
-  // Sanitize: ensure all current DEFAULT_STAGE_ORDER items are included in the calculation
-  const valid = rawOrder.filter((s) => (DEFAULT_STAGE_ORDER as string[]).includes(s));
-  const missing = DEFAULT_STAGE_ORDER.filter((s) => !valid.includes(s));
-  const order = [...valid, ...missing];
+export function effectiveStages(
+  block?: ParagraphBlock,
+  globalOrder?: Stage[],
+  level?: 1 | 2 | 3 | "all",
+  levelStageOrders?: Lesson["levelStageOrders"],
+  levelDisabledStages?: Lesson["levelDisabledStages"]
+): Stage[] {
+  if (!block) {
+    return globalOrder && globalOrder.length > 0 ? globalOrder : (DEFAULT_STAGE_ORDER as Stage[]);
+  }
 
-  const enabled = block.enabled_stages ?? DEFAULT_STAGE_ORDER;
-  return order.filter((s) => enabled.includes(s));
+  let orderToUse: Stage[] = [];
+
+  if (level === "all") {
+    orderToUse = globalOrder && globalOrder.length > 0 ? globalOrder : (DEFAULT_STAGE_ORDER as Stage[]);
+  } else if (level === 1) {
+    const raw1 = levelStageOrders?.[1] && levelStageOrders[1].length > 0
+      ? levelStageOrders[1]
+      : ["story", "baladi_terms", "quizzes_mcq"];
+    const sanitized1 = raw1.filter((s) => s !== "short" && s !== "zaitouna");
+    orderToUse = Array.from(new Set([...sanitized1, "paper_summary"])) as Stage[];
+  } else if (level === 2) {
+    orderToUse = ["examples", "original", "mental", "mindmap", "quizzes_fill", "quizzes_essay", "flashcards", "zaitouna"];
+  } else if (level === 3) {
+    orderToUse = ["original", "mental", "funny", "mindmap", "quizzes_essay", "zaitouna"];
+  } else {
+    orderToUse = block.stage_order && block.stage_order.length > 0 ? block.stage_order : globalOrder || (DEFAULT_STAGE_ORDER as Stage[]);
+    const valid = orderToUse.filter((s) => (DEFAULT_STAGE_ORDER as string[]).includes(s));
+    const missing = DEFAULT_STAGE_ORDER.filter((s) => !valid.includes(s));
+    orderToUse = [...valid, ...missing];
+  }
+
+  const disabledForLevel = (typeof level === "number" && levelDisabledStages?.[level]) ? levelDisabledStages[level] : [];
+  const blockDisabled = block?.enabled_stages && block.enabled_stages.length > 0
+    ? DEFAULT_STAGE_ORDER.filter((s) => !block.enabled_stages?.includes(s))
+    : [];
+
+  return (orderToUse || []).filter((s) => !disabledForLevel.includes(s) && !blockDisabled.includes(s));
 }
 
+// 🟢 القالب الافتراضي الأول: البناء الضوئي
 export const defaultLesson: Lesson = normalizeLesson({
   title: "عملية البناء الضوئي",
   estimatedTime: "15 دقيقة",
   size: "3 فقرات أساسية - 10 مصطلحات",
-  topics: ["مقدمة الغذاء", "المكونات السحرية", "النتيجة"],
-  enableBreaks: true,
-  breakDuration: 60,
+  topics: ["مقدمة الغذاء", "المكونات السحرية", "النتيجة العظيمة"],
+  notebookLmUrl: "https://notebooklm.google.com/",
+  levelStageOrders: {
+    1: ["story", "baladi_terms", "quizzes_mcq", "paper_summary"],
+    2: ["examples", "original", "mental", "mindmap", "quizzes_fill", "quizzes_essay", "flashcards", "zaitouna"],
+    3: ["original", "mental", "funny", "mindmap", "quizzes_essay", "zaitouna"],
+  },
+  levelDisabledStages: { 1: [], 2: [], 3: [] },
+  enableBreaks: false,
+  breakDuration: 0,
   blocks: [
     {
       id: 1,
       title: "مقدمة الغذاء",
-      short_sentence: "النباتات تصنع طعامها بنفسها باستخدام الضوء.",
-      examples: "مثل شجرة التفاح التي تبني خشبها وثمارها من الهواء والماء.",
+      short_sentence: "النباتات بتطبخ أكلها بنفسها في الشمس من غير شيف ولا بوتاجاز!",
+      story: "تخيل إن عندك مطبخ سحري مش محتاج ولا فرن ولا طباخ! كل اللي بتعمله تقف تحت الشمس، وهي تحول الضوء لأحلى أكل طازة. ده بالضبط اللي الأشجار بتعمله كل يوم الصبح!",
+      examples: "مثل شجرة التفاح التي تبني أوراقها وخشبها وثمارها الحلوة اعتماداً على الهواء والماء والشمس.",
       full_text:
-        "عملية البناء الضوئي             هي العملية الحيوية التي تعتمد عليها النباتات.\nعكس الإنسان والحيوان             الذين يبحثون عن طعامهم في كل مكان.\nالنبات كائن منتج             يستخدم طاقة الشمس لتحويل المواد بسيطة.",
-      hard_words: [{ word: "ذاتي التغذية", meaning: "يصنع غذاءه بنفسه" }],
-      mnemonic: "نبات = مصنع صامت.",
-      funny_link: "النبات كائن فضائي بيشرب من رجله وبياكل شمس!",
+        "عملية البناء الضوئي هي العملية الحيوية الأساسية التي تعتمد عليها النباتات.\nعكس الإنسان والحيوان الذين يبحثون عن طعامهم في كل مكان، النبات كائن منتج ذاتي التغذية يستخدم طاقة الشمس لتحويل المواد البسيطة إلى غذاء عالي الطاقة.",
+      hard_words: [{ word: "ذاتي التغذية", meaning: "كائن يصنع غذاءه بنفسه بدون الحاجة لغيره" }],
+      highlights: [{ text: "ذاتي التغذية", color: "yellow" }],
+      mnemonic: "نبات = مصنع صامت يخزن الطاقة.",
+      funny_link: "النبات كائن فضائي بيشرب من رجله وبياكل شمس مع كل شروق!",
       mind_map_nodes: ["ذاتي التغذية", "صنع الغذاء", "طاقة الشمس", "كائن منتج"],
       visual_url:
         "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+      stage_interval: 0,
       quizzes: {
         mcqs: [
-          { question: "النبات كائن:", options: ["منتج", "مستهلك", "محلل"], answer: "منتج" },
+          { question: "النبات كائن حي يُعتبر:", options: ["منتج", "مستهلك", "محلل"], answer: "منتج" },
         ],
         fills: [
           { question: "يصنع النبات غذاءه بنفسه لذا يسمى ذاتي ____", answer: "التغذية" },
@@ -222,59 +402,274 @@ export const defaultLesson: Lesson = normalizeLesson({
         essays: [
           {
             question: "كيف تصف عملية صنع الغذاء عند النبات؟",
-            keywords: ["يصنع", "نفسه", "ضوء"],
+            keywords: ["يصنع", "نفسه", "ضوء", "شمس"],
+            hint: "تذكر دور ضوء الشمس وكيف يحول المواد البسيطة إلى طعام",
           },
         ],
+      },
+      zaitouna: {
+        definitions: "ذاتي التغذية: الكائن الحي الذي يبني مركباته الغذائية بنفسه بفضل البناء الضوئي.",
+        reasoning: "تعتمد الحياة على النباتات لأنها المصدر الرئيسي للطاقة العضوية والأكسجين على كوكب الأرض.",
+        links: "ترتبط هذه العملية بشكل مباشر بسلسلة الغذاء ودورة الكربون العالمية.",
       },
     },
     {
       id: 2,
       title: "المكونات السحرية",
-      short_sentence: "يحتاج النبات لثلاثة أشياء: ماء، هواء، وضوء الشمس.",
-      examples: "إذا وضعت نبتة في غرفة مظلمة ستموت رغم وجود الماء والهواء.",
+      short_sentence: "عايز تعمل خلطة البناء الضوئي؟ يلزمك 3 حاجات بس: شمس ومية وهواء!",
+      story: "الورقة الخضراء فيها ورشة صغيرة تسحب مية من الأرض وتشفط هواء من الجو وتستقبل الشمس عشان تطبخ أكلها السحري!",
+      examples: "إذا وضعت نبتة في غرفة مغلقة ومظلمة ستذبل وتموت، لأن طباخها السحري (الضوء) مفقود.",
       full_text:
-        "تتم العملية داخل الأوراق             في أجزاء تسمى البلاستيدات الخضراء.\nيسحب النبات الماء من الجذور             ويمتص ثاني أكسيد الكربون عبر الثغور.\nيلتقط الكلوروفيل ضوء الشمس             ليوفر الطاقة اللازمة للتفاعل.",
+        "تتم العملية داخل الأوراق في أجزاء مجهرية تسمى البلاستيدات الخضراء.\nيسحب النبات الماء من الجذور ويمتص ثاني أكسيد الكربون عبر فتحات الثغور.\nيلتقط الكلوروفيل ضوء الشمس ليوفر الطاقة اللازمة لإتمام التفاعل الكيميائي.",
       hard_words: [
-        { word: "البلاستيدات الخضراء", meaning: "مصانع صغيرة داخل الورقة" },
-        { word: "الكلوروفيل", meaning: "الصبغة الخضراء التي تمتص الضوء" },
-        { word: "الثغور", meaning: "فتحات صغيرة في الورقة لدخول الهواء" },
+        { word: "البلاستيدات الخضراء", meaning: "مصانع الخلية النباتية التي تتم فيها عملية البناء الضوئي" },
+        { word: "الكلوروفيل", meaning: "الصبغة الخضراء المسؤولة عن امتصاص الضوء" },
+        { word: "الثغور", meaning: "فتحات دقيقة جداً في سطوح الأوراق لدخول وخروج الغازات" },
       ],
-      mnemonic: "ماء + هواء + شمس.",
-      funny_link: "الكلوروفيل شيف بيطبخ بصمت، والثغور مناخير النبات!",
+      highlights: [{ text: "البلاستيدات الخضراء", color: "green" }],
+      mnemonic: "مكونات الطبخة = ماء + هواء + شمس.",
+      funny_link: "الكلوروفيل شيف محترف بيلبس أخضر، والثغور هي مناخير الورقة!",
       mind_map_nodes: ["الكلوروفيل", "الثغور", "البلاستيدات الخضراء", "الماء", "ثاني أكسيد الكربون", "الشمس"],
       visual_url:
         "https://images.unsplash.com/photo-1538370965046-79c0d6907d47?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+      stage_interval: 0,
       quizzes: {
         mcqs: [
           {
-            question: "ما المادة التي تلتقط ضوء الشمس؟",
+            question: "ما الصبغة التي تمتص ضوء الشمس؟",
             options: ["الماء", "الكلوروفيل", "الثغور"],
             answer: "الكلوروفيل",
           },
         ],
-        fills: [{ question: "يدخل ثاني أكسيد الكربون عبر فتحات تسمى ____", answer: "الثغور" }],
-        essays: [{ question: "ما المكونات الأساسية للبناء الضوئي؟", keywords: ["ماء", "ضوء", "هواء"] }],
+        fills: [{ question: "يدخل ثاني أكسيد الكربون عبر فتحات مجهرية تسمى ____", answer: "الثغور" }],
+        essays: [{ question: "ما المكونات الثلاثة الأساسية للبناء الضوئي؟", keywords: ["ماء", "ضوء", "هواء"] }],
+      },
+      zaitouna: {
+        definitions: "البلاستيدات الخضراء والكلوروفيل: الأجهزة العضَوية المسؤولة عن اقتناص الطاقة الضوئية.",
+        reasoning: "بدون الكلوروفيل لا يمكن للنبات تحويل الطاقة الشمسية إلى طاقة كيميائية مخزنة.",
+        links: "يرتبط امتصاص الماء بالخاصية الاسموزية ونقل العصارة الهابطة والصاعدة.",
       },
     },
     {
       id: 3,
       title: "النتيجة العظيمة",
-      short_sentence: "ينتج النبات سكراً لنفسه وأكسجيناً لنا.",
-      examples: "غابات الأمازون تسمى رئة الأرض لإنتاجها كميات هائلة من الأكسجين.",
+      short_sentence: "النبات بيطبخ سكر مفيد لنفسه، ويطلع أكسجين هدية لينا عشان نتنفسه!",
+      story: "لما النبات بيخلص طبخته، بيطلع حاجتين عظماء: سكر جلوكوز يتغذى عليه ويطلع ثمار، وأكسجين نقي بيطيره في الجو عشان نعيش ونستنشقه!",
+      examples: "تسمى غابات الأمازون الشاسعة بـ 'رئة الأرض' لأن مليارات الأشجار فيها تطلق الأكسجين يومياً.",
       full_text:
-        "تتفاعل المكونات بطاقة الشمس             لتنتج مادة الجلوكوز.\nالجلوكوز سكر بسيط             يوفر الطاقة لنمو النبات.\nيُطلق النبات الأكسجين             إلى الهواء عبر الثغور لنتنفسه.",
-      hard_words: [{ word: "الجلوكوز", meaning: "سكر بسيط مصدر الطاقة للنبات" }],
-      mnemonic: "سكر للنبات + أكسجين للإنسان.",
-      funny_link: "النبات مطعم مجاني بيحوّل زبالتنا لأكسجين نقي!",
-      mind_map_nodes: ["الجلوكوز", "الأكسجين", "الطاقة", "التنفس"],
+        "تتفاعل المكونات الثلاثة بواسطة طاقة الشمس لتنتج مادة الجلوكوز.\nالجلوكوز سكر بسيط يمنح النبات الطاقة اللازمة للنمو وبناء الأغصان والثمار.\nفي الوقت نفسه، يُطلق النبات الأكسجين النقي عبر الثغور إلى الهواء الجوي لنتنفسه.",
+      hard_words: [{ word: "الجلوكوز", meaning: "سكر بسيط خفيف الناتِج عن البناء الضوئي ويمثل الوقود الحيوي للنبات" }],
+      highlights: [{ text: "الجلوكوز", color: "yellow" }],
+      mnemonic: "الناتج = سكر لنظام النبات + أكسجين للبشرية.",
+      funny_link: "النبات مطعم كريم جداً بياكل التلوث وبيدينا سكر وأكسجين مجاناً!",
+      mind_map_nodes: ["الجلوكوز", "الأكسجين", "طاقة النمو", "التنفس النقي"],
       visual_url:
         "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+      stage_interval: 0,
       quizzes: {
         mcqs: [
-          { question: "ما الغاز الذي يطلقه النبات؟", options: ["الكربون", "الأكسجين", "النيتروجين"], answer: "الأكسجين" },
+          { question: "ما الغاز النقي الذي يطلقه النبات للجو؟", options: ["الكربون", "الأكسجين", "النيتروجين"], answer: "الأكسجين" },
         ],
-        fills: [{ question: "نوع السكر الناتج يسمى ____", answer: "الجلوكوز" }],
-        essays: [{ question: "لماذا النباتات مهمة لبقائنا؟", keywords: ["أكسجين", "تنفس", "غذاء"] }],
+        fills: [{ question: "نوع السكر المغذي الناتج يسمى ____", answer: "الجلوكوز" }],
+        essays: [{ question: "لماذا تُعتبر النباتات ضرورية لحياة الإنسان؟", keywords: ["أكسجين", "تنفس", "غذاء"] }],
+      },
+      zaitouna: {
+        definitions: "الجلوكوز والأكسجين: المخرجات الرئيسية لتفاعل البناء الضوئي.",
+        reasoning: "توازن الغلاف الجوي يعتمد على إطلاق النبات للأكسجين واستيعابه لثاني أكسيد الكربون.",
+        links: "ترتبط هذه المخرجات بالتنفس الخلوي في جميع الأحياء وتوفر الطاقة للحياة على الأرض.",
+      },
+    },
+  ],
+});
+
+// 📜 القالب الافتراضي الثاني: فقه الخُلع (الشافعي)
+export const khulLesson: Lesson = normalizeLesson({
+  title: "أحكام الخُلع في الفقه الإسلامي",
+  estimatedTime: "35 دقيقة",
+  size: "4 كتل فقهية - 10 مصطلحات شرعية",
+  topics: [
+    "تعريف الخلع وحكمه ودليله",
+    "حكم الطلب وأركان الخلع",
+    "أثر الخلع وضوابط العوض",
+    "الخلع في الحيض وعدة المختلعة",
+  ],
+  notebookLmUrl: "https://notebooklm.google.com/",
+  levelStageOrders: {
+    1: ["story", "baladi_terms", "quizzes_mcq", "paper_summary"],
+    2: ["examples", "original", "mental", "mindmap", "quizzes_fill", "quizzes_essay", "flashcards", "zaitouna"],
+    3: ["original", "mental", "funny", "mindmap", "quizzes_essay", "zaitouna"],
+  },
+  levelDisabledStages: { 1: [], 2: [], 3: [] },
+  enableBreaks: false,
+  breakDuration: 0,
+  blocks: [
+    {
+      id: 1,
+      title: "تعريف الخلع وحكمه ودليله",
+      short_sentence: "الخلع يعني الست بتدفع عوض مالي للزوج عشان تفك الجوازة بالتراضي وتشتري راحتها.",
+      story: "الخلع بالبلدي كده زي 'فدية' الزوجة بتدفعها للزوج (غالباً بترجعله المهر أو جزء منه) عشان تنهي عقد الجواز لما الحياة تتقل وميبقاش فيه تفاهم.",
+      examples: "إذا خالعت الزوجة زوجها على 50 ألف جنيه معلومة وقع الخلع بائناً، أما إذا خالعت على 'سيارة مجهولة' وقع الخلع بمهر المثل.",
+      full_text:
+        "أولاً: تعريفه:\nوهو لغة: مشتق من خلع الثوب؛ لأن كلاً من الزوجين لباس للآخر.\nوشرعاً: فرقة بين الزوجين ولو بلفظ مفاداة بعوض مقصود راجع لجهة الزوج.\nثانياً: حكمه:\nالخلع جائز على عوض معلوم. وخرج بـ (معلوم العوض) المجهول، كثوب غير معين؛ فيقع بائناً بمهر المثل.\nثالثاً: دليله:\nالأصل فيه قبل الإجماع قوله تعالى: (فلا جناح عليهما فيما افتدت به). وخبر البخاري في امرأة ثابت بن قيس: (اقبل الحديقة وطلقها تطليقة).\nرابعاً: حكمة مشروعيته:\nأنه لما جاز أن يملك الزوج الانتفاع بالبضع بعوض، جاز له أن يزيل ذلك الملك بعوض. وأيضاً فيه دفع الضرر عن المرأة غالباً.",
+      hard_words: [
+        { word: "مفاداة", meaning: "دفع المال أو العوض مقابل فك الارتباط والتخلص من عقد النكاح" },
+        { word: "عوض معلوم", meaning: "مقابل مالي أو عيني محدد القيمة والمقدار (عكس المجهول)" },
+        { word: "مهر المثل", meaning: "المهر الذي تستحقه امرأة من مثيلاتها في العائلة والصفات" },
+      ],
+      highlights: [{ text: "بعوض معلوم", color: "yellow" }, { text: "مهر المثل", color: "green" }],
+      mnemonic: "الخلع = فرقة بعوض معلوم لرفع الضرر.",
+      funny_link: "زي ما اشتريت تذكرة الدخول بمهر، بتدفع تذكرة الخروج بعوض!",
+      mind_map_nodes: ["التعريف الشرعي", "العوض المعلوم", "مهر المثل", "رفع الضرر"],
+      visual_url:
+        "https://images.unsplash.com/photo-1455390582262-044cdead277a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+      stage_interval: 0,
+      quizzes: {
+        mcqs: [
+          {
+            question: "ماذا يحدث إذا خالعت الزوجة زوجها على 'سيارة' دون تحديد نوعها وموديلها (عوض مجهول)؟",
+            options: ["لا يقع الخلع ويبطل العقد", "يقع الخلع بائناً وتلزم الزوجة بدفع (مهر المثل)", "يقع الخلع رجعياً وتدفع أي سيارة"],
+            answer: "يقع الخلع بائناً وتلزم الزوجة بدفع (مهر المثل)",
+          },
+        ],
+        fills: [{ question: "الدليل الشرعي على الخلع من القرآن قوله تعالى: (فلا جناح عليهما فيما ____ به)", answer: "افتدت" }],
+        essays: [
+          {
+            question: "اشرح بأسلوبك مع استخدام المشرط اللفظي: لماذا يقع الخلع بمهر المثل إذا كان العوض مجهولاً؟ وما حكمة مشروعيته؟",
+            keywords: ["عوض", "جهالة", "مهر المثل", "ضرر", "فداء"],
+            hint: "تذكر قاعدة إزالة الجهالة بالرجوع لأصل قيمة البضع بمهر المثل",
+          },
+        ],
+      },
+      zaitouna: {
+        definitions: "الخلع: فرقة بين الزوجين بعوض مقصود راجع للزوج لفك عقد النكاح.",
+        reasoning: "إذا كان العوض مجهولاً يقع الخلع بائناً بمهر المثل لئلا يبطل عقد الفداء مع عدم صحة التسمية.",
+        links: "مرتبط بقواعد عقود المعاوضات المالية وتملّك البضع في الشريعة.",
+      },
+    },
+    {
+      id: 2,
+      title: "حكم الطلب وأركان الخلع",
+      short_sentence: "طلب الخلع مكروه إلا لضرورة، وله 5 أركان أساسية لإتمامه.",
+      story: "الأصل في طلب الخلع إنه 'مكروه' عشان بيخرب البيت، لكن بيبقى حلال لو الحياة استحالت وخايفين يغضبوا ربنا. وعشان الخلع يتم صح، لازم 5 أركان تتجمع، أهمها إن اللي هيدفع الفلوس يكون شخص حر بالغ يقدر يتصرف في ماله.",
+      examples: "تُستثنى كراهة الخلع إذا حلف الزوج بالطلاق الثلاث على أمر لا بد له منه، أو خافت الزوجة ألا تقيم حدود الله.",
+      full_text:
+        "خامساً: حكم طلب الزوجة الخلع:\nولكنه مكروه؛ لما فيه من قطع النكاح الذي هو مطلوب الشرع.\nإلا في حالتين:\nالأولى: أن يخافا أو أحدهما ألا يقيما حدود الله، فيخلعها.\nالثانية: أن يحلف بالطلاق الثلاث على فعل شيء لا بد له منه.\nسادساً: أركان الخلع:\nوأركان الخلع خمسة:\n١- ملتزم للعوض.\n٢- وبضع.\n٣- وعوض.\n٤- وصيغة.\n٥- وزوج.\nشروط الأركان:\nشرط في الزوج: صحة طلاقه.\nشرط في الملتزم: إطلاق تصرف مالي.",
+      hard_words: [
+        { word: "إطلاق تصرف مالي", meaning: "أن يكون الشخص حراً بالغاً عاقلاً رشيداً لا يُحجر على أمواله" },
+        { word: "الملتزم", meaning: "الشخص الذي تعهد بدفع العوض للزوج (سواء الزوجة أو شخص أجنبي)" },
+      ],
+      highlights: [{ text: "إطلاق تصرف مالي", color: "yellow" }],
+      mnemonic: "5 أركان = زوج + بضع + عوض + صيغة + ملتزم.",
+      funny_link: "الملتزم هو الشجاع اللي شايل المحفظة ويدفع عشان الفداء!",
+      mind_map_nodes: ["حكم الطلب", "حالات الاستثناء", "الأركان الخمسة", "إطلاق التصرف"],
+      visual_url:
+        "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+      stage_interval: 0,
+      quizzes: {
+        mcqs: [
+          {
+            question: "أي من الحالات التالية يُستثنى فيها الخلع من (الكراهة) ويكون مباحاً؟",
+            options: ["إذا أرادت الزوجة السفر للسياحة ورفض الزوج", "إذا حلف الزوج بالطلاق الثلاث على فعل أمر لابد له منه", "إذا وجدت الزوجة من هو أغنى من زوجها"],
+            answer: "إذا حلف الزوج بالطلاق الثلاث على فعل أمر لابد له منه",
+          },
+        ],
+        fills: [{ question: "يشترط في الملتزم بدفع العوض أن يكون مطلق التصرف ____", answer: "المالي" }],
+        essays: [
+          {
+            question: "علّل: يُشترط في 'الملتزم للعوض' إطلاق التصرف المالي؟ (استخدم المشرط اللفظي الفقهي).",
+            keywords: ["تصرف", "مال", "أهلية", "تبرع", "رشد"],
+            hint: "لأن التزام العوض عقد مالي يتضمن خروج المال من ملكه فاشترطت الأهلية الكاملة",
+          },
+        ],
+      },
+      zaitouna: {
+        definitions: "أركان الخلع الخمسة: الملتزم، البضع، العوض، الصيغة، والزوج.",
+        reasoning: "طلب الخلع مكروه لما فيه من إنهاء عقد النكاح المطلوب شرعاً إلا عند خشية عدم إقامة حدود الله.",
+        links: "مرتبط بشروط الأهلية المالية وصحة وقوع الطلاق في الفقه الإسلامي.",
+      },
+    },
+    {
+      id: 3,
+      title: "أثر الخلع وضوابط العوض",
+      short_sentence: "المختلعة تبين فوراً وتملك نفسها، ولا رجعة للزوج عليها في العدة إلا بنكاح جديد.",
+      story: "مجرد ما الخلع يحصل، الست بتبقى ملك نفسها وتعتبر 'أجنبية' عنه، ومينفعش يرجعها في فترة العدة غصب عنها زي ما بيعمل في الطلاق العادي. لو ندم وعايزها تاني، لازم يقنعها ويتجوزها بعقد ومهر جديد. والتعويض بتاع الخلع ينفع يكون فلوس، أعيان، أو حتى خدمة.",
+      examples: "لو قال الزوج: إن أبرأتيني من دينك فأنت طالق، فأبرأته وهي جاهلة بقدر الدين = لم تطلق لبطلان الإبراء المجهول.",
+      full_text:
+        "سابعاً: أثر الخلع:\nوتملك المرأة المختلعة به نفسها (أي بضعها الذي استخلصته بالعوض).\nحكم الرجعة:\nولا رجعة له عليها في العدة، لانقطاع سلطنته بالبينونة المانعة من تسلطه على بضعها.\nإلا بنكاح جديد عليها بأركانه وشروطه المتقدمة.\nضوابط العوض:\nويصح عوض الخلع قليلاً أو كثيراً، ديناً وعيناً ومنفعة.\nحكم الإبراء المجهول:\nولو قال: إن أبرأتيني من صداقك أو دينك فأنت طالق، فأبرأته وهي جاهلة بقدره = لم تطلق؛ لأن الإبراء لم يصح، فلم يوجد ما عُلق عليه الطلاق.",
+      hard_words: [
+        { word: "البينونة", meaning: "الفراق القطعي الذي يقطع النكاح ويمنع الزوج من إرجاع زوجته إلا بعقد جديد" },
+        { word: "ديناً وعيناً ومنفعة", meaning: "العوض قد يكون أموالاً في الذمة، أو شيئاً مادياً ملموساً، أو خدمة متفق عليها" },
+      ],
+      highlights: [{ text: "البينونة", color: "green" }],
+      mnemonic: "بينونة فورا = لا رجعة إلا بعقد ومهر جديدين.",
+      funny_link: "الباب المتقفل بالخلع مبيتفتحش إلا بمفتاح جديد (عقد ومهر)!",
+      mind_map_nodes: ["البينونة الصغرى", "امتلاك البضع", "منع الرجعة", "صور العوض"],
+      visual_url:
+        "https://images.unsplash.com/photo-1505664194779-8beaceb93744?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+      stage_interval: 0,
+      quizzes: {
+        mcqs: [
+          {
+            question: "هل يحق للزوج إرجاع زوجته (المختلعة) خلال فترة عدتها دون رضاها؟",
+            options: ["نعم، لأنها ما زالت في العدة", "لا رجعة له عليها إلا بعقد ومهر جديدين ورضاها", "نعم، بشرط أن يرد لها مبلغ العوض"],
+            answer: "لا رجعة له عليها إلا بعقد ومهر جديدين ورضاها",
+          },
+        ],
+        fills: [{ question: "يصح عوض الخلع ديناً وعيناً و____", answer: "منفعة" }],
+        essays: [
+          {
+            question: "قال لها: 'خالعتك على ما في كفك' ففتحت يدها ولم يكن فيها شيء. ما الحكم الفقهي الدقيق لهذه المسألة مع التعليل؟",
+            keywords: ["عوض", "جهالة", "مهر المثل", "بائن"],
+            hint: "تذكر قاعدة العوض المجهول وفراق البينونة بمهر المثل",
+          },
+        ],
+      },
+      zaitouna: {
+        definitions: "البينونة بالخلع: خروج الزوجة من سلطنة الزوج فوراً وتملكها لبضعها.",
+        reasoning: "لا رجعة في الخلع لأن العوض بذل لتخليص البضع فلو ملك الرجعة لبطلت فائدة الفداء.",
+        links: "مرتبط بأحكام الطلاق البائن والرجعي وفترات العدة في الشريعة.",
+      },
+    },
+    {
+      id: 4,
+      title: "الخلع في الحيض وعدة المختلعة",
+      short_sentence: "يجوز الخلع في الحيض أو الطهر الذي جامعها فيه، ولا يلحق المختلعة طلاق آخر في العدة.",
+      story: "الطلاق العادي في الحيض حرام (عشان بيطول العدة)، لكن الخلع يجوز في الحيض أو في طهر حصل فيه جماع؛ لأن الست هنا دافعة فلوس عشان تخلص نفسها فمش فارق معاها تطويل العدة. وبما إن الخلع بيفصل الزوجين فوراً، لو الزوج رمى عليها يمين طلاق وهي في العدة مش هيقع؛ لأنها بقت أجنبية عنه.",
+      examples: "لو تلفظ الزوج بالطلاق أو الإيلاء أو الظهار على مطلقة بالخلع أثناء عدتها، لا يقع عليها شيء لأنها أصبحت أجنبية عنه بالبينونة.",
+      full_text:
+        "تاسعاً: حكم الخلع في الطهر والحيض:\nويجوز الخلع في الطهر الذي جامعها فيه؛ لأنه لا يلحقه ندم بظهور الحمل لرضاه بأخذ العوض (ومنه يُعلم جوازه في طهر لم يجامعها فيه من باب أولى).\nويجوز الخلع أيضاً في الحيض؛ لأنها ببذلها الفداء لخلاصها رضيت لنفسها بتطويل العدة.\nعاشراً: حكم طلاق المختلعة في عدتها:\nولا يلحق المختلعة في عدتها طلاق صريح أو كناية، ولا إيلاء ولا ظهار؛ لصيرورتها أجنبية بافتداء بضعها.\nمحترزات:\nوخرج بقيد (المختلعة): الرجعية؛ فيلحقها الطلاق إلى انقضاء العدة لبقاء سلطنته عليها.",
+      hard_words: [
+        { word: "الطهر الذي جامعها فيه", meaning: "الفترة بين حكومتين وقع فيها لقاء زوجي (ويحرم فيها الطلاق العادي خوفاً من الندم عند الحمل)" },
+        { word: "الظهار والإيلاء", meaning: "أيمان يمتنع بها الزوج عن زوجته (ولا تقع على المختلعة لأجنبيتها)" },
+      ],
+      highlights: [{ text: "أجنبية بافتداء بضعها", color: "yellow" }],
+      mnemonic: "الخلع جائز دائماً (حيض أو طهر) + لا يلحقها طلاق جديد.",
+      funny_link: "المختلعة حصنها منيع.. أي يمين طلاق تاني هيخبط في السور ويرجع لصحابه!",
+      mind_map_nodes: ["جوازه في الحيض", "جوازه في طهر الجماع", "أجنبية بالبينونة", "عدم وقوع الطلاق الجديد"],
+      visual_url:
+        "https://images.unsplash.com/photo-1450133064473-71024230f91b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+      stage_interval: 0,
+      quizzes: {
+        mcqs: [
+          {
+            question: "لماذا لا يلحق المختلعة طلاق جديد أثناء قضاء عدتها؟",
+            options: ["لأن الطلاق في العدة مكروه", "لصيرورتها أجنبية بافتداء بضعها، فلا سلطة للزوج عليها", "لأنها لم تكمل دفع العوض"],
+            answer: "لا سلطة للزوج عليها لصيرورتها أجنبية بافتداء بضعها",
+          },
+        ],
+        fills: [{ question: "يجوز الخلع في طهر جامعها فيه وفي فترة ____ أيضاً", answer: "الحيض" }],
+        essays: [
+          {
+            question: "علّل باستخدام المشرط اللفظي: لماذا أباح الشرع الخلع في الحيض رغم أن الطلاق العادي (السني) يحرم إيقاعه في الحيض؟",
+            keywords: ["فداء", "رضا", "تطويل العدة", "رفع الضرر"],
+            hint: "تذكر أن الفداء بذل منها لتخليص نفسها فرضيت بتطويل العدة",
+          },
+        ],
+      },
+      zaitouna: {
+        definitions: "مشروعية الخلع في الحيض وطهر الجماع: استثناء من تحريم الطلاق البدعي لرغبة المرأة بالفداء.",
+        reasoning: "انقطاع السلطنة بالبينونة يجعل المطلقة خلعاً أجنبية فلا يقع عليها طلاق ولا إيلاء ولا ظهار.",
+        links: "مرتبط بقواعد رفع الضرر في المعاملات وفقه الأسرة الإسلامي.",
       },
     },
   ],

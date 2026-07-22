@@ -13,6 +13,8 @@ export type Unit = {
 export type Subject = {
   id: string;
   name: string;
+  category?: "شرعية" | "علمية" | "عربية" | "عامة";
+  description?: string;
   emoji?: string;
   createdAt: string;
   units: Unit[];
@@ -42,23 +44,117 @@ function write(c: Curriculum) {
   }
 }
 
+export function seedDefaultSubjects(): Curriculum {
+  const c = read();
+  if (c.subjects.length > 0) return c;
+
+  const defaults: Subject[] = [
+    {
+      id: "sub-fiqh",
+      name: "الفقه",
+      category: "شرعية",
+      description: "دراسة الأحكام الشرعية العملية المستنبطة من أدلتها التفصيلية.",
+      createdAt: new Date().toISOString(),
+      units: [
+        { id: "u-fiqh-1", name: "أحكام العبادات والمعاملات", createdAt: new Date().toISOString(), lessonIds: [] }
+      ],
+    },
+    {
+      id: "sub-tawheed",
+      name: "التوحيد",
+      category: "شرعية",
+      description: "إفراد الله عز وجل بما يختص به من الربوبية والألوهية والأسماء والصفات.",
+      createdAt: new Date().toISOString(),
+      units: [
+        { id: "u-tawheed-1", name: "أقسام التوحيد والإيمان", createdAt: new Date().toISOString(), lessonIds: [] }
+      ],
+    },
+    {
+      id: "sub-hadith",
+      name: "الحديث",
+      category: "شرعية",
+      description: "ما أُثر عن النبي ﷺ من قول أو فعل أو تقرير أو صفة.",
+      createdAt: new Date().toISOString(),
+      units: [],
+    },
+    {
+      id: "sub-tafsir",
+      name: "التفسير",
+      category: "شرعية",
+      description: "بيان معاني القرآن الكريم واستخراج أحكامه وحكمه.",
+      createdAt: new Date().toISOString(),
+      units: [],
+    },
+    {
+      id: "sub-biology",
+      name: "الأحياء",
+      category: "علمية",
+      description: "علم دراسة الكائنات الحية وتفاعلها مع البيئة المحيطة.",
+      createdAt: new Date().toISOString(),
+      units: [],
+    },
+    {
+      id: "sub-physics",
+      name: "الفيزياء",
+      category: "علمية",
+      description: "فهم قوانين المادة والطاقة والحركة في الكون.",
+      createdAt: new Date().toISOString(),
+      units: [],
+    },
+    {
+      id: "sub-chemistry",
+      name: "الكيمياء",
+      category: "علمية",
+      description: "دراسة تكوين المادة وخصائصها والتغيرات التي تطرأ عليها.",
+      createdAt: new Date().toISOString(),
+      units: [],
+    },
+    {
+      id: "sub-grammar",
+      name: "النحو",
+      category: "عربية",
+      description: "علم يبحث في أحكام أواخر الكلمات العربية حال تركيبها.",
+      createdAt: new Date().toISOString(),
+      units: [],
+    },
+    {
+      id: "sub-literature",
+      name: "الأدب",
+      category: "عربية",
+      description: "استكشاف روائع النثر والشعر العربي عبر العصور المختلفة.",
+      createdAt: new Date().toISOString(),
+      units: [],
+    },
+  ];
+
+  c.subjects = defaults;
+  write(c);
+  return c;
+}
+
 export function getCurriculum(): Curriculum {
-  return read();
+  const c = read();
+  if (c.subjects.length === 0) {
+    return seedDefaultSubjects();
+  }
+  return c;
 }
 
 export function getSubject(subjectId: string): Subject | undefined {
-  return read().subjects.find((s) => s.id === subjectId);
+  return getCurriculum().subjects.find((s) => s.id === subjectId);
 }
 
 export function getUnit(subjectId: string, unitId: string): Unit | undefined {
   return getSubject(subjectId)?.units.find((u) => u.id === unitId);
 }
 
-export function addSubject(name: string, emoji?: string): Subject {
-  const c = read();
+export function addSubject(name: string, category?: "شرعية" | "علمية" | "عربية" | "عامة", description?: string, emoji?: string): Subject {
+  const c = getCurriculum();
   const subject: Subject = {
     id: `sub-${Date.now()}`,
     name: name.trim() || "مادة جديدة",
+    category: category || "عامة",
+    description: description || "دراسة ومراجعة مفاهيم المادة.",
     emoji,
     createdAt: new Date().toISOString(),
     units: [],

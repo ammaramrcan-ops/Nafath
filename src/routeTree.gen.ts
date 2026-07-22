@@ -11,7 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TeacherRouteImport } from './routes/teacher'
 import { Route as SubjectsRouteImport } from './routes/subjects'
+import { Route as SpacedRepetitionRouteImport } from './routes/spaced-repetition'
+import { Route as MindMapRouteImport } from './routes/mind-map'
+import { Route as LessonsRouteImport } from './routes/lessons'
+import { Route as InteractiveExamsRouteImport } from './routes/interactive-exams'
+import { Route as CurriculumTrackerRouteImport } from './routes/curriculum-tracker'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SubjectsIndexRouteImport } from './routes/subjects.index'
 import { Route as SubjectsSubjectIdRouteImport } from './routes/subjects.$subjectId'
 import { Route as SubjectsSubjectIdUnitsUnitIdRouteImport } from './routes/subjects.$subjectId.units.$unitId'
 
@@ -25,10 +31,40 @@ const SubjectsRoute = SubjectsRouteImport.update({
   path: '/subjects',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SpacedRepetitionRoute = SpacedRepetitionRouteImport.update({
+  id: '/spaced-repetition',
+  path: '/spaced-repetition',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MindMapRoute = MindMapRouteImport.update({
+  id: '/mind-map',
+  path: '/mind-map',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LessonsRoute = LessonsRouteImport.update({
+  id: '/lessons',
+  path: '/lessons',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InteractiveExamsRoute = InteractiveExamsRouteImport.update({
+  id: '/interactive-exams',
+  path: '/interactive-exams',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CurriculumTrackerRoute = CurriculumTrackerRouteImport.update({
+  id: '/curriculum-tracker',
+  path: '/curriculum-tracker',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const SubjectsIndexRoute = SubjectsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SubjectsRoute,
 } as any)
 const SubjectsSubjectIdRoute = SubjectsSubjectIdRouteImport.update({
   id: '/$subjectId',
@@ -44,52 +80,91 @@ const SubjectsSubjectIdUnitsUnitIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/curriculum-tracker': typeof CurriculumTrackerRoute
+  '/interactive-exams': typeof InteractiveExamsRoute
+  '/lessons': typeof LessonsRoute
+  '/mind-map': typeof MindMapRoute
+  '/spaced-repetition': typeof SpacedRepetitionRoute
   '/subjects': typeof SubjectsRouteWithChildren
   '/teacher': typeof TeacherRoute
   '/subjects/$subjectId': typeof SubjectsSubjectIdRouteWithChildren
+  '/subjects/': typeof SubjectsIndexRoute
   '/subjects/$subjectId/units/$unitId': typeof SubjectsSubjectIdUnitsUnitIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/subjects': typeof SubjectsRouteWithChildren
+  '/curriculum-tracker': typeof CurriculumTrackerRoute
+  '/interactive-exams': typeof InteractiveExamsRoute
+  '/lessons': typeof LessonsRoute
+  '/mind-map': typeof MindMapRoute
+  '/spaced-repetition': typeof SpacedRepetitionRoute
   '/teacher': typeof TeacherRoute
   '/subjects/$subjectId': typeof SubjectsSubjectIdRouteWithChildren
+  '/subjects': typeof SubjectsIndexRoute
   '/subjects/$subjectId/units/$unitId': typeof SubjectsSubjectIdUnitsUnitIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/curriculum-tracker': typeof CurriculumTrackerRoute
+  '/interactive-exams': typeof InteractiveExamsRoute
+  '/lessons': typeof LessonsRoute
+  '/mind-map': typeof MindMapRoute
+  '/spaced-repetition': typeof SpacedRepetitionRoute
   '/subjects': typeof SubjectsRouteWithChildren
   '/teacher': typeof TeacherRoute
   '/subjects/$subjectId': typeof SubjectsSubjectIdRouteWithChildren
+  '/subjects/': typeof SubjectsIndexRoute
   '/subjects/$subjectId/units/$unitId': typeof SubjectsSubjectIdUnitsUnitIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/curriculum-tracker'
+    | '/interactive-exams'
+    | '/lessons'
+    | '/mind-map'
+    | '/spaced-repetition'
     | '/subjects'
     | '/teacher'
     | '/subjects/$subjectId'
+    | '/subjects/'
     | '/subjects/$subjectId/units/$unitId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/subjects'
+    | '/curriculum-tracker'
+    | '/interactive-exams'
+    | '/lessons'
+    | '/mind-map'
+    | '/spaced-repetition'
     | '/teacher'
     | '/subjects/$subjectId'
+    | '/subjects'
     | '/subjects/$subjectId/units/$unitId'
   id:
     | '__root__'
     | '/'
+    | '/curriculum-tracker'
+    | '/interactive-exams'
+    | '/lessons'
+    | '/mind-map'
+    | '/spaced-repetition'
     | '/subjects'
     | '/teacher'
     | '/subjects/$subjectId'
+    | '/subjects/'
     | '/subjects/$subjectId/units/$unitId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CurriculumTrackerRoute: typeof CurriculumTrackerRoute
+  InteractiveExamsRoute: typeof InteractiveExamsRoute
+  LessonsRoute: typeof LessonsRoute
+  MindMapRoute: typeof MindMapRoute
+  SpacedRepetitionRoute: typeof SpacedRepetitionRoute
   SubjectsRoute: typeof SubjectsRouteWithChildren
   TeacherRoute: typeof TeacherRoute
 }
@@ -110,12 +185,54 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SubjectsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/spaced-repetition': {
+      id: '/spaced-repetition'
+      path: '/spaced-repetition'
+      fullPath: '/spaced-repetition'
+      preLoaderRoute: typeof SpacedRepetitionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mind-map': {
+      id: '/mind-map'
+      path: '/mind-map'
+      fullPath: '/mind-map'
+      preLoaderRoute: typeof MindMapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lessons': {
+      id: '/lessons'
+      path: '/lessons'
+      fullPath: '/lessons'
+      preLoaderRoute: typeof LessonsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/interactive-exams': {
+      id: '/interactive-exams'
+      path: '/interactive-exams'
+      fullPath: '/interactive-exams'
+      preLoaderRoute: typeof InteractiveExamsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/curriculum-tracker': {
+      id: '/curriculum-tracker'
+      path: '/curriculum-tracker'
+      fullPath: '/curriculum-tracker'
+      preLoaderRoute: typeof CurriculumTrackerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/subjects/': {
+      id: '/subjects/'
+      path: '/'
+      fullPath: '/subjects/'
+      preLoaderRoute: typeof SubjectsIndexRouteImport
+      parentRoute: typeof SubjectsRoute
     }
     '/subjects/$subjectId': {
       id: '/subjects/$subjectId'
@@ -147,10 +264,12 @@ const SubjectsSubjectIdRouteWithChildren =
 
 interface SubjectsRouteChildren {
   SubjectsSubjectIdRoute: typeof SubjectsSubjectIdRouteWithChildren
+  SubjectsIndexRoute: typeof SubjectsIndexRoute
 }
 
 const SubjectsRouteChildren: SubjectsRouteChildren = {
   SubjectsSubjectIdRoute: SubjectsSubjectIdRouteWithChildren,
+  SubjectsIndexRoute: SubjectsIndexRoute,
 }
 
 const SubjectsRouteWithChildren = SubjectsRoute._addFileChildren(
@@ -159,6 +278,11 @@ const SubjectsRouteWithChildren = SubjectsRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CurriculumTrackerRoute: CurriculumTrackerRoute,
+  InteractiveExamsRoute: InteractiveExamsRoute,
+  LessonsRoute: LessonsRoute,
+  MindMapRoute: MindMapRoute,
+  SpacedRepetitionRoute: SpacedRepetitionRoute,
   SubjectsRoute: SubjectsRouteWithChildren,
   TeacherRoute: TeacherRoute,
 }
