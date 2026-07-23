@@ -353,7 +353,7 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
               <h2 className="text-2xl font-bold text-[#0b1c30]">إحصائيات الأداء</h2>
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Curriculum Progress — reads real data from curriculumTracker */}
             <button
               onClick={() => navigate({ to: "/curriculum-tracker" })}
@@ -435,22 +435,6 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
               {flashcardStats.total === 0 && (
                 <p className="text-xs text-[#584237]/60 mt-2">لم تبدأ مراجعة الفلاش كارد بعد</p>
               )}
-            </div>
-
-            {/* Test Results */}
-            <div className="bg-[#eff4ff] rounded-2xl p-7 flex flex-col">
-              <span className="text-sm font-bold text-[#584237] mb-5">نتائج الاختبارات الأخيرة</span>
-              <div className="flex items-end gap-2.5 h-24">
-                <div className="flex-1 bg-[#9d4300]/20 rounded-t h-[40%]" />
-                <div className="flex-1 bg-[#9d4300]/40 rounded-t h-[60%]" />
-                <div className="flex-1 bg-[#9d4300]/60 rounded-t h-[55%]" />
-                <div className="flex-1 bg-[#9d4300] rounded-t h-[85%]" />
-                <div className="flex-1 bg-[#9d4300]/80 rounded-t h-[70%]" />
-              </div>
-              <div className="flex justify-between mt-3 text-xs font-semibold text-[#584237]">
-                <span>الأسبوع 1</span>
-                <span>اليوم</span>
-              </div>
             </div>
           </div>
         </section>
