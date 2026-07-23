@@ -52,6 +52,96 @@ const NAFATH_JSON_PROMPT = `أنت خبير في التصميم التعليمي
 
 3. أخرج النتيجة في مربع كود JSON الصافي وبدون أي مقدمات أو شروحات جانبية.`;
 
+const PROMPT_STEP_1_CONTENT = `أنت خبير في التصميم التعليمي لمنصة "نفاذ - Nafath".
+قم بتحويل النص/الموضوع التالي إلى كود JSON مخصص لـ (الشرح والقصص والمصطلحات) فقط، وفق الهيكل الآتي:
+{
+  "title": "عنوان الدرس الرئيسي",
+  "blocks": [
+    {
+      "id": 1,
+      "title": "عنوان الفقرة الأولى",
+      "short_sentence": "الفكرة الرئيسية المختصرة جداً",
+      "story": "قصة تشبيهية عامية طريفة بالبلدي تشرح المفهوم بأسلوب دايركت وممتع.",
+      "examples": "مثال تطبيقي من الحياة اليومية.",
+      "full_text": "النص العلمي الكامل والمشروح بدقة.",
+      "hard_words": [
+        { "term": "المصطلح", "definition": "التفسير والشرح بالبلدي بين قوسين" }
+      ],
+      "mnemonic": "جملة تذكّر ذكية ومختصرة لبناء رابط ذهني.",
+      "funny_link": "ربط طريف وفكاهي لترسيخ المعلومة في الذاكرة."
+    }
+  ]
+}
+
+أخرج النتيجة في مربع كود JSON الصافي فقط وبدون أي مقدمات.`;
+
+const PROMPT_STEP_2_MINDMAP = `أنت خبير رسم الخرائط الذهنية لمنصة "نفاذ - Nafath".
+بناءً على موضوع الدرس، قم بتوليد كود JSON لخريطة ذهنية شجرية تفصيلية عاليّة التشعب والعمق (Root -> Categories -> Subtopics -> Details -> Proofs) مطابقة للهيكل التالي:
+{
+  "mind_map_nodes": [
+    { "id": "root", "text": "العنوان الرئيسي للدرس", "parentId": null },
+    { "id": "n1", "text": "1. التعريف والتأصيل", "parentId": "root" },
+    { "id": "n1_1", "text": "لغة: مشتق من نَزع الثوب", "parentId": "n1" },
+    { "id": "n1_1_1", "text": "(هن لباس لكم وأنتم لباس لهن)", "parentId": "n1_1" },
+    { "id": "n1_2", "text": "شرعاً: فرقة بين الزوجين بعوض مقصود", "parentId": "n1" },
+    { "id": "n2", "text": "2. الأحكام الشرعية والدليل", "parentId": "root" },
+    { "id": "n2_1", "text": "حكمه: جائز على عوض معلوم", "parentId": "n2" },
+    { "id": "n2_2", "text": "الدليل: (فلا جناح عليهما فيما افتدت به)", "parentId": "n2" },
+    { "id": "n2_3", "text": "حديث: (اقبل الحديقة وطلقها تطليقة)", "parentId": "n2" }
+  ]
+}
+
+أخرج النتيجة في مربع كود JSON الصافي فقط وبدون أي مقدمات.`;
+
+const PROMPT_STEP_3_QUIZZES = `أنت خبير إعداد الاختبارات لمنصة "نفاذ - Nafath".
+بناءً على فقرات الدرس، صغ كود JSON لأسئلة الاختبارات والـ MCQs، بشرط صارم: كل فقرة (Block) تحتوي على 5 أسئلة اختيار من متعدد (MCQ) حصرية ومطابقة 100% لنص وقصة هذه الفقرة فقط دون أي سؤال عن فقرات أخرى!
+
+الهيكل المطلوب:
+{
+  "quizzes_by_block": [
+    {
+      "block_id": 1,
+      "quizzes": {
+        "mcqs": [
+          {
+            "question": "سؤال 1 خاص بالفقرة 1 فقط؟",
+            "options": ["خيار 1", "خيار 2", "خيار 3", "خيار 4"],
+            "correct_answer": "خيار 1"
+          },
+          {
+            "question": "سؤال 2 خاص بالفقرة 1 فقط؟",
+            "options": ["خيار 1", "خيار 2", "خيار 3", "خيار 4"],
+            "correct_answer": "خيار 1"
+          },
+          {
+            "question": "سؤال 3 خاص بالفقرة 1 فقط؟",
+            "options": ["خيار 1", "خيار 2", "خيار 3", "خيار 4"],
+            "correct_answer": "خيار 1"
+          },
+          {
+            "question": "سؤال 4 خاص بالفقرة 1 فقط؟",
+            "options": ["خيار 1", "خيار 2", "خيار 3", "خيار 4"],
+            "correct_answer": "خيار 1"
+          },
+          {
+            "question": "سؤال 5 خاص بالفقرة 1 فقط؟",
+            "options": ["خيار 1", "خيار 2", "خيار 3", "خيار 4"],
+            "correct_answer": "خيار 1"
+          }
+        ],
+        "fills": [
+          { "question": "سؤال أكمل الفراغ 1 للفقرة 1", "answer": "الكلمة المناسبة" }
+        ],
+        "essays": [
+          { "question": "سؤال علل أو فكري للفقرة 1؟", "answer": "الإجابة النموذجية" }
+        ]
+      }
+    }
+  ]
+}
+
+أخرج النتيجة في مربع كود JSON الصافي فقط وبدون أي مقدمات.`;
+
 export function SettingsDialog({
   open,
   onOpenChange,
@@ -326,25 +416,78 @@ export function SettingsDialog({
 
           {tab === "prompt" && (
             <div className="space-y-6 py-4">
-              <div className="rounded-2xl bg-amber-50/90 p-8 border border-amber-200/90 space-y-5 text-center">
+              <div className="rounded-3xl bg-amber-50/90 p-8 border border-amber-200/90 space-y-6 text-center">
                 <div className="flex flex-col items-center gap-2.5">
                   <Sparkles className="h-8 w-8 text-amber-600" />
                   <h3 className="text-base font-black text-amber-950">
-                    أمر البرومبت المعتمد لتوليد الدروس بنقرة واحدة 📋
+                    دليل البرومبتات الـ 3 المخصصة والمستقلة 📋
                   </h3>
-                  <p className="text-xs font-bold text-amber-900 leading-relaxed max-w-md">
-                    اضغط الزر أدناه لنسخ البرومبت بالكامل ولصقه فوراً في ChatGPT أو Claude أو Gemini لتحويل أي منهج إلى درس نفاذ!
+                  <p className="text-xs font-bold text-amber-900 leading-relaxed max-w-lg">
+                    للحصول على أعلى جودة ودقة، انسخ برومبت كل مرحلة الصقه في الشات، ثم استورد كود JSON الناتج في واجهة المعلم!
                   </p>
                 </div>
 
-                <div className="pt-2 flex justify-center">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-2">
+                  {/* Copy Prompt 1 */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(PROMPT_STEP_1_CONTENT);
+                      toast.success("تم نسخ برومبت 1 (الشرح والقصص والمصطلحات) بنجاح! 📖📋");
+                    }}
+                    className="p-4 rounded-2xl bg-white border border-amber-200 hover:bg-amber-100/50 transition flex flex-col items-center text-center space-y-2 cursor-pointer shadow-xs"
+                  >
+                    <span className="text-xs font-black text-amber-950">1️⃣ الشرح والقصص</span>
+                    <span className="text-[11px] text-amber-800 font-bold">لتحويل الشرح والقصص والمصطلحات</span>
+                    <span className="mt-1 px-3 py-1.5 bg-amber-600 text-white text-[11px] font-black rounded-xl flex items-center gap-1">
+                      <Copy className="h-3.5 w-3.5" />
+                      <span>نسخ برومبت 1</span>
+                    </span>
+                  </button>
+
+                  {/* Copy Prompt 2 */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(PROMPT_STEP_2_MINDMAP);
+                      toast.success("تم نسخ برومبت 2 (الخريطة الذهنية المفصلة) بنجاح! 🎨📋");
+                    }}
+                    className="p-4 rounded-2xl bg-white border border-purple-200 hover:bg-purple-100/50 transition flex flex-col items-center text-center space-y-2 cursor-pointer shadow-xs"
+                  >
+                    <span className="text-xs font-black text-purple-950">2️⃣ الخريطة الذهنية</span>
+                    <span className="text-[11px] text-purple-800 font-bold">لتوليد الشجرة المتشعبة التفصيلية</span>
+                    <span className="mt-1 px-3 py-1.5 bg-purple-600 text-white text-[11px] font-black rounded-xl flex items-center gap-1">
+                      <Copy className="h-3.5 w-3.5" />
+                      <span>نسخ برومبت 2</span>
+                    </span>
+                  </button>
+
+                  {/* Copy Prompt 3 */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(PROMPT_STEP_3_QUIZZES);
+                      toast.success("تم نسخ برومبت 3 (أسئلة الـ MCQs لكل فقرة) بنجاح! 📝📋");
+                    }}
+                    className="p-4 rounded-2xl bg-white border border-emerald-200 hover:bg-emerald-100/50 transition flex flex-col items-center text-center space-y-2 cursor-pointer shadow-xs"
+                  >
+                    <span className="text-xs font-black text-emerald-950">3️⃣ أسئلة الـ MCQs</span>
+                    <span className="text-[11px] text-emerald-800 font-bold">5 أسئلة خيار حصرية لكل فقرة</span>
+                    <span className="mt-1 px-3 py-1.5 bg-emerald-600 text-white text-[11px] font-black rounded-xl flex items-center gap-1">
+                      <Copy className="h-3.5 w-3.5" />
+                      <span>نسخ برومبت 3</span>
+                    </span>
+                  </button>
+                </div>
+
+                <div className="pt-3 border-t border-amber-200/60">
                   <button
                     type="button"
                     onClick={handleCopyPrompt}
-                    className="inline-flex items-center gap-2.5 rounded-full bg-amber-600 px-10 py-4 text-sm font-black text-white shadow-md hover:bg-amber-700 transition cursor-pointer"
+                    className="inline-flex items-center gap-2 rounded-full bg-amber-900 px-6 py-2.5 text-xs font-black text-amber-100 hover:bg-amber-950 transition cursor-pointer shadow-xs"
                   >
-                    {copied ? <Check className="h-5 w-5" /> : <Copy className="h-5 w-5" />}
-                    <span>{copied ? "تم النسخ بنجاح! 🎉" : "نسخ البرومبت بالكامل بنقرة واحدة 📋"}</span>
+                    <Copy className="h-4 w-4" />
+                    <span>نسخ البرومبت التراكمي الموحد (All-in-One) 📋</span>
                   </button>
                 </div>
               </div>

@@ -19,7 +19,12 @@ import {
   Filter,
   BookOpen,
   CheckCircle2,
+  Code2,
+  Copy,
+  FileText,
+  HelpCircle,
 } from "lucide-react";
+import { toast } from "sonner";
 import {
   defaultLesson,
   effectiveStages,
@@ -142,6 +147,107 @@ function TeacherPage() {
     1 | 2 | 3 | "all"
   >(1);
   const [libSaved, setLibSaved] = useState(false);
+
+  // 3-Step Modular JSON Import State
+  const [jsonStepModal, setJsonStepModal] = useState<"content" | "mindmap" | "quizzes" | "guide" | null>(null);
+  const [stepJsonInput, setStepJsonInput] = useState("");
+
+  const handleImportStepContent = () => {
+    if (!stepJsonInput.trim()) {
+      toast.error("يرجى لصق كود JSON الخاص بالشرح والقصص أولاً.");
+      return;
+    }
+    try {
+      const data = JSON.parse(stepJsonInput);
+      const title = data.title || data.lesson_title || lesson.title;
+      const rawBlocks = Array.isArray(data.blocks) ? data.blocks : Array.isArray(data.sections) ? data.sections : [data];
+
+      const newBlocks = rawBlocks.map((b: any, i: number) => {
+        const existing = lesson.blocks[i] || emptyBlock(i + 1);
+        const norm = normalizeBlock(b, i);
+        return {
+          ...existing,
+          title: norm.title || existing.title,
+          short_sentence: norm.short_sentence || existing.short_sentence,
+          story: norm.story || existing.story,
+          examples: norm.examples || existing.examples,
+          full_text: norm.full_text || existing.full_text,
+          hard_words: norm.hard_words.length > 0 ? norm.hard_words : existing.hard_words,
+          mnemonic: norm.mnemonic || existing.mnemonic,
+          funny_link: norm.funny_link || existing.funny_link,
+        };
+      });
+
+      updateLesson({ title, blocks: newBlocks });
+      setJsonStepModal(null);
+      setStepJsonInput("");
+      toast.success("تم استيراد الشرح والقصص والمصطلحات بنجاح! 📖✨");
+    } catch {
+      toast.error("كود JSON غير صالح. يرجى التثبت من الصيغة.");
+    }
+  };
+
+  const handleImportStepMindMap = () => {
+    if (!stepJsonInput.trim()) {
+      toast.error("يرجى لصق كود JSON الخاص بالخريطة الذهنية أولاً.");
+      return;
+    }
+    try {
+      const data = JSON.parse(stepJsonInput);
+      let nodes = data.mind_map_nodes || data.nodes || data;
+      if (!Array.isArray(nodes) && typeof nodes === "object") {
+        nodes = [nodes];
+      }
+
+      const updatedBlocks = lesson.blocks.map((b) => ({
+        ...b,
+        mind_map_nodes: nodes,
+      }));
+
+      updateLesson({ blocks: updatedBlocks });
+      setJsonStepModal(null);
+      setStepJsonInput("");
+      toast.success("تم استيراد الخريطة الذهنية التفاعلية بنجاح! 🎨✨");
+    } catch {
+      toast.error("كود JSON غير صالح لإنشاء الخريطة الذهنية.");
+    }
+  };
+
+  const handleImportStepQuizzes = () => {
+    if (!stepJsonInput.trim()) {
+      toast.error("يرجى لصق كود JSON الخاص بالأسئلة أولاً.");
+      return;
+    }
+    try {
+      const data = JSON.parse(stepJsonInput);
+      const quizList = Array.isArray(data.quizzes_by_block)
+        ? data.quizzes_by_block
+        : Array.isArray(data.blocks)
+        ? data.blocks
+        : [data];
+
+      const updatedBlocks = lesson.blocks.map((b, i) => {
+        const item = quizList[i] || quizList.find((q: any) => q.block_id === b.id) || quizList[0];
+        if (!item) return b;
+        const norm = normalizeBlock(item, i);
+        return {
+          ...b,
+          quizzes: {
+            mcqs: norm.quizzes.mcqs.length > 0 ? norm.quizzes.mcqs : b.quizzes.mcqs,
+            fills: norm.quizzes.fills.length > 0 ? norm.quizzes.fills : b.quizzes.fills,
+            essays: norm.quizzes.essays.length > 0 ? norm.quizzes.essays : b.quizzes.essays,
+          },
+        };
+      });
+
+      updateLesson({ blocks: updatedBlocks });
+      setJsonStepModal(null);
+      setStepJsonInput("");
+      toast.success("تم استيراد أسئلة الـ MCQs المخصصة لكل فقرة بنجاح! 📝✨");
+    } catch {
+      toast.error("كود JSON غير صالح لأسئلة الاختبارات.");
+    }
+  };
 
   const blockIdx = step - 1;
 
@@ -273,6 +379,151 @@ function TeacherPage() {
 
       {/* Main Editing Container */}
       <main className="mx-auto max-w-7xl p-6 sm:p-8 space-y-8">
+        {/* 3-Step Modular JSON Pipeline Bar */}
+        <div className="bg-white border border-[#e0c0b1]/60 rounded-3xl p-6 shadow-xs space-y-4 text-right">
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#e0c0b1]/30 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-[#ffdbca] text-[#9d4300] flex items-center justify-center font-black shadow-xs">
+                <Code2 className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-extrabold text-[#0b1c30]">نظام استيراد الدرس المقسّم على 3 مراحل بـ JSON 🚀</h3>
+                <p className="text-xs font-semibold text-[#584237]/70">استورد كل مرحلة بكود JSON مستقل لضمان أقصى جودة ودقة وعدم التداخل</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+            {/* Step 1: Story & Content JSON */}
+            <div className="p-5 rounded-2xl bg-[#fffaf7] border border-[#ffdbca] flex flex-col justify-between space-y-3">
+              <div className="space-y-1 text-right">
+                <div className="flex items-center justify-between text-xs font-black text-[#9d4300]">
+                  <span>1️⃣ الشرح والقصص والمصطلحات</span>
+                  <BookOpen className="h-4 w-4" />
+                </div>
+                <p className="text-[11px] font-bold text-[#584237]/80 leading-relaxed">
+                  استيراد القصة التشبيهية العامية، النص الشارح، والمصطلحات بالبلدي والروابط الفكاهية
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setStepJsonInput("");
+                  setJsonStepModal("content");
+                }}
+                className="w-full py-2.5 bg-[#9d4300] text-white rounded-xl text-xs font-extrabold hover:bg-[#833800] transition cursor-pointer shadow-xs flex items-center justify-center gap-1.5"
+              >
+                <Code2 className="h-4 w-4" />
+                <span>استيراد كود (JSON 1) 📥</span>
+              </button>
+            </div>
+
+            {/* Step 2: MindMap Tree JSON */}
+            <div className="p-5 rounded-2xl bg-[#eff4ff] border border-[#e0c0b1]/60 flex flex-col justify-between space-y-3">
+              <div className="space-y-1 text-right">
+                <div className="flex items-center justify-between text-xs font-black text-[#8127cf]">
+                  <span>2️⃣ الخريطة الذهنية التفاعلية</span>
+                  <Sparkles className="h-4 w-4" />
+                </div>
+                <p className="text-[11px] font-bold text-[#584237]/80 leading-relaxed">
+                  استيراد الشجرة المتشعبة الشاملة (العناوين، الأحكام، الأدلة الشرعية، وحكمة المشروعية)
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setStepJsonInput("");
+                  setJsonStepModal("mindmap");
+                }}
+                className="w-full py-2.5 bg-[#8127cf] text-white rounded-xl text-xs font-extrabold hover:bg-[#6b1fb0] transition cursor-pointer shadow-xs flex items-center justify-center gap-1.5"
+              >
+                <Code2 className="h-4 w-4" />
+                <span>استيراد كود (JSON 2) 📥</span>
+              </button>
+            </div>
+
+            {/* Step 3: Block MCQs & Quizzes JSON */}
+            <div className="p-5 rounded-2xl bg-[#f0fdf4] border border-emerald-200 flex flex-col justify-between space-y-3">
+              <div className="space-y-1 text-right">
+                <div className="flex items-center justify-between text-xs font-black text-emerald-800">
+                  <span>3️⃣ أسئلة الـ MCQs لكل فقرة</span>
+                  <CheckCircle2 className="h-4 w-4" />
+                </div>
+                <p className="text-[11px] font-bold text-[#584237]/80 leading-relaxed">
+                  استيراد 5 أسئلة اختيار من متعدد (MCQs) حصرية ومخصصة لنص كُـل فقرة دون تداخل
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setStepJsonInput("");
+                  setJsonStepModal("quizzes");
+                }}
+                className="w-full py-2.5 bg-emerald-700 text-white rounded-xl text-xs font-extrabold hover:bg-emerald-800 transition cursor-pointer shadow-xs flex items-center justify-center gap-1.5"
+              >
+                <Code2 className="h-4 w-4" />
+                <span>استيراد كود (JSON 3) 📥</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Modal for 3-Step JSON Import */}
+        {jsonStepModal && jsonStepModal !== "guide" && (
+          <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 z-[99999] dir-rtl">
+            <div className="bg-white border border-[#e0c0b1] rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl space-y-6 text-right">
+              <div className="flex items-center justify-between border-b border-[#e0c0b1]/30 pb-4">
+                <h3 className="text-lg font-extrabold text-[#0b1c30]">
+                  {jsonStepModal === "content" && "📥 1️⃣ استيراد كود JSON الشرح والقصص والمصطلحات"}
+                  {jsonStepModal === "mindmap" && "📥 2️⃣ استيراد كود JSON الخريطة الذهنية المفصلة"}
+                  {jsonStepModal === "quizzes" && "📥 3️⃣ استيراد كود JSON أسئلة الـ MCQs وبنك الأسئلة"}
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setJsonStepModal(null)}
+                  className="p-2 rounded-full hover:bg-slate-100 text-slate-500 cursor-pointer"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-[#584237] block">
+                  الصق كود JSON الخاص بهذه المرحلة أدناه:
+                </label>
+                <textarea
+                  rows={10}
+                  value={stepJsonInput}
+                  onChange={(e) => setStepJsonInput(e.target.value)}
+                  placeholder="الصق كود JSON هنا..."
+                  className="w-full bg-[#f8f9ff] border border-[#e0c0b1] rounded-2xl p-4 text-xs font-mono text-[#0b1c30] focus:outline-none focus:ring-2 focus:ring-[#9d4300] leading-relaxed"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setJsonStepModal(null)}
+                  className="px-6 py-2.5 rounded-full border border-[#e0c0b1] text-xs font-bold text-[#584237] hover:bg-slate-50 cursor-pointer"
+                >
+                  إلغاء
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (jsonStepModal === "content") handleImportStepContent();
+                    if (jsonStepModal === "mindmap") handleImportStepMindMap();
+                    if (jsonStepModal === "quizzes") handleImportStepQuizzes();
+                  }}
+                  className="px-8 py-2.5 rounded-full bg-[#9d4300] text-white text-xs font-extrabold hover:bg-[#833800] cursor-pointer shadow-md"
+                >
+                  اعتماد واستيراد المرحلة ✨
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Bento Step Tabs Navigation */}
         <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5 pb-2">
           <button
