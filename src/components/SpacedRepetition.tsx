@@ -68,6 +68,9 @@ export function SpacedRepetitionView() {
 
   const [activeTab, setActiveTab] = useState<"review" | "problems">("review");
 
+  // Saved lessons from library
+  const [libraryLessons, setLibraryLessons] = useState<SavedLesson[]>([]);
+
   const [filterSubjectId, setFilterSubjectId] = useState<string | null>(null);
   const [filterSubjectName, setFilterSubjectName] = useState<string | null>(null);
 

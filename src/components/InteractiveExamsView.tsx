@@ -91,11 +91,10 @@ export function InteractiveExamsView({
 
   // Lesson Notes / Notebook State
   const [notes, setNotes] = useState<LessonNote[]>(() => getStoredLessonNotes());
+  const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
   const [selectedNotebookSubject, setSelectedNotebookSubject] = useState("الفقه الإسلامي");
   const [noteTitle, setNoteTitle] = useState("أحكام المعاملات المالية");
-  const [noteContent, setNoteContent] = useState(
-    "المعاملات المالية تعتمد على التراضي وتوفر الشروط الفقهية مع اجتناب الغرر والربا والجهالة المؤدية للنزاع..."
-  );
+  const [noteContent, setNoteContent] = useState("المعاملات المالية تعتمد على التراضي وتوفر الشروط الفقهية مع اجتناب الغرر والربا والجهالة المؤدية للنزاع...");
   const [isZenActive, setIsZenActive] = useState(false);
 
   // Exam Session State
@@ -249,14 +248,42 @@ export function InteractiveExamsView({
   };
 
   // Notebook Handlers
+  const handleCreateNewNote = () => {
+    setSelectedNoteId(null);
+    setNoteTitle("");
+    setNoteContent("");
+    toast.info("تم فتح مسودة ملاحظة جديدة ✍️");
+  };
+
   const handleSaveNote = () => {
     if (!noteTitle.trim() || !noteContent.trim()) {
       toast.error("يرجى ملء عنوان الملاحظة ومحتواها.");
       return;
     }
-    addLessonNote(noteTitle, noteContent, selectedNotebookSubject);
-    setNotes(getStoredLessonNotes());
+    const saved = addLessonNote(noteTitle, noteContent);
+    const updated = getStoredLessonNotes();
+    setNotes(updated);
+    setSelectedNoteId(saved.id);
     toast.success("تم حفظ الملاحظة في دفترك الخاص بنجاح! 📝🎉");
+  };
+
+  const handleDeleteNotebookNote = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    deleteLessonNote(id);
+    const updated = getStoredLessonNotes();
+    setNotes(updated);
+    if (selectedNoteId === id) {
+      if (updated.length > 0) {
+        setSelectedNoteId(updated[0].id);
+        setNoteTitle(updated[0].lessonTitle);
+        setNoteContent(updated[0].content);
+      } else {
+        setSelectedNoteId(null);
+        setNoteTitle("");
+        setNoteContent("");
+      }
+    }
+    toast.success("تم حذف الملاحظة بنجاح 🗑️");
   };
 
   // Ingestion Handlers
@@ -844,41 +871,68 @@ export function InteractiveExamsView({
           <div className="lg:col-span-4">
             <div className="bg-white border border-[#e0c0b1]/40 rounded-[2rem] p-6 sticky top-24 shadow-xs space-y-6">
               <div className="flex items-center justify-between border-b border-[#e0c0b1]/30 pb-4">
-                <h3 className="text-lg font-extrabold text-[#0b1c30]">المواد والدروس 📚</h3>
-                <Tag className="h-4 w-4 text-[#8127cf]" />
+                <h3 className="text-lg font-extrabold text-[#0b1c30]">ملاحظاتي ودروسي 📚</h3>
+                <button
+                  type="button"
+                  onClick={handleCreateNewNote}
+                  className="px-3.5 py-1.5 rounded-full bg-[#9d4300] text-white font-extrabold text-xs hover:bg-[#833800] transition cursor-pointer flex items-center gap-1.5 shadow-xs"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>إضافة ملاحظة جديدة</span>
+                </button>
               </div>
 
-              <div className="space-y-3">
-                {[
-                  { name: "الفقه الإسلامي", unit: "الوحدة الثالثة - خُلع" },
-                  { name: "الحديث الشريف", unit: "الوحدة الأولى" },
-                  { name: "التفسير والبيان", unit: "مراجعة عامة" },
-                  { name: "اللغة العربية", unit: "النحو والصرف" },
-                  { name: "التاريخ الإسلامي", unit: "السيرة النبوية" },
-                ].map((item, idx) => {
-                  const isSelected = selectedNotebookSubject === item.name;
-                  return (
+              <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
+                {notes.length === 0 ? (
+                  <div className="text-center py-10 space-y-3 border border-dashed border-[#e0c0b1]/60 rounded-2xl p-4 bg-[#f8f9ff]">
+                    <p className="text-xs font-bold text-[#584237]/80">لا توجد ملاحظات مسجلة حالياً</p>
                     <button
-                      key={idx}
                       type="button"
-                      onClick={() => setSelectedNotebookSubject(item.name)}
-                      className={`w-full text-right p-4 rounded-2xl flex flex-col gap-1 transition-all cursor-pointer border ${
-                        isSelected
-                          ? "bg-[#fffaf7] border-r-4 border-r-[#8127cf] border-[#e0c0b1]/60 shadow-xs"
-                          : "bg-[#f8f9ff] border-transparent hover:bg-[#eff4ff]"
-                      }`}
+                      onClick={handleCreateNewNote}
+                      className="px-4 py-2 bg-[#9d4300] text-white rounded-full text-xs font-extrabold hover:bg-[#833800] transition cursor-pointer shadow-xs inline-block"
                     >
-                      <span className="text-[11px] font-bold text-[#8127cf]">{item.unit}</span>
-                      <span className="text-sm font-extrabold text-[#0b1c30]">{item.name}</span>
+                      ➕ أضف أول ملاحظة جديدة
                     </button>
-                  );
-                })}
+                  </div>
+                ) : (
+                  notes.map((item) => {
+                    const isSelected = selectedNoteId === item.id || noteTitle === item.lessonTitle;
+                    return (
+                      <div
+                        key={item.id}
+                        onClick={() => {
+                          setSelectedNoteId(item.id);
+                          setNoteTitle(item.lessonTitle);
+                          setNoteContent(item.content);
+                        }}
+                        className={`w-full text-right p-4 rounded-2xl flex items-center justify-between gap-3 transition-all cursor-pointer border ${
+                          isSelected
+                            ? "bg-[#fffaf7] border-r-4 border-r-[#8127cf] border-[#e0c0b1]/60 shadow-xs"
+                            : "bg-[#f8f9ff] border-transparent hover:bg-[#eff4ff]"
+                        }`}
+                      >
+                        <div className="space-y-0.5 overflow-hidden flex-grow">
+                          <span className="text-[10px] font-bold text-[#8127cf] block">{item.date || "اليوم"}</span>
+                          <span className="text-sm font-extrabold text-[#0b1c30] truncate block">{item.lessonTitle}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={(e) => handleDeleteNotebookNote(item.id, e)}
+                          className="p-1.5 text-rose-600 hover:bg-rose-100/80 rounded-full transition cursor-pointer flex-shrink-0"
+                          title="حذف الملاحظة"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    );
+                  })
+                )}
               </div>
 
               <div className="pt-4 border-t border-[#e0c0b1]/30 space-y-3">
                 <div className="flex items-center gap-2 text-xs font-bold text-[#584237]/70">
                   <Clock className="h-3.5 w-3.5" />
-                  <span>تم التزامن الذاتي منذ دقيقتين</span>
+                  <span>تم التزامن الذاتي للملاحظات</span>
                 </div>
                 <div className="bg-[#fffaf7] rounded-2xl p-4 border border-[#ffdbca] text-xs font-semibold text-[#584237] leading-relaxed">
                   "العلم صيد والكتابة قيده، قيد صيودك بالحبال الواثقة 📜"
@@ -898,7 +952,7 @@ export function InteractiveExamsView({
                   </div>
                   <div>
                     <h2 className="text-lg font-extrabold text-[#0b1c30]">دفتر الملاحظات والفوائد</h2>
-                    <p className="text-xs font-bold text-[#8127cf]">{selectedNotebookSubject} - الدرس الحالي</p>
+                    <p className="text-xs font-bold text-[#8127cf]">{noteTitle || "ملاحظة جديدة"}</p>
                   </div>
                 </div>
 
@@ -925,6 +979,14 @@ export function InteractiveExamsView({
                 </div>
 
                 <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={handleCreateNewNote}
+                    className="px-4 py-2.5 rounded-full bg-[#eff4ff] text-[#9d4300] font-extrabold text-xs hover:bg-[#dce9ff] transition cursor-pointer border border-[#e0c0b1]/40 flex items-center gap-1.5"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    <span>ملاحظة جديدة</span>
+                  </button>
                   <button
                     type="button"
                     onClick={handleSaveNote}
