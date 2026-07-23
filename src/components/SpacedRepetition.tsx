@@ -68,8 +68,8 @@ export function SpacedRepetitionView() {
 
   const [activeTab, setActiveTab] = useState<"review" | "problems">("review");
 
-  // Saved lessons from library + static defaults
-  const [libraryLessons, setLibraryLessons] = useState<SavedLesson[]>([]);
+  const [filterSubjectId, setFilterSubjectId] = useState<string | null>(null);
+  const [filterSubjectName, setFilterSubjectName] = useState<string | null>(null);
 
   useEffect(() => {
     const stored = getStoredSmartCards();
@@ -79,6 +79,18 @@ export function SpacedRepetitionView() {
     if (savedDate) setExamDateState(savedDate);
     const lib = getLibrary();
     setLibraryLessons(lib);
+
+    try {
+      const subId = sessionStorage.getItem("nafath.spacedRepetition.filterSubjectId");
+      const subName = sessionStorage.getItem("nafath.spacedRepetition.filterSubjectName");
+      if (subId || subName) {
+        setFilterSubjectId(subId);
+        setFilterSubjectName(subName);
+      } else {
+        setFilterSubjectId(null);
+        setFilterSubjectName(null);
+      }
+    } catch {}
 
     // Auto-start from home flashcard picker
     try {
@@ -92,39 +104,47 @@ export function SpacedRepetitionView() {
     } catch {}
   }, []);
 
-  // Built-in Lessons List
+  const handleClearSubjectFilter = () => {
+    setFilterSubjectId(null);
+    setFilterSubjectName(null);
+    try {
+      sessionStorage.removeItem("nafath.spacedRepetition.filterSubjectId");
+      sessionStorage.removeItem("nafath.spacedRepetition.filterSubjectName");
+    } catch {}
+  };
+
+  // Filtered Lessons List by Subject
   const availableLessons = useMemo(() => {
-    const list: { id: string; title: string; subtitle: string; icon: string; data: Lesson }[] = [
-      {
-        id: "khul",
-        title: khulLesson.title,
-        subtitle: "فقه الخُلع الشافعي — 4 كتل فقهية • 10 مصطلحات",
-        icon: "⚖️",
-        data: khulLesson,
-      },
-      {
-        id: "photosynthesis",
-        title: defaultLesson.title,
-        subtitle: "أحياء — 3 كتل علمية • البناء الضوئي",
-        icon: "🌿",
-        data: defaultLesson,
-      },
-    ];
+    let filtered = libraryLessons;
 
-    libraryLessons.forEach((saved) => {
-      if (saved.data && !list.some((l) => l.title === saved.title)) {
-        list.push({
-          id: saved.id,
-          title: saved.title,
-          subtitle: `درس مخصص من المكتبة — ${saved.blocks} كتل`,
-          icon: "📚",
-          data: saved.data,
-        });
-      }
-    });
+    if (filterSubjectId || filterSubjectName) {
+      filtered = filtered.filter((saved) => {
+        const titleLower = (saved.title || "").toLowerCase();
+        const subIdLower = (saved.subjectId || "").toLowerCase();
 
-    return list;
-  }, [libraryLessons]);
+        if (filterSubjectId && (subIdLower === filterSubjectId.toLowerCase() || filterSubjectId.toLowerCase().includes(subIdLower))) {
+          return true;
+        }
+
+        if (filterSubjectName) {
+          const sNameLower = filterSubjectName.toLowerCase();
+          if (titleLower.includes(sNameLower) || sNameLower.includes(titleLower)) return true;
+          if (sNameLower.includes("فقه") && (subIdLower === "fiqh" || titleLower.includes("خُلع") || titleLower.includes("خلع"))) return true;
+          if (sNameLower.includes("أحياء") && titleLower.includes("بناء ضوئي")) return true;
+        }
+
+        return false;
+      });
+    }
+
+    return filtered.map((saved) => ({
+      id: saved.id,
+      title: saved.title,
+      subtitle: `درس من المكتبة — ${saved.blocks || 0} كتل`,
+      icon: saved.title.includes("فقه") || saved.title.includes("خُلع") ? "⚖️" : saved.title.includes("بناء") || saved.title.includes("أحياء") ? "🌿" : "📚",
+      data: saved.data,
+    }));
+  }, [libraryLessons, filterSubjectId, filterSubjectName]);
 
   // Filtered Cards to Review — always generate fresh from the selected lesson data
   const currentStudyCards = useMemo(() => {
@@ -331,14 +351,6 @@ export function SpacedRepetitionView() {
           {/* Action Bar */}
           <section className="flex flex-wrap gap-4 justify-center">
             <button
-              onClick={() => navigate({ to: "/interactive-exams" })}
-              className="flex items-center gap-3 px-8 py-4 bg-[#9d4300] hover:bg-[#833800] text-white rounded-full font-extrabold text-sm transition-all shadow-lg shadow-[#9d4300]/20 cursor-pointer"
-            >
-              <GraduationCap className="h-5 w-5" />
-              <span>نظام الاختبارات وبنك الأسئلة</span>
-            </button>
-
-            <button
               onClick={() => setShowCSVModal(true)}
               className="flex items-center gap-3 px-6 py-4 bg-white border border-[#e0c0b1] text-[#584237] hover:bg-[#eff4ff] rounded-full font-bold text-sm transition-all cursor-pointer shadow-xs"
             >
@@ -346,6 +358,22 @@ export function SpacedRepetitionView() {
               <span>استرداد بـ CSV</span>
             </button>
           </section>
+
+          {/* Active Subject Filter Bar */}
+          {filterSubjectName && (
+            <div className="flex items-center justify-between p-4 rounded-2xl bg-[#eff4ff] border border-[#9d4300]/30 text-right">
+              <span className="text-sm font-bold text-[#0b1c30]">
+                📌 تصفية بطاقات التكرار المتباعد لمادة: <span className="text-[#9d4300] font-extrabold">{filterSubjectName}</span>
+              </span>
+              <button
+                type="button"
+                onClick={handleClearSubjectFilter}
+                className="text-xs font-bold text-[#9d4300] hover:underline cursor-pointer bg-white px-3 py-1.5 rounded-full border border-[#e0c0b1]"
+              >
+                عرض بطاقات كافة المواد 🌐
+              </button>
+            </div>
+          )}
 
           {/* Subject Selection Grid */}
           <section className="space-y-6">

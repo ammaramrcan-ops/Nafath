@@ -80,7 +80,16 @@ export function updateLessonSubject(lessonId: string, subjectId: string) {
   writeLibrary(updated);
 }
 
-export function deleteFromLibrary(id: string) {
-  const lib = readLibrary().filter((l) => l.id !== id);
+export function deleteFromLibrary(idOrTitle: string) {
+  if (typeof window === "undefined" || !idOrTitle) return;
+  const target = idOrTitle.trim().toLowerCase();
+  const lib = readLibrary().filter((l) => {
+    const lId = (l.id || "").trim().toLowerCase();
+    const lTitle = (l.title || "").trim().toLowerCase();
+    if (lId === target) return false;
+    if (lTitle === target) return false;
+    if (target.length > 3 && (lTitle.includes(target) || target.includes(lTitle))) return false;
+    return true;
+  });
   writeLibrary(lib);
 }

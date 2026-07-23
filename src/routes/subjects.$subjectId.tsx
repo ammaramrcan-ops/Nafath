@@ -248,7 +248,11 @@ function SubjectPage() {
           </button>
 
           <button
-            onClick={() => navigate({ to: "/spaced-repetition" })}
+            onClick={() => {
+              sessionStorage.setItem("nafath.spacedRepetition.filterSubjectId", subject.id);
+              sessionStorage.setItem("nafath.spacedRepetition.filterSubjectName", subject.name);
+              navigate({ to: "/spaced-repetition" });
+            }}
             className="group p-7 bg-white border border-[#e0c0b1]/40 rounded-3xl text-right transition-all hover:shadow-lg hover:border-[#5c5f61] cursor-pointer flex flex-col justify-between"
           >
             <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center text-[#5c5f61] mb-5 transition-transform group-hover:scale-110">

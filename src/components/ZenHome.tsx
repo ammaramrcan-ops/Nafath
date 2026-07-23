@@ -410,7 +410,11 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
 
             {/* Flashcard Stats — reads real data from spaced repetition */}
             <div
-              onClick={() => navigate({ to: "/spaced-repetition" })}
+              onClick={() => {
+                sessionStorage.removeItem("nafath.spacedRepetition.filterSubjectId");
+                sessionStorage.removeItem("nafath.spacedRepetition.filterSubjectName");
+                navigate({ to: "/spaced-repetition" });
+              }}
               className="bg-[#eff4ff] rounded-2xl p-7 flex flex-col justify-between cursor-pointer hover:bg-[#dce9ff] transition-colors"
             >
               <span className="text-sm font-bold text-[#584237] mb-2">إحصائيات الفلاش كارد</span>
