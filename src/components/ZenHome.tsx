@@ -166,12 +166,6 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
               الرئيسية
             </button>
             <button
-              onClick={() => navigate({ to: "/curriculum-tracker" })}
-              className="text-sm font-extrabold text-[#9d4300] bg-[#ffdbca]/50 hover:bg-[#ffdbca] px-4 py-2 rounded-full transition-all cursor-pointer flex items-center gap-1.5 shadow-xs"
-            >
-              <span>المهام والدروس 📋</span>
-            </button>
-            <button
               onClick={() => navigate({ to: "/subjects" })}
               className="text-base font-semibold text-[#584237] hover:text-[#9d4300] transition-colors cursor-pointer"
             >

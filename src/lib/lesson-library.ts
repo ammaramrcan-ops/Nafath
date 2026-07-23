@@ -15,14 +15,9 @@ function readLibrary(): SavedLesson[] {
   if (typeof window === "undefined") return [];
   try {
     const raw = localStorage.getItem(LIBRARY_KEY);
-    let parsed: SavedLesson[] = raw ? JSON.parse(raw) : [];
 
-    // Ensure khulLesson is always present in library
-    const hasKhul = parsed.some(
-      (entry) => entry.title === khulLesson.title || entry.id === "lesson-khul"
-    );
-
-    if (!hasKhul) {
+    // Initial first-time load only
+    if (raw === null) {
       const khulEntry: SavedLesson = {
         id: "lesson-khul",
         title: khulLesson.title,
@@ -31,25 +26,18 @@ function readLibrary(): SavedLesson[] {
         data: khulLesson,
         subjectId: "fiqh",
       };
-      parsed = [khulEntry, ...parsed];
-      localStorage.setItem(LIBRARY_KEY, JSON.stringify(parsed));
+      const initial = [khulEntry];
+      localStorage.setItem(LIBRARY_KEY, JSON.stringify(initial));
+      return initial;
     }
 
+    const parsed: SavedLesson[] = JSON.parse(raw);
     return parsed.map((entry) => ({
       ...entry,
       data: normalizeLesson(entry.data),
     }));
   } catch {
-    return [
-      {
-        id: "lesson-khul",
-        title: khulLesson.title,
-        savedAt: new Date().toISOString(),
-        blocks: khulLesson.blocks.length,
-        data: khulLesson,
-        subjectId: "fiqh",
-      },
-    ];
+    return [];
   }
 }
 

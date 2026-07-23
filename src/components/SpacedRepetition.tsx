@@ -23,6 +23,7 @@ import {
   Gavel,
   Scissors,
   Pencil,
+  Trash2,
 } from "lucide-react";
 import {
   getDailyStreak,
@@ -35,7 +36,7 @@ import {
   type SmartFlashcard,
 } from "@/lib/spaced-repetition";
 import { defaultLesson, khulLesson, type Lesson } from "@/lib/lesson-data";
-import { getLibrary, type SavedLesson } from "@/lib/lesson-library";
+import { getLibrary, deleteFromLibrary, type SavedLesson } from "@/lib/lesson-library";
 import { generateSmartCardsFromLesson } from "@/lib/auto-flashcards";
 import { SmartFlashcardCard } from "./SmartFlashcardCard";
 import { useNavigate } from "@tanstack/react-router";
@@ -368,23 +369,38 @@ export function SpacedRepetitionView() {
                     <div className="flex-grow space-y-1.5">
                       <div className="flex items-center justify-between">
                         <h3 className="text-lg font-extrabold text-[#0b1c30]">{lesson.title}</h3>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            const cardsForLesson = generateSmartCardsFromLesson(lesson.data);
-                            setSelectedLessonForManagement({
-                              id: lesson.id,
-                              title: lesson.title,
-                              cards: cardsForLesson,
-                            });
-                          }}
-                          className="p-2 rounded-xl text-[#584237]/70 hover:text-[#9d4300] hover:bg-[#eff4ff] transition cursor-pointer flex items-center gap-1 border border-transparent hover:border-[#e0c0b1]/40"
-                          title="تعديل بطاقات هذا الدرس"
-                        >
-                          <Pencil className="h-4 w-4 text-[#9d4300]" />
-                          <span className="text-[11px] font-bold hidden sm:inline-block">تعديل</span>
-                        </button>
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const cardsForLesson = generateSmartCardsFromLesson(lesson.data);
+                              setSelectedLessonForManagement({
+                                id: lesson.id,
+                                title: lesson.title,
+                                cards: cardsForLesson,
+                              });
+                            }}
+                            className="p-2 rounded-xl text-[#584237]/70 hover:text-[#9d4300] hover:bg-[#eff4ff] transition cursor-pointer flex items-center gap-1 border border-transparent hover:border-[#e0c0b1]/40"
+                            title="تعديل بطاقات هذا الدرس"
+                          >
+                            <Pencil className="h-4 w-4 text-[#9d4300]" />
+                            <span className="text-[11px] font-bold hidden sm:inline-block">تعديل</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteFromLibrary(lesson.id);
+                              setLibraryLessons(getLibrary());
+                            }}
+                            className="p-2 rounded-xl text-rose-600 hover:bg-rose-50 transition cursor-pointer flex items-center gap-1 border border-transparent hover:border-rose-200"
+                            title="حذف الدرس"
+                          >
+                            <Trash2 className="h-4 w-4 text-rose-600" />
+                            <span className="text-[11px] font-bold hidden sm:inline-block">حذف</span>
+                          </button>
+                        </div>
                       </div>
                       <p className="text-xs font-semibold text-[#584237]/80">{lesson.subtitle}</p>
                       <button

@@ -304,22 +304,28 @@ export function saveStoredSmartCards(cards: SmartFlashcard[]) {
 }
 
 export function getDailyStreak(): number {
-  if (typeof window === "undefined") return 5;
+  if (typeof window === "undefined") return 0;
   try {
     const raw = localStorage.getItem(STREAK_KEY);
-    return raw ? parseInt(raw, 10) : 5;
+    return raw ? parseInt(raw, 10) : 0;
   } catch {
-    return 5;
+    return 0;
   }
 }
 
 export function incrementDailyStreak(): number {
   const current = getDailyStreak();
-  const next = current + 1;
+  const next = Math.max(1, current + 1);
   if (typeof window !== "undefined") {
     localStorage.setItem(STREAK_KEY, next.toString());
   }
   return next;
+}
+
+export function deleteSmartCard(cardId: string) {
+  if (typeof window === "undefined") return;
+  const cards = getStoredSmartCards().filter((c) => c.id !== cardId);
+  saveStoredSmartCards(cards);
 }
 
 export function getExamDate(): string | null {

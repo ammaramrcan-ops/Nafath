@@ -245,13 +245,6 @@ function TeacherPage() {
 
           <div className="flex items-center gap-3">
             <button
-              onClick={() => navigate({ to: "/curriculum-tracker" })}
-              className="inline-flex items-center gap-2 rounded-full bg-[#eff4ff] hover:bg-[#dce9ff] px-4 py-3 text-xs sm:text-sm font-extrabold text-[#9d4300] border border-[#e0c0b1]/50 shadow-xs transition cursor-pointer"
-            >
-              <span>المهام والدروس 📋</span>
-            </button>
-
-            <button
               onClick={handlePreviewStudent}
               className="inline-flex items-center gap-2 rounded-full bg-[#9d4300] hover:bg-[#833800] px-5 py-3 text-xs sm:text-sm font-extrabold text-white shadow-md transition cursor-pointer"
             >

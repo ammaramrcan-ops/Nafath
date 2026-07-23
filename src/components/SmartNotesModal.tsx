@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { BookMarked, Trash2, Plus, Sparkles, X, FileText } from "lucide-react";
+import { BookMarked, Trash2, Plus, Sparkles, X, FileText, Trash } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { getLessonNotes, saveSmartNote, deleteSmartNote, type SmartNote } from "@/lib/smart-notes";
+import { getLessonNotes, saveSmartNote, deleteSmartNote, clearAllLessonNotes, type SmartNote } from "@/lib/smart-notes";
 import { toast } from "sonner";
 
 export function SmartNotesModal({
@@ -50,6 +50,12 @@ export function SmartNotesModal({
     const updated = deleteSmartNote(lessonTitle, id);
     setNotes(updated);
     toast.info("تم حذف الملاحظة");
+  };
+
+  const handleClearAll = () => {
+    const updated = clearAllLessonNotes(lessonTitle);
+    setNotes(updated);
+    toast.info("تم مسح كافة ملاحظات هذا الدرس 🗑️");
   };
 
   return (
@@ -124,10 +130,22 @@ export function SmartNotesModal({
 
           {/* Notes List */}
           <div className="space-y-3">
-            <h4 className="text-xs font-bold text-zen-on-surface-variant flex items-center gap-1.5">
-              <FileText className="h-4 w-4 text-amber-600" />
-              الملاحظات المسجلة في هذا الدرس ({notes.length}):
-            </h4>
+            <div className="flex items-center justify-between">
+              <h4 className="text-xs font-bold text-zen-on-surface-variant flex items-center gap-1.5">
+                <FileText className="h-4 w-4 text-amber-600" />
+                الملاحظات المسجلة في هذا الدرس ({notes.length}):
+              </h4>
+              {notes.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleClearAll}
+                  className="text-[11px] font-bold text-rose-600 hover:underline cursor-pointer flex items-center gap-1"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                  <span>مسح كراسة الملاحظات بالكامل 🗑️</span>
+                </button>
+              )}
+            </div>
 
             {notes.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-zen-surface-container bg-zen-surface-low p-8 text-center space-y-2">

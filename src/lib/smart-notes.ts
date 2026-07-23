@@ -38,7 +38,7 @@ export function saveSmartNote(note: Omit<SmartNote, "id" | "createdAt">): SmartN
 
 export function deleteSmartNote(lessonTitle: string, noteId: string): SmartNote[] {
   const existing = getLessonNotes(lessonTitle);
-  const updated = existing.filter((n) => n.id !== noteId);
+  const updated = existing.filter((n) => String(n.id).trim() !== String(noteId).trim());
   try {
     const key = `nafath_smart_notes_${lessonTitle.trim()}`;
     localStorage.setItem(key, JSON.stringify(updated));
@@ -46,4 +46,14 @@ export function deleteSmartNote(lessonTitle: string, noteId: string): SmartNote[
     /* ignore */
   }
   return updated;
+}
+
+export function clearAllLessonNotes(lessonTitle: string): SmartNote[] {
+  try {
+    const key = `nafath_smart_notes_${lessonTitle.trim()}`;
+    localStorage.removeItem(key);
+  } catch {
+    /* ignore */
+  }
+  return [];
 }
