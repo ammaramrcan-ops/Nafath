@@ -216,7 +216,11 @@ function TeacherPage() {
       saveToLibrary(lesson);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(lesson));
       localStorage.setItem("nafath.openLesson", JSON.stringify(lesson));
-      navigate({ to: "/" });
+      sessionStorage.setItem("nafath.openLesson", JSON.stringify(lesson));
+      toast.success("جاري فتح تجربة الطالب للدرس الحالية... 🎓");
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 300);
     } catch {
       /* ignore */
     }

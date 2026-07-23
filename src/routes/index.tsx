@@ -24,9 +24,10 @@ function Index() {
   // Pick up a lesson opened from the unit page via localStorage handoff.
   useEffect(() => {
     try {
-      const raw = localStorage.getItem("nafath.openLesson");
+      const raw = localStorage.getItem("nafath.openLesson") || sessionStorage.getItem("nafath.openLesson");
       if (raw) {
         localStorage.removeItem("nafath.openLesson");
+        sessionStorage.removeItem("nafath.openLesson");
         const parsed = JSON.parse(raw);
         setLesson(normalizeLesson(parsed));
       }

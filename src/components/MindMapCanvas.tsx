@@ -572,8 +572,12 @@ export function MindMapCanvas({
               (n) => n.parentId === node.id || (n.parentIds && n.parentIds.includes(node.id))
             ).length;
 
-            const width = node.width || 200;
-            const height = node.height || 70;
+            const textLen = node.text?.length || 10;
+            const autoWidth = Math.max(160, Math.min(360, textLen * 9 + 45));
+            const autoHeight = Math.max(55, Math.min(130, Math.ceil(textLen / 22) * 26 + 32));
+
+            const width = node.width || autoWidth;
+            const height = node.height || autoHeight;
 
             const shapeStyle =
               node.shape === "circle"
@@ -595,6 +599,11 @@ export function MindMapCanvas({
                   } else {
                     handleNodeMouseDown(e, node.id);
                   }
+                }}
+                onDoubleClick={(e) => {
+                  e.stopPropagation();
+                  setEditingNodeId(node.id);
+                  setEditingText(node.text);
                 }}
                 className={`mind-node absolute transition-all duration-75 cursor-grab active:cursor-grabbing border-2 font-bold text-sm flex items-center justify-center p-4 text-center shadow-xl select-none group z-10 ${shapeStyle} ${
                   isSelected ? "ring-4 ring-amber-400 ring-offset-4 ring-offset-slate-900 scale-105" : "hover:scale-102"
@@ -652,12 +661,13 @@ export function MindMapCanvas({
                 <Move className="absolute top-1.5 right-2 h-3 w-3 opacity-0 group-hover:opacity-40 text-slate-700 transition" />
 
                 {isEditing ? (
-                  <div className="flex items-center gap-1 w-full z-20">
+                  <div className="flex items-center gap-1 w-full z-20" onClick={(e) => e.stopPropagation()}>
                     <input
                       type="text"
                       value={editingText}
                       onChange={(e) => setEditingText(e.target.value)}
                       onKeyDown={(e) => e.key === "Enter" && handleSaveTextEdit(node.id)}
+                      onBlur={() => handleSaveTextEdit(node.id)}
                       className="w-full bg-white px-2 py-1 rounded text-xs text-slate-900 border outline-none font-bold text-center"
                       autoFocus
                     />
@@ -670,7 +680,7 @@ export function MindMapCanvas({
                     </button>
                   </div>
                 ) : (
-                  <p className="leading-snug font-extrabold">{node.text}</p>
+                  <p className="leading-snug font-extrabold" title="انقر مرتين للتعديل المباشر">{node.text}</p>
                 )}
               </div>
             );
@@ -730,6 +740,48 @@ export function MindMapCanvas({
                   placeholder="أدخل عنوان العقدة هنا..."
                   className="w-full bg-[#eff4ff] border border-[#e0c0b1]/40 rounded-2xl px-4 py-2.5 text-sm font-bold text-[#0b1c30] focus:outline-none focus:ring-2 focus:ring-[#9d4300] transition"
                 />
+              </div>
+
+              {/* Node Size Controls */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-[#584237] flex items-center gap-1">
+                    <Scaling className="w-3.5 h-3.5 text-[#9d4300]" />
+                    <span>حجم العقدة</span>
+                  </label>
+                  <span className="text-[10px] font-extrabold text-[#9d4300] bg-[#ffdbca] px-2 py-0.5 rounded-full">
+                    {selectedNode.width || 200}x{selectedNode.height || 70}px
+                  </span>
+                </div>
+                <div className="grid grid-cols-4 gap-1.5 bg-[#eff4ff] p-1.5 rounded-2xl border border-[#e0c0b1]/30">
+                  {[
+                    { label: "صغير", w: 150, h: 55 },
+                    { label: "متوسط", w: 200, h: 70 },
+                    { label: "كبير", w: 260, h: 85 },
+                    { label: "ضخم", w: 320, h: 105 },
+                  ].map((sizeOpt, idx) => {
+                    const isActive = (selectedNode.width || 200) === sizeOpt.w;
+                    return (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => {
+                          const updated = nodes.map((n) =>
+                            n.id === selectedNode.id ? { ...n, width: sizeOpt.w, height: sizeOpt.h } : n
+                          );
+                          updateNodesAndSave(updated);
+                        }}
+                        className={`py-1.5 rounded-xl text-xs font-extrabold transition cursor-pointer ${
+                          isActive
+                            ? "bg-[#9d4300] text-white shadow-xs"
+                            : "text-[#584237] hover:bg-black/5"
+                        }`}
+                      >
+                        {sizeOpt.label}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
               {/* Quick Actions Grid (4 Actions) */}

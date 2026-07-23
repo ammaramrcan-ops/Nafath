@@ -165,43 +165,56 @@ export function parseBlockMindMap(block: { id?: string | number; title?: string;
     return createEmptySubjectMindMap(blockTitle);
   }
 
-  const radius = 220;
   const nodes: MindMapNode[] = [
     {
       id: rootId,
       text: blockTitle,
-      shape: "circle",
-      x: 420,
-      y: 220,
-      width: 160,
-      height: 160,
-      backgroundColor: "#213145",
-      textColor: "#ffffff",
-      borderColor: "#9d4300",
-      lineColor: "#9d4300",
-      lineThickness: 4,
+      shape: "rectangle",
+      x: 650,
+      y: 250,
+      width: 210,
+      height: 75,
+      backgroundColor: "#FEF3C7",
+      textColor: "#78350F",
+      borderColor: "#F59E0B",
+      lineColor: "#F59E0B",
+      lineThickness: 5,
       lineStyle: "solid",
     },
   ];
 
+  const colors = [
+    { bg: "#E0E7FF", text: "#1E1B4B", border: "#6366F1" },
+    { bg: "#DCFCE7", text: "#064E3B", border: "#10B981" },
+    { bg: "#F3E8FF", text: "#581C87", border: "#A855F7" },
+    { bg: "#FFE4E6", text: "#881337", border: "#F43F5E" },
+  ];
+
+  const total = nodeStrings.length;
+  const startY = 80;
+  const gapY = total > 1 ? Math.min(140, Math.max(80, 500 / total)) : 140;
+
   nodeStrings.forEach((label, i) => {
-    const angle = (i / nodeStrings.length) * 2 * Math.PI - Math.PI / 2;
-    const x = Math.round(420 + Math.cos(angle) * radius);
-    const y = Math.round(220 + Math.sin(angle) * radius);
+    const y = startY + i * gapY;
+    const isSub = label.includes(":") || label.includes("-") || label.includes("•");
+    const parentId = isSub && i > 0 ? `node_${i - 1}_${blockId}` : rootId;
+    const x = parentId === rootId ? 360 : 60;
+    const color = colors[i % colors.length];
+
     nodes.push({
       id: `node_${i}_${blockId}`,
-      parentId: rootId,
+      parentId,
       text: label,
-      shape: "rounded-square",
+      shape: isSub ? "pill" : "rounded-square",
       x,
       y,
-      width: 150,
-      height: 64,
-      backgroundColor: "#ffffff",
-      textColor: "#0b1c30",
-      borderColor: "#e0c0b1",
-      lineColor: "#9d4300",
-      lineThickness: 3,
+      width: isSub ? 230 : 190,
+      height: 65,
+      backgroundColor: color.bg,
+      textColor: color.text,
+      borderColor: color.border,
+      lineColor: color.border,
+      lineThickness: 4,
       lineStyle: "solid",
     });
   });
