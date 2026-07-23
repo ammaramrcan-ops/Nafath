@@ -762,6 +762,24 @@ export function parseLessonJson(input: string): Lesson {
       blocks: data,
     });
   }
-  if (!data.blocks) throw new Error("صيغة غير صالحة: blocks مفقود");
+
+  const rawBlocks = Array.isArray(data.blocks)
+    ? data.blocks
+    : Array.isArray(data.sections)
+    ? data.sections
+    : Array.isArray(data.units)
+    ? data.units
+    : null;
+
+  if (!rawBlocks) {
+    if (data.story || data.full_text || data.title || data.lesson_title) {
+      return normalizeLesson({
+        title: data.title || data.lesson_title || "درس مخصص",
+        blocks: [data],
+      });
+    }
+    throw new Error("صيغة غير صالحة: قائمة الفقرات (blocks أو sections) مفقودة في ملف JSON");
+  }
+
   return normalizeLesson(data);
 }
