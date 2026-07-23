@@ -487,6 +487,13 @@ export function MindMapCanvas({
               let endY: number;
               let pathD: string;
 
+              // Distribute handle connection Y offset evenly along parent edge to prevent overlapping line bundles
+              const siblings = visibleNodes.filter(n => n.parentId === parentId || (n.parentIds && n.parentIds.includes(parentId)));
+              const siblingIdx = siblings.findIndex(s => s.id === childId);
+              const siblingCount = Math.max(1, siblings.length);
+              const yPortion = siblingCount > 1 ? (siblingIdx + 0.5) / siblingCount : 0.5;
+              const distributedStartY = parent.y + pH * 0.15 + pH * 0.7 * yPortion + 2000;
+
               // Smart 4-Way Handle Connection (Vertical vs Horizontal)
               if (Math.abs(deltaY) > Math.abs(deltaX) * 0.8) {
                 if (deltaY > 0) {
@@ -513,7 +520,7 @@ export function MindMapCanvas({
                 if (deltaX < 0) {
                   // Child is to the LEFT of parent
                   startX = parent.x + 2000;
-                  startY = parentCenterY + 2000;
+                  startY = distributedStartY;
                   endX = child.x + cW + 2000;
                   endY = childCenterY + 2000;
 
@@ -522,7 +529,7 @@ export function MindMapCanvas({
                 } else {
                   // Child is to the RIGHT of parent
                   startX = parent.x + pW + 2000;
-                  startY = parentCenterY + 2000;
+                  startY = distributedStartY;
                   endX = child.x + 2000;
                   endY = childCenterY + 2000;
 

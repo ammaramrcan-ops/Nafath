@@ -122,7 +122,8 @@ export function parseBlockMindMap(block: { id?: string | number; title?: string;
   const blockId = block.id ?? "default";
 
   if (block.mind_map_nodes && block.mind_map_nodes.length > 0) {
-    const first = block.mind_map_nodes[0];
+    const rawNodes = block.mind_map_nodes;
+    const first = rawNodes[0];
 
     // Check if first element is a MindMapData object with valid nodes
     if (first && typeof first === "object") {
@@ -131,14 +132,71 @@ export function parseBlockMindMap(block: { id?: string | number; title?: string;
       }
     }
 
-    // Check if first element is a JSON string of a MindMapData object
-    if (typeof first === "string" && first.trim().startsWith("{")) {
-      try {
-        const parsed = JSON.parse(first);
-        if (parsed && typeof parsed === "object" && Array.isArray(parsed.nodes) && parsed.nodes.length > 0) {
-          return parsed as MindMapData;
-        }
-      } catch {}
+    // Check if rawNodes is an array of node objects with id & text & parentId
+    if (Array.isArray(rawNodes) && typeof first === "object" && first.id && (first.text || first.title)) {
+      const palette = [
+        { bg: "#FEF3C7", text: "#78350F", border: "#F59E0B" },
+        { bg: "#E0E7FF", text: "#1E1B4B", border: "#6366F1" },
+        { bg: "#DCFCE7", text: "#064E3B", border: "#10B981" },
+        { bg: "#F3E8FF", text: "#581C87", border: "#A855F7" },
+        { bg: "#FFE4E6", text: "#881337", border: "#F43F5E" },
+      ];
+
+      const nodesMap = new Map<string, any>();
+      rawNodes.forEach((n) => nodesMap.set(String(n.id), n));
+
+      const getDepth = (id: string, visited = new Set<string>()): number => {
+        if (visited.has(id)) return 0;
+        visited.add(id);
+        const node = nodesMap.get(id);
+        if (!node || !node.parentId || node.parentId === "null" || node.parentId === "root") return 0;
+        return 1 + getDepth(String(node.parentId), visited);
+      };
+
+      const depthGroups: Record<number, any[]> = {};
+      rawNodes.forEach((n) => {
+        const d = getDepth(String(n.id));
+        if (!depthGroups[d]) depthGroups[d] = [];
+        depthGroups[d].push(n);
+      });
+
+      const formattedNodes: MindMapNode[] = rawNodes.map((n, i) => {
+        const d = getDepth(String(n.id));
+        const group = depthGroups[d] || [];
+        const idxInGroup = group.findIndex((gn) => String(gn.id) === String(n.id));
+
+        const x = Math.max(60, 720 - d * 280);
+        const totalInGroup = group.length;
+        const startY = 70;
+        const gapY = totalInGroup > 1 ? Math.min(130, Math.max(75, 550 / totalInGroup)) : 130;
+        const y = startY + idxInGroup * gapY;
+
+        const color = palette[i % palette.length];
+
+        return {
+          id: String(n.id),
+          parentId: n.parentId ? String(n.parentId) : null,
+          text: n.text || n.title || "عقدة",
+          shape: d === 0 ? "rectangle" : d === 1 ? "rounded-square" : "pill",
+          x: typeof n.x === "number" ? n.x : x,
+          y: typeof n.y === "number" ? n.y : y,
+          width: n.width || (d === 0 ? 210 : d === 1 ? 190 : 230),
+          height: n.height || (d === 0 ? 75 : 65),
+          backgroundColor: n.backgroundColor || color.bg,
+          textColor: n.textColor || color.text,
+          borderColor: n.borderColor || color.border,
+          lineColor: n.lineColor || color.border,
+          lineThickness: n.lineThickness || (d === 0 ? 5 : 4),
+          lineStyle: n.lineStyle || "solid",
+        };
+      });
+
+      return {
+        id: `map_${blockId}`,
+        title: blockTitle,
+        rootId: formattedNodes[0]?.id || `root_${blockId}`,
+        nodes: formattedNodes,
+      };
     }
   }
 

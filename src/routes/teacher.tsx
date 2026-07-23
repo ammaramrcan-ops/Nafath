@@ -194,20 +194,37 @@ function TeacherPage() {
     }
     try {
       const data = JSON.parse(stepJsonInput);
-      let nodes = data.mind_map_nodes || data.nodes || data;
-      if (!Array.isArray(nodes) && typeof nodes === "object") {
-        nodes = [nodes];
+      const mindMapList = Array.isArray(data.mind_maps_by_block)
+        ? data.mind_maps_by_block
+        : Array.isArray(data.blocks)
+        ? data.blocks
+        : null;
+
+      if (mindMapList) {
+        const updatedBlocks = lesson.blocks.map((b, i) => {
+          const item = mindMapList[i] || mindMapList.find((m: any) => m.block_id === b.id) || mindMapList[0];
+          const nodes = item ? (item.mind_map_nodes || item.nodes || item) : b.mind_map_nodes;
+          return {
+            ...b,
+            mind_map_nodes: Array.isArray(nodes) ? nodes : [nodes],
+          };
+        });
+        updateLesson({ blocks: updatedBlocks });
+      } else {
+        let nodes = data.mind_map_nodes || data.nodes || data;
+        if (!Array.isArray(nodes) && typeof nodes === "object") {
+          nodes = [nodes];
+        }
+        const updatedBlocks = lesson.blocks.map((b) => ({
+          ...b,
+          mind_map_nodes: nodes,
+        }));
+        updateLesson({ blocks: updatedBlocks });
       }
 
-      const updatedBlocks = lesson.blocks.map((b) => ({
-        ...b,
-        mind_map_nodes: nodes,
-      }));
-
-      updateLesson({ blocks: updatedBlocks });
       setJsonStepModal(null);
       setStepJsonInput("");
-      toast.success("تم استيراد الخريطة الذهنية التفاعلية بنجاح! 🎨✨");
+      toast.success("تم استيراد الخريطة الذهنية المخصصة لكل فقرة بنجاح! 🎨✨");
     } catch {
       toast.error("كود JSON غير صالح لإنشاء الخريطة الذهنية.");
     }
