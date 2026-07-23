@@ -342,16 +342,20 @@ export function ParagraphBlockCard({
 
               <div className="space-y-4">
                 {block.hard_words && block.hard_words.length > 0 ? (
-                  block.hard_words.map((hw, i) => (
-                    <div key={i} className="rounded-2xl bg-amber-50/70 p-5 border border-amber-200/80 space-y-2 text-right">
-                      <span className="inline-block font-black text-amber-950 text-sm bg-amber-200 px-3.5 py-1 rounded-full border border-amber-300 shadow-xs">
-                        ({hw.word})
-                      </span>
-                      <p className="text-xs font-bold text-amber-950 leading-relaxed pt-1">
-                        👈 المعنى الشارح بالبلدي: {hw.meaning}
-                      </p>
-                    </div>
-                  ))
+                  block.hard_words.map((hw: any, i) => {
+                    const term = hw.word || hw.term || "";
+                    const meaning = hw.meaning || hw.definition || hw.explanation || "";
+                    return (
+                      <div key={i} className="rounded-2xl bg-amber-50/70 p-5 border border-amber-200/80 space-y-2 text-right">
+                        <span className="inline-block font-black text-amber-950 text-sm bg-amber-200 px-3.5 py-1 rounded-full border border-amber-300 shadow-xs">
+                          ({term})
+                        </span>
+                        <p className="text-xs font-bold text-amber-950 leading-relaxed pt-1">
+                          👈 المعنى الشارح بالبلدي: {meaning}
+                        </p>
+                      </div>
+                    );
+                  })
                 ) : (
                   <div className="rounded-2xl bg-amber-50/70 p-5 border border-amber-200/80 text-right space-y-2">
                     <span className="inline-block font-black text-amber-950 text-sm bg-amber-200 px-3.5 py-1 rounded-full border border-amber-300">

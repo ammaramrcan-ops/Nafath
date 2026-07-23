@@ -124,16 +124,27 @@ export function HardWordText({
   );
 }
 
+function getWordTerm(w: any): string {
+  return w?.word || w?.term || "";
+}
+
+function getWordMeaning(w: any): string {
+  return w?.meaning || w?.definition || w?.explanation || "";
+}
+
 function renderWords(textStr: string, words: HardWord[]) {
   if (!words || !words.length) return textStr;
 
-  const sorted = [...words].sort((a, b) => b.word.length - a.word.length);
-  const escaped = sorted.map((w) => w.word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const validWords = words.filter((w) => getWordTerm(w).trim().length > 0);
+  if (validWords.length === 0) return textStr;
+
+  const sorted = [...validWords].sort((a, b) => getWordTerm(b).length - getWordTerm(a).length);
+  const escaped = sorted.map((w) => getWordTerm(w).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
   const regex = new RegExp(`(${escaped.join("|")})`, "g");
   const parts = textStr.split(regex);
 
   return parts.map((part, i) => {
-    const match = words.find((w) => w.word === part);
+    const match = validWords.find((w) => getWordTerm(w) === part);
     if (!match) return part;
     return (
       <Tooltip key={i}>
@@ -143,7 +154,7 @@ function renderWords(textStr: string, words: HardWord[]) {
           </span>
         </TooltipTrigger>
         <TooltipContent side="top" className="max-w-xs rounded-2xl bg-zen-on-surface px-4 py-2.5 text-right text-white">
-          <p className="text-[13px] font-light leading-relaxed">{match.meaning}</p>
+          <p className="text-[13px] font-light leading-relaxed">{getWordMeaning(match)}</p>
         </TooltipContent>
       </Tooltip>
     );
