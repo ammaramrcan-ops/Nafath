@@ -18,6 +18,13 @@ import {
   RotateCcw,
 } from "lucide-react";
 
+import {
+  getCurriculum,
+  addSubject as addCurriculumSubject,
+  deleteSubject as deleteCurriculumSubject,
+} from "@/lib/curriculum";
+import { getLibrary } from "@/lib/lesson-library";
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface TrackedLesson {
   id: string;
@@ -43,10 +50,77 @@ const SUBJECT_ICONS = ["📖", "🔬", "🧠", "📐", "🌿", "⚖️", "🕌",
 
 function loadData(): TrackedSubject[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch {}
-  return [];
+    const raw = typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
+    const savedTracked: TrackedSubject[] = raw ? JSON.parse(raw) : [];
+
+    const curriculumSubjects = typeof window !== "undefined" ? getCurriculum().subjects : [];
+    const libraryLessons = typeof window !== "undefined" ? getLibrary() : [];
+
+    const result: TrackedSubject[] = [];
+    const processedSubjectIds = new Set<string>();
+
+    curriculumSubjects.forEach((sub, index) => {
+      processedSubjectIds.add(sub.id);
+
+      const matchingSaved = savedTracked.find(
+        (t) => t.id === sub.id || t.name.trim() === sub.name.trim()
+      );
+
+      const existingLessons = matchingSaved?.lessons || [];
+      const lessonTitlesSet = new Set(existingLessons.map((l) => l.title.trim()));
+      const mergedLessons: TrackedLesson[] = [...existingLessons];
+
+      sub.units.forEach((unit) => {
+        if (!lessonTitlesSet.has(unit.name.trim())) {
+          lessonTitlesSet.add(unit.name.trim());
+          mergedLessons.push({
+            id: unit.id || uid(),
+            title: unit.name,
+            done: false,
+          });
+        }
+      });
+
+      libraryLessons.forEach((libLesson) => {
+        const isMatch =
+          libLesson.subjectId === sub.id ||
+          (sub.name.includes("فقه") && libLesson.subjectId === "fiqh") ||
+          (sub.name.includes("فقه") && libLesson.title.includes("خُلع")) ||
+          sub.units.some((u) => u.lessonIds.includes(libLesson.id));
+
+        if (isMatch && !lessonTitlesSet.has(libLesson.title.trim())) {
+          lessonTitlesSet.add(libLesson.title.trim());
+          mergedLessons.push({
+            id: libLesson.id || uid(),
+            title: libLesson.title,
+            done: false,
+          });
+        }
+      });
+
+      result.push({
+        id: sub.id,
+        name: sub.name,
+        color: matchingSaved?.color || SUBJECT_COLORS[index % SUBJECT_COLORS.length],
+        icon: sub.emoji || matchingSaved?.icon || SUBJECT_ICONS[index % SUBJECT_ICONS.length],
+        lessons: mergedLessons,
+        expanded: matchingSaved?.expanded ?? true,
+      });
+    });
+
+    savedTracked.forEach((saved) => {
+      if (!processedSubjectIds.has(saved.id) && !result.some((r) => r.name.trim() === saved.name.trim())) {
+        result.push(saved);
+        try {
+          addCurriculumSubject(saved.name, "عامة", undefined, saved.icon);
+        } catch {}
+      }
+    });
+
+    return result;
+  } catch {
+    return [];
+  }
 }
 
 function saveData(data: TrackedSubject[]) {
@@ -118,8 +192,14 @@ export function CurriculumTrackerView() {
   // ── Subject actions ──
   function addSubject() {
     if (!newSubjectName.trim()) return;
+    let newId = uid();
+    try {
+      const added = addCurriculumSubject(newSubjectName.trim(), "عامة", undefined, newSubjectIcon);
+      newId = added.id;
+    } catch {}
+
     const s: TrackedSubject = {
-      id: uid(),
+      id: newId,
       name: newSubjectName.trim(),
       color: newSubjectColor,
       icon: newSubjectIcon,
@@ -132,6 +212,9 @@ export function CurriculumTrackerView() {
   }
 
   function deleteSubject(id: string) {
+    try {
+      deleteCurriculumSubject(id);
+    } catch {}
     persist(subjects.filter((s) => s.id !== id));
   }
 
