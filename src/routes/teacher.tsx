@@ -142,7 +142,7 @@ function TeacherPage() {
     return khulLesson;
   });
 
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0);
   const [selectedLevelFilter, setSelectedLevelFilter] = useState<
     1 | 2 | 3 | "all"
   >(1);
@@ -154,6 +154,13 @@ function TeacherPage() {
   const [jsonInput1, setJsonInput1] = useState("");
   const [jsonInput2, setJsonInput2] = useState("");
   const [jsonInput3, setJsonInput3] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.location.search.includes("import=true")) {
+      setWizardStep(1);
+      setShowImportModal(true);
+    }
+  }, []);
 
   const handleImportStepContent = (jsonStr: string) => {
     if (!jsonStr.trim()) {
@@ -374,26 +381,6 @@ function TeacherPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => {
-                setWizardStep(1);
-                setShowImportModal(true);
-              }}
-              className="inline-flex items-center gap-2 rounded-full bg-[#8127cf] hover:bg-[#6b1fb0] px-5 py-3 text-xs sm:text-sm font-extrabold text-white shadow-md transition cursor-pointer"
-            >
-              <Code2 className="h-4 w-4 text-white" />
-              <span>استيراد كود JSON عبر 3 خطوات 📥</span>
-            </button>
-
-            <button
-              onClick={handlePreviewStudent}
-              className="inline-flex items-center gap-2 rounded-full bg-[#9d4300] hover:bg-[#833800] px-5 py-3 text-xs sm:text-sm font-extrabold text-white shadow-md transition cursor-pointer"
-            >
-              <Eye className="h-4 w-4 text-white" />
-              <span>معاينة وتجربة الدرس كطالب 👁️</span>
-            </button>
-
             <button
               onClick={handleSaveToLibrary}
               className="inline-flex items-center gap-2 rounded-full bg-[#213145] hover:bg-[#0b1c30] px-7 py-3 text-xs sm:text-sm font-extrabold text-white shadow-md transition cursor-pointer"
@@ -685,6 +672,19 @@ function TeacherPage() {
 
         {/* Bento Step Tabs Navigation */}
         <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5 pb-2">
+          <button
+            onClick={() => setStep(0)}
+            className={cn(
+              "rounded-2xl px-6 py-3 text-xs sm:text-sm font-extrabold transition cursor-pointer flex items-center gap-2 shadow-xs",
+              step === 0
+                ? "bg-[#213145] text-white shadow-md"
+                : "bg-[#eaf1ff] text-[#584237] hover:bg-[#dce9ff]"
+            )}
+          >
+            <BookOpen className="h-4 w-4" />
+            <span>بيانات الدرس العامة والتسلسل الموحد</span>
+          </button>
+
           {lesson.blocks.map((b, i) => (
             <button
               key={b.id}
@@ -708,6 +708,62 @@ function TeacherPage() {
             <span>إضافة فقرة جديدة</span>
           </button>
         </div>
+
+        {/* STEP 0: Lesson Metadata Card */}
+        {step === 0 && (
+          <div className="max-w-4xl mx-auto space-y-8">
+            <div className="space-y-8 rounded-[2.5rem] bg-white p-8 sm:p-12 shadow-xs border border-[#e0c0b1]/50 text-center">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0b1c30]">
+                إعدادات وبيانات الدرس العامة
+              </h2>
+
+              <div className="space-y-6 text-right">
+                <Field label="عنوان الدرس الرئيسي">
+                  <Input
+                    value={lesson.title || "أحكام الخُلع في الفقه الإسلامي"}
+                    onChange={(e) => updateLesson({ title: e.target.value })}
+                    placeholder="مثال: أحكام الخلع في الفقه الإسلامي..."
+                    className="h-14 rounded-2xl border-none bg-[#eff4ff] text-center font-extrabold text-base sm:text-lg text-[#0b1c30] placeholder:text-slate-400 focus:ring-2 focus:ring-[#9d4300]"
+                  />
+                </Field>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <Field label="الزمن التقديري">
+                    <Input
+                      value={lesson.estimatedTime || "35 دقيقة"}
+                      onChange={(e) =>
+                        updateLesson({ estimatedTime: e.target.value })
+                      }
+                      placeholder="مثال: 35 دقيقة"
+                      className="h-14 rounded-2xl border-none bg-[#eff4ff] text-center font-bold text-sm text-[#0b1c30]"
+                    />
+                  </Field>
+                  <Field label="حجم المحتوى والمصطلحات">
+                    <Input
+                      value={lesson.size || "4 كتل فقهية - 10 مصطلحات شرعية"}
+                      onChange={(e) => updateLesson({ size: e.target.value })}
+                      placeholder="مثال: 4 كتل فقهية - 10 مصطلحات شرعية"
+                      className="h-14 rounded-2xl border-none bg-[#eff4ff] text-center font-bold text-sm text-[#0b1c30]"
+                    />
+                  </Field>
+                </div>
+
+                <Field
+                  label="رابط NotebookLM المساعد للدرس (NotebookLM URL)"
+                  hint="ضع رابط كشكول NotebookLM الخاص بالدرس لتمكين خيار 'لدي سؤال' للطالب لتوجيهه للأداة عند الاستفسار."
+                >
+                  <Input
+                    value={
+                      lesson.notebookLmUrl ||
+                      "https://notebooklm.google.com/..."
+                    }
+                    onChange={(e) =>
+                      updateLesson({ notebookLmUrl: e.target.value })
+                    }
+                    placeholder="https://notebooklm.google.com/notebook/..."
+                    className="h-14 rounded-2xl border-none bg-[#eff4ff] text-center font-semibold text-xs text-[#0b1c30] dir-ltr"
+                  />
+                </Field>
 
         {/* Level Selection Radio Pills & Modern Inline Stages Editor */}
         <div className="pt-6 border-t border-[#e0c0b1]/30 space-y-6 text-center">
@@ -771,6 +827,20 @@ function TeacherPage() {
             />
           </div>
         </div>
+
+                <div className="pt-6">
+                  <button
+                    onClick={() => setStep(1)}
+                    className="w-full sm:w-auto px-12 py-5 rounded-full bg-[#213145] hover:bg-[#0b1c30] text-white font-extrabold text-base shadow-lg transition cursor-pointer inline-flex items-center justify-center gap-3"
+                  >
+                    <span>الانتقال لتعديل ومراجعة كتل الفقرات</span>
+                    <ArrowLeft className="h-5 w-5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* STEP 1..N: Block Editing */}
         {step > 0 && blockIdx < lesson.blocks.length && (

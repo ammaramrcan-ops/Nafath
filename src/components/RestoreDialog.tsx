@@ -81,34 +81,19 @@ export function RestoreDialog({
             </p>
 
             <button
-              onClick={() => setMode("json")}
-              className="group flex w-full items-center gap-5 rounded-[1rem] border border-zen-surface-container bg-white p-5 text-right transition hover:-translate-y-0.5 hover:border-zen-primary-container hover:shadow-md cursor-pointer"
+              onClick={() => {
+                close(false);
+                window.location.href = "/teacher?import=true";
+              }}
+              className="group flex w-full items-center gap-5 rounded-[1rem] border border-zen-primary/40 bg-zen-surface-low p-5 text-right transition hover:-translate-y-0.5 hover:border-zen-primary hover:shadow-md cursor-pointer"
             >
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-zen-surface-low text-zen-primary">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-zen-primary text-white shadow-xs">
                 <Upload className="h-6 w-6" />
               </div>
               <div className="flex-1">
-                <p className="text-[16px] font-semibold text-zen-on-surface">رفع كود JSON</p>
-                <p className="mt-0.5 text-[12px] leading-relaxed text-zen-on-surface-variant">
-                  ألصق أو ارفع ملف يحتوي على بنية الدرس
-                </p>
-              </div>
-            </button>
-
-            <button
-              onClick={() => {
-                close(false);
-                navigate({ to: "/teacher" });
-              }}
-              className="group flex w-full items-center gap-5 rounded-[1rem] border border-zen-surface-container bg-white p-5 text-right transition hover:-translate-y-0.5 hover:border-zen-primary-container hover:shadow-md cursor-pointer"
-            >
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-zen-surface-low text-zen-primary">
-                <PenLine className="h-6 w-6" />
-              </div>
-              <div className="flex-1">
-                <p className="text-[16px] font-semibold text-zen-on-surface">تصميم درس من الصفر</p>
-                <p className="mt-0.5 text-[12px] leading-relaxed text-zen-on-surface-variant">
-                  ابنِ المحتوى بالكامل عبر واجهة المعلم
+                <p className="text-[16px] font-extrabold text-zen-on-surface">استيراد كود JSON عبر 3 خطوات 🚀</p>
+                <p className="mt-0.5 text-[12px] leading-relaxed text-zen-on-surface-variant font-medium">
+                  انتقل لوصول سريع لنظام استيراد الشرح والخريطة والـ MCQs
                 </p>
               </div>
             </button>
