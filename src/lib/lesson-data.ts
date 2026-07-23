@@ -179,15 +179,21 @@ export function normalizeBlock(raw: any, idx: number): ParagraphBlock {
 
   let highlights: TextHighlight[] = Array.isArray(raw?.highlights) ? raw.highlights : [];
 
-  let short_sentence = raw?.short_sentence ?? "";
+  let short_sentence = raw?.short_sentence ?? raw?.summary ?? "";
   let story = raw?.story ?? "";
   let examples = raw?.examples ?? "";
   let full_text = raw?.full_text ?? "";
   let mnemonic = raw?.mnemonic ?? "";
   let funny_link = raw?.funny_link ?? "";
-  let zaitounaDefs = raw?.zaitouna?.definitions ?? "";
-  let zaitounaReas = raw?.zaitouna?.reasoning ?? "";
-  let zaitounaLinks = raw?.zaitouna?.links ?? "";
+
+  const zDefsRaw = raw?.zaitouna?.definitions;
+  let zaitounaDefs = Array.isArray(zDefsRaw) ? zDefsRaw.join("\n") : typeof zDefsRaw === "string" ? zDefsRaw : "";
+
+  const zReasRaw = raw?.zaitouna?.reasoning;
+  let zaitounaReas = Array.isArray(zReasRaw) ? zReasRaw.join("\n") : typeof zReasRaw === "string" ? zReasRaw : "";
+
+  const zLinksRaw = raw?.zaitouna?.links;
+  let zaitounaLinks = Array.isArray(zLinksRaw) ? zLinksRaw.join("\n") : typeof zLinksRaw === "string" ? zLinksRaw : "";
 
   const res1 = cleanRawTags(short_sentence, highlights); short_sentence = res1.cleanText; highlights = res1.highlights;
   const res2 = cleanRawTags(story, highlights); story = res2.cleanText; highlights = res2.highlights;
@@ -199,15 +205,79 @@ export function normalizeBlock(raw: any, idx: number): ParagraphBlock {
   const res8 = cleanRawTags(zaitounaReas, highlights); zaitounaReas = res8.cleanText; highlights = res8.highlights;
   const res9 = cleanRawTags(zaitounaLinks, highlights); zaitounaLinks = res9.cleanText; highlights = res9.highlights;
 
+  const rawHardWords = Array.isArray(raw?.hard_words) ? raw.hard_words : [];
+  const hard_words = rawHardWords.map((hw: any) => ({
+    term: hw?.term ?? hw?.word ?? "",
+    definition: hw?.definition ?? hw?.explanation ?? hw?.meaning ?? "",
+  }));
+
+  let mmRaw = raw?.mind_map_nodes;
+  let mind_map_nodes: string[] = [];
+  if (Array.isArray(mmRaw)) {
+    mind_map_nodes = mmRaw.map((n: any) => (typeof n === "string" ? n : n?.text || n?.title || ""));
+  } else if (mmRaw && typeof mmRaw === "object") {
+    if (Array.isArray(mmRaw.nodes)) {
+      mind_map_nodes = mmRaw.nodes.map((n: any) => (typeof n === "string" ? n : n?.text || n?.title || ""));
+    }
+  }
+
   const mcqSrc = s.quizzes_mcq?.content ?? s.quizzes?.content?.mcq ?? raw?.quizzes?.mcqs ?? raw?.quizzes?.mcq;
-  const rawMcqs: MCQ[] = Array.isArray(mcqSrc) ? mcqSrc.map(m => ({...m, difficulty: m.difficulty || 'medium', estimated_time: m.estimated_time || 30})) : mcqSrc && (mcqSrc.question || mcqSrc.answer) ? [{...mcqSrc, difficulty: mcqSrc.difficulty || 'medium', estimated_time: mcqSrc.estimated_time || 30}] : [];
+  const rawMcqs: MCQ[] = Array.isArray(mcqSrc)
+    ? mcqSrc.map((m: any) => ({
+        question: m?.question ?? "",
+        options: Array.isArray(m?.options) ? m.options : [],
+        answer: m?.answer ?? m?.correct_answer ?? "",
+        difficulty: m?.difficulty || "medium",
+        estimated_time: m?.estimated_time || 30,
+      }))
+    : mcqSrc && (mcqSrc.question || mcqSrc.answer || mcqSrc.correct_answer)
+    ? [{
+        question: mcqSrc.question ?? "",
+        options: Array.isArray(mcqSrc.options) ? mcqSrc.options : [],
+        answer: mcqSrc.answer ?? mcqSrc.correct_answer ?? "",
+        difficulty: mcqSrc.difficulty || "medium",
+        estimated_time: mcqSrc.estimated_time || 30,
+      }]
+    : [];
   const mcqs = padMcqsToFive(rawMcqs);
 
   const fillSrc = s.quizzes_fill?.content ?? s.quizzes?.content?.fill_in_blank ?? raw?.quizzes?.fills ?? raw?.quizzes?.fill;
-  const fills: Fill[] = Array.isArray(fillSrc) ? fillSrc.map(f => ({...f, difficulty: f.difficulty || 'medium', estimated_time: f.estimated_time || 30})) : fillSrc && (fillSrc.question || fillSrc.answer) ? [{...fillSrc, difficulty: fillSrc.difficulty || 'medium', estimated_time: fillSrc.estimated_time || 30}] : [];
+  const fills: Fill[] = Array.isArray(fillSrc)
+    ? fillSrc.map((f: any) => ({
+        question: f?.question ?? f?.sentence ?? "",
+        answer: f?.answer ?? "",
+        difficulty: f?.difficulty || "medium",
+        estimated_time: f?.estimated_time || 30,
+      }))
+    : fillSrc && (fillSrc.question || fillSrc.sentence || fillSrc.answer)
+    ? [{
+        question: fillSrc.question ?? fillSrc.sentence ?? "",
+        answer: fillSrc.answer ?? "",
+        difficulty: fillSrc.difficulty || "medium",
+        estimated_time: fillSrc.estimated_time || 30,
+      }]
+    : [];
 
   const essaySrc = s.quizzes_essay?.content ?? s.quizzes?.content?.essay ?? raw?.quizzes?.essays ?? raw?.quizzes?.essay;
-  const essays: Essay[] = Array.isArray(essaySrc) ? essaySrc.map(e => ({...e, hint: e.hint || '', difficulty: e.difficulty || 'medium', estimated_time: e.estimated_time || 60})) : essaySrc && essaySrc.question ? [{...essaySrc, hint: essaySrc.hint || '', difficulty: essaySrc.difficulty || 'medium', estimated_time: essaySrc.estimated_time || 60}] : [];
+  const essays: Essay[] = Array.isArray(essaySrc)
+    ? essaySrc.map((e: any) => ({
+        question: e?.question ?? "",
+        keywords: Array.isArray(e?.keywords) ? e.keywords : (e?.answer ? [e.answer] : []),
+        answer: e?.answer ?? "",
+        hint: e?.hint || "",
+        difficulty: e?.difficulty || "medium",
+        estimated_time: e?.estimated_time || 60,
+      }))
+    : essaySrc && essaySrc.question
+    ? [{
+        question: essaySrc.question ?? "",
+        keywords: Array.isArray(essaySrc.keywords) ? essaySrc.keywords : (essaySrc.answer ? [essaySrc.answer] : []),
+        answer: essaySrc.answer ?? "",
+        hint: essaySrc.hint || "",
+        difficulty: essaySrc.difficulty || "medium",
+        estimated_time: essaySrc.estimated_time || 60,
+      }]
+    : [];
 
   let quiz_enabled = raw?.quiz_enabled ?? true;
   if (s.quizzes_mcq || s.quizzes_fill || s.quizzes_essay) {
@@ -246,21 +316,21 @@ export function normalizeBlock(raw: any, idx: number): ParagraphBlock {
 
   return {
     id: typeof raw?.id === "number" ? raw.id : idx + 1,
-    title: raw?.title ?? "",
+    title: raw?.title ?? raw?.section_title ?? raw?.name ?? `فقرة ${idx + 1}`,
     short_sentence,
     story,
     examples,
     full_text,
-    hard_words: Array.isArray(raw?.hard_words) ? raw.hard_words : [],
+    hard_words,
     highlights,
     mnemonic,
     funny_link,
-    mind_map_nodes: Array.isArray(raw?.mind_map_nodes) ? raw.mind_map_nodes : [],
+    mind_map_nodes,
     meta_card: {
       understanding_level: raw?.meta_card?.understanding_level ?? "سهل",
       memorization_level: raw?.meta_card?.memorization_level ?? "متوسط",
       estimated_time_range: raw?.meta_card?.estimated_time_range ?? "2 - 5 دقائق",
-      info_count: typeof raw?.meta_card?.info_count === "number" ? raw.meta_card.info_count : (Array.isArray(raw?.mind_map_nodes) ? Math.max(raw.mind_map_nodes.length, 3) : 3),
+      info_count: typeof raw?.meta_card?.info_count === "number" ? raw.meta_card.info_count : (mind_map_nodes.length > 0 ? Math.max(mind_map_nodes.length, 3) : 3),
     },
     visual_url: raw?.visual_url ?? "",
     stage_visuals: raw?.stage_visuals ?? {},
@@ -288,9 +358,15 @@ export function normalizeBlock(raw: any, idx: number): ParagraphBlock {
 }
 
 export function normalizeLesson(raw: any): Lesson {
-  const blocks: ParagraphBlock[] = Array.isArray(raw?.blocks)
-    ? raw.blocks.map((b: any, i: number) => normalizeBlock(b, i))
+  const rawBlocks = Array.isArray(raw?.blocks)
+    ? raw.blocks
+    : Array.isArray(raw?.sections)
+    ? raw.sections
+    : Array.isArray(raw?.units)
+    ? raw.units
     : [];
+
+  const blocks: ParagraphBlock[] = rawBlocks.map((b: any, i: number) => normalizeBlock(b, i));
 
   const levelStageOrders = {
     1: Array.isArray(raw?.levelStageOrders?.[1]) && raw.levelStageOrders[1].length > 0
@@ -307,7 +383,7 @@ export function normalizeLesson(raw: any): Lesson {
   };
 
   return {
-    title: raw?.title ?? "درس بدون عنوان",
+    title: raw?.title ?? raw?.lesson_title ?? raw?.name ?? "درس بدون عنوان",
     estimatedTime: raw?.estimatedTime ?? "",
     size: raw?.size ?? "",
     topics: Array.isArray(raw?.topics) ? raw.topics : [],
