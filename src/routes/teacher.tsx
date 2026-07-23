@@ -142,14 +142,14 @@ function TeacherPage() {
     return khulLesson;
   });
 
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(1);
   const [selectedLevelFilter, setSelectedLevelFilter] = useState<
     1 | 2 | 3 | "all"
   >(1);
   const [libSaved, setLibSaved] = useState(false);
 
-  // 3-Step Dedicated Wizard Flow State
-  const [viewMode, setViewMode] = useState<"wizard" | "manual">("wizard");
+  // 3-Step Dedicated Wizard Modal State
+  const [showImportModal, setShowImportModal] = useState(false);
   const [wizardStep, setWizardStep] = useState<1 | 2 | 3>(1);
   const [jsonInput1, setJsonInput1] = useState("");
   const [jsonInput2, setJsonInput2] = useState("");
@@ -375,6 +375,18 @@ function TeacherPage() {
 
           <div className="flex items-center gap-3">
             <button
+              type="button"
+              onClick={() => {
+                setWizardStep(1);
+                setShowImportModal(true);
+              }}
+              className="inline-flex items-center gap-2 rounded-full bg-[#8127cf] hover:bg-[#6b1fb0] px-5 py-3 text-xs sm:text-sm font-extrabold text-white shadow-md transition cursor-pointer"
+            >
+              <Code2 className="h-4 w-4 text-white" />
+              <span>استيراد كود JSON عبر 3 خطوات 📥</span>
+            </button>
+
+            <button
               onClick={handlePreviewStudent}
               className="inline-flex items-center gap-2 rounded-full bg-[#9d4300] hover:bg-[#833800] px-5 py-3 text-xs sm:text-sm font-extrabold text-white shadow-md transition cursor-pointer"
             >
@@ -397,101 +409,95 @@ function TeacherPage() {
         </div>
       </header>
 
-      {/* Main Editing Container */}
-      <main className="mx-auto max-w-7xl p-6 sm:p-8 space-y-8">
-        {/* 3-Step Wizard Stepper Header */}
-        <div className="bg-white border border-[#e0c0b1]/60 rounded-3xl p-6 shadow-xs space-y-5 text-right">
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#e0c0b1]/30 pb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-[#ffdbca] text-[#9d4300] flex items-center justify-center font-black shadow-xs">
-                <Sparkles className="h-5 w-5" />
+      {/* 3-Step Wizard Modal Window */}
+      {showImportModal && (
+        <div className="fixed inset-0 bg-slate-950/75 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 z-[99999] dir-rtl overflow-y-auto">
+          <div className="bg-white border border-[#e0c0b1] rounded-3xl p-6 sm:p-10 max-w-4xl w-full shadow-2xl space-y-6 text-right max-h-[92vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-[#e0c0b1]/30 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-[#ffdbca] text-[#9d4300] flex items-center justify-center font-black shadow-xs">
+                  <Sparkles className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-extrabold text-[#0b1c30]">نظام إضافة الدرس الذكي (3 خطوات متتابعة بـ JSON) 🚀</h3>
+                  <p className="text-xs font-semibold text-[#584237]/70">انسخ البرومبت لكل مرحلة، الصقه في الذكاء الاصطناعي، ثم الصق كود JSON الناتج هنا</p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-lg font-extrabold text-[#0b1c30]">نظام إضافة الدرس الذكي (3 خطوات متتابعة بـ JSON) 🚀</h3>
-                <p className="text-xs font-semibold text-[#584237]/70">انسخ البرومبت لكل مرحلة، الصقه في الذكاء الاصطناعي، ثم الصق كود JSON الناتج هنا</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={() => setViewMode(viewMode === "wizard" ? "manual" : "wizard")}
-                className="px-4 py-2 bg-[#eff4ff] text-[#0b1c30] rounded-full text-xs font-extrabold hover:bg-[#dce9ff] transition cursor-pointer border border-[#e0c0b1]/40 flex items-center gap-1.5"
+                onClick={() => setShowImportModal(false)}
+                className="p-2.5 rounded-full hover:bg-slate-100 text-slate-500 transition cursor-pointer"
               >
-                <Eye className="h-4 w-4 text-[#9d4300]" />
-                <span>{viewMode === "wizard" ? "معاينة وتعديل الفقرات 👁️" : "العودة لخطوات الاستيراد 🚀"}</span>
+                <X className="h-6 w-6" />
               </button>
             </div>
-          </div>
 
-          {/* Stepper Tabs */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <button
-              type="button"
-              onClick={() => setWizardStep(1)}
-              className={cn(
-                "p-4 rounded-2xl border text-right transition cursor-pointer flex items-center gap-3",
-                wizardStep === 1
-                  ? "bg-[#9d4300] text-white border-[#9d4300] shadow-md"
-                  : "bg-[#fffaf7] text-[#584237] border-[#ffdbca] hover:bg-[#ffeddf]"
-              )}
-            >
-              <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs shrink-0", wizardStep === 1 ? "bg-white text-[#9d4300]" : "bg-[#ffdbca] text-[#9d4300]")}>
-                1
-              </div>
-              <div>
-                <h4 className="text-xs font-extrabold">المرحلة الأولى</h4>
-                <p className="text-[11px] opacity-90 font-semibold">الشرح والقصص والمصطلحات 📖</p>
-              </div>
-            </button>
+            {/* Stepper Tabs */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <button
+                type="button"
+                onClick={() => setWizardStep(1)}
+                className={cn(
+                  "p-4 rounded-2xl border text-right transition cursor-pointer flex items-center gap-3",
+                  wizardStep === 1
+                    ? "bg-[#9d4300] text-white border-[#9d4300] shadow-md"
+                    : "bg-[#fffaf7] text-[#584237] border-[#ffdbca] hover:bg-[#ffeddf]"
+                )}
+              >
+                <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs shrink-0", wizardStep === 1 ? "bg-white text-[#9d4300]" : "bg-[#ffdbca] text-[#9d4300]")}>
+                  1
+                </div>
+                <div>
+                  <h4 className="text-xs font-extrabold">المرحلة الأولى</h4>
+                  <p className="text-[11px] opacity-90 font-semibold">الشرح والقصص والمصطلحات 📖</p>
+                </div>
+              </button>
 
-            <button
-              type="button"
-              onClick={() => setWizardStep(2)}
-              className={cn(
-                "p-4 rounded-2xl border text-right transition cursor-pointer flex items-center gap-3",
-                wizardStep === 2
-                  ? "bg-[#8127cf] text-white border-[#8127cf] shadow-md"
-                  : "bg-[#eff4ff] text-[#584237] border-[#e0c0b1]/60 hover:bg-[#dce9ff]"
-              )}
-            >
-              <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs shrink-0", wizardStep === 2 ? "bg-white text-[#8127cf]" : "bg-[#e0e7ff] text-[#8127cf]")}>
-                2
-              </div>
-              <div>
-                <h4 className="text-xs font-extrabold">المرحلة الثانية</h4>
-                <p className="text-[11px] opacity-90 font-semibold">الخريطة الذهنية التفاعلية 🎨</p>
-              </div>
-            </button>
+              <button
+                type="button"
+                onClick={() => setWizardStep(2)}
+                className={cn(
+                  "p-4 rounded-2xl border text-right transition cursor-pointer flex items-center gap-3",
+                  wizardStep === 2
+                    ? "bg-[#8127cf] text-white border-[#8127cf] shadow-md"
+                    : "bg-[#eff4ff] text-[#584237] border-[#e0c0b1]/60 hover:bg-[#dce9ff]"
+                )}
+              >
+                <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs shrink-0", wizardStep === 2 ? "bg-white text-[#8127cf]" : "bg-[#e0e7ff] text-[#8127cf]")}>
+                  2
+                </div>
+                <div>
+                  <h4 className="text-xs font-extrabold">المرحلة الثانية</h4>
+                  <p className="text-[11px] opacity-90 font-semibold">الخريطة الذهنية التفاعلية 🎨</p>
+                </div>
+              </button>
 
-            <button
-              type="button"
-              onClick={() => setWizardStep(3)}
-              className={cn(
-                "p-4 rounded-2xl border text-right transition cursor-pointer flex items-center gap-3",
-                wizardStep === 3
-                  ? "bg-emerald-700 text-white border-emerald-700 shadow-md"
-                  : "bg-[#f0fdf4] text-[#584237] border-emerald-200 hover:bg-emerald-100/70"
-              )}
-            >
-              <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs shrink-0", wizardStep === 3 ? "bg-white text-emerald-800" : "bg-emerald-200 text-emerald-800")}>
-                3
-              </div>
-              <div>
-                <h4 className="text-xs font-extrabold">المرحلة الثالثة</h4>
-                <p className="text-[11px] opacity-90 font-semibold">أسئلة الـ MCQs وبنك الأسئلة 📝</p>
-              </div>
-            </button>
-          </div>
-        </div>
+              <button
+                type="button"
+                onClick={() => setWizardStep(3)}
+                className={cn(
+                  "p-4 rounded-2xl border text-right transition cursor-pointer flex items-center gap-3",
+                  wizardStep === 3
+                    ? "bg-emerald-700 text-white border-emerald-700 shadow-md"
+                    : "bg-[#f0fdf4] text-[#584237] border-emerald-200 hover:bg-emerald-100/70"
+                )}
+              >
+                <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs shrink-0", wizardStep === 3 ? "bg-white text-emerald-800" : "bg-emerald-200 text-emerald-800")}>
+                  3
+                </div>
+                <div>
+                  <h4 className="text-xs font-extrabold">المرحلة الثالثة</h4>
+                  <p className="text-[11px] opacity-90 font-semibold">أسئلة الـ MCQs وبنك الأسئلة 📝</p>
+                </div>
+              </button>
+            </div>
 
-        {/* 3-Step Wizard Screens */}
-        {viewMode === "wizard" && (
-          <div className="space-y-8">
             {/* SCREEN 1: Content & Story JSON */}
             {wizardStep === 1 && (
-              <div className="space-y-6">
-                <div className="bg-[#fffaf7] border border-[#ffdbca] rounded-3xl p-6 sm:p-8 space-y-4 text-right">
-                  <div className="flex items-center justify-between border-b border-[#ffdbca]/60 pb-4">
+              <div className="space-y-6 pt-2">
+                <div className="bg-[#fffaf7] border border-[#ffdbca] rounded-3xl p-6 space-y-4 text-right">
+                  <div className="flex items-center justify-between border-b border-[#ffdbca]/60 pb-3">
                     <div className="space-y-1">
                       <h3 className="text-base font-extrabold text-[#9d4300] flex items-center gap-2">
                         <BookOpen className="h-5 w-5" />
@@ -506,7 +512,7 @@ function TeacherPage() {
                         navigator.clipboard.writeText(promptText);
                         toast.success("تم نسخ برومبت الشرح والقصص بنجاح! 📋");
                       }}
-                      className="px-5 py-2.5 bg-[#9d4300] text-white rounded-full text-xs font-extrabold hover:bg-[#833800] transition cursor-pointer shadow-xs flex items-center gap-2"
+                      className="px-5 py-2 bg-[#9d4300] text-white rounded-full text-xs font-extrabold hover:bg-[#833800] transition cursor-pointer shadow-xs flex items-center gap-2"
                     >
                       <Copy className="h-4 w-4" />
                       <span>نسخ البرومبت 1 📋</span>
@@ -514,12 +520,12 @@ function TeacherPage() {
                   </div>
                 </div>
 
-                <div className="bg-white border border-[#e0c0b1]/60 rounded-3xl p-6 sm:p-8 space-y-4 text-right shadow-xs">
+                <div className="space-y-3 text-right">
                   <label className="text-sm font-extrabold text-[#0b1c30] block">
                     الصق كود JSON الناتج (JSON 1) الخاص بالشرح والقصص أدناه:
                   </label>
                   <textarea
-                    rows={12}
+                    rows={10}
                     value={jsonInput1}
                     onChange={(e) => setJsonInput1(e.target.value)}
                     placeholder="الصق كود JSON 1 هنا..."
@@ -544,9 +550,9 @@ function TeacherPage() {
 
             {/* SCREEN 2: MindMap JSON */}
             {wizardStep === 2 && (
-              <div className="space-y-6">
-                <div className="bg-[#eff4ff] border border-[#e0c0b1]/60 rounded-3xl p-6 sm:p-8 space-y-4 text-right">
-                  <div className="flex items-center justify-between border-b border-[#e0c0b1]/40 pb-4">
+              <div className="space-y-6 pt-2">
+                <div className="bg-[#eff4ff] border border-[#e0c0b1]/60 rounded-3xl p-6 space-y-4 text-right">
+                  <div className="flex items-center justify-between border-b border-[#e0c0b1]/40 pb-3">
                     <div className="space-y-1">
                       <h3 className="text-base font-extrabold text-[#8127cf] flex items-center gap-2">
                         <Sparkles className="h-5 w-5" />
@@ -561,7 +567,7 @@ function TeacherPage() {
                         navigator.clipboard.writeText(promptText);
                         toast.success("تم نسخ برومبت الخريطة الذهنية بنجاح! 📋");
                       }}
-                      className="px-5 py-2.5 bg-[#8127cf] text-white rounded-full text-xs font-extrabold hover:bg-[#6b1fb0] transition cursor-pointer shadow-xs flex items-center gap-2"
+                      className="px-5 py-2 bg-[#8127cf] text-white rounded-full text-xs font-extrabold hover:bg-[#6b1fb0] transition cursor-pointer shadow-xs flex items-center gap-2"
                     >
                       <Copy className="h-4 w-4" />
                       <span>نسخ البرومبت 2 📋</span>
@@ -569,12 +575,12 @@ function TeacherPage() {
                   </div>
                 </div>
 
-                <div className="bg-white border border-[#e0c0b1]/60 rounded-3xl p-6 sm:p-8 space-y-4 text-right shadow-xs">
+                <div className="space-y-3 text-right">
                   <label className="text-sm font-extrabold text-[#0b1c30] block">
                     الصق كود JSON الناتج (JSON 2) الخاص بالخريطة الذهنية أدناه:
                   </label>
                   <textarea
-                    rows={12}
+                    rows={10}
                     value={jsonInput2}
                     onChange={(e) => setJsonInput2(e.target.value)}
                     placeholder="الصق كود JSON 2 هنا..."
@@ -607,9 +613,9 @@ function TeacherPage() {
 
             {/* SCREEN 3: Block MCQs JSON */}
             {wizardStep === 3 && (
-              <div className="space-y-6">
-                <div className="bg-[#f0fdf4] border border-emerald-200 rounded-3xl p-6 sm:p-8 space-y-4 text-right">
-                  <div className="flex items-center justify-between border-b border-emerald-200/60 pb-4">
+              <div className="space-y-6 pt-2">
+                <div className="bg-[#f0fdf4] border border-emerald-200 rounded-3xl p-6 space-y-4 text-right">
+                  <div className="flex items-center justify-between border-b border-emerald-200/60 pb-3">
                     <div className="space-y-1">
                       <h3 className="text-base font-extrabold text-emerald-950 flex items-center gap-2">
                         <CheckCircle2 className="h-5 w-5 text-emerald-700" />
@@ -624,7 +630,7 @@ function TeacherPage() {
                         navigator.clipboard.writeText(promptText);
                         toast.success("تم نسخ برومبت الأسئلة بنجاح! 📋");
                       }}
-                      className="px-5 py-2.5 bg-emerald-700 text-white rounded-full text-xs font-extrabold hover:bg-emerald-800 transition cursor-pointer shadow-xs flex items-center gap-2"
+                      className="px-5 py-2 bg-emerald-700 text-white rounded-full text-xs font-extrabold hover:bg-emerald-800 transition cursor-pointer shadow-xs flex items-center gap-2"
                     >
                       <Copy className="h-4 w-4" />
                       <span>نسخ البرومبت 3 📋</span>
@@ -632,12 +638,12 @@ function TeacherPage() {
                   </div>
                 </div>
 
-                <div className="bg-white border border-[#e0c0b1]/60 rounded-3xl p-6 sm:p-8 space-y-4 text-right shadow-xs">
+                <div className="space-y-3 text-right">
                   <label className="text-sm font-extrabold text-[#0b1c30] block">
                     الصق كود JSON الناتج (JSON 3) الخاص بالأسئلة والـ MCQs أدناه:
                   </label>
                   <textarea
-                    rows={12}
+                    rows={10}
                     value={jsonInput3}
                     onChange={(e) => setJsonInput3(e.target.value)}
                     placeholder="الصق كود JSON 3 هنا..."
@@ -658,6 +664,7 @@ function TeacherPage() {
                         const ok = handleImportStepQuizzes(jsonInput3);
                         if (ok) {
                           handleSaveToLibrary();
+                          setShowImportModal(false);
                           handlePreviewStudent();
                         }
                       }}
@@ -670,23 +677,14 @@ function TeacherPage() {
               </div>
             )}
           </div>
-        )}
+        </div>
+      )}
+
+      {/* Main Editing Container */}
+      <main className="mx-auto max-w-7xl p-6 sm:p-8 space-y-8">
 
         {/* Bento Step Tabs Navigation */}
         <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5 pb-2">
-          <button
-            onClick={() => setStep(0)}
-            className={cn(
-              "rounded-2xl px-6 py-3 text-xs sm:text-sm font-extrabold transition cursor-pointer flex items-center gap-2 shadow-xs",
-              step === 0
-                ? "bg-[#213145] text-white shadow-md"
-                : "bg-[#eaf1ff] text-[#584237] hover:bg-[#dce9ff]"
-            )}
-          >
-            <BookOpen className="h-4 w-4" />
-            <span>بيانات الدرس العامة والتسلسل الموحد</span>
-          </button>
-
           {lesson.blocks.map((b, i) => (
             <button
               key={b.id}
@@ -711,138 +709,68 @@ function TeacherPage() {
           </button>
         </div>
 
-        {/* STEP 0: Lesson Metadata Card */}
-        {step === 0 && (
-          <div className="max-w-4xl mx-auto space-y-8">
-            <div className="space-y-8 rounded-[2.5rem] bg-white p-8 sm:p-12 shadow-xs border border-[#e0c0b1]/50 text-center">
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0b1c30]">
-                إعدادات وبيانات الدرس العامة
-              </h2>
-
-              <div className="space-y-6 text-right">
-                <Field label="عنوان الدرس الرئيسي">
-                  <Input
-                    value={lesson.title || "أحكام الخُلع في الفقه الإسلامي"}
-                    onChange={(e) => updateLesson({ title: e.target.value })}
-                    placeholder="مثال: أحكام الخلع في الفقه الإسلامي..."
-                    className="h-14 rounded-2xl border-none bg-[#eff4ff] text-center font-extrabold text-base sm:text-lg text-[#0b1c30] placeholder:text-slate-400 focus:ring-2 focus:ring-[#9d4300]"
-                  />
-                </Field>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <Field label="الزمن التقديري">
-                    <Input
-                      value={lesson.estimatedTime || "35 دقيقة"}
-                      onChange={(e) =>
-                        updateLesson({ estimatedTime: e.target.value })
-                      }
-                      placeholder="مثال: 35 دقيقة"
-                      className="h-14 rounded-2xl border-none bg-[#eff4ff] text-center font-bold text-sm text-[#0b1c30]"
-                    />
-                  </Field>
-                  <Field label="حجم المحتوى والمصطلحات">
-                    <Input
-                      value={lesson.size || "4 كتل فقهية - 10 مصطلحات شرعية"}
-                      onChange={(e) => updateLesson({ size: e.target.value })}
-                      placeholder="مثال: 4 كتل فقهية - 10 مصطلحات شرعية"
-                      className="h-14 rounded-2xl border-none bg-[#eff4ff] text-center font-bold text-sm text-[#0b1c30]"
-                    />
-                  </Field>
-                </div>
-
-                <Field
-                  label="رابط NotebookLM المساعد للدرس (NotebookLM URL)"
-                  hint="ضع رابط كشكول NotebookLM الخاص بالدرس لتمكين خيار 'لدي سؤال' للطالب لتوجيهه للأداة عند الاستفسار."
-                >
-                  <Input
-                    value={
-                      lesson.notebookLmUrl ||
-                      "https://notebooklm.google.com/..."
-                    }
-                    onChange={(e) =>
-                      updateLesson({ notebookLmUrl: e.target.value })
-                    }
-                    placeholder="https://notebooklm.google.com/notebook/..."
-                    className="h-14 rounded-2xl border-none bg-[#eff4ff] text-center font-semibold text-xs text-[#0b1c30] dir-ltr"
-                  />
-                </Field>
-
-                {/* Level Selection Radio Pills & Modern Inline Stages Editor */}
-                <div className="pt-6 border-t border-[#e0c0b1]/30 space-y-6 text-center">
-                  <div className="flex items-center justify-center gap-2 text-xs sm:text-sm font-extrabold text-[#0b1c30]">
-                    <Filter className="h-4 w-4 text-[#9d4300]" />
-                    <span>تحديد المستوى المعتمد لتعديل وعرض مراحل الفقرات:</span>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl mx-auto">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedLevelFilter(1)}
-                      className={cn(
-                        "py-3.5 px-4 rounded-full text-xs font-extrabold transition cursor-pointer flex items-center justify-center gap-2 border",
-                        selectedLevelFilter === 1
-                          ? "bg-[#00875a] text-white border-[#00875a] shadow-sm"
-                          : "bg-[#eff4ff] text-[#584237] border-transparent hover:bg-[#dce9ff]"
-                      )}
-                    >
-                      <CheckCircle2 className="h-4 w-4" />
-                      <span>مراحل المستوى الأول (3 مراحل)</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setSelectedLevelFilter(2)}
-                      className={cn(
-                        "py-3.5 px-4 rounded-full text-xs font-extrabold transition cursor-pointer flex items-center justify-center gap-2 border",
-                        selectedLevelFilter === 2
-                          ? "bg-[#00875a] text-white border-[#00875a] shadow-sm"
-                          : "bg-[#eff4ff] text-[#584237] border-transparent hover:bg-[#dce9ff]"
-                      )}
-                    >
-                      <span className="w-3.5 h-3.5 rounded-full border-2 border-current" />
-                      <span>مراحل المستوى الثاني (10 مراحل)</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setSelectedLevelFilter(3)}
-                      className={cn(
-                        "py-3.5 px-4 rounded-full text-xs font-extrabold transition cursor-pointer flex items-center justify-center gap-2 border",
-                        selectedLevelFilter === 3
-                          ? "bg-[#00875a] text-white border-[#00875a] shadow-sm"
-                          : "bg-[#eff4ff] text-[#584237] border-transparent hover:bg-[#dce9ff]"
-                      )}
-                    >
-                      <span className="w-3.5 h-3.5 rounded-full border-2 border-current" />
-                      <span>مراحل المستوى الثالث (11 مرحلة)</span>
-                    </button>
-                  </div>
-
-                  {/* Seamless Inline Modern Stage Sequence Editor */}
-                  <div className="pt-4 border-t border-[#e0c0b1]/30">
-                    <GlobalLevelSequenceEditor
-                      lesson={lesson}
-                      activeLevel={
-                        selectedLevelFilter === "all" ? 1 : selectedLevelFilter
-                      }
-                      onChange={(patch) => updateLesson(patch)}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-6">
-                <button
-                  onClick={() => setStep(1)}
-                  className="w-full sm:w-auto px-12 py-5 rounded-full bg-[#213145] hover:bg-[#0b1c30] text-white font-extrabold text-base shadow-lg transition cursor-pointer inline-flex items-center justify-center gap-3"
-                >
-                  <span>الانتقال لتعديل ومراجعة كتل الفقرات</span>
-                  <ArrowLeft className="h-5 w-5" />
-                </button>
-              </div>
-            </div>
+        {/* Level Selection Radio Pills & Modern Inline Stages Editor */}
+        <div className="pt-6 border-t border-[#e0c0b1]/30 space-y-6 text-center">
+          <div className="flex items-center justify-center gap-2 text-xs sm:text-sm font-extrabold text-[#0b1c30]">
+            <Filter className="h-4 w-4 text-[#9d4300]" />
+            <span>تحديد المستوى المعتمد لتعديل وعرض مراحل الفقرات:</span>
           </div>
-        )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl mx-auto">
+            <button
+              type="button"
+              onClick={() => setSelectedLevelFilter(1)}
+              className={cn(
+                "py-3.5 px-4 rounded-full text-xs font-extrabold transition cursor-pointer flex items-center justify-center gap-2 border",
+                selectedLevelFilter === 1
+                  ? "bg-[#00875a] text-white border-[#00875a] shadow-sm"
+                  : "bg-[#eff4ff] text-[#584237] border-transparent hover:bg-[#dce9ff]"
+              )}
+            >
+              <CheckCircle2 className="h-4 w-4" />
+              <span>مراحل المستوى الأول (3 مراحل)</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSelectedLevelFilter(2)}
+              className={cn(
+                "py-3.5 px-4 rounded-full text-xs font-extrabold transition cursor-pointer flex items-center justify-center gap-2 border",
+                selectedLevelFilter === 2
+                  ? "bg-[#00875a] text-white border-[#00875a] shadow-sm"
+                  : "bg-[#eff4ff] text-[#584237] border-transparent hover:bg-[#dce9ff]"
+              )}
+            >
+              <span className="w-3.5 h-3.5 rounded-full border-2 border-current" />
+              <span>مراحل المستوى الثاني (10 مراحل)</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSelectedLevelFilter(3)}
+              className={cn(
+                "py-3.5 px-4 rounded-full text-xs font-extrabold transition cursor-pointer flex items-center justify-center gap-2 border",
+                selectedLevelFilter === 3
+                  ? "bg-[#00875a] text-white border-[#00875a] shadow-sm"
+                  : "bg-[#eff4ff] text-[#584237] border-transparent hover:bg-[#dce9ff]"
+              )}
+            >
+              <span className="w-3.5 h-3.5 rounded-full border-2 border-current" />
+              <span>مراحل المستوى الثالث (11 مرحلة)</span>
+            </button>
+          </div>
+
+          {/* Seamless Inline Modern Stage Sequence Editor */}
+          <div className="pt-4 border-t border-[#e0c0b1]/30">
+            <GlobalLevelSequenceEditor
+              lesson={lesson}
+              activeLevel={
+                selectedLevelFilter === "all" ? 1 : selectedLevelFilter
+              }
+              onChange={(patch) => updateLesson(patch)}
+            />
+          </div>
+        </div>
 
         {/* STEP 1..N: Block Editing */}
         {step > 0 && blockIdx < lesson.blocks.length && (
