@@ -164,7 +164,7 @@ export function SettingsDialog({
   open?: boolean;
   onOpenChange?: (v: boolean) => void;
 }) {
-  const [tab, setTab] = useState<"ai" | "prompt" | "dev">("ai");
+  const [tab, setTab] = useState<"ai" | "dev">("ai");
   const [copied, setCopied] = useState(false);
   const [showApiKey, setShowApiKey] = useState(false);
   const { aiSettings, updateAiSettings } = useAiSettings();
@@ -236,19 +236,6 @@ export function SettingsDialog({
           >
             <Bot className="h-4 w-4 text-amber-600" />
             <span>إعدادات الذكاء الاصطناعي الـ API</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setTab("prompt")}
-            className={`px-5 py-3 text-xs font-bold transition border-b-2 cursor-pointer flex items-center gap-1.5 ${
-              tab === "prompt"
-                ? "border-amber-600 text-amber-950 font-black bg-amber-50/60"
-                : "border-transparent text-zen-on-surface-variant hover:text-zen-on-surface"
-            }`}
-          >
-            <Code2 className="h-4 w-4 text-amber-600" />
-            <span>البرومبت الصريح 📋</span>
           </button>
 
           {isLocalhost && (
@@ -425,86 +412,6 @@ export function SettingsDialog({
                     )}
                   </div>
                 )}
-              </div>
-            </div>
-          )}
-
-          {tab === "prompt" && (
-            <div className="space-y-6 py-4">
-              <div className="rounded-3xl bg-amber-50/90 p-8 border border-amber-200/90 space-y-6 text-center">
-                <div className="flex flex-col items-center gap-2.5">
-                  <Sparkles className="h-8 w-8 text-amber-600" />
-                  <h3 className="text-base font-black text-amber-950">
-                    دليل البرومبتات الـ 3 المخصصة والمستقلة 📋
-                  </h3>
-                  <p className="text-xs font-bold text-amber-900 leading-relaxed max-w-lg">
-                    للحصول على أعلى جودة ودقة، انسخ برومبت كل مرحلة الصقه في الشات، ثم استورد كود JSON الناتج في واجهة المعلم!
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-2">
-                  {/* Copy Prompt 1 */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      navigator.clipboard.writeText(PROMPT_STEP_1_CONTENT);
-                      toast.success("تم نسخ برومبت 1 (الشرح والقصص والمصطلحات) بنجاح! 📖📋");
-                    }}
-                    className="p-4 rounded-2xl bg-white border border-amber-200 hover:bg-amber-100/50 transition flex flex-col items-center text-center space-y-2 cursor-pointer shadow-xs"
-                  >
-                    <span className="text-xs font-black text-amber-950">1️⃣ الشرح والقصص</span>
-                    <span className="text-[11px] text-amber-800 font-bold">لتحويل الشرح والقصص والمصطلحات</span>
-                    <span className="mt-1 px-3 py-1.5 bg-amber-600 text-white text-[11px] font-black rounded-xl flex items-center gap-1">
-                      <Copy className="h-3.5 w-3.5" />
-                      <span>نسخ برومبت 1</span>
-                    </span>
-                  </button>
-
-                  {/* Copy Prompt 2 */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      navigator.clipboard.writeText(PROMPT_STEP_2_MINDMAP);
-                      toast.success("تم نسخ برومبت 2 (الخريطة الذهنية المفصلة) بنجاح! 🎨📋");
-                    }}
-                    className="p-4 rounded-2xl bg-white border border-purple-200 hover:bg-purple-100/50 transition flex flex-col items-center text-center space-y-2 cursor-pointer shadow-xs"
-                  >
-                    <span className="text-xs font-black text-purple-950">2️⃣ الخريطة الذهنية</span>
-                    <span className="text-[11px] text-purple-800 font-bold">لتوليد الشجرة المتشعبة التفصيلية</span>
-                    <span className="mt-1 px-3 py-1.5 bg-purple-600 text-white text-[11px] font-black rounded-xl flex items-center gap-1">
-                      <Copy className="h-3.5 w-3.5" />
-                      <span>نسخ برومبت 2</span>
-                    </span>
-                  </button>
-
-                  {/* Copy Prompt 3 */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      navigator.clipboard.writeText(PROMPT_STEP_3_QUIZZES);
-                      toast.success("تم نسخ برومبت 3 (أسئلة الـ MCQs لكل فقرة) بنجاح! 📝📋");
-                    }}
-                    className="p-4 rounded-2xl bg-white border border-emerald-200 hover:bg-emerald-100/50 transition flex flex-col items-center text-center space-y-2 cursor-pointer shadow-xs"
-                  >
-                    <span className="text-xs font-black text-emerald-950">3️⃣ أسئلة الـ MCQs</span>
-                    <span className="text-[11px] text-emerald-800 font-bold">5 أسئلة خيار حصرية لكل فقرة</span>
-                    <span className="mt-1 px-3 py-1.5 bg-emerald-600 text-white text-[11px] font-black rounded-xl flex items-center gap-1">
-                      <Copy className="h-3.5 w-3.5" />
-                      <span>نسخ برومبت 3</span>
-                    </span>
-                  </button>
-                </div>
-
-                <div className="pt-3 border-t border-amber-200/60">
-                  <button
-                    type="button"
-                    onClick={handleCopyPrompt}
-                    className="inline-flex items-center gap-2 rounded-full bg-amber-900 px-6 py-2.5 text-xs font-black text-amber-100 hover:bg-amber-950 transition cursor-pointer shadow-xs"
-                  >
-                    <Copy className="h-4 w-4" />
-                    <span>نسخ البرومبت التراكمي الموحد (All-in-One) 📋</span>
-                  </button>
-                </div>
               </div>
             </div>
           )}

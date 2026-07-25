@@ -52,7 +52,7 @@ export function SubjectsPage() {
   }, []);
 
   const assigned = getAssignedLessonIds();
-  const uncategorized = library.filter((l) => !assigned.has(l.id));
+  const uncategorized = library.filter((l) => !l.subjectId);
 
   // Realtime Search Filter
   const filteredSubjects = subjects.filter(
@@ -172,7 +172,7 @@ export function SubjectsPage() {
                 </div>
               ) : (
                 shariaSubjects.map((sub) => {
-                  const lessonsCount = sub.units.reduce((acc, u) => acc + u.lessonIds.length, 0);
+                  const lessonsCount = library.filter((l) => l.subjectId === sub.id).length;
                   return (
                     <div
                       key={sub.id}
@@ -184,7 +184,7 @@ export function SubjectsPage() {
                           <BookOpen className="w-7 h-7" />
                         </span>
                         <div className="flex items-center gap-2">
-                          {sub.units.length > 0 && (
+                          {lessonsCount > 0 && (
                             <span className="bg-[#9d4300]/10 text-[#9d4300] px-3 py-1 rounded-full text-xs font-bold">
                               نشط
                             </span>
@@ -234,7 +234,7 @@ export function SubjectsPage() {
                 </div>
               ) : (
                 scienceSubjects.map((sub) => {
-                  const lessonsCount = sub.units.reduce((acc, u) => acc + u.lessonIds.length, 0);
+                  const lessonsCount = library.filter((l) => l.subjectId === sub.id).length;
                   return (
                     <div
                       key={sub.id}
@@ -289,7 +289,7 @@ export function SubjectsPage() {
                 </div>
               ) : (
                 arabicSubjects.map((sub) => {
-                  const lessonsCount = sub.units.reduce((acc, u) => acc + u.lessonIds.length, 0);
+                  const lessonsCount = library.filter((l) => l.subjectId === sub.id).length;
                   return (
                     <div
                       key={sub.id}

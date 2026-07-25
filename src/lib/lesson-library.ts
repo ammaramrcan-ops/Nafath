@@ -53,7 +53,7 @@ export function getLibrary(): SavedLesson[] {
   return readLibrary();
 }
 
-export function saveToLibrary(lesson: Lesson): string {
+export function saveToLibrary(lesson: Lesson, subjectId?: string): string {
   const lib = readLibrary();
   const id = `lesson-${Date.now()}`;
   const entry: SavedLesson = {
@@ -62,6 +62,7 @@ export function saveToLibrary(lesson: Lesson): string {
     savedAt: new Date().toISOString(),
     blocks: lesson.blocks.length,
     data: lesson,
+    subjectId,
   };
   // Update if same title already exists, else prepend
   const existingIdx = lib.findIndex((l) => l.title === entry.title);

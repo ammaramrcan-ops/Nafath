@@ -18,7 +18,7 @@ import {
   Upload,
 } from "lucide-react";
 import { getSubject, addLessonToUnit, addUnit, type Subject } from "@/lib/curriculum";
-import { getLibrary, deleteFromLibrary, type SavedLesson } from "@/lib/lesson-library";
+import { getLibrary, deleteFromLibrary, saveToLibrary, type SavedLesson } from "@/lib/lesson-library";
 import { type Lesson } from "@/lib/lesson-data";
 import { RestoreDialog } from "@/components/RestoreDialog";
 import { SettingsDialog } from "@/components/SettingsDialog";
@@ -80,15 +80,12 @@ function SubjectPage() {
 
   // Handle restoring / importing lesson into this subject
   const handleLessonLoad = (lesson: Lesson) => {
-    let targetUnitId = subject.units[0]?.id;
-    if (!targetUnitId) {
-      const newUnit = addUnit(subject.id, "الوحدة الأولى");
-      targetUnitId = newUnit?.id;
+    try {
+      saveToLibrary(lesson, subjectId);
+      refresh();
+    } catch (err) {
+      console.error("Failed to save lesson:", err);
     }
-    if (targetUnitId && lesson.id) {
-      addLessonToUnit(subject.id, targetUnitId, lesson.id);
-    }
-    refresh();
   };
 
   const handleStartLesson = (lesson: Lesson) => {
@@ -100,12 +97,9 @@ function SubjectPage() {
     }
   };
 
-  // Find all lessons belonging to this subject's units (or fallback to saved lessons)
-  const subjectLessonIds = new Set(subject.units.flatMap((u) => u.lessonIds));
-  const subjectLessons = library.filter(
-    (l) => subjectLessonIds.has(l.id) || l.title.includes(subject.name)
-  );
-  const displayLessons = subjectLessons.length > 0 ? subjectLessons : library;
+  // Find all lessons belonging to this subject
+  const subjectLessons = library.filter((l) => l.subjectId === subjectId);
+  const displayLessons = subjectLessons;
 
   return (
     <div dir="rtl" lang="ar" className="min-h-screen bg-[#f8f9ff] text-[#0b1c30] antialiased flex flex-col items-center">

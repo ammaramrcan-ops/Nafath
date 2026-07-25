@@ -629,7 +629,7 @@ export function InteractiveExamsView({
 
                     <div>
                       <h4 className="text-xl font-extrabold text-[#0b1c30] mb-1">فقه الخُلع وعوض المهر</h4>
-                      <p className="text-xs font-semibold text-[#584237]/80">المستوى المتقدم • الوحدة الثالثة</p>
+                      <p className="text-xs font-semibold text-[#584237]/80">المستوى المتقدم</p>
                     </div>
                   </div>
 
@@ -678,7 +678,7 @@ export function InteractiveExamsView({
 
                     <div>
                       <h4 className="text-xl font-extrabold text-[#0b1c30] mb-1">أحكام الطلاق والعدّة</h4>
-                      <p className="text-xs font-semibold text-[#584237]/80">المستوى المتوسط • الوحدة الثانية</p>
+                      <p className="text-xs font-semibold text-[#584237]/80">المستوى المتوسط</p>
                     </div>
                   </div>
 
