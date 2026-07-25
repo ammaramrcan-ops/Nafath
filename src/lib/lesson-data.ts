@@ -11,6 +11,14 @@ export type TextHighlight = {
   endOffset?: number;
 };
 
+export type HardWord = {
+  term?: string;
+  word?: string;
+  meaning?: string;
+  definition?: string;
+  explanation?: string;
+};
+
 export type QuizImage = { image_url?: string; tags?: string[] };
 export type MCQ = { question: string; options: string[]; answer: string; difficulty?: 'easy' | 'medium' | 'hard'; estimated_time?: number; tags?: string[] } & QuizImage;
 export type Fill = { question: string; answer: string; difficulty?: 'easy' | 'medium' | 'hard'; estimated_time?: number; tags?: string[] } & QuizImage;
@@ -72,6 +80,7 @@ export type Lesson = {
   size: string;
   topics: string[];
   notebookLmUrl?: string;
+  subjectId?: string;
   blocks: ParagraphBlock[];
   levelStageOrders?: {
     1: Stage[];
