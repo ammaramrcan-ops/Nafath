@@ -18,7 +18,7 @@ import {
   Upload,
 } from "lucide-react";
 import { getSubject, addLessonToUnit, addUnit, type Subject } from "@/lib/curriculum";
-import { getLibrary, deleteFromLibrary, type SavedLesson } from "@/lib/lesson-library";
+import { getLibrary, deleteFromLibrary, saveToLibrary, type SavedLesson } from "@/lib/lesson-library";
 import { type Lesson } from "@/lib/lesson-data";
 import { RestoreDialog } from "@/components/RestoreDialog";
 import { SettingsDialog } from "@/components/SettingsDialog";
@@ -80,15 +80,12 @@ function SubjectPage() {
 
   // Handle restoring / importing lesson into this subject
   const handleLessonLoad = (lesson: Lesson) => {
-    let targetUnitId = subject.units[0]?.id;
-    if (!targetUnitId) {
-      const newUnit = addUnit(subject.id, "الوحدة الأولى");
-      targetUnitId = newUnit?.id;
+    try {
+      saveToLibrary(lesson, subjectId);
+      refresh();
+    } catch (err) {
+      console.error("Failed to save lesson:", err);
     }
-    if (targetUnitId && lesson.id) {
-      addLessonToUnit(subject.id, targetUnitId, lesson.id);
-    }
-    refresh();
   };
 
   const handleStartLesson = (lesson: Lesson) => {
@@ -100,12 +97,9 @@ function SubjectPage() {
     }
   };
 
-  // Find all lessons belonging to this subject's units (or fallback to saved lessons)
-  const subjectLessonIds = new Set(subject.units.flatMap((u) => u.lessonIds));
-  const subjectLessons = library.filter(
-    (l) => subjectLessonIds.has(l.id) || l.title.includes(subject.name)
-  );
-  const displayLessons = subjectLessons.length > 0 ? subjectLessons : library;
+  // Find all lessons belonging to this subject
+  const subjectLessons = library.filter((l) => l.subjectId === subjectId);
+  const displayLessons = subjectLessons;
 
   return (
     <div dir="rtl" lang="ar" className="min-h-screen bg-[#f8f9ff] text-[#0b1c30] antialiased flex flex-col items-center">
@@ -136,13 +130,6 @@ function SubjectPage() {
           </div>
 
           <div className="flex items-center gap-4">
-            <button
-              onClick={() => setRestoreOpen(true)}
-              className="inline-flex items-center gap-2 bg-[#9d4300] text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-[#833800] transition-all cursor-pointer shadow-md"
-            >
-              <FileJson className="w-4 h-4" />
-              استرداد درس (JSON)
-            </button>
             <button
               onClick={() => setSettingsOpen(true)}
               className="w-11 h-11 flex items-center justify-center rounded-full bg-[#dce9ff] text-[#9d4300] hover:bg-[#d3e4fe] transition-colors cursor-pointer"
@@ -182,13 +169,6 @@ function SubjectPage() {
                     {subject.description || "دراسة الأحكام والمفاهيم الشاملة المستنبطة من أدلتها ومصادرها بمنهجية علمية ميسرة."}
                   </p>
                 </div>
-                <button
-                  onClick={() => setRestoreOpen(true)}
-                  className="inline-flex items-center gap-2 bg-[#9d4300] text-white px-6 py-3 rounded-full text-sm font-bold hover:bg-[#833800] transition-all cursor-pointer shadow-md self-center md:self-start"
-                >
-                  <Upload className="w-4 h-4" />
-                  استرداد درس (JSON)
-                </button>
               </div>
 
               <div className="flex flex-wrap justify-center md:justify-start gap-3 mt-6">
@@ -272,23 +252,29 @@ function SubjectPage() {
               <h2 className="text-2xl font-bold text-[#0b1c30]">خطة التعلم والدروس</h2>
               <p className="text-xs text-[#584237]/80 mt-1">الدروس المستردة بكود JSON المخصصة لهذه المادة</p>
             </div>
-            <button
-              onClick={() => setRestoreOpen(true)}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#9d4300] bg-[#9d4300]/10 hover:bg-[#9d4300]/20 px-4 py-2 rounded-full transition-colors cursor-pointer"
-            >
-              <FileJson className="w-4 h-4" />
-              + استرداد درس (JSON)
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setRestoreOpen(true)}
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#9d4300] bg-[#9d4300]/10 hover:bg-[#9d4300]/20 px-4 py-2 rounded-full transition-colors cursor-pointer"
+              >
+                <FileJson className="w-4 h-4" />
+                استرداد درس
+              </button>
+              <button
+                onClick={() => navigate({ to: "/subject-stages/$subjectId", params: { subjectId } })}
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#9d4300] bg-[#ffdbca] hover:bg-[#e0c0b1] px-4 py-2 rounded-full transition-colors cursor-pointer"
+              >
+                <Settings className="w-4 h-4" />
+                تعديل المراحل
+              </button>
+            </div>
           </div>
 
           {displayLessons.length === 0 ? (
-            <div
-              onClick={() => setRestoreOpen(true)}
-              className="flex flex-col items-center justify-center p-12 rounded-3xl border-2 border-dashed border-[#e0c0b1]/60 bg-white/70 text-center cursor-pointer hover:border-[#9d4300] transition-colors"
-            >
+            <div className="flex flex-col items-center justify-center p-12 rounded-3xl border-2 border-dashed border-[#e0c0b1]/60 bg-white/70 text-center">
               <FileJson className="w-12 h-12 text-[#9d4300]/50 mb-3" />
               <p className="text-lg font-bold text-[#0b1c30]">لا توجد دروس محملة في مادة {subject.name}</p>
-              <p className="text-sm text-[#584237]/80 mt-1">اضغط هنا لاسترداد درسك الأول بكود JSON أو رفع ملف الدرس</p>
+              <p className="text-sm text-[#584237]/80 mt-1">اضغط على زر تعديل المراحل لإدارة إعدادات المادة</p>
             </div>
           ) : (
             <div className="space-y-4">

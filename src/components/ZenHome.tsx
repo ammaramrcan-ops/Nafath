@@ -236,7 +236,7 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {subjects.slice(0, 3).map((sub) => {
-                const lessonCount = sub.units.reduce((acc, u) => acc + u.lessonIds.length, 0);
+                const lessonCount = library.filter((l) => l.subjectId === sub.id).length;
                 return (
                   <div
                     key={sub.id}
@@ -252,7 +252,7 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
                     <div>
                       <p className="text-xl font-bold text-[#0b1c30] line-clamp-1">{sub.name}</p>
                       <p className="text-sm text-[#584237]/80 mt-1.5 font-medium">
-                        {sub.units.length} وحدة · {lessonCount} درس
+                        {lessonCount} درس
                       </p>
                     </div>
                   </div>
@@ -301,6 +301,17 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
                       درس
                     </span>
                     <div className="flex items-center gap-1.5 opacity-80 group-hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedLessonForCat(saved);
+                          setCategorizeModalOpen(true);
+                        }}
+                        className="p-1.5 text-[#584237] hover:text-[#f97316] rounded-lg hover:bg-black/5 transition cursor-pointer"
+                        title="تصنيف الدرس"
+                      >
+                        <Tag className="w-4 h-4" />
+                      </button>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -559,6 +570,16 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
 
       <RestoreDialog open={restoreOpen} onOpenChange={setRestoreOpen} onLoad={onOpenLesson} />
       <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
+      <CategorizeLessonModal
+        isOpen={categorizeModalOpen}
+        onClose={() => setCategorizeModalOpen(false)}
+        lesson={selectedLessonForCat}
+        onUpdated={() => {
+          refresh();
+          setCategorizeModalOpen(false);
+          setSelectedLessonForCat(null);
+        }}
+      />
 
       {/* Flashcard Subject Picker Modal */}
       <AnimatePresence>

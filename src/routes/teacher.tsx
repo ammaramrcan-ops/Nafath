@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
 import {
   ArrowRight,
   ArrowLeft,
@@ -47,6 +47,7 @@ import {
   parseBlockMindMap,
   type MindMapData,
 } from "@/lib/mind-map-types";
+import { getSubjectById, type Subject } from "@/lib/subjects";
 
 type FillStage = Stage | "quizzes_mcq" | "quizzes_fill" | "quizzes_essay";
 
@@ -159,6 +160,20 @@ function TeacherPage() {
     if (typeof window !== "undefined" && window.location.search.includes("import=true")) {
       setWizardStep(1);
       setShowImportModal(true);
+      
+      // Apply subject stage orders if subject parameter is present
+      const urlParams = new URLSearchParams(window.location.search);
+      const subjectId = urlParams.get("subject");
+      if (subjectId) {
+        const subject = getSubjectById(subjectId);
+        if (subject) {
+          setLesson((prev) => ({
+            ...prev,
+            levelStageOrders: subject.levelStageOrders,
+            levelDisabledStages: subject.levelDisabledStages,
+          }));
+        }
+      }
     }
   }, []);
 

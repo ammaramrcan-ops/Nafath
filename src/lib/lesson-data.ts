@@ -371,7 +371,7 @@ export function normalizeLesson(raw: any): Lesson {
   const levelStageOrders = {
     1: Array.isArray(raw?.levelStageOrders?.[1]) && raw.levelStageOrders[1].length > 0
       ? (Array.from(new Set([...raw.levelStageOrders[1].filter((s: string) => s !== "short" && s !== "zaitouna"), "paper_summary"])) as Stage[])
-      : (["story", "baladi_terms", "quizzes_mcq", "paper_summary"] as Stage[]),
+      : (["story", "baladi_terms", "paper_summary", "mindmap", "quizzes_mcq"] as Stage[]),
     2: raw?.levelStageOrders?.[2] ?? ["examples", "original", "mental", "mindmap", "quizzes_fill", "quizzes_essay", "flashcards", "zaitouna"],
     3: raw?.levelStageOrders?.[3] ?? ["original", "mental", "funny", "mindmap", "quizzes_essay", "zaitouna"],
   };
@@ -414,7 +414,7 @@ export function effectiveStages(
   } else if (level === 1) {
     const raw1 = levelStageOrders?.[1] && levelStageOrders[1].length > 0
       ? levelStageOrders[1]
-      : ["story", "baladi_terms", "quizzes_mcq"];
+      : ["story", "baladi_terms", "paper_summary", "mindmap", "quizzes_mcq"];
     const sanitized1 = raw1.filter((s) => s !== "short" && s !== "zaitouna");
     orderToUse = Array.from(new Set([...sanitized1, "paper_summary"])) as Stage[];
   } else if (level === 2) {
@@ -444,7 +444,7 @@ export const defaultLesson: Lesson = normalizeLesson({
   topics: ["مقدمة الغذاء", "المكونات السحرية", "النتيجة العظيمة"],
   notebookLmUrl: "https://notebooklm.google.com/",
   levelStageOrders: {
-    1: ["story", "baladi_terms", "quizzes_mcq", "paper_summary"],
+    1: ["story", "baladi_terms", "paper_summary", "mindmap", "quizzes_mcq"],
     2: ["examples", "original", "mental", "mindmap", "quizzes_fill", "quizzes_essay", "flashcards", "zaitouna"],
     3: ["original", "mental", "funny", "mindmap", "quizzes_essay", "zaitouna"],
   },
@@ -571,7 +571,7 @@ export const khulLesson: Lesson = normalizeLesson({
   ],
   notebookLmUrl: "https://notebooklm.google.com/",
   levelStageOrders: {
-    1: ["story", "baladi_terms", "quizzes_mcq", "paper_summary"],
+    1: ["story", "baladi_terms", "paper_summary", "mindmap", "quizzes_mcq"],
     2: ["examples", "original", "mental", "mindmap", "quizzes_fill", "quizzes_essay", "flashcards", "zaitouna"],
     3: ["original", "mental", "funny", "mindmap", "quizzes_essay", "zaitouna"],
   },
@@ -588,9 +588,9 @@ export const khulLesson: Lesson = normalizeLesson({
       full_text:
         "أولاً: تعريفه:\nوهو لغة: مشتق من خلع الثوب؛ لأن كلاً من الزوجين لباس للآخر.\nوشرعاً: فرقة بين الزوجين ولو بلفظ مفاداة بعوض مقصود راجع لجهة الزوج.\nثانياً: حكمه:\nالخلع جائز على عوض معلوم. وخرج بـ (معلوم العوض) المجهول، كثوب غير معين؛ فيقع بائناً بمهر المثل.\nثالثاً: دليله:\nالأصل فيه قبل الإجماع قوله تعالى: (فلا جناح عليهما فيما افتدت به). وخبر البخاري في امرأة ثابت بن قيس: (اقبل الحديقة وطلقها تطليقة).\nرابعاً: حكمة مشروعيته:\nأنه لما جاز أن يملك الزوج الانتفاع بالبضع بعوض، جاز له أن يزيل ذلك الملك بعوض. وأيضاً فيه دفع الضرر عن المرأة غالباً.",
       hard_words: [
-        { word: "مفاداة", meaning: "دفع المال أو العوض مقابل فك الارتباط والتخلص من عقد النكاح" },
-        { word: "عوض معلوم", meaning: "مقابل مالي أو عيني محدد القيمة والمقدار (عكس المجهول)" },
-        { word: "مهر المثل", meaning: "المهر الذي تستحقه امرأة من مثيلاتها في العائلة والصفات" },
+        { word: "💡 خد بالك: الأصل في طلب الخلع أنه مكروه", meaning: "لكنه يشرع ويستثنى من الكراهة في حالة سارة لأنها تخاف ألا تقيم حدود الله." },
+        { word: "💡 خد بالك: إذا كان العوض مالاً أو حقاً محدداً ومعلوماً", meaning: "(كإرجاع المهر أو المبلغ المتفق عليه) = يقع الخلع بائناً وتملك الزوجة نفسها فوراً." },
+        { word: "💡 خد بالك: أما إذا خالعت الزوجة زوجها على شيء مجهول غير محدد", meaning: "(كأن تقول أخلعك على سيارة دون تحديد نوعها وموديلها) = يقع الخلع بائناً أيضاً، ولكن يلزمها دفع (مهر المثل) المطبق على مثيلاتها في العائلة." },
       ],
       highlights: [{ text: "بعوض معلوم", color: "yellow" }, { text: "مهر المثل", color: "green" }],
       mnemonic: "الخلع = فرقة بعوض معلوم لرفع الضرر.",

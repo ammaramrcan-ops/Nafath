@@ -335,8 +335,8 @@ export function ParagraphBlockCard({
               <div className="flex items-center gap-2 border-b border-amber-200/60 pb-4">
                 <Sparkles className="h-5 w-5 text-amber-600" />
                 <div>
-                  <h3 className="text-base font-black text-amber-950">شرح الأحكام والمصطلحات بالبلدي 💡</h3>
-                  <p className="text-xs font-bold text-amber-800">توضيح المفاهيم بين قوسين بأسلوب عامي مباشر وفل</p>
+                  <h3 className="text-base font-black text-amber-950">نقط خلي بالك منها 💡</h3>
+                  <p className="text-xs font-bold text-amber-800">تأهيل واستبصار فقهي ذكي</p>
                 </div>
               </div>
 
