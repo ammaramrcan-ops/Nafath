@@ -9,6 +9,7 @@ import {
   Feather,
   PlayCircle,
   Settings,
+  X,
 } from "lucide-react";
 import {
   getCurriculum,
@@ -18,7 +19,6 @@ import {
 } from "@/lib/curriculum";
 import { getLibrary, type SavedLesson } from "@/lib/lesson-library";
 import { getAssignedLessonIds } from "@/lib/curriculum";
-import { PromptDialog } from "@/components/PromptDialog";
 import { SettingsDialog } from "@/components/SettingsDialog";
 
 export const Route = createFileRoute("/subjects/")({
@@ -70,12 +70,6 @@ export function SubjectsPage() {
   );
   const arabicSubjects = filteredSubjects.filter(
     (s) => s.category === "عربية" || ["النحو", "الأدب"].includes(s.name)
-  );
-  const otherSubjects = filteredSubjects.filter(
-    (s) =>
-      !shariaSubjects.some((item) => item.id === s.id) &&
-      !scienceSubjects.some((item) => item.id === s.id) &&
-      !arabicSubjects.some((item) => item.id === s.id)
   );
 
   return (
@@ -286,15 +280,15 @@ export function SubjectsPage() {
               <div className="w-12 h-12 rounded-2xl bg-[#e0e3e5] flex items-center justify-center text-[#5c5f61] shadow-sm">
                 <Feather className="w-6 h-6" />
               </div>
-              <h2 className="text-2xl font-bold text-[#0b1c30]">المواد العربية والعامة</h2>
+              <h2 className="text-2xl font-bold text-[#0b1c30]">المواد العربية</h2>
             </div>
             <div className="grid grid-cols-1 gap-6">
-              {[...arabicSubjects, ...otherSubjects].length === 0 ? (
+              {arabicSubjects.length === 0 ? (
                 <div className="p-6 text-center border border-dashed border-[#e0c0b1]/60 rounded-2xl bg-white/50">
                   <p className="text-sm font-medium text-[#584237]/60">لا توجد مواد مطابقة</p>
                 </div>
               ) : (
-                [...arabicSubjects, ...otherSubjects].map((sub) => {
+                arabicSubjects.map((sub) => {
                   const lessonsCount = sub.units.reduce((acc, u) => acc + u.lessonIds.length, 0);
                   return (
                     <div
@@ -362,20 +356,67 @@ export function SubjectsPage() {
         )}
       </main>
 
-      <PromptDialog
-        open={addOpen}
-        title="مادة جديدة"
-        placeholder="مثال: الرياضيات، الفيزيائ..."
-        confirmLabel="إضافة المادة"
-        onConfirm={(name) => {
-          addSubject(name);
-          setAddOpen(false);
-          refresh();
-        }}
-        onClose={() => setAddOpen(false)}
-      />
-
       <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
+
+      {/* Add Subject Dialog */}
+      {addOpen && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-[#0b1c30]">مادة جديدة</h3>
+              <button
+                onClick={() => setAddOpen(false)}
+                className="p-2 rounded-lg hover:bg-slate-100 transition cursor-pointer"
+              >
+                <X className="h-5 w-5 text-slate-500" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-2">اسم المادة</label>
+                <input
+                  type="text"
+                  id="subject-name"
+                  placeholder="مثال: الرياضيات، الفيزياء..."
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-[#9d4300] focus:ring-2 focus:ring-[#9d4300]/20 outline-none transition"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-2">التصنيف</label>
+                <select
+                  id="subject-category"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-[#9d4300] focus:ring-2 focus:ring-[#9d4300]/20 outline-none transition bg-white"
+                >
+                  <option value="شرعية">شرعية</option>
+                  <option value="عربية">عربية</option>
+                  <option value="علمية">علمية</option>
+                </select>
+              </div>
+
+              <button
+                onClick={() => {
+                  const nameInput = document.getElementById("subject-name") as HTMLInputElement;
+                  const categorySelect = document.getElementById("subject-category") as HTMLSelectElement;
+                  
+                  const name = nameInput?.value?.trim();
+                  const category = categorySelect?.value as "شرعية" | "عربية" | "علمية";
+
+                  if (name) {
+                    addSubject(name, category);
+                    setAddOpen(false);
+                    refresh();
+                  }
+                }}
+                className="w-full bg-[#9d4300] text-white py-3 rounded-xl font-bold hover:bg-[#833800] transition cursor-pointer"
+              >
+                إضافة المادة
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

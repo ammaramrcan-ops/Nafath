@@ -1,22 +1,25 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Upload, PenLine, X, FileJson, Sparkles, ScrollText, Leaf } from "lucide-react";
+import { Upload, PenLine, X, FileJson, Sparkles, ScrollText, Leaf, BookOpen } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { defaultLesson, khulLesson, parseLessonJson, type Lesson } from "@/lib/lesson-data";
 import { saveToLibrary } from "@/lib/lesson-library";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { getCurriculum, type Subject } from "@/lib/curriculum";
 
-type Mode = "choice" | "json";
+type Mode = "choice" | "json" | "subject_selection";
 
 export function RestoreDialog({
   open,
   onOpenChange,
   onLoad,
+  subjectId,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   onLoad: (lesson: Lesson) => void;
+  subjectId?: string;
 }) {
   const [mode, setMode] = useState<Mode>("choice");
   const [text, setText] = useState("");
@@ -53,6 +56,13 @@ export function RestoreDialog({
     reader.readAsText(file);
   };
 
+  // If subjectId is provided, skip subject selection and go directly to JSON mode
+  useEffect(() => {
+    if (subjectId && open) {
+      setMode("json");
+    }
+  }, [subjectId, open]);
+
   return (
     <Dialog open={open} onOpenChange={close}>
       <DialogContent
@@ -82,8 +92,7 @@ export function RestoreDialog({
 
             <button
               onClick={() => {
-                close(false);
-                window.location.href = "/teacher?import=true";
+                setMode("subject_selection");
               }}
               className="group flex w-full items-center gap-5 rounded-[1rem] border border-zen-primary/40 bg-zen-surface-low p-5 text-right transition hover:-translate-y-0.5 hover:border-zen-primary hover:shadow-md cursor-pointer"
             >
@@ -128,6 +137,44 @@ export function RestoreDialog({
                 قالب فقه الخُلع 📜
               </button>
             </div>
+          </div>
+        )}
+
+        {mode === "subject_selection" && (
+          <div className="space-y-4 px-7 pt-4 pb-8">
+            <p className="text-sm leading-relaxed text-zen-on-surface-variant">
+              اختر المادة التي تريد إضافة الدرس إليها
+            </p>
+
+            <div className="space-y-3">
+              {getCurriculum().subjects.map((subject) => (
+                <button
+                  key={subject.id}
+                  onClick={() => {
+                    close(false);
+                    window.location.href = `/teacher?import=true&subject=${subject.id}`;
+                  }}
+                  className="group flex w-full items-center gap-5 rounded-[1rem] border border-zen-primary/40 bg-zen-surface-low p-4 text-right transition hover:-translate-y-0.5 hover:border-zen-primary hover:shadow-md cursor-pointer"
+                >
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zen-primary text-white shadow-xs">
+                    <BookOpen className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-[15px] font-extrabold text-zen-on-surface">{subject.name}</p>
+                    <p className="mt-0.5 text-[11px] leading-relaxed text-zen-on-surface-variant font-medium">
+                      {subject.category}
+                    </p>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setMode("choice")}
+              className="mx-auto block text-xs font-semibold text-zen-on-surface-variant hover:text-zen-on-surface cursor-pointer"
+            >
+              ← رجوع للخيارات
+            </button>
           </div>
         )}
 

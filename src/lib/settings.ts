@@ -17,7 +17,7 @@ export type Stage =
 
 export const STAGE_LABELS: Record<Stage, string> = {
   story: "قصة",
-  baladi_terms: "شرح الأحكام بالبلدي 💡",
+  baladi_terms: "نقط خلي بالك منها 💡",
   examples: "أمثلة توضيحية",
   original: "النص الأصلي",
   mental: "رابط ذهني",

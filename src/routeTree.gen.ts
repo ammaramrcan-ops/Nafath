@@ -19,6 +19,7 @@ import { Route as CurriculumTrackerRouteImport } from './routes/curriculum-track
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SubjectsIndexRouteImport } from './routes/subjects.index'
 import { Route as SubjectsSubjectIdRouteImport } from './routes/subjects.$subjectId'
+import { Route as SubjectStagesSubjectIdRouteImport } from './routes/subject-stages.$subjectId'
 import { Route as SubjectsSubjectIdUnitsUnitIdRouteImport } from './routes/subjects.$subjectId.units.$unitId'
 
 const TeacherRoute = TeacherRouteImport.update({
@@ -71,6 +72,11 @@ const SubjectsSubjectIdRoute = SubjectsSubjectIdRouteImport.update({
   path: '/$subjectId',
   getParentRoute: () => SubjectsRoute,
 } as any)
+const SubjectStagesSubjectIdRoute = SubjectStagesSubjectIdRouteImport.update({
+  id: '/subject-stages/$subjectId',
+  path: '/subject-stages/$subjectId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SubjectsSubjectIdUnitsUnitIdRoute =
   SubjectsSubjectIdUnitsUnitIdRouteImport.update({
     id: '/units/$unitId',
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/spaced-repetition': typeof SpacedRepetitionRoute
   '/subjects': typeof SubjectsRouteWithChildren
   '/teacher': typeof TeacherRoute
+  '/subject-stages/$subjectId': typeof SubjectStagesSubjectIdRoute
   '/subjects/$subjectId': typeof SubjectsSubjectIdRouteWithChildren
   '/subjects/': typeof SubjectsIndexRoute
   '/subjects/$subjectId/units/$unitId': typeof SubjectsSubjectIdUnitsUnitIdRoute
@@ -99,6 +106,7 @@ export interface FileRoutesByTo {
   '/mind-map': typeof MindMapRoute
   '/spaced-repetition': typeof SpacedRepetitionRoute
   '/teacher': typeof TeacherRoute
+  '/subject-stages/$subjectId': typeof SubjectStagesSubjectIdRoute
   '/subjects/$subjectId': typeof SubjectsSubjectIdRouteWithChildren
   '/subjects': typeof SubjectsIndexRoute
   '/subjects/$subjectId/units/$unitId': typeof SubjectsSubjectIdUnitsUnitIdRoute
@@ -113,6 +121,7 @@ export interface FileRoutesById {
   '/spaced-repetition': typeof SpacedRepetitionRoute
   '/subjects': typeof SubjectsRouteWithChildren
   '/teacher': typeof TeacherRoute
+  '/subject-stages/$subjectId': typeof SubjectStagesSubjectIdRoute
   '/subjects/$subjectId': typeof SubjectsSubjectIdRouteWithChildren
   '/subjects/': typeof SubjectsIndexRoute
   '/subjects/$subjectId/units/$unitId': typeof SubjectsSubjectIdUnitsUnitIdRoute
@@ -128,6 +137,7 @@ export interface FileRouteTypes {
     | '/spaced-repetition'
     | '/subjects'
     | '/teacher'
+    | '/subject-stages/$subjectId'
     | '/subjects/$subjectId'
     | '/subjects/'
     | '/subjects/$subjectId/units/$unitId'
@@ -140,6 +150,7 @@ export interface FileRouteTypes {
     | '/mind-map'
     | '/spaced-repetition'
     | '/teacher'
+    | '/subject-stages/$subjectId'
     | '/subjects/$subjectId'
     | '/subjects'
     | '/subjects/$subjectId/units/$unitId'
@@ -153,6 +164,7 @@ export interface FileRouteTypes {
     | '/spaced-repetition'
     | '/subjects'
     | '/teacher'
+    | '/subject-stages/$subjectId'
     | '/subjects/$subjectId'
     | '/subjects/'
     | '/subjects/$subjectId/units/$unitId'
@@ -167,6 +179,7 @@ export interface RootRouteChildren {
   SpacedRepetitionRoute: typeof SpacedRepetitionRoute
   SubjectsRoute: typeof SubjectsRouteWithChildren
   TeacherRoute: typeof TeacherRoute
+  SubjectStagesSubjectIdRoute: typeof SubjectStagesSubjectIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -241,6 +254,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SubjectsSubjectIdRouteImport
       parentRoute: typeof SubjectsRoute
     }
+    '/subject-stages/$subjectId': {
+      id: '/subject-stages/$subjectId'
+      path: '/subject-stages/$subjectId'
+      fullPath: '/subject-stages/$subjectId'
+      preLoaderRoute: typeof SubjectStagesSubjectIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/subjects/$subjectId/units/$unitId': {
       id: '/subjects/$subjectId/units/$unitId'
       path: '/units/$unitId'
@@ -285,6 +305,7 @@ const rootRouteChildren: RootRouteChildren = {
   SpacedRepetitionRoute: SpacedRepetitionRoute,
   SubjectsRoute: SubjectsRouteWithChildren,
   TeacherRoute: TeacherRoute,
+  SubjectStagesSubjectIdRoute: SubjectStagesSubjectIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
