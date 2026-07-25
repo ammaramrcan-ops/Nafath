@@ -5,17 +5,19 @@ import { getMistakes, clearMistakes, removeMistake, type MistakeRecord } from "@
 export function MistakesLogModal({
   isOpen,
   onClose,
+  subjectId,
 }: {
   isOpen: boolean;
   onClose: () => void;
+  subjectId?: string;
 }) {
   const [list, setList] = useState<MistakeRecord[]>([]);
 
   useEffect(() => {
     if (isOpen) {
-      setList(getMistakes());
+      setList(getMistakes(subjectId));
     }
-  }, [isOpen]);
+  }, [isOpen, subjectId]);
 
   if (!isOpen) return null;
 

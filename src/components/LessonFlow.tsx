@@ -389,6 +389,7 @@ export function LessonFlow({
                 lesson.levelDisabledStages
               )}
               mode="student"
+              subjectId={lesson.subjectId}
               onStageChange={handleStageChange}
               onComplete={handleBlockCompletion}
             />
@@ -413,6 +414,7 @@ export function LessonFlow({
       <MistakesLogModal
         isOpen={showMistakesModal}
         onClose={() => setShowMistakesModal(false)}
+        subjectId={lesson.subjectId}
       />
 
       {/* Permanently Pinned Smart Notes Bar */}

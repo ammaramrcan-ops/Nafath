@@ -104,12 +104,14 @@ export function QuizSection({
   type = "all",
   stage,
   lessonTitle = "",
+  subjectId,
   onAllCorrect,
 }: {
   quizzes: Quizzes;
   type?: "mcq" | "fill" | "essay" | "all";
   stage?: string;
   lessonTitle?: string;
+  subjectId?: string;
   onAllCorrect: () => void;
 }) {
   const showMcq = type === "all" || type === "mcq";
@@ -306,7 +308,7 @@ export function QuizSection({
               num={currentIndex + 1}
               q={activeQuestion.data}
               lessonTitle={lessonTitle}
-              isLastQuestion={currentIndex === total - 1}
+              subjectId={subjectId}
               metric={
                 metrics[activeQuestion.id] || {
                   status: "idle",
@@ -330,7 +332,7 @@ export function QuizSection({
               num={currentIndex + 1}
               q={activeQuestion.data}
               lessonTitle={lessonTitle}
-              isLastQuestion={currentIndex === total - 1}
+              subjectId={subjectId}
               metric={
                 metrics[activeQuestion.id] || {
                   status: "idle",
@@ -493,6 +495,7 @@ function McqHybridCard({
   num,
   q,
   lessonTitle,
+  subjectId,
   isLastQuestion,
   metric,
   setMetric,
@@ -501,6 +504,7 @@ function McqHybridCard({
   num: number;
   q: MCQ;
   lessonTitle?: string;
+  subjectId?: string;
   isLastQuestion?: boolean;
   metric: QuestionMetrics;
   setMetric: (m: Partial<QuestionMetrics>) => void;
@@ -548,6 +552,7 @@ function McqHybridCard({
 
     if (!isCorrect) {
       recordMistake({
+        subjectId,
         lessonTitle: lessonTitle || "درس عام",
         question: q.question,
         userAnswer: opt,
@@ -718,6 +723,7 @@ function FillHybridCard({
   num,
   q,
   lessonTitle,
+  subjectId,
   metric,
   setMetric,
   onNext,
@@ -725,6 +731,7 @@ function FillHybridCard({
   num: number;
   q: Fill;
   lessonTitle?: string;
+  subjectId?: string;
   metric: QuestionMetrics;
   setMetric: (m: Partial<QuestionMetrics>) => void;
   onNext: () => void;
@@ -757,6 +764,7 @@ function FillHybridCard({
 
     if (!isCorrect) {
       recordMistake({
+        subjectId,
         lessonTitle: lessonTitle || "درس عام",
         question: q.question,
         userAnswer: val,
@@ -837,6 +845,7 @@ function EssayHybridCard({
   num,
   q,
   lessonTitle,
+  subjectId,
   metric,
   setMetric,
   onNext,
@@ -844,6 +853,7 @@ function EssayHybridCard({
   num: number;
   q: Essay;
   lessonTitle?: string;
+  subjectId?: string;
   metric: QuestionMetrics;
   setMetric: (m: Partial<QuestionMetrics>) => void;
   onNext: () => void;

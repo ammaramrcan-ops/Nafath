@@ -200,11 +200,11 @@ export function MindMapCanvas({
     const parentY = parent ? parent.y : 300;
 
     const newChild: MindMapNode = {
-      id: `node_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+      id: "node_" + Date.now() + "_" + crypto.randomUUID().slice(0, 8),
       text: "عقدة فرعية جديدة 📌",
       shape: "rounded-square",
       x: parentX - 250,
-      y: parentY + (Math.random() * 90 - 45),
+      y: parentY + ((crypto.getRandomValues(new Uint32Array(1))[0] / 2**32) * 90 - 45),
       width: 200,
       height: 65,
       backgroundColor: "#E0E7FF",

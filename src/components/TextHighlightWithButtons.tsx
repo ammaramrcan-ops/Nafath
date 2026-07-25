@@ -27,7 +27,7 @@ export function TextHighlightWithButtons({
     if (!selectedText || selectedText.length < 2) return;
 
     const newItem: HighlightSpan = {
-      id: `${Date.now()}-${Math.random()}`,
+      id: crypto.randomUUID(),
       text: selectedText,
       color,
     };

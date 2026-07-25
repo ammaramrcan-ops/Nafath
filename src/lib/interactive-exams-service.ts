@@ -347,7 +347,7 @@ function finalizeQuestion(raw: Partial<ExamQuestion>, index: number): ExamQuesti
   const tagMatch = extractTopicTag(qText);
 
   return {
-    id: `ingest_q_${Date.now()}_${index}_${Math.random().toString(36).substr(2, 4)}`,
+    id: `ingest_q_${Date.now()}_${index}_${crypto.randomUUID().slice(0, 8)}`,
     type,
     question: qText,
     options: raw.options && raw.options.length > 0 ? raw.options : type === "mcq" ? [ansText, "خيار خاطئ 1", "خيار خاطئ 2"] : undefined,

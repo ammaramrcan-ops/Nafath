@@ -83,7 +83,7 @@ export function parseCSVToSmartCards(csvText: string): SmartFlashcard[] {
       : generateKeywordCues(keywords);
 
     cards.push({
-      id: `csv_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+      id: `csv_${crypto.randomUUID()}`,
       category,
       question,
       model_answer: modelAnswer,

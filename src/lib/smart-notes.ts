@@ -22,7 +22,7 @@ export function saveSmartNote(note: Omit<SmartNote, "id" | "createdAt">): SmartN
   const existing = getLessonNotes(note.lessonTitle);
   const newNote: SmartNote = {
     ...note,
-    id: `${Date.now()}-${Math.random()}`,
+    id: crypto.randomUUID(),
     createdAt: Date.now(),
   };
 

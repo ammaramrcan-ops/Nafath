@@ -1,5 +1,6 @@
 export interface MistakeRecord {
   id: string;
+  subjectId?: string;
   lessonTitle: string;
   question: string;
   userAnswer: string;
@@ -10,11 +11,15 @@ export interface MistakeRecord {
 
 const STORAGE_KEY = "nafath.mistakes";
 
-export function getMistakes(): MistakeRecord[] {
+export function getMistakes(subjectId?: string): MistakeRecord[] {
   if (typeof window === "undefined") return [];
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
+    const allMistakes = raw ? JSON.parse(raw) : [];
+    if (subjectId) {
+      return allMistakes.filter((m: MistakeRecord) => m.subjectId === subjectId);
+    }
+    return allMistakes;
   } catch {
     return [];
   }
@@ -25,7 +30,7 @@ export function recordMistake(mistake: Omit<MistakeRecord, "id" | "timestamp">) 
   const list = getMistakes();
   const newRecord: MistakeRecord = {
     ...mistake,
-    id: `${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+    id: crypto.randomUUID(),
     timestamp: Date.now(),
   };
   const updated = [newRecord, ...list];

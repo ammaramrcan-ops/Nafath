@@ -16,13 +16,14 @@ import { getStoredMistakes } from "@/lib/interactive-exams-service";
 import { getStoredLessonNotes } from "@/lib/interactive-exams-service";
 import { getStoredSmartCards } from "@/lib/spaced-repetition";
 import { getLibrary } from "@/lib/lesson-library";
+import { getMistakes } from "@/lib/mistakes";
 
-export function StatisticsView() {
+export function StatisticsView({ subjectId }: { subjectId?: string }) {
   const navigate = useNavigate();
 
   const mistakes = useMemo(() => {
-    try { return getStoredMistakes(); } catch { return []; }
-  }, []);
+    try { return getMistakes(subjectId); } catch { return []; }
+  }, [subjectId]);
 
   const notes = useMemo(() => {
     try { return getStoredLessonNotes(); } catch { return []; }

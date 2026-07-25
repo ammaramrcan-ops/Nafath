@@ -58,6 +58,27 @@ export const Route = createFileRoute("/teacher")({
   }),
 });
 
+function sanitizeJsonInput<T>(data: T): T {
+  if (typeof data === "string") {
+    return data
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+      .replace(/\bon\w+\s*=\s*["'][^"']*["']/gi, "")
+      .replace(/javascript\s*:/gi, "blocked:")
+      .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, "")
+      .replace(/<embed\b[^>]*>/gi, "")
+      .replace(/<object\b[^>]*>.*?<\/object>/gi, "") as T;
+  }
+  if (Array.isArray(data)) {
+    return data.map(sanitizeJsonInput) as T;
+  }
+  if (data && typeof data === "object") {
+    return Object.fromEntries(
+      Object.entries(data).map(([k, v]) => [k, sanitizeJsonInput(v)])
+    ) as T;
+  }
+  return data;
+}
+
 function emptyBlock(id: number): ParagraphBlock {
   return normalizeBlock(
     {
@@ -218,7 +239,7 @@ function TeacherPage() {
       return false;
     }
     try {
-      const data = JSON.parse(jsonStr);
+      const data = sanitizeJsonInput(JSON.parse(jsonStr));
       const mindMapList = Array.isArray(data.mind_maps_by_block)
         ? data.mind_maps_by_block
         : Array.isArray(data.blocks)
@@ -261,7 +282,7 @@ function TeacherPage() {
       return false;
     }
     try {
-      const data = JSON.parse(jsonStr);
+      const data = sanitizeJsonInput(JSON.parse(jsonStr));
       const quizList = Array.isArray(data.quizzes_by_block)
         ? data.quizzes_by_block
         : Array.isArray(data.blocks)

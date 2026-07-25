@@ -23,12 +23,14 @@ export function ParagraphBlockCard({
   onStageChange,
   stageOrder = DEFAULT_STAGE_ORDER,
   mode = "student",
+  subjectId,
 }: {
   block: Block;
   onComplete: () => void;
   onStageChange?: (completedStageKey: Stage, timeSpentSeconds: number, currentStageIndex: number, totalStagesInBlock: number) => void;
   stageOrder?: Stage[];
   mode?: "student" | "teacher";
+  subjectId?: string;
 }) {
   const STAGES = stageOrder.map((key) => ({ key, label: STAGE_LABELS[key] }));
   const showIntro = false;
@@ -625,6 +627,7 @@ export function ParagraphBlockCard({
               }
               stage={stage}
               lessonTitle={block.title}
+              subjectId={subjectId}
               onAllCorrect={() => {
                 setIsQuizDone(true);
                 handleNextClick();
