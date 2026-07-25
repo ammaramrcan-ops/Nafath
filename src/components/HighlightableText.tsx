@@ -70,7 +70,7 @@ export function HighlightableText({
   const addHighlight = (color: HighlightColor) => {
     if (!selectionRange) return;
     const newItem: HighlightItem = {
-      id: `${Date.now()}-${Math.random()}`,
+      id: crypto.randomUUID(),
       text: selectionRange.text,
       type: "highlight",
       color,
@@ -83,7 +83,7 @@ export function HighlightableText({
   const addBold = () => {
     if (!selectionRange) return;
     const newItem: HighlightItem = {
-      id: `${Date.now()}-${Math.random()}`,
+      id: crypto.randomUUID(),
       text: selectionRange.text,
       type: "bold",
     };

@@ -75,7 +75,7 @@ export function EditFlashcardModal({
       .filter(Boolean);
 
     const updatedCard: SmartFlashcard = {
-      id: cardToEdit?.id || `custom_fc_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+      id: cardToEdit?.id || "custom_fc_" + crypto.randomUUID().slice(0, 8),
       category,
       question: question.trim(),
       model_answer: modelAnswer.trim(),

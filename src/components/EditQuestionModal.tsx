@@ -88,7 +88,7 @@ export function EditQuestionModal({
     }
 
     const newQuestion: ExamQuestion = {
-      id: questionToEdit?.id || `q_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      id: questionToEdit?.id || "q_" + Date.now() + "_" + crypto.randomUUID().slice(0, 8),
       type,
       question: questionText.trim(),
       options: filteredOptions,

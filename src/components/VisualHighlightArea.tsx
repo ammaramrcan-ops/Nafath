@@ -38,7 +38,7 @@ export function VisualHighlightArea({
 
     // Add visual highlight with exact character position range so line 1 is highlighted without line 10!
     const newHighlight: TextHighlight = {
-      id: `${Date.now()}-${Math.random()}`,
+      id: crypto.randomUUID(),
       text: selectedText,
       color,
       fontSize: isLargeSize ? "large" : "normal",
