@@ -67,7 +67,9 @@ export function saveToLibrary(lesson: Lesson, subjectId?: string): string {
   // Update if same title already exists, else prepend
   const existingIdx = lib.findIndex((l) => l.title === entry.title);
   if (existingIdx >= 0) {
-    lib[existingIdx] = { ...entry, id: lib[existingIdx].id };
+    // Preserve existing subjectId if no new one provided
+    const existing = lib[existingIdx];
+    lib[existingIdx] = { ...entry, id: existing.id, subjectId: entry.subjectId ?? existing.subjectId };
     writeLibrary(lib);
     return lib[existingIdx].id;
   }

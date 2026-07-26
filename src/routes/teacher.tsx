@@ -1009,7 +1009,7 @@ function GlobalLevelSequenceEditor({
         {fullStageList.map((stage, idx) => {
           const isBaseForLevel =
             LEVEL_DEFAULT_STAGES[activeLevel].includes(stage);
-          const isDisabled = disabledSet.has(stage) || !isBaseForLevel;
+          const isDisabled = disabledSet.has(stage);
 
           return (
             <div
