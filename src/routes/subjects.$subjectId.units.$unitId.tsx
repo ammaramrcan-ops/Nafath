@@ -81,7 +81,11 @@ function UnitPage() {
   const lessons = library.filter((l) => unit.lessonIds.includes(l.id));
 
   return (
-    <div dir="rtl" lang="ar" className="min-h-screen bg-zen-surface text-zen-on-surface antialiased">
+    <div
+      dir="rtl"
+      lang="ar"
+      className="min-h-screen bg-zen-surface text-zen-on-surface antialiased"
+    >
       <header className="fixed inset-x-0 top-0 z-40 bg-white/80 backdrop-blur-md">
         <div className="relative mx-auto flex w-full max-w-[640px] items-center justify-between px-6 py-5 sm:px-8">
           <Link
@@ -101,7 +105,9 @@ function UnitPage() {
 
       <main className="relative mx-auto min-h-screen w-full max-w-[640px] px-6 pb-24 pt-28 sm:pt-32">
         <div className="mb-6 text-[13px] font-medium text-zen-on-surface-variant">
-          <Link to="/subjects" className="hover:text-zen-primary">المواد</Link>
+          <Link to="/subjects" className="hover:text-zen-primary">
+            المواد
+          </Link>
           <span className="mx-2">/</span>
           <Link to="/subjects/$subjectId" params={{ subjectId }} className="hover:text-zen-primary">
             {subject.name}
@@ -136,7 +142,10 @@ function UnitPage() {
 
         {lessons.length === 0 ? (
           <div className="mt-12 rounded-2xl border border-dashed border-zen-surface-container bg-white/40 p-10 text-center">
-            <BookOpen className="mx-auto mb-3 h-7 w-7 text-zen-on-surface-variant/40" strokeWidth={1.5} />
+            <BookOpen
+              className="mx-auto mb-3 h-7 w-7 text-zen-on-surface-variant/40"
+              strokeWidth={1.5}
+            />
             <p className="text-[14px] font-medium text-zen-on-surface-variant">
               لا توجد دروس في هذه الوحدة بعد
             </p>

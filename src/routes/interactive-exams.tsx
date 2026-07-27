@@ -14,7 +14,10 @@ export const Route = createFileRoute("/interactive-exams")({
   head: () => ({
     meta: [
       { title: "نظام الاختبارات التفاعلي والتحليلات — نفاذ" },
-      { name: "description", content: "اختبارات تفاعلية بـ 3 أنماط أسئلة مع تحليل الأخطاء ومؤشرات التقدم والملاحظات." },
+      {
+        name: "description",
+        content: "اختبارات تفاعلية بـ 3 أنماط أسئلة مع تحليل الأخطاء ومؤشرات التقدم والملاحظات.",
+      },
     ],
   }),
 });
@@ -45,7 +48,9 @@ function InteractiveExamsPage() {
             <ChevronRight className="h-4 w-4" strokeWidth={2.5} />
             <span>رجوع</span>
           </button>
-          <div className="text-base font-extrabold text-[#0b1c30]">نظام الاختبارات وإحصائيات التعلم</div>
+          <div className="text-base font-extrabold text-[#0b1c30]">
+            نظام الاختبارات وإحصائيات التعلم
+          </div>
           <div className="w-16" />
         </div>
       </header>
@@ -53,11 +58,15 @@ function InteractiveExamsPage() {
       <main className="pt-20 pb-20">
         <InteractiveExamsView
           initialTab={
-            tab === "stats" ? "stats"
-            : tab === "mistakes" ? "mistakes"
-            : tab === "notebook" ? "notebook"
-            : tab === "ingest" ? "ingest"
-            : "exam"
+            tab === "stats"
+              ? "stats"
+              : tab === "mistakes"
+                ? "mistakes"
+                : tab === "notebook"
+                  ? "notebook"
+                  : tab === "ingest"
+                    ? "ingest"
+                    : "exam"
           }
         />
       </main>

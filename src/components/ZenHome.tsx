@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import {useEffect, useState} from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -17,7 +17,6 @@ import {
   FileText,
   Clock,
   Tag,
-  Play,
   X,
   ChevronLeft,
 } from "lucide-react";
@@ -28,13 +27,20 @@ import { getStoredSmartCards } from "@/lib/spaced-repetition";
 import { SettingsDialog } from "@/components/SettingsDialog";
 import { RestoreDialog } from "@/components/RestoreDialog";
 import { CategorizeLessonModal } from "@/components/CategorizeLessonModal";
-import { toast } from "sonner";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 const CURRICULUM_KEY = "nafath.curriculumTracker";
 
-interface TrackedLesson { id: string; title: string; done: boolean; }
-interface TrackedSubject { id: string; name: string; lessons: TrackedLesson[]; }
+interface TrackedLesson {
+  id: string;
+  title: string;
+  done: boolean;
+}
+interface TrackedSubject {
+  id: string;
+  name: string;
+  lessons: TrackedLesson[];
+}
 
 function loadCurriculumProgress(): { percent: number; done: number; total: number } {
   try {
@@ -42,7 +48,7 @@ function loadCurriculumProgress(): { percent: number; done: number; total: numbe
     if (!raw) return { percent: 0, done: 0, total: 0 };
     const subjects: TrackedSubject[] = JSON.parse(raw);
     const total = subjects.reduce((a, s) => a + s.lessons.length, 0);
-    const done  = subjects.reduce((a, s) => a + s.lessons.filter((l) => l.done).length, 0);
+    const done = subjects.reduce((a, s) => a + s.lessons.filter((l) => l.done).length, 0);
     const percent = total > 0 ? Math.round((done / total) * 100) : 0;
     return { percent, done, total };
   } catch {
@@ -55,7 +61,7 @@ function loadFlashcardStats(): { reviewed: number; total: number; percent: numbe
     const cards = getStoredSmartCards();
     const total = cards.length;
     const reviewed = cards.filter(
-      (c) => c.stats?.lastReviewDate && c.stats.lastReviewDate > 0
+      (c) => c.stats?.nextReviewDate && c.stats.nextReviewDate > 0,
     ).length;
     const percent = total > 0 ? Math.round((reviewed / total) * 100) : 0;
     return { reviewed, total, percent };
@@ -80,7 +86,13 @@ function loadRealTasks(): RealTaskItem[] {
     const list: RealTaskItem[] = [];
     subjects.forEach((s) => {
       s.lessons.forEach((l) => {
-        list.push({ id: l.id, subjectId: s.id, title: l.title, completed: l.done, subjectName: s.name });
+        list.push({
+          id: l.id,
+          subjectId: s.id,
+          title: l.title,
+          completed: l.done,
+          subjectName: s.name,
+        });
       });
     });
     return list;
@@ -100,7 +112,7 @@ function toggleRealTask(subjectId: string, lessonId: string) {
             ...s,
             lessons: s.lessons.map((l) => (l.id === lessonId ? { ...l, done: !l.done } : l)),
           }
-        : s
+        : s,
     );
     localStorage.setItem(CURRICULUM_KEY, JSON.stringify(updated));
   } catch {}
@@ -117,7 +129,7 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
   const [realTasks, setRealTasks] = useState<RealTaskItem[]>(() => loadRealTasks());
 
   const [curriculumStats, setCurriculumStats] = useState(() => loadCurriculumProgress());
-  const [flashcardStats, setFlashcardStats]   = useState(() => loadFlashcardStats());
+  const [flashcardStats, setFlashcardStats] = useState(() => loadFlashcardStats());
 
   const navigate = useNavigate();
 
@@ -148,7 +160,11 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
   const curriculumOffset = circumference - (curriculumStats.percent / 100) * circumference;
 
   return (
-    <div dir="rtl" lang="ar" className="min-h-screen bg-[#f8f9ff] text-[#0b1c30] antialiased flex flex-col items-center">
+    <div
+      dir="rtl"
+      lang="ar"
+      className="min-h-screen bg-[#f8f9ff] text-[#0b1c30] antialiased flex flex-col items-center"
+    >
       {/* Top Header Bar */}
       <header className="flex justify-between items-center w-full px-8 md:px-16 h-20 fixed top-0 z-50 bg-[#f8f9ff]/85 backdrop-blur-md border-b border-[#e0c0b1]/30">
         <div className="flex items-center gap-10">
@@ -194,8 +210,12 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
       <main className="w-full max-w-[85vw] mx-auto px-6 md:px-12 pt-28 pb-32 md:pb-20 flex-grow">
         {/* Welcome Section */}
         <section className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-[#0b1c30] mb-3 tracking-tight">أهلاً بك</h1>
-          <p className="text-base md:text-lg text-[#584237]/80 font-medium">منصتك الذكية للتعلم التكيفي والمراجعة السريعة</p>
+          <h1 className="text-4xl md:text-5xl font-extrabold text-[#0b1c30] mb-3 tracking-tight">
+            أهلاً بك
+          </h1>
+          <p className="text-base md:text-lg text-[#584237]/80 font-medium">
+            منصتك الذكية للتعلم التكيفي والمراجعة السريعة
+          </p>
         </section>
 
         {/* Section 1: Active Subjects (Dynamic & Scaled Up) */}
@@ -231,7 +251,9 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
             >
               <FolderOpen className="w-12 h-12 text-[#9d4300]/50 mb-3" />
               <p className="text-lg font-bold text-[#0b1c30]">لا توجد مواد دراسية مضافة حتى الآن</p>
-              <p className="text-sm text-[#584237]/80 mt-1">اضغط هنا لإضافة مادتك الأولى وتنظيم دروسك</p>
+              <p className="text-sm text-[#584237]/80 mt-1">
+                اضغط هنا لإضافة مادتك الأولى وتنظيم دروسك
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -246,7 +268,9 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
                     className="bg-white rounded-2xl p-7 border border-[#e0c0b1]/40 hover:border-[#9d4300]/50 transition-all shadow-sm hover:shadow-md cursor-pointer flex flex-col justify-between min-h-[140px]"
                   >
                     <div className="flex justify-between items-start mb-4">
-                      <span className="text-sm font-bold text-[#584237] bg-[#eff4ff] px-3 py-1 rounded-full">{sub.name}</span>
+                      <span className="text-sm font-bold text-[#584237] bg-[#eff4ff] px-3 py-1 rounded-full">
+                        {sub.name}
+                      </span>
                       <Sparkles className="w-5 h-5 text-[#9d4300]" />
                     </div>
                     <div>
@@ -287,7 +311,9 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
             >
               <FileText className="w-12 h-12 text-[#9d4300]/50 mb-3" />
               <p className="text-lg font-bold text-[#0b1c30]">لا توجد دروس محملة في مكتبتك</p>
-              <p className="text-sm text-[#584237]/80 mt-1">اضغط على "استرداد درس" لرفع ملف درس وابدأ المراجعة</p>
+              <p className="text-sm text-[#584237]/80 mt-1">
+                اضغط على "استرداد درس" لرفع ملف درس وابدأ المراجعة
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -316,7 +342,10 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
                         onClick={(e) => {
                           e.stopPropagation();
                           try {
-                            localStorage.setItem("teacher.lesson.draft", JSON.stringify(saved.data));
+                            localStorage.setItem(
+                              "teacher.lesson.draft",
+                              JSON.stringify(saved.data),
+                            );
                             navigate({ to: "/teacher" });
                           } catch (err) {
                             console.error("Failed to save draft:", err);
@@ -340,11 +369,10 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
                       </button>
                     </div>
                   </div>
-                  <div
-                    onClick={() => onOpenLesson(saved.data)}
-                    className="cursor-pointer"
-                  >
-                    <p className="text-lg font-bold text-[#0b1c30] line-clamp-2 leading-snug">{saved.title}</p>
+                  <div onClick={() => onOpenLesson(saved.data)} className="cursor-pointer">
+                    <p className="text-lg font-bold text-[#0b1c30] line-clamp-2 leading-snug">
+                      {saved.title}
+                    </p>
                     <p className="text-xs font-semibold text-[#584237]/80 mt-3 flex items-center gap-1.5">
                       <Clock className="w-3.5 h-3.5" />
                       انقر للبدء بالمراجعة
@@ -384,14 +412,18 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
               <div className="relative w-28 h-28 flex items-center justify-center">
                 <svg className="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
                   <circle
-                    cx="60" cy="60" r="46"
+                    cx="60"
+                    cy="60"
+                    r="46"
                     stroke="currentColor"
                     strokeWidth="9"
                     fill="transparent"
                     className="text-[#e0c0b1]/30"
                   />
                   <circle
-                    cx="60" cy="60" r="46"
+                    cx="60"
+                    cy="60"
+                    r="46"
                     stroke="currentColor"
                     strokeWidth="9"
                     fill="transparent"
@@ -411,7 +443,9 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
                 </span>
               )}
               {curriculumStats.total === 0 && (
-                <span className="mt-2 text-xs font-semibold text-[#584237]/60">أضف دروسك لتتبع تقدمك</span>
+                <span className="mt-2 text-xs font-semibold text-[#584237]/60">
+                  أضف دروسك لتتبع تقدمك
+                </span>
               )}
               <span className="mt-2 text-xs font-bold text-[#9d4300] opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
                 <ChevronLeft className="h-3 w-3" />
@@ -522,7 +556,9 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
                   <Brain className="w-8 h-8" />
                   فلاش كارد
                 </h3>
-                <p className="text-base opacity-95 leading-relaxed">اختبر معلوماتك السريعة الآن وحسّن مستوى استرجاعك للدروس</p>
+                <p className="text-base opacity-95 leading-relaxed">
+                  اختبر معلوماتك السريعة الآن وحسّن مستوى استرجاعك للدروس
+                </p>
               </div>
               <button
                 onClick={() => setShowFlashcardPicker(true)}
@@ -620,7 +656,9 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
                         setShowFlashcardPicker(false);
                         navigate({ to: "/spaced-repetition" });
                         // pass lesson id via sessionStorage for SpacedRepetition to pick up
-                        try { sessionStorage.setItem("nafath.flashcard.startLessonId", saved.id); } catch {}
+                        try {
+                          sessionStorage.setItem("nafath.flashcard.startLessonId", saved.id);
+                        } catch {}
                       }}
                       className="w-full text-right p-4 rounded-2xl bg-[#f8f9ff] hover:bg-[#eff4ff] border border-[#e0c0b1]/40 hover:border-[#9d4300]/50 transition flex items-center gap-4 cursor-pointer"
                     >
@@ -629,7 +667,9 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
                       </div>
                       <div>
                         <p className="font-bold text-[#0b1c30] text-sm">{saved.title}</p>
-                        <p className="text-xs text-[#584237]/70 mt-0.5">{saved.blocks} كتلة تعليمية</p>
+                        <p className="text-xs text-[#584237]/70 mt-0.5">
+                          {saved.blocks} كتلة تعليمية
+                        </p>
                       </div>
                     </button>
                   ))

@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
+import {useEffect, useMemo, useState} from "react";
+import {createFileRoute, Link} from "@tanstack/react-router";
 import {
   ArrowRight,
   ArrowLeft,
@@ -7,34 +7,27 @@ import {
   ArrowDown,
   Eye,
   EyeOff,
-  ImagePlus,
   Maximize2,
   Minimize2,
   Plus,
-  Save,
   Trash2,
   X,
   Sparkles,
-  Settings2,
   Filter,
   BookOpen,
   CheckCircle2,
-  Code2,
   Copy,
-  FileText,
-  HelpCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
-  defaultLesson,
+  khulLesson,
   effectiveStages,
   normalizeBlock,
   type HardWord,
   type Lesson,
   type ParagraphBlock,
-  type TextHighlight,
 } from "@/lib/lesson-data";
-import { useSettings, STAGE_LABELS, DEFAULT_STAGE_ORDER, type Stage } from "@/lib/settings";
+import {STAGE_LABELS, DEFAULT_STAGE_ORDER, type Stage} from "@/lib/settings";
 import { saveToLibrary } from "@/lib/lesson-library";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -42,12 +35,10 @@ import { VisualHighlightArea } from "@/components/VisualHighlightArea";
 import { cn } from "@/lib/utils";
 import { MindMapCanvas } from "@/components/MindMapCanvas";
 import {
-  getDefaultKhulMindMap,
-  createEmptySubjectMindMap,
   parseBlockMindMap,
   type MindMapData,
 } from "@/lib/mind-map-types";
-import { getSubjectById, type Subject } from "@/lib/subjects";
+import { getSubjectById } from "@/lib/subjects";
 
 type FillStage = Stage | "quizzes_mcq" | "quizzes_fill" | "quizzes_essay";
 
@@ -72,9 +63,7 @@ function sanitizeJsonInput<T>(data: T): T {
     return data.map(sanitizeJsonInput) as T;
   }
   if (data && typeof data === "object") {
-    return Object.fromEntries(
-      Object.entries(data).map(([k, v]) => [k, sanitizeJsonInput(v)])
-    ) as T;
+    return Object.fromEntries(Object.entries(data).map(([k, v]) => [k, sanitizeJsonInput(v)])) as T;
   }
   return data;
 }
@@ -98,33 +87,8 @@ function emptyBlock(id: number): ParagraphBlock {
       stage_order: DEFAULT_STAGE_ORDER,
       quizzes: { mcqs: [], fills: [], essays: [] },
     },
-    id - 1
+    id - 1,
   );
-}
-
-function emptyLesson(): Lesson {
-  return {
-    title: "",
-    estimatedTime: "",
-    size: "",
-    topics: [],
-    levelStageOrders: {
-      1: ["story", "baladi_terms", "quizzes_mcq", "paper_summary"],
-      2: [
-        "examples",
-        "original",
-        "mental",
-        "mindmap",
-        "quizzes_fill",
-        "quizzes_essay",
-        "flashcards",
-        "zaitouna",
-      ],
-      3: ["original", "mental", "funny", "mindmap", "quizzes_essay", "zaitouna"],
-    },
-    levelDisabledStages: { 1: [], 2: [], 3: [] },
-    blocks: [emptyBlock(1)],
-  };
 }
 
 const STORAGE_KEY = "teacher.lesson.draft";
@@ -153,9 +117,7 @@ function TeacherPage() {
         const parsed = JSON.parse(raw);
         return {
           ...parsed,
-          blocks: (parsed.blocks ?? []).map((b: any, i: number) =>
-            normalizeBlock(b, i)
-          ),
+          blocks: (parsed.blocks ?? []).map((b: any, i: number) => normalizeBlock(b, i)),
         };
       }
     } catch {
@@ -165,9 +127,7 @@ function TeacherPage() {
   });
 
   const [step, setStep] = useState(0);
-  const [selectedLevelFilter, setSelectedLevelFilter] = useState<
-    1 | 2 | 3 | "all"
-  >(1);
+  const [selectedLevelFilter, setSelectedLevelFilter] = useState<1 | 2 | 3 | "all">(1);
   const [libSaved, setLibSaved] = useState(false);
 
   // 3-Step Dedicated Wizard Modal State
@@ -181,7 +141,7 @@ function TeacherPage() {
     if (typeof window !== "undefined" && window.location.search.includes("import=true")) {
       setWizardStep(1);
       setShowImportModal(true);
-      
+
       // Apply subject stage orders if subject parameter is present
       const urlParams = new URLSearchParams(window.location.search);
       const subjectId = urlParams.get("subject");
@@ -206,7 +166,11 @@ function TeacherPage() {
     try {
       const data = JSON.parse(jsonStr);
       const title = data.title || data.lesson_title || lesson.title;
-      const rawBlocks = Array.isArray(data.blocks) ? data.blocks : Array.isArray(data.sections) ? data.sections : [data];
+      const rawBlocks = Array.isArray(data.blocks)
+        ? data.blocks
+        : Array.isArray(data.sections)
+          ? data.sections
+          : [data];
 
       const newBlocks = rawBlocks.map((b: any, i: number) => {
         const existing = lesson.blocks[i] || emptyBlock(i + 1);
@@ -243,13 +207,14 @@ function TeacherPage() {
       const mindMapList = Array.isArray(data.mind_maps_by_block)
         ? data.mind_maps_by_block
         : Array.isArray(data.blocks)
-        ? data.blocks
-        : null;
+          ? data.blocks
+          : null;
 
       if (mindMapList) {
         const updatedBlocks = lesson.blocks.map((b, i) => {
-          const item = mindMapList[i] || mindMapList.find((m: any) => m.block_id === b.id) || mindMapList[0];
-          const nodes = item ? (item.mind_map_nodes || item.nodes || item) : b.mind_map_nodes;
+          const item =
+            mindMapList[i] || mindMapList.find((m: any) => m.block_id === b.id) || mindMapList[0];
+          const nodes = item ? item.mind_map_nodes || item.nodes || item : b.mind_map_nodes;
           return {
             ...b,
             mind_map_nodes: Array.isArray(nodes) ? nodes : [nodes],
@@ -286,8 +251,8 @@ function TeacherPage() {
       const quizList = Array.isArray(data.quizzes_by_block)
         ? data.quizzes_by_block
         : Array.isArray(data.blocks)
-        ? data.blocks
-        : [data];
+          ? data.blocks
+          : [data];
 
       const updatedBlocks = lesson.blocks.map((b, i) => {
         const item = quizList[i] || quizList.find((q: any) => q.block_id === b.id) || quizList[0];
@@ -356,9 +321,7 @@ function TeacherPage() {
     setLesson((prev) => {
       const next = {
         ...prev,
-        blocks: prev.blocks
-          .filter((_, i) => i !== idx)
-          .map((b, i) => ({ ...b, id: i + 1 })),
+        blocks: prev.blocks.filter((_, i) => i !== idx).map((b, i) => ({ ...b, id: i + 1 })),
       };
       saveToLibrary(next);
       try {
@@ -396,24 +359,16 @@ function TeacherPage() {
   };
 
   return (
-    <div
-      className="min-h-screen bg-[#f8f9ff] font-sans text-[#0b1c30] dir-rtl pb-28"
-      dir="rtl"
-    >
+    <div className="min-h-screen bg-[#f8f9ff] font-sans text-[#0b1c30] dir-rtl pb-28" dir="rtl">
       {/* Top Header */}
       <header className="sticky top-0 z-40 border-b border-[#e0c0b1]/30 bg-[#f8f9ff]/90 backdrop-blur-md px-6 py-4">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div className="flex items-center gap-3 text-xs sm:text-sm font-extrabold text-[#584237]">
-            <Link
-              to="/"
-              className="flex items-center gap-1 hover:text-[#9d4300] transition"
-            >
+            <Link to="/" className="flex items-center gap-1 hover:text-[#9d4300] transition">
               <span>الرئيسية</span>
             </Link>
             <span className="text-[#e0c0b1] font-normal">›</span>
-            <span className="text-[#0b1c30] font-extrabold">
-              واجهة المعلم — تصميم وتعديل الدرس
-            </span>
+            <span className="text-[#0b1c30] font-extrabold">واجهة المعلم — تصميم وتعديل الدرس</span>
           </div>
 
           <div className="flex items-center gap-3">
@@ -422,11 +377,7 @@ function TeacherPage() {
               className="inline-flex items-center gap-2 rounded-full bg-[#213145] hover:bg-[#0b1c30] px-7 py-3 text-xs sm:text-sm font-extrabold text-white shadow-md transition cursor-pointer"
             >
               <BookOpen className="h-4 w-4 text-[#ffdbca]" />
-              <span>
-                {libSaved
-                  ? "تمت الإضافة للمكتبة! ✨"
-                  : "اعتماد وحفظ الدرس بالمكتبة"}
-              </span>
+              <span>{libSaved ? "تمت الإضافة للمكتبة! ✨" : "اعتماد وحفظ الدرس بالمكتبة"}</span>
             </button>
           </div>
         </div>
@@ -443,8 +394,12 @@ function TeacherPage() {
                   <Sparkles className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-extrabold text-[#0b1c30]">نظام إضافة الدرس الذكي (3 خطوات متتابعة بـ JSON) 🚀</h3>
-                  <p className="text-xs font-semibold text-[#584237]/70">انسخ البرومبت لكل مرحلة، الصقه في الذكاء الاصطناعي، ثم الصق كود JSON الناتج هنا</p>
+                  <h3 className="text-lg font-extrabold text-[#0b1c30]">
+                    نظام إضافة الدرس الذكي (3 خطوات متتابعة بـ JSON) 🚀
+                  </h3>
+                  <p className="text-xs font-semibold text-[#584237]/70">
+                    انسخ البرومبت لكل مرحلة، الصقه في الذكاء الاصطناعي، ثم الصق كود JSON الناتج هنا
+                  </p>
                 </div>
               </div>
               <button
@@ -465,10 +420,15 @@ function TeacherPage() {
                   "p-4 rounded-2xl border text-right transition cursor-pointer flex items-center gap-3",
                   wizardStep === 1
                     ? "bg-[#9d4300] text-white border-[#9d4300] shadow-md"
-                    : "bg-[#fffaf7] text-[#584237] border-[#ffdbca] hover:bg-[#ffeddf]"
+                    : "bg-[#fffaf7] text-[#584237] border-[#ffdbca] hover:bg-[#ffeddf]",
                 )}
               >
-                <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs shrink-0", wizardStep === 1 ? "bg-white text-[#9d4300]" : "bg-[#ffdbca] text-[#9d4300]")}>
+                <div
+                  className={cn(
+                    "w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs shrink-0",
+                    wizardStep === 1 ? "bg-white text-[#9d4300]" : "bg-[#ffdbca] text-[#9d4300]",
+                  )}
+                >
                   1
                 </div>
                 <div>
@@ -484,15 +444,22 @@ function TeacherPage() {
                   "p-4 rounded-2xl border text-right transition cursor-pointer flex items-center gap-3",
                   wizardStep === 2
                     ? "bg-[#8127cf] text-white border-[#8127cf] shadow-md"
-                    : "bg-[#eff4ff] text-[#584237] border-[#e0c0b1]/60 hover:bg-[#dce9ff]"
+                    : "bg-[#eff4ff] text-[#584237] border-[#e0c0b1]/60 hover:bg-[#dce9ff]",
                 )}
               >
-                <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs shrink-0", wizardStep === 2 ? "bg-white text-[#8127cf]" : "bg-[#e0e7ff] text-[#8127cf]")}>
+                <div
+                  className={cn(
+                    "w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs shrink-0",
+                    wizardStep === 2 ? "bg-white text-[#8127cf]" : "bg-[#e0e7ff] text-[#8127cf]",
+                  )}
+                >
                   2
                 </div>
                 <div>
                   <h4 className="text-xs font-extrabold">المرحلة الثانية</h4>
-                  <p className="text-[11px] opacity-90 font-semibold">الخريطة الذهنية التفاعلية 🎨</p>
+                  <p className="text-[11px] opacity-90 font-semibold">
+                    الخريطة الذهنية التفاعلية 🎨
+                  </p>
                 </div>
               </button>
 
@@ -503,15 +470,24 @@ function TeacherPage() {
                   "p-4 rounded-2xl border text-right transition cursor-pointer flex items-center gap-3",
                   wizardStep === 3
                     ? "bg-emerald-700 text-white border-emerald-700 shadow-md"
-                    : "bg-[#f0fdf4] text-[#584237] border-emerald-200 hover:bg-emerald-100/70"
+                    : "bg-[#f0fdf4] text-[#584237] border-emerald-200 hover:bg-emerald-100/70",
                 )}
               >
-                <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs shrink-0", wizardStep === 3 ? "bg-white text-emerald-800" : "bg-emerald-200 text-emerald-800")}>
+                <div
+                  className={cn(
+                    "w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs shrink-0",
+                    wizardStep === 3
+                      ? "bg-white text-emerald-800"
+                      : "bg-emerald-200 text-emerald-800",
+                  )}
+                >
                   3
                 </div>
                 <div>
                   <h4 className="text-xs font-extrabold">المرحلة الثالثة</h4>
-                  <p className="text-[11px] opacity-90 font-semibold">أسئلة الـ MCQs وبنك الأسئلة 📝</p>
+                  <p className="text-[11px] opacity-90 font-semibold">
+                    أسئلة الـ MCQs وبنك الأسئلة 📝
+                  </p>
                 </div>
               </button>
             </div>
@@ -526,7 +502,9 @@ function TeacherPage() {
                         <BookOpen className="h-5 w-5" />
                         <span>البرومبت المخصص 1: (الشرح والقصص والمصطلحات 📖)</span>
                       </h3>
-                      <p className="text-xs text-[#584237]/70 font-semibold">انسخ هذا الأمر والصقه في نموذج الذكاء الاصطناعي (ChatGPT / Claude / Gemini)</p>
+                      <p className="text-xs text-[#584237]/70 font-semibold">
+                        انسخ هذا الأمر والصقه في نموذج الذكاء الاصطناعي (ChatGPT / Claude / Gemini)
+                      </p>
                     </div>
                     <button
                       type="button"
@@ -581,7 +559,9 @@ function TeacherPage() {
                         <Sparkles className="h-5 w-5" />
                         <span>البرومبت المخصص 2: (الخريطة الذهنية التفاعلية لكل فقرة 🎨)</span>
                       </h3>
-                      <p className="text-xs text-[#584237]/70 font-semibold">انسخ هذا الأمر والصقه في الذكاء الاصطناعي بعد إعطائه نص الشرح</p>
+                      <p className="text-xs text-[#584237]/70 font-semibold">
+                        انسخ هذا الأمر والصقه في الذكاء الاصطناعي بعد إعطائه نص الشرح
+                      </p>
                     </div>
                     <button
                       type="button"
@@ -644,7 +624,10 @@ function TeacherPage() {
                         <CheckCircle2 className="h-5 w-5 text-emerald-700" />
                         <span>البرومبت المخصص 3: (أسئلة الـ MCQs وبنك الأسئلة لكل فقرة 📝)</span>
                       </h3>
-                      <p className="text-xs text-[#584237]/70 font-semibold">انسخ هذا الأمر والصقه في الذكاء الاصطناعي لتوليد 5 أسئلة خيار من متعدد حصرية لكل فقرة</p>
+                      <p className="text-xs text-[#584237]/70 font-semibold">
+                        انسخ هذا الأمر والصقه في الذكاء الاصطناعي لتوليد 5 أسئلة خيار من متعدد حصرية
+                        لكل فقرة
+                      </p>
                     </div>
                     <button
                       type="button"
@@ -705,7 +688,6 @@ function TeacherPage() {
 
       {/* Main Editing Container */}
       <main className="mx-auto max-w-7xl p-6 sm:p-8 space-y-8">
-
         {/* Bento Step Tabs Navigation */}
         <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5 pb-2">
           <button
@@ -714,7 +696,7 @@ function TeacherPage() {
               "rounded-2xl px-6 py-3 text-xs sm:text-sm font-extrabold transition cursor-pointer flex items-center gap-2 shadow-xs",
               step === 0
                 ? "bg-[#213145] text-white shadow-md"
-                : "bg-[#eaf1ff] text-[#584237] hover:bg-[#dce9ff]"
+                : "bg-[#eaf1ff] text-[#584237] hover:bg-[#dce9ff]",
             )}
           >
             <BookOpen className="h-4 w-4" />
@@ -729,7 +711,7 @@ function TeacherPage() {
                 "rounded-2xl px-5 py-3 text-xs sm:text-sm font-extrabold transition cursor-pointer",
                 step === i + 1
                   ? "bg-[#213145] text-white shadow-md"
-                  : "bg-[#eaf1ff] text-[#584237] hover:bg-[#dce9ff]"
+                  : "bg-[#eaf1ff] text-[#584237] hover:bg-[#dce9ff]",
               )}
             >
               فقرة {i + 1}: {b.title || "بدون عنوان"}
@@ -767,9 +749,7 @@ function TeacherPage() {
                   <Field label="الزمن التقديري">
                     <Input
                       value={lesson.estimatedTime || "35 دقيقة"}
-                      onChange={(e) =>
-                        updateLesson({ estimatedTime: e.target.value })
-                      }
+                      onChange={(e) => updateLesson({ estimatedTime: e.target.value })}
                       placeholder="مثال: 35 دقيقة"
                       className="h-14 rounded-2xl border-none bg-[#eff4ff] text-center font-bold text-sm text-[#0b1c30]"
                     />
@@ -789,80 +769,73 @@ function TeacherPage() {
                   hint="ضع رابط كشكول NotebookLM الخاص بالدرس لتمكين خيار 'لدي سؤال' للطالب لتوجيهه للأداة عند الاستفسار."
                 >
                   <Input
-                    value={
-                      lesson.notebookLmUrl ||
-                      "https://notebooklm.google.com/..."
-                    }
-                    onChange={(e) =>
-                      updateLesson({ notebookLmUrl: e.target.value })
-                    }
+                    value={lesson.notebookLmUrl || "https://notebooklm.google.com/..."}
+                    onChange={(e) => updateLesson({ notebookLmUrl: e.target.value })}
                     placeholder="https://notebooklm.google.com/notebook/..."
                     className="h-14 rounded-2xl border-none bg-[#eff4ff] text-center font-semibold text-xs text-[#0b1c30] dir-ltr"
                   />
                 </Field>
 
-        {/* Level Selection Radio Pills & Modern Inline Stages Editor */}
-        <div className="pt-6 border-t border-[#e0c0b1]/30 space-y-6 text-center">
-          <div className="flex items-center justify-center gap-2 text-xs sm:text-sm font-extrabold text-[#0b1c30]">
-            <Filter className="h-4 w-4 text-[#9d4300]" />
-            <span>تحديد المستوى المعتمد لتعديل وعرض مراحل الفقرات:</span>
-          </div>
+                {/* Level Selection Radio Pills & Modern Inline Stages Editor */}
+                <div className="pt-6 border-t border-[#e0c0b1]/30 space-y-6 text-center">
+                  <div className="flex items-center justify-center gap-2 text-xs sm:text-sm font-extrabold text-[#0b1c30]">
+                    <Filter className="h-4 w-4 text-[#9d4300]" />
+                    <span>تحديد المستوى المعتمد لتعديل وعرض مراحل الفقرات:</span>
+                  </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl mx-auto">
-            <button
-              type="button"
-              onClick={() => setSelectedLevelFilter(1)}
-              className={cn(
-                "py-3.5 px-4 rounded-full text-xs font-extrabold transition cursor-pointer flex items-center justify-center gap-2 border",
-                selectedLevelFilter === 1
-                  ? "bg-[#00875a] text-white border-[#00875a] shadow-sm"
-                  : "bg-[#eff4ff] text-[#584237] border-transparent hover:bg-[#dce9ff]"
-              )}
-            >
-              <CheckCircle2 className="h-4 w-4" />
-              <span>مراحل المستوى الأول (3 مراحل)</span>
-            </button>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl mx-auto">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedLevelFilter(1)}
+                      className={cn(
+                        "py-3.5 px-4 rounded-full text-xs font-extrabold transition cursor-pointer flex items-center justify-center gap-2 border",
+                        selectedLevelFilter === 1
+                          ? "bg-[#00875a] text-white border-[#00875a] shadow-sm"
+                          : "bg-[#eff4ff] text-[#584237] border-transparent hover:bg-[#dce9ff]",
+                      )}
+                    >
+                      <CheckCircle2 className="h-4 w-4" />
+                      <span>مراحل المستوى الأول (3 مراحل)</span>
+                    </button>
 
-            <button
-              type="button"
-              onClick={() => setSelectedLevelFilter(2)}
-              className={cn(
-                "py-3.5 px-4 rounded-full text-xs font-extrabold transition cursor-pointer flex items-center justify-center gap-2 border",
-                selectedLevelFilter === 2
-                  ? "bg-[#00875a] text-white border-[#00875a] shadow-sm"
-                  : "bg-[#eff4ff] text-[#584237] border-transparent hover:bg-[#dce9ff]"
-              )}
-            >
-              <span className="w-3.5 h-3.5 rounded-full border-2 border-current" />
-              <span>مراحل المستوى الثاني (10 مراحل)</span>
-            </button>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedLevelFilter(2)}
+                      className={cn(
+                        "py-3.5 px-4 rounded-full text-xs font-extrabold transition cursor-pointer flex items-center justify-center gap-2 border",
+                        selectedLevelFilter === 2
+                          ? "bg-[#00875a] text-white border-[#00875a] shadow-sm"
+                          : "bg-[#eff4ff] text-[#584237] border-transparent hover:bg-[#dce9ff]",
+                      )}
+                    >
+                      <span className="w-3.5 h-3.5 rounded-full border-2 border-current" />
+                      <span>مراحل المستوى الثاني (10 مراحل)</span>
+                    </button>
 
-            <button
-              type="button"
-              onClick={() => setSelectedLevelFilter(3)}
-              className={cn(
-                "py-3.5 px-4 rounded-full text-xs font-extrabold transition cursor-pointer flex items-center justify-center gap-2 border",
-                selectedLevelFilter === 3
-                  ? "bg-[#00875a] text-white border-[#00875a] shadow-sm"
-                  : "bg-[#eff4ff] text-[#584237] border-transparent hover:bg-[#dce9ff]"
-              )}
-            >
-              <span className="w-3.5 h-3.5 rounded-full border-2 border-current" />
-              <span>مراحل المستوى الثالث (11 مرحلة)</span>
-            </button>
-          </div>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedLevelFilter(3)}
+                      className={cn(
+                        "py-3.5 px-4 rounded-full text-xs font-extrabold transition cursor-pointer flex items-center justify-center gap-2 border",
+                        selectedLevelFilter === 3
+                          ? "bg-[#00875a] text-white border-[#00875a] shadow-sm"
+                          : "bg-[#eff4ff] text-[#584237] border-transparent hover:bg-[#dce9ff]",
+                      )}
+                    >
+                      <span className="w-3.5 h-3.5 rounded-full border-2 border-current" />
+                      <span>مراحل المستوى الثالث (11 مرحلة)</span>
+                    </button>
+                  </div>
 
-          {/* Seamless Inline Modern Stage Sequence Editor */}
-          <div className="pt-4 border-t border-[#e0c0b1]/30">
-            <GlobalLevelSequenceEditor
-              lesson={lesson}
-              activeLevel={
-                selectedLevelFilter === "all" ? 1 : selectedLevelFilter
-              }
-              onChange={(patch) => updateLesson(patch)}
-            />
-          </div>
-        </div>
+                  {/* Seamless Inline Modern Stage Sequence Editor */}
+                  <div className="pt-4 border-t border-[#e0c0b1]/30">
+                    <GlobalLevelSequenceEditor
+                      lesson={lesson}
+                      activeLevel={selectedLevelFilter === "all" ? 1 : selectedLevelFilter}
+                      onChange={(patch) => updateLesson(patch)}
+                    />
+                  </div>
+                </div>
 
                 <div className="pt-6">
                   <button
@@ -883,14 +856,11 @@ function TeacherPage() {
           <BlockEditor
             block={lesson.blocks[blockIdx]}
             blockNum={blockIdx + 1}
-            total={lesson.blocks.length}
             selectedLevelFilter={selectedLevelFilter}
             lessonLevelStageOrders={lesson.levelStageOrders}
             lessonLevelDisabledStages={lesson.levelDisabledStages}
             onChange={(patch) => updateBlock(blockIdx, patch)}
-            onRemove={
-              lesson.blocks.length > 1 ? () => removeBlock(blockIdx) : undefined
-            }
+            onRemove={lesson.blocks.length > 1 ? () => removeBlock(blockIdx) : undefined}
           />
         )}
 
@@ -922,12 +892,8 @@ function Field({
 }) {
   return (
     <div className="space-y-1.5">
-      <label className="block text-xs font-extrabold text-[#0b1c30]">
-        {label}
-      </label>
-      {hint && (
-        <p className="text-[11px] font-semibold text-[#584237]/70">{hint}</p>
-      )}
+      <label className="block text-xs font-extrabold text-[#0b1c30]">{label}</label>
+      {hint && <p className="text-[11px] font-semibold text-[#584237]/70">{hint}</p>}
       {children}
     </div>
   );
@@ -947,18 +913,13 @@ function GlobalLevelSequenceEditor({
   const levelOrders = lesson.levelStageOrders ?? LEVEL_DEFAULT_STAGES;
   const levelDisabled = lesson.levelDisabledStages ?? { 1: [], 2: [], 3: [] };
 
-  const currentLevelOrder =
-    levelOrders[activeLevel] || LEVEL_DEFAULT_STAGES[activeLevel];
+  const currentLevelOrder = levelOrders[activeLevel] || LEVEL_DEFAULT_STAGES[activeLevel];
   const disabledSet = new Set<Stage>(levelDisabled[activeLevel] || []);
 
   const fullStageList = useMemo(() => {
-    const valid = currentLevelOrder.filter((s) =>
-      (DEFAULT_STAGE_ORDER as string[]).includes(s)
-    );
-    const missing = (DEFAULT_STAGE_ORDER as string[]).filter(
-      (s) => !valid.includes(s)
-    );
-    return [...valid, ...missing];
+    const valid = currentLevelOrder.filter((s) => (DEFAULT_STAGE_ORDER as Stage[]).includes(s as Stage));
+    const missing = (DEFAULT_STAGE_ORDER as Stage[]).filter((s) => !valid.includes(s));
+    return [...valid, ...missing] as Stage[];
   }, [currentLevelOrder]);
 
   const setLevelOrder = (nextOrder: Stage[]) => {
@@ -1007,8 +968,6 @@ function GlobalLevelSequenceEditor({
       {/* Modern Bento Grid of Stages (Matches modern Zen aesthetic) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {fullStageList.map((stage, idx) => {
-          const isBaseForLevel =
-            LEVEL_DEFAULT_STAGES[activeLevel].includes(stage);
           const isDisabled = disabledSet.has(stage);
 
           return (
@@ -1018,23 +977,19 @@ function GlobalLevelSequenceEditor({
                 "flex items-center justify-between gap-3 rounded-2xl border p-4 transition-all",
                 isDisabled
                   ? "bg-slate-50 border-dashed border-slate-300 text-slate-400 opacity-55 hover:opacity-85"
-                  : "bg-white text-[#0b1c30] border-[#e0c0b1]/40 shadow-2xs hover:border-[#9d4300]/40"
+                  : "bg-white text-[#0b1c30] border-[#e0c0b1]/40 shadow-2xs hover:border-[#9d4300]/40",
               )}
             >
               <div className="flex items-center gap-3 min-w-0">
                 <span
                   className={cn(
                     "flex h-7 w-7 items-center justify-center rounded-full text-xs font-extrabold shrink-0",
-                    isDisabled
-                      ? "bg-slate-200 text-slate-500"
-                      : "bg-[#ffdbca]/40 text-[#9d4300]"
+                    isDisabled ? "bg-slate-200 text-slate-500" : "bg-[#ffdbca]/40 text-[#9d4300]",
                   )}
                 >
                   {idx + 1}
                 </span>
-                <span className="text-xs font-extrabold truncate">
-                  {STAGE_LABELS[stage]}
-                </span>
+                <span className="text-xs font-extrabold truncate">{STAGE_LABELS[stage]}</span>
               </div>
 
               <div className="flex items-center gap-2 shrink-0">
@@ -1045,7 +1000,7 @@ function GlobalLevelSequenceEditor({
                     "inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[11px] font-extrabold transition cursor-pointer border",
                     isDisabled
                       ? "bg-slate-200 text-slate-600 border-slate-300 hover:bg-emerald-100 hover:text-emerald-900"
-                      : "bg-emerald-100 text-emerald-900 border-emerald-300 hover:bg-emerald-200"
+                      : "bg-emerald-100 text-emerald-900 border-emerald-300 hover:bg-emerald-200",
                   )}
                 >
                   {isDisabled ? (
@@ -1090,7 +1045,6 @@ function GlobalLevelSequenceEditor({
 function BlockEditor({
   block,
   blockNum,
-  total,
   selectedLevelFilter,
   lessonLevelStageOrders,
   lessonLevelDisabledStages,
@@ -1099,7 +1053,6 @@ function BlockEditor({
 }: {
   block: ParagraphBlock;
   blockNum: number;
-  total: number;
   selectedLevelFilter: 1 | 2 | 3 | "all";
   lessonLevelStageOrders?: Lesson["levelStageOrders"];
   lessonLevelDisabledStages?: Lesson["levelDisabledStages"];
@@ -1117,23 +1070,16 @@ function BlockEditor({
       DEFAULT_STAGE_ORDER,
       selectedLevelFilter,
       lessonLevelStageOrders,
-      lessonLevelDisabledStages
+      lessonLevelDisabledStages,
     ) as FillStage[];
-  }, [
-    block,
-    selectedLevelFilter,
-    lessonLevelStageOrders,
-    lessonLevelDisabledStages,
-  ]);
+  }, [block, selectedLevelFilter, lessonLevelStageOrders, lessonLevelDisabledStages]);
 
   return (
     <div className="space-y-6">
       {/* Block Header Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-4 rounded-[2rem] bg-white p-6 shadow-xs border border-[#e0c0b1]/50">
         <div className="flex-1 min-w-[280px] space-y-2">
-          <span className="text-xs font-extrabold text-[#9d4300]">
-            عنوان الفقرة {blockNum}:
-          </span>
+          <span className="text-xs font-extrabold text-[#9d4300]">عنوان الفقرة {blockNum}:</span>
           <Input
             value={block.title}
             onChange={(e) => onChange({ title: e.target.value })}
@@ -1260,9 +1206,7 @@ function ContentFillSurface({
   onChange: (patch: Partial<ParagraphBlock>) => void;
 }) {
   const stage =
-    selectedStage && activeStages.includes(selectedStage)
-      ? selectedStage
-      : activeStages[0];
+    selectedStage && activeStages.includes(selectedStage) ? selectedStage : activeStages[0];
 
   return (
     <div className="space-y-6">
@@ -1276,7 +1220,7 @@ function ContentFillSurface({
               "rounded-xl px-4 py-2.5 text-xs font-bold transition cursor-pointer",
               s === stage
                 ? "bg-[#9d4300] text-white shadow-xs"
-                : "bg-[#eff4ff] text-[#584237] hover:bg-[#dce9ff]"
+                : "bg-[#eff4ff] text-[#584237] hover:bg-[#dce9ff]",
             )}
           >
             {i + 1}. {getFillStageLabel(s)}
@@ -1331,7 +1275,9 @@ function TeacherMindMapEditor({
       <div className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-[#e0c0b1]/40">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-extrabold text-[#0b1c30]">الخريطة الذهنية التفاعلية للفقرة</span>
+            <span className="text-xs font-extrabold text-[#0b1c30]">
+              الخريطة الذهنية التفاعلية للفقرة
+            </span>
             <span className="text-[11px] font-semibold text-slate-400 hidden sm:inline-block">
               (اسحب العقد وأضف وعدّل بحرية — يُحفظ تلقائياً)
             </span>
@@ -1356,7 +1302,10 @@ function TeacherMindMapEditor({
 
       {/* Fullscreen Workspace Modal */}
       {isFullscreen && (
-        <div className="fixed inset-0 z-50 bg-[#0b1329] p-4 sm:p-6 flex flex-col space-y-4 text-right" dir="rtl">
+        <div
+          className="fixed inset-0 z-50 bg-[#0b1329] p-4 sm:p-6 flex flex-col space-y-4 text-right"
+          dir="rtl"
+        >
           <div className="flex items-center justify-between bg-white/95 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/20 shadow-lg">
             <div className="flex items-center gap-3">
               <span className="text-sm font-extrabold text-[#0b1c30]">
@@ -1428,10 +1377,7 @@ function InlineStageCanvas({
   if (stage === "examples") {
     return (
       <div className="space-y-4">
-        <Field
-          label="الأمثلة التوضيحية"
-          hint="تظليل بصري حي بدون أي وسوم نصية."
-        >
+        <Field label="الأمثلة التوضيحية" hint="تظليل بصري حي بدون أي وسوم نصية.">
           <VisualHighlightArea
             value={block.examples}
             onChangeText={(val) => onChange({ examples: val })}
@@ -1562,8 +1508,8 @@ function QuizzesEditor({
     type === "mcq"
       ? quizzes.mcqs || []
       : type === "fill"
-      ? quizzes.fills || []
-      : quizzes.essays || [];
+        ? quizzes.fills || []
+        : quizzes.essays || [];
 
   return (
     <div className="space-y-4 text-right">
@@ -1572,8 +1518,8 @@ function QuizzesEditor({
           {type === "mcq"
             ? "أسئلة الاختيار من متعدد (MCQs)"
             : type === "fill"
-            ? "أسئلة إكمال الفراغات (Fill)"
-            : "الأسئلة المقالية والتعليلية (Essay)"}
+              ? "أسئلة إكمال الفراغات (Fill)"
+              : "الأسئلة المقالية والتعليلية (Essay)"}
         </span>
         <button
           type="button"
@@ -1588,26 +1534,22 @@ function QuizzesEditor({
                     explanation: "",
                   }
                 : type === "fill"
-                ? {
-                    id: String(Date.now()),
-                    question: "",
-                    answer: "",
-                    explanation: "",
-                  }
-                : {
-                    id: String(Date.now()),
-                    question: "",
-                    keywords: [],
-                    sampleAnswer: "",
-                    explanation: "",
-                  };
+                  ? {
+                      id: String(Date.now()),
+                      question: "",
+                      answer: "",
+                      explanation: "",
+                    }
+                  : {
+                      id: String(Date.now()),
+                      question: "",
+                      keywords: [],
+                      sampleAnswer: "",
+                      explanation: "",
+                    };
             const updated = {
               ...quizzes,
-              [type === "mcq"
-                ? "mcqs"
-                : type === "fill"
-                ? "fills"
-                : "essays"]: [...items, newItem],
+              [type === "mcq" ? "mcqs" : type === "fill" ? "fills" : "essays"]: [...items, newItem],
             };
             onChange({ quizzes: updated });
           }}
@@ -1630,23 +1572,15 @@ function QuizzesEditor({
               className="p-4 rounded-2xl bg-[#eff4ff]/60 border border-[#e0c0b1]/40 space-y-3"
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-extrabold text-[#9d4300]">
-                  سؤال {i + 1}:
-                </span>
+                <span className="text-xs font-extrabold text-[#9d4300]">سؤال {i + 1}:</span>
                 <button
                   type="button"
                   onClick={() => {
-                    const filtered = items.filter(
-                      (_: any, idx: number) => idx !== i
-                    );
+                    const filtered = items.filter((_: any, idx: number) => idx !== i);
                     onChange({
                       quizzes: {
                         ...quizzes,
-                        [type === "mcq"
-                          ? "mcqs"
-                          : type === "fill"
-                          ? "fills"
-                          : "essays"]: filtered,
+                        [type === "mcq" ? "mcqs" : type === "fill" ? "fills" : "essays"]: filtered,
                       },
                     });
                   }}
@@ -1660,16 +1594,12 @@ function QuizzesEditor({
                 value={item.question}
                 onChange={(e) => {
                   const updated = items.map((q: any, idx: number) =>
-                    idx === i ? { ...q, question: e.target.value } : q
+                    idx === i ? { ...q, question: e.target.value } : q,
                   );
                   onChange({
                     quizzes: {
                       ...quizzes,
-                      [type === "mcq"
-                        ? "mcqs"
-                        : type === "fill"
-                        ? "fills"
-                        : "essays"]: updated,
+                      [type === "mcq" ? "mcqs" : type === "fill" ? "fills" : "essays"]: updated,
                     },
                   });
                 }}
@@ -1687,54 +1617,54 @@ function QuizzesEditor({
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    {(item.options || ["", "", "", ""]).map(
-                      (opt: string, optIdx: number) => {
-                        const isCorrect = item.answer === opt && opt.trim().length > 0;
-                        return (
-                          <div
-                            key={optIdx}
-                            className={cn(
-                              "flex items-center gap-2 rounded-xl p-2 bg-white border transition",
-                              isCorrect ? "border-emerald-500 ring-2 ring-emerald-200" : "border-slate-200"
-                            )}
-                          >
-                            <input
-                              type="radio"
-                              name={`correct-ans-${i}`}
-                              checked={isCorrect}
-                              onChange={() => {
-                                const updated = items.map((q: any, idx: number) =>
-                                  idx === i ? { ...q, answer: opt } : q
-                                );
-                                onChange({ quizzes: { ...quizzes, mcqs: updated } });
-                              }}
-                              className="h-4 w-4 text-emerald-600 cursor-pointer"
-                              title="حدد كإجابة صحيحة"
-                            />
-                            <Input
-                              value={opt}
-                              onChange={(e) => {
-                                const newOpts = [...(item.options || ["", "", "", ""])];
-                                newOpts[optIdx] = e.target.value;
-                                const updated = items.map((q: any, idx: number) =>
-                                  idx === i
-                                    ? {
-                                        ...q,
-                                        options: newOpts,
-                                        // Auto update answer if this option was the selected correct answer
-                                        answer: q.answer === opt ? e.target.value : q.answer,
-                                      }
-                                    : q
-                                );
-                                onChange({ quizzes: { ...quizzes, mcqs: updated } });
-                              }}
-                              placeholder={`الخيار ${optIdx + 1}`}
-                              className="h-9 rounded-lg bg-[#eff4ff]/40 border-none text-xs font-semibold text-[#0b1c30]"
-                            />
-                          </div>
-                        );
-                      }
-                    )}
+                    {(item.options || ["", "", "", ""]).map((opt: string, optIdx: number) => {
+                      const isCorrect = item.answer === opt && opt.trim().length > 0;
+                      return (
+                        <div
+                          key={optIdx}
+                          className={cn(
+                            "flex items-center gap-2 rounded-xl p-2 bg-white border transition",
+                            isCorrect
+                              ? "border-emerald-500 ring-2 ring-emerald-200"
+                              : "border-slate-200",
+                          )}
+                        >
+                          <input
+                            type="radio"
+                            name={`correct-ans-${i}`}
+                            checked={isCorrect}
+                            onChange={() => {
+                              const updated = items.map((q: any, idx: number) =>
+                                idx === i ? { ...q, answer: opt } : q,
+                              );
+                              onChange({ quizzes: { ...quizzes, mcqs: updated } });
+                            }}
+                            className="h-4 w-4 text-emerald-600 cursor-pointer"
+                            title="حدد كإجابة صحيحة"
+                          />
+                          <Input
+                            value={opt}
+                            onChange={(e) => {
+                              const newOpts = [...(item.options || ["", "", "", ""])];
+                              newOpts[optIdx] = e.target.value;
+                              const updated = items.map((q: any, idx: number) =>
+                                idx === i
+                                  ? {
+                                      ...q,
+                                      options: newOpts,
+                                      // Auto update answer if this option was the selected correct answer
+                                      answer: q.answer === opt ? e.target.value : q.answer,
+                                    }
+                                  : q,
+                              );
+                              onChange({ quizzes: { ...quizzes, mcqs: updated } });
+                            }}
+                            placeholder={`الخيار ${optIdx + 1}`}
+                            className="h-9 rounded-lg bg-[#eff4ff]/40 border-none text-xs font-semibold text-[#0b1c30]"
+                          />
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -1764,10 +1694,7 @@ function HardWordsEditor({
         <button
           type="button"
           onClick={() => {
-            onChange([
-              ...items,
-              { word: "", explanation: "", type: "مصطلح" },
-            ]);
+            onChange([...items, { word: "", explanation: "", type: "مصطلح" }]);
           }}
           className="px-3.5 py-1.5 rounded-full bg-[#9d4300] text-white text-xs font-bold hover:bg-[#833800] transition cursor-pointer flex items-center gap-1"
         >
@@ -1786,7 +1713,7 @@ function HardWordsEditor({
               value={hw.word}
               onChange={(e) => {
                 const updated = items.map((w, idx) =>
-                  idx === i ? { ...w, word: e.target.value } : w
+                  idx === i ? { ...w, word: e.target.value } : w,
                 );
                 onChange(updated);
               }}
@@ -1797,7 +1724,7 @@ function HardWordsEditor({
               value={hw.explanation}
               onChange={(e) => {
                 const updated = items.map((w, idx) =>
-                  idx === i ? { ...w, explanation: e.target.value } : w
+                  idx === i ? { ...w, explanation: e.target.value } : w,
                 );
                 onChange(updated);
               }}

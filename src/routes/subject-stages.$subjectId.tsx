@@ -2,9 +2,15 @@ import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Save, Plus, Trash2, GripVertical, MessageSquare } from "lucide-react";
+import {ArrowLeft, Plus, Trash2, GripVertical, MessageSquare} from "lucide-react";
 import { STAGE_LABELS, type Stage, DEFAULT_STAGE_ORDER } from "@/lib/settings";
-import { getSubject, updateSubjectStages, updateSubjectDisabledStages, updateSubjectPrompts, type Subject } from "@/lib/curriculum";
+import {
+  getSubject,
+  updateSubjectStages,
+  updateSubjectDisabledStages,
+  updateSubjectPrompts,
+  type Subject,
+} from "@/lib/curriculum";
 import { Textarea } from "@/components/ui/textarea";
 
 export const Route = createFileRoute("/subject-stages/$subjectId")({
@@ -20,7 +26,7 @@ function SubjectStagesEditor() {
   const [prompts, setPrompts] = useState({
     explanation: "",
     mindmap: "",
-    mcq: ""
+    mcq: "",
   });
 
   // Load subject data when selection changes
@@ -28,8 +34,9 @@ function SubjectStagesEditor() {
     const subject = getSubject(subjectId);
     setCurrentSubject(subject || null);
     if (subject) {
-      setPrompts(subject.customPrompts || {
-        explanation: `أنت خبير في التصميم التعليمي لمنصة "نفاذ - Nafath".
+      setPrompts(
+        subject.customPrompts || {
+          explanation: `أنت خبير في التصميم التعليمي لمنصة "نفاذ - Nafath".
 قم بتحويل النص/الموضوع أدناه إلى كود JSON مخصص للمستوى الأول، وفق الهيكل الآتي:
 {
   "title": "عنوان الدرس الرئيسي",
@@ -51,7 +58,7 @@ function SubjectStagesEditor() {
 
 ---
 [الصق نص أو موضوع الدرس المطلوب تحويله هنا]`,
-        mindmap: `أنت خبير رسم الخرائط الذهنية لمنصة "نفاذ - Nafath".
+          mindmap: `أنت خبير رسم الخرائط الذهنية لمنصة "نفاذ - Nafath".
 بناءً على موضوع الدرس أو الفقرات أدناه، قم بتوليد كود JSON لخريطة ذهنية شجرية تفصيلية مخصصة لكل فقرة على حدة (Root -> Categories -> Subtopics -> Details)، وفق الهيكل الآتي:
 {
   "mind_maps_by_block": [
@@ -74,7 +81,7 @@ function SubjectStagesEditor() {
 
 ---
 [الصق نص أو موضوع الدرس المطلوب تحويله هنا]`,
-        mcq: `أنت خبير إعداد الاختبارات لمنصة "نفاذ - Nafath".
+          mcq: `أنت خبير إعداد الاختبارات لمنصة "نفاذ - Nafath".
 بناءً على فقرات الدرس أدناه، صغ كود JSON لأسئلة تأكيد الفهم التفاعلية (الخطوة 4)، بشرط صارم: الأسئلة يجب أن تكون مستوحاة من القصة (الخطوة 1) والنقاط في "خد بالك منها" (الخطوة 2) فقط، دون أي سؤال خارجي!
 
 الهيكل المطلوب:
@@ -98,9 +105,10 @@ function SubjectStagesEditor() {
 أخرج النتيجة في مربع كود JSON الصافي فقط وبدون أي مقدمات.
 
 ---
-[الصق نص أو موضوع الدرس المطلوب تحويله هنا]`
-      });
-      
+[الصق نص أو موضوع الدرس المطلوب تحويله هنا]`,
+        },
+      );
+
       // Ensure levelStageOrders and levelDisabledStages exist for old subjects
       if (!subject.levelStageOrders || Object.keys(subject.levelStageOrders).length === 0) {
         updateSubjectStages(subjectId, 1, []);
@@ -112,7 +120,7 @@ function SubjectStagesEditor() {
         updateSubjectDisabledStages(subjectId, 2, []);
         updateSubjectDisabledStages(subjectId, 3, []);
       }
-      
+
       // Reload subject after updates
       setCurrentSubject(getSubject(subjectId) || null);
     }
@@ -139,7 +147,7 @@ function SubjectStagesEditor() {
     const newStages = [...currentStages];
     const [removed] = newStages.splice(fromIndex, 1);
     newStages.splice(toIndex, 0, removed);
-    
+
     updateSubjectStages(subjectId, selectedLevel, newStages);
     setCurrentSubject(getSubject(subjectId) || null);
   };
@@ -150,17 +158,11 @@ function SubjectStagesEditor() {
     setCurrentSubject(getSubject(subjectId) || null);
   };
 
-  const handleRemoveStage = (stage: Stage) => {
-    const newStages = currentStages.filter((s) => s !== stage);
-    updateSubjectStages(subjectId, selectedLevel, newStages);
-    setCurrentSubject(getSubject(subjectId) || null);
-  };
-
   const handleToggleStage = (stage: Stage) => {
     const newDisabled = disabledStages.includes(stage)
       ? disabledStages.filter((s) => s !== stage)
       : [...disabledStages, stage];
-    
+
     updateSubjectDisabledStages(subjectId, selectedLevel, newDisabled);
     setCurrentSubject(getSubject(subjectId) || null);
   };
@@ -176,14 +178,16 @@ function SubjectStagesEditor() {
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => router.navigate({ to: "/subjects/$subjectId", params: { subjectId } })}>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => router.navigate({ to: "/subjects/$subjectId", params: { subjectId } })}
+            >
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
               <h1 className="text-3xl font-black text-slate-900">تعديل مراحل المادة</h1>
-              <p className="text-sm font-bold text-slate-600 mt-1">
-                {currentSubject.name}
-              </p>
+              <p className="text-sm font-bold text-slate-600 mt-1">{currentSubject.name}</p>
             </div>
           </div>
           <Button onClick={handleSave} className="bg-green-600 hover:bg-green-700">
@@ -234,7 +238,9 @@ function SubjectStagesEditor() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">Prompt الخريطة الذهنية</label>
+                <label className="block text-sm font-bold text-slate-700 mb-2">
+                  Prompt الخريطة الذهنية
+                </label>
                 <Textarea
                   value={prompts.mindmap}
                   onChange={(e) => setPrompts({ ...prompts, mindmap: e.target.value })}
@@ -243,7 +249,9 @@ function SubjectStagesEditor() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">Prompt الأسئلة MCQ</label>
+                <label className="block text-sm font-bold text-slate-700 mb-2">
+                  Prompt الأسئلة MCQ
+                </label>
                 <Textarea
                   value={prompts.mcq}
                   onChange={(e) => setPrompts({ ...prompts, mcq: e.target.value })}
@@ -267,107 +275,103 @@ function SubjectStagesEditor() {
         {!showPrompts && (
           <>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Active Stages */}
-          <Card className="border-2 border-blue-200">
-            <CardHeader>
-              <CardTitle className="text-xl font-black text-slate-900">
-                المراحل النشطة - المستوى {selectedLevel}
-              </CardTitle>
-              <CardDescription className="text-sm font-bold text-slate-600">
-                اسحب لإعادة الترتيب
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {currentStages.map((stage, index) => (
-                <div
-                  key={stage}
-                  className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all ${
-                    disabledStages.includes(stage)
-                      ? "bg-slate-100 border-slate-300 opacity-60"
-                      : "bg-white border-blue-200 hover:border-blue-300"
-                  }`}
-                >
-                  <div className="flex items-center gap-3 flex-1">
-                    <GripVertical className="h-5 w-5 text-slate-400 cursor-grab" />
-                    <div>
-                      <span className="font-black text-slate-900">
-                        {STAGE_LABELS[stage]}
-                      </span>
-                      <span className="text-xs font-bold text-slate-500 mr-2">
-                        ({stage})
-                      </span>
+              {/* Active Stages */}
+              <Card className="border-2 border-blue-200">
+                <CardHeader>
+                  <CardTitle className="text-xl font-black text-slate-900">
+                    المراحل النشطة - المستوى {selectedLevel}
+                  </CardTitle>
+                  <CardDescription className="text-sm font-bold text-slate-600">
+                    اسحب لإعادة الترتيب
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {currentStages.map((stage, index) => (
+                    <div
+                      key={stage}
+                      className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all ${
+                        disabledStages.includes(stage)
+                          ? "bg-slate-100 border-slate-300 opacity-60"
+                          : "bg-white border-blue-200 hover:border-blue-300"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 flex-1">
+                        <GripVertical className="h-5 w-5 text-slate-400 cursor-grab" />
+                        <div>
+                          <span className="font-black text-slate-900">{STAGE_LABELS[stage]}</span>
+                          <span className="text-xs font-bold text-slate-500 mr-2">({stage})</span>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleMoveStage(index, Math.max(0, index - 1))}
+                          disabled={index === 0}
+                        >
+                          ↑
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() =>
+                            handleMoveStage(index, Math.min(currentStages.length - 1, index + 1))
+                          }
+                          disabled={index === currentStages.length - 1}
+                        >
+                          ↓
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleToggleStage(stage)}
+                          className={
+                            disabledStages.includes(stage) ? "text-green-600" : "text-red-600"
+                          }
+                        >
+                          {disabledStages.includes(stage) ? (
+                            <Plus className="h-4 w-4" />
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleMoveStage(index, Math.max(0, index - 1))}
-                      disabled={index === 0}
-                    >
-                      ↑
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleMoveStage(index, Math.min(currentStages.length - 1, index + 1))}
-                      disabled={index === currentStages.length - 1}
-                    >
-                      ↓
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleToggleStage(stage)}
-                      className={disabledStages.includes(stage) ? "text-green-600" : "text-red-600"}
-                    >
-                      {disabledStages.includes(stage) ? <Plus className="h-4 w-4" /> : <Trash2 className="h-4 w-4" />}
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
+                  ))}
+                </CardContent>
+              </Card>
 
-          {/* Available Stages */}
-          <Card className="border-2 border-slate-200">
-            <CardHeader>
-              <CardTitle className="text-xl font-black text-slate-900">
-                المراحل المتاحة
-              </CardTitle>
-              <CardDescription className="text-sm font-bold text-slate-600">
-                المراحل غير المستخدمة في هذا المستوى
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {availableStages.map((stage) => (
-                <div
-                  key={stage}
-                  className="flex items-center justify-between p-4 rounded-xl bg-slate-50 border-2 border-slate-200"
-                >
-                  <div className="flex items-center gap-3">
-                    <div>
-                      <span className="font-black text-slate-900">
-                        {STAGE_LABELS[stage]}
-                      </span>
-                      <span className="text-xs font-bold text-slate-500 mr-2">
-                        ({stage})
-                      </span>
+              {/* Available Stages */}
+              <Card className="border-2 border-slate-200">
+                <CardHeader>
+                  <CardTitle className="text-xl font-black text-slate-900">
+                    المراحل المتاحة
+                  </CardTitle>
+                  <CardDescription className="text-sm font-bold text-slate-600">
+                    المراحل غير المستخدمة في هذا المستوى
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {availableStages.map((stage) => (
+                    <div
+                      key={stage}
+                      className="flex items-center justify-between p-4 rounded-xl bg-slate-50 border-2 border-slate-200"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div>
+                          <span className="font-black text-slate-900">{STAGE_LABELS[stage]}</span>
+                          <span className="text-xs font-bold text-slate-500 mr-2">({stage})</span>
+                        </div>
+                      </div>
+                      <Button variant="outline" size="icon" onClick={() => handleAddStage(stage)}>
+                        <Plus className="h-4 w-4" />
+                      </Button>
                     </div>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => handleAddStage(stage)}
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </div>
-        </>
+                  ))}
+                </CardContent>
+              </Card>
+            </div>
+          </>
         )}
       </div>
     </div>

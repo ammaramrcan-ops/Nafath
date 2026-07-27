@@ -16,12 +16,37 @@ export function HighlightingToolbar({
 }) {
   const [showColorPicker, setShowColorPicker] = useState(false);
 
-  const colors: { id: HighlightColor; label: string; bg: string; text: string; border: string }[] = [
-    { id: "yellow", label: "أصفر", bg: "bg-yellow-300", text: "text-yellow-950", border: "border-yellow-400" },
-    { id: "green", label: "أخضر", bg: "bg-emerald-300", text: "text-emerald-950", border: "border-emerald-400" },
-    { id: "blue", label: "أزرق", bg: "bg-sky-300", text: "text-sky-950", border: "border-sky-400" },
-    { id: "pink", label: "وردي", bg: "bg-pink-300", text: "text-pink-950", border: "border-pink-400" },
-  ];
+  const colors: { id: HighlightColor; label: string; bg: string; text: string; border: string }[] =
+    [
+      {
+        id: "yellow",
+        label: "أصفر",
+        bg: "bg-yellow-300",
+        text: "text-yellow-950",
+        border: "border-yellow-400",
+      },
+      {
+        id: "green",
+        label: "أخضر",
+        bg: "bg-emerald-300",
+        text: "text-emerald-950",
+        border: "border-emerald-400",
+      },
+      {
+        id: "blue",
+        label: "أزرق",
+        bg: "bg-sky-300",
+        text: "text-sky-950",
+        border: "border-sky-400",
+      },
+      {
+        id: "pink",
+        label: "وردي",
+        bg: "bg-pink-300",
+        text: "text-pink-950",
+        border: "border-pink-400",
+      },
+    ];
 
   return (
     <div

@@ -1,26 +1,16 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Sparkles,
   Lightbulb,
   Clock,
   Flame,
-  CheckCircle2,
-  AlertCircle,
-  ChevronDown,
-  ChevronUp,
   Eye,
   Send,
-  Zap,
-  Tag,
-  BookOpen,
   Pencil,
-  RotateCcw,
 } from "lucide-react";
 import {
   CATEGORY_INFO,
   evaluateSmartSR,
-  type FlashcardCategory,
   type SmartFlashcard,
 } from "@/lib/spaced-repetition";
 
@@ -47,7 +37,7 @@ export function SmartFlashcardCard({
       missingKeywords: string[];
       isCorrect: boolean;
       diagnostic: string;
-    }
+    },
   ) => void;
   onEditCard?: (card: SmartFlashcard) => void;
   onExitStudy?: () => void;
@@ -118,7 +108,7 @@ export function SmartFlashcardCard({
       confidence,
       elapsedSeconds,
       usedHint,
-      daysToExam
+      daysToExam,
     );
     setEvalResult(result);
     setIsRevealed(true);
@@ -137,14 +127,15 @@ export function SmartFlashcardCard({
 
   const formattedTimer = `${Math.floor(elapsedSeconds / 60)
     .toString()
-    .padStart(2, "0")}:${(Math.floor(elapsedSeconds) % 60)
-    .toString()
-    .padStart(2, "0")}`;
+    .padStart(2, "0")}:${(Math.floor(elapsedSeconds) % 60).toString().padStart(2, "0")}`;
 
   const progressPercent = Math.round(((currentIndex + 1) / totalCards) * 100);
 
   return (
-    <div className="mx-auto w-full max-w-[85vw] space-y-6 dir-rtl text-right font-body-md" dir="rtl">
+    <div
+      className="mx-auto w-full max-w-[85vw] space-y-6 dir-rtl text-right font-body-md"
+      dir="rtl"
+    >
       {/* Top Header Bar */}
       <div className="flex flex-wrap items-center justify-between gap-4 rounded-3xl bg-white p-5 shadow-sm border border-[#e0c0b1]/40">
         <div className="flex items-center gap-4">
@@ -157,8 +148,12 @@ export function SmartFlashcardCard({
             </button>
           )}
           <div>
-            <h3 className="font-extrabold text-[#0b1c30] text-sm sm:text-base">{card.question.slice(0, 45)}...</h3>
-            <span className="text-xs font-semibold text-[#9d4300]">جلسة التكرار المتباعد الفعالة</span>
+            <h3 className="font-extrabold text-[#0b1c30] text-sm sm:text-base">
+              {card.question.slice(0, 45)}...
+            </h3>
+            <span className="text-xs font-semibold text-[#9d4300]">
+              جلسة التكرار المتباعد الفعالة
+            </span>
           </div>
         </div>
 
@@ -184,7 +179,9 @@ export function SmartFlashcardCard({
       {/* Progress Indicator */}
       <div className="space-y-2 px-2">
         <div className="flex justify-between items-center text-xs font-extrabold text-[#584237]">
-          <span>البطاقة {currentIndex + 1} من {totalCards}</span>
+          <span>
+            البطاقة {currentIndex + 1} من {totalCards}
+          </span>
           <span className="text-[#9d4300]">{progressPercent}% مكتمل</span>
         </div>
         <div className="w-full h-2 bg-[#ffdbca]/30 rounded-full overflow-hidden">
@@ -231,7 +228,9 @@ export function SmartFlashcardCard({
               onClick={handleToggleHint}
               className="group flex items-center gap-2 text-[#584237] hover:text-[#8127cf] transition-all text-xs font-bold cursor-pointer"
             >
-              <Lightbulb className={`h-4 w-4 text-[#8127cf] transition-transform duration-300 ${showHint ? "rotate-180" : ""}`} />
+              <Lightbulb
+                className={`h-4 w-4 text-[#8127cf] transition-transform duration-300 ${showHint ? "rotate-180" : ""}`}
+              />
               <span>روابط ذهنية وتلميحات</span>
             </button>
 
@@ -244,10 +243,14 @@ export function SmartFlashcardCard({
                   className="overflow-hidden p-4 rounded-2xl bg-[#eff4ff] border-r-4 border-[#8127cf] text-xs sm:text-sm font-semibold text-[#0b1c30] space-y-1.5"
                 >
                   {card.hint.mnemonic && (
-                    <p>💡 <strong>الرابط الذهني:</strong> {card.hint.mnemonic}</p>
+                    <p>
+                      💡 <strong>الرابط الذهني:</strong> {card.hint.mnemonic}
+                    </p>
                   )}
                   {card.hint.keyword_cues && (
-                    <p>🔑 <strong>إشارات الكلمات:</strong> {card.hint.keyword_cues}</p>
+                    <p>
+                      🔑 <strong>إشارات الكلمات:</strong> {card.hint.keyword_cues}
+                    </p>
                   )}
                 </motion.div>
               )}
@@ -338,8 +341,12 @@ export function SmartFlashcardCard({
           >
             {/* Model Answer */}
             <div className="p-5 rounded-2xl bg-[#fffaf7] border border-[#e0c0b1]/60 border-r-4 border-r-[#9d4300] space-y-2">
-              <span className="text-xs font-black text-[#9d4300] block">💡 الإجابة النموذجية الصحيحة:</span>
-              <p className="text-sm font-bold text-[#0b1c30] leading-relaxed">{card.model_answer}</p>
+              <span className="text-xs font-black text-[#9d4300] block">
+                💡 الإجابة النموذجية الصحيحة:
+              </span>
+              <p className="text-sm font-bold text-[#0b1c30] leading-relaxed">
+                {card.model_answer}
+              </p>
             </div>
 
             {/* AI Diagnostic Summary */}

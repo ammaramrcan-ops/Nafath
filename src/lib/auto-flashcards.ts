@@ -1,18 +1,11 @@
 import type { ParagraphBlock, Lesson } from "./lesson-data";
 import { generateKeywordCues } from "./csv-flashcards";
-import {
-  autoCategory,
-  type FlashcardCategory,
-  type SmartFlashcard,
-} from "./spaced-repetition";
+import { autoCategory, type SmartFlashcard } from "./spaced-repetition";
 
 /**
  * AI Auto-Generation: Extracts SmartFlashcards dynamically from a ParagraphBlock.
  */
-export function generateSmartCardsFromBlock(
-  block: ParagraphBlock,
-  blockIdx = 0
-): SmartFlashcard[] {
+export function generateSmartCardsFromBlock(block: ParagraphBlock, blockIdx = 0): SmartFlashcard[] {
   const cards: SmartFlashcard[] = [];
   const baseId = `fc_block_${block.id || blockIdx + 1}`;
 
@@ -32,7 +25,10 @@ export function generateSmartCardsFromBlock(
           mnemonic: block.mnemonic || `تذكر مفاهيم ${block.title}`,
           keyword_cues: generateKeywordCues(keywords),
         },
-        explanation_baladi: block.story || block.short_sentence || "المفاهيم الأساسية التي يدور حولها الحكم الشرعي في الفقرة.",
+        explanation_baladi:
+          block.story ||
+          block.short_sentence ||
+          "المفاهيم الأساسية التي يدور حولها الحكم الشرعي في الفقرة.",
         stats: createDefaultStats(),
       });
     }
@@ -49,7 +45,10 @@ export function generateSmartCardsFromBlock(
           mnemonic: block.funny_link || `العلة تكمن في رفع الضرر وحفظ الحقوق`,
           keyword_cues: generateKeywordCues(keywords),
         },
-        explanation_baladi: block.funny_link || block.short_sentence || "السبب والعلة الفقهية التي بني عليها الحكم لرفع الحرج.",
+        explanation_baladi:
+          block.funny_link ||
+          block.short_sentence ||
+          "السبب والعلة الفقهية التي بني عليها الحكم لرفع الحرج.",
         stats: createDefaultStats(),
       });
     }
@@ -98,21 +97,26 @@ export function generateSmartCardsFromBlock(
     block.quizzes.essays.forEach((essay, idx) => {
       if (!essay.question) return;
       const cat = autoCategory(essay.question, "essay");
-      const keywords = essay.keywords && essay.keywords.length > 0
-        ? essay.keywords
-        : extractKeywordsFromText(block.full_text).slice(0, 3);
+      const keywords =
+        essay.keywords && essay.keywords.length > 0
+          ? essay.keywords
+          : extractKeywordsFromText(block.full_text).slice(0, 3);
 
       cards.push({
         id: `${baseId}_essay_${idx}`,
         category: cat,
         question: essay.question,
-        model_answer: essay.keywords && essay.keywords.length > 0 ? `الكلمات المفتاحية الواجب ذكرها: ${essay.keywords.join("، ")}` : block.full_text.slice(0, 150),
+        model_answer:
+          essay.keywords && essay.keywords.length > 0
+            ? `الكلمات المفتاحية الواجب ذكرها: ${essay.keywords.join("، ")}`
+            : block.full_text.slice(0, 150),
         keywords,
         hint: {
           mnemonic: essay.hint || block.mnemonic || undefined,
           keyword_cues: generateKeywordCues(keywords),
         },
-        explanation_baladi: block.short_sentence || "إجابة مقالية استرجاعية تضمن الإلمام الشامل بالشروط والأسباب.",
+        explanation_baladi:
+          block.short_sentence || "إجابة مقالية استرجاعية تضمن الإلمام الشامل بالشروط والأسباب.",
         stats: createDefaultStats(),
       });
     });

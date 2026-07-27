@@ -1,18 +1,7 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import {motion} from "framer-motion";
+import {X, Pencil, Save, Trash2} from "lucide-react";
 import {
-  X,
-  Pencil,
-  Save,
-  Trash2,
-  Plus,
-  Sparkles,
-  HelpCircle,
-  Tag,
-  BookOpen,
-} from "lucide-react";
-import {
-  CATEGORY_INFO,
   type FlashcardCategory,
   type SmartFlashcard,
 } from "@/lib/spaced-repetition";
@@ -107,7 +96,10 @@ export function EditFlashcardModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs dir-rtl text-right" dir="rtl">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs dir-rtl text-right"
+      dir="rtl"
+    >
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -118,7 +110,9 @@ export function EditFlashcardModal({
         <div className="flex items-center justify-between border-b border-slate-100 pb-4">
           <div className="flex items-center gap-2.5 text-slate-900 font-black text-lg">
             <Pencil className="h-6 w-6 text-amber-600" />
-            <span>{isNew ? "إضافة كارت فلاش كارد جديد ➕" : "تعديل بيانات كارت الفلاش كارد ✏️"}</span>
+            <span>
+              {isNew ? "إضافة كارت فلاش كارد جديد ➕" : "تعديل بيانات كارت الفلاش كارد ✏️"}
+            </span>
           </div>
           <button
             type="button"
@@ -161,7 +155,9 @@ export function EditFlashcardModal({
 
           {/* Model Answer Textarea */}
           <div className="space-y-1.5">
-            <label className="text-xs font-black text-slate-800">الإجابة النموذجية الصحيحة 💡:</label>
+            <label className="text-xs font-black text-slate-800">
+              الإجابة النموذجية الصحيحة 💡:
+            </label>
             <textarea
               value={modelAnswer}
               onChange={(e) => setModelAnswer(e.target.value)}
@@ -188,7 +184,9 @@ export function EditFlashcardModal({
           {/* Mnemonic & Keyword Cues */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-700">🧠 الرابط الذهني للتلميح (Mnemonic):</label>
+              <label className="text-xs font-bold text-slate-700">
+                🧠 الرابط الذهني للتلميح (Mnemonic):
+              </label>
               <input
                 type="text"
                 value={mnemonic}
@@ -199,7 +197,9 @@ export function EditFlashcardModal({
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-700">🔑 إشارات الكلمات (Keyword Cues):</label>
+              <label className="text-xs font-bold text-slate-700">
+                🔑 إشارات الكلمات (Keyword Cues):
+              </label>
               <input
                 type="text"
                 value={keywordCues}
@@ -212,7 +212,9 @@ export function EditFlashcardModal({
 
           {/* Baladi Explanation for Problem Solving */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700">💡 تفكيك اللخبطة بالبلدي (لحالات المغالطة):</label>
+            <label className="text-xs font-bold text-slate-700">
+              💡 تفكيك اللخبطة بالبلدي (لحالات المغالطة):
+            </label>
             <input
               type="text"
               value={explanationBaladi}

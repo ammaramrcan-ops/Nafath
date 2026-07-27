@@ -1,10 +1,8 @@
 import { useMemo } from "react";
 import { BookOpen, HelpCircle, Lightbulb, Sparkles } from "lucide-react";
-import { type Lesson, effectiveStages } from "@/lib/lesson-data";
-import { useSettings } from "@/lib/settings";
+import { type Lesson } from "@/lib/lesson-data";
 
 export function CheatSheet({ lesson }: { lesson: Lesson }) {
-  const { settings } = useSettings();
 
   const definitions = useMemo(() => {
     return lesson.blocks.flatMap((b) => {
@@ -48,7 +46,9 @@ export function CheatSheet({ lesson }: { lesson: Lesson }) {
           b.short_sentence ||
           b.mnemonic ||
           b.funny_link ||
-          (b.zaitouna?.definitions || b.zaitouna?.reasoning || b.zaitouna?.links);
+          b.zaitouna?.definitions ||
+          b.zaitouna?.reasoning ||
+          b.zaitouna?.links;
 
         if (!hasContent) return null;
 
@@ -70,9 +70,7 @@ export function CheatSheet({ lesson }: { lesson: Lesson }) {
         <div className="w-12 h-12 bg-[#eff4ff] border border-[#e0c0b1]/50 rounded-2xl flex items-center justify-center mx-auto shadow-2xs text-[#9d4300]">
           <Sparkles className="h-6 w-6" />
         </div>
-        <h2 className="text-2xl sm:text-3xl font-black text-[#0b1c30]">
-          الزيتونة والملخص الشامل
-        </h2>
+        <h2 className="text-2xl sm:text-3xl font-black text-[#0b1c30]">الزيتونة والملخص الشامل</h2>
         <p className="text-xs sm:text-sm font-semibold text-slate-500 max-w-2xl mx-auto">
           ملخص شامل لأهم ما ورد في الدرس — التعاريف، أسئلة علّل، والتفسيرات والروابط الذكية
         </p>
@@ -82,7 +80,9 @@ export function CheatSheet({ lesson }: { lesson: Lesson }) {
       <div className="space-y-6">
         <div className="flex items-center gap-3 border-b border-[#e0c0b1]/40 pb-3">
           <BookOpen className="h-5 w-5 text-[#8127cf]" />
-          <h3 className="text-base sm:text-lg font-black text-[#0b1c30]">أهم التعريفات المفتاحية</h3>
+          <h3 className="text-base sm:text-lg font-black text-[#0b1c30]">
+            أهم التعريفات المفتاحية
+          </h3>
           <span className="mr-auto text-xs font-bold text-slate-400">
             {definitions.length} تعريفات
           </span>
@@ -99,9 +99,7 @@ export function CheatSheet({ lesson }: { lesson: Lesson }) {
                   {d.blockTitle}
                 </span>
                 <h4 className="text-sm font-extrabold text-[#0b1c30]">{d.word}</h4>
-                <p className="text-xs font-semibold text-slate-600 leading-relaxed">
-                  {d.meaning}
-                </p>
+                <p className="text-xs font-semibold text-slate-600 leading-relaxed">{d.meaning}</p>
               </div>
             ))}
           </div>
@@ -116,10 +114,10 @@ export function CheatSheet({ lesson }: { lesson: Lesson }) {
       <div className="space-y-6">
         <div className="flex items-center gap-3 border-b border-[#e0c0b1]/40 pb-3">
           <HelpCircle className="h-5 w-5 text-[#8127cf]" />
-          <h3 className="text-base sm:text-lg font-black text-[#0b1c30]">أسئلة علّل واسترجاع المفاهيم</h3>
-          <span className="mr-auto text-xs font-bold text-slate-400">
-            {essays.length} أسئلة
-          </span>
+          <h3 className="text-base sm:text-lg font-black text-[#0b1c30]">
+            أسئلة علّل واسترجاع المفاهيم
+          </h3>
+          <span className="mr-auto text-xs font-bold text-slate-400">{essays.length} أسئلة</span>
         </div>
 
         {essays.length > 0 ? (
@@ -159,7 +157,9 @@ export function CheatSheet({ lesson }: { lesson: Lesson }) {
       <div className="space-y-6">
         <div className="flex items-center gap-3 border-b border-[#e0c0b1]/40 pb-3">
           <Lightbulb className="h-5 w-5 text-[#8127cf]" />
-          <h3 className="text-base sm:text-lg font-black text-[#0b1c30]">التفسيرات والروابط الذكية</h3>
+          <h3 className="text-base sm:text-lg font-black text-[#0b1c30]">
+            التفسيرات والروابط الذكية
+          </h3>
           <span className="mr-auto text-xs font-bold text-slate-400">
             {explanations.length} قواعد ذكية
           </span>
@@ -171,17 +171,23 @@ export function CheatSheet({ lesson }: { lesson: Lesson }) {
               key={i}
               className="zen-card bg-[#fffbf9] p-7 rounded-3xl border border-[#ffdbca] space-y-4 shadow-2xs"
             >
-              <span className="text-[11px] font-extrabold text-[#9d4300] block">{e.blockTitle}</span>
+              <span className="text-[11px] font-extrabold text-[#9d4300] block">
+                {e.blockTitle}
+              </span>
               <h4 className="text-xs sm:text-sm font-bold text-[#0b1c30] leading-relaxed">
                 {e.short || "الخلاصة التراكمية للمفهوم والفهم الفقهي والربط بالواقع."}
               </h4>
               <div className="grid grid-cols-1 gap-3 pt-2">
                 <div className="bg-white p-4 rounded-2xl border-r-4 border-[#9d4300] shadow-2xs">
-                  <span className="text-[11px] font-black text-[#9d4300] block mb-1">📌 قاعدة سريعة:</span>
+                  <span className="text-[11px] font-black text-[#9d4300] block mb-1">
+                    📌 قاعدة سريعة:
+                  </span>
                   <p className="text-xs font-bold text-slate-700">{e.mnemonic}</p>
                 </div>
                 <div className="bg-white p-4 rounded-2xl border-r-4 border-[#8127cf] shadow-2xs">
-                  <span className="text-[11px] font-black text-[#8127cf] block mb-1">💡 رابط ظريف للذاكرة:</span>
+                  <span className="text-[11px] font-black text-[#8127cf] block mb-1">
+                    💡 رابط ظريف للذاكرة:
+                  </span>
                   <p className="text-xs font-bold text-slate-700">{e.funny}</p>
                 </div>
               </div>
@@ -190,38 +196,5 @@ export function CheatSheet({ lesson }: { lesson: Lesson }) {
         </div>
       </div>
     </section>
-  );
-}
-
-function CheatBlock({
-  icon,
-  title,
-  count,
-  children,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  count: number;
-  children: React.ReactNode;
-}) {
-  return (
-    <div>
-      <div className="mb-5 flex items-center gap-3">
-        <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-zen-surface-low text-zen-primary">
-          {icon}
-        </span>
-        <h3 className="text-[16px] font-medium text-zen-on-surface">{title}</h3>
-        <span className="text-[11px] font-light text-zen-on-surface-variant">{count}</span>
-      </div>
-      {children}
-    </div>
-  );
-}
-
-function Empty({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="rounded-2xl bg-zen-surface-low p-5 text-center text-[13px] font-light text-zen-on-surface-variant">
-      {children}
-    </p>
   );
 }

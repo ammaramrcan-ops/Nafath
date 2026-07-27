@@ -48,9 +48,7 @@ export function BreathingBreak({
           </span>
         </div>
 
-        <p className="text-[28px] font-medium leading-tight text-zen-on-surface">
-          خذ نفساً عميقاً
-        </p>
+        <p className="text-[28px] font-medium leading-tight text-zen-on-surface">خذ نفساً عميقاً</p>
         <p className="text-[14px] font-light leading-relaxed text-zen-on-surface-variant">
           استرخِ قليلاً لتثبيت المعلومات قبل المتابعة مع الفقرة التالية
         </p>

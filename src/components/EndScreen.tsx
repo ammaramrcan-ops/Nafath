@@ -1,9 +1,7 @@
 import { useState, useMemo } from "react";
-import { motion } from "framer-motion";
-import { Trophy, Home, ArrowLeft, Target, BookMarked, Sparkles } from "lucide-react";
+import {Target, BookMarked, Sparkles} from "lucide-react";
 import type { Lesson } from "@/lib/lesson-data";
 import { CheatSheet } from "@/components/CheatSheet";
-import { useSettings } from "@/lib/settings";
 import { getMistakes } from "@/lib/mistakes";
 import { SmartNotesModal } from "@/components/SmartNotesModal";
 
@@ -16,21 +14,12 @@ export function EndScreen({
   onRestart: () => void;
   restartLabel?: string;
 }) {
-  const { settings } = useSettings();
   const [showNotesModal, setShowNotesModal] = useState(false);
 
   const mistakes = useMemo(() => {
-    return getMistakes().filter((m) => m.lessonTitle === lesson.title || m.lessonTitle === "درس عام");
-  }, [lesson]);
-
-  const hasZatona = useMemo(() => {
-    const hasAnyZatonaContent = lesson.blocks.some(b => 
-      b.zaitouna?.definitions || b.zaitouna?.reasoning || b.zaitouna?.links
+    return getMistakes().filter(
+      (m) => m.lessonTitle === lesson.title || m.lessonTitle === "درس عام",
     );
-    const hasAnyDefinitions = lesson.blocks.some(b => b.hard_words.length > 0);
-    const hasAnyEssays = lesson.blocks.some(b => (b.quizzes?.essays ?? []).length > 0);
-    
-    return hasAnyZatonaContent || hasAnyDefinitions || hasAnyEssays;
   }, [lesson]);
 
   return (
@@ -60,7 +49,8 @@ export function EndScreen({
                 تقرير رادار نقاط الضعف (Weakness Radar Report):
               </h3>
               <p className="text-xs font-semibold text-slate-600 pt-1 leading-relaxed">
-                أنت ممتاز في الدرس بشكل عام! ولكن بناءً على الإجابات الخاطئة الـ ({mistakes.length}) المسجلة، ننصحك بمراجعة جزئية{" "}
+                أنت ممتاز في الدرس بشكل عام! ولكن بناءً على الإجابات الخاطئة الـ ({mistakes.length})
+                المسجلة، ننصحك بمراجعة جزئية{" "}
                 <span className="bg-[#ffdbca] text-[#9d4300] px-3 py-0.5 rounded-full border border-[#e0c0b1]/50 font-bold">
                   #{mistakes[0]?.question.slice(0, 35)}...
                 </span>{" "}

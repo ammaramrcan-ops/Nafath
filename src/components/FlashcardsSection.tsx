@@ -1,15 +1,10 @@
 import { useState, useMemo, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
   Filter,
   FileSpreadsheet,
   AlertCircle,
-  RotateCcw,
-  CheckCircle2,
-  HelpCircle,
   Plus,
-  Pencil,
 } from "lucide-react";
 import type { ParagraphBlock as Block } from "@/lib/lesson-data";
 import { generateSmartCardsFromBlock } from "@/lib/auto-flashcards";
@@ -67,7 +62,7 @@ export function FlashcardsSection({ block }: { block: Block }) {
       missingKeywords: string[];
       isCorrect: boolean;
       diagnostic: string;
-    }
+    },
   ) => {
     setCards((prev) => prev.map((c) => (c.id === updatedCard.id ? updatedCard : c)));
 
@@ -133,7 +128,10 @@ export function FlashcardsSection({ block }: { block: Block }) {
   }
 
   return (
-    <div className="rounded-[28px] bg-amber-50/90 p-6 sm:p-8 shadow-[var(--shadow-soft)] border-2 border-amber-300 space-y-6 text-right dir-rtl" dir="rtl">
+    <div
+      className="rounded-[28px] bg-amber-50/90 p-6 sm:p-8 shadow-[var(--shadow-soft)] border-2 border-amber-300 space-y-6 text-right dir-rtl"
+      dir="rtl"
+    >
       {/* Top Header Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-amber-200 pb-4">
         <div className="flex items-center gap-2.5 text-amber-950 font-black text-lg">
@@ -187,8 +185,12 @@ export function FlashcardsSection({ block }: { block: Block }) {
         <div className="flex flex-wrap gap-2 pt-1">
           {presentCategories.map((catKey) => {
             const isSel = activeCategory === catKey;
-            const count = catKey === "all" ? cards.length : cards.filter((c) => c.category === catKey).length;
-            const catInfo = catKey === "all" ? { label: "جميع الكروت", icon: "🎴" } : CATEGORY_INFO[catKey as FlashcardCategory] || { label: catKey, icon: "📌" };
+            const count =
+              catKey === "all" ? cards.length : cards.filter((c) => c.category === catKey).length;
+            const catInfo =
+              catKey === "all"
+                ? { label: "جميع الكروت", icon: "🎴" }
+                : CATEGORY_INFO[catKey as FlashcardCategory] || { label: catKey, icon: "📌" };
 
             return (
               <button
@@ -205,7 +207,9 @@ export function FlashcardsSection({ block }: { block: Block }) {
               >
                 <span>{catInfo.icon}</span>
                 <span>{catInfo.label}</span>
-                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-extrabold ${isSel ? "bg-amber-700 text-amber-100" : "bg-amber-100 text-amber-900"}`}>
+                <span
+                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-extrabold ${isSel ? "bg-amber-700 text-amber-100" : "bg-amber-100 text-amber-900"}`}
+                >
                   {count}
                 </span>
               </button>

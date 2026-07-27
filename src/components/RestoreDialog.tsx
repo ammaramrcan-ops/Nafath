@@ -1,12 +1,11 @@
 import { useRef, useState, useEffect } from "react";
-import { useNavigate } from "@tanstack/react-router";
-import { Upload, PenLine, X, FileJson, Sparkles, ScrollText, Leaf, BookOpen } from "lucide-react";
+import {Upload, X, FileJson, ScrollText, Leaf, BookOpen} from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { defaultLesson, khulLesson, parseLessonJson, type Lesson } from "@/lib/lesson-data";
 import { saveToLibrary } from "@/lib/lesson-library";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { getCurriculum, type Subject } from "@/lib/curriculum";
+import { getCurriculum } from "@/lib/curriculum";
 
 type Mode = "choice" | "json" | "subject_selection";
 
@@ -25,7 +24,6 @@ export function RestoreDialog({
   const [text, setText] = useState("");
   const [error, setError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
-  const navigate = useNavigate();
 
   const reset = () => {
     setMode("choice");
@@ -100,7 +98,9 @@ export function RestoreDialog({
                 <Upload className="h-6 w-6" />
               </div>
               <div className="flex-1">
-                <p className="text-[16px] font-extrabold text-zen-on-surface">استيراد كود JSON عبر 3 خطوات 🚀</p>
+                <p className="text-[16px] font-extrabold text-zen-on-surface">
+                  استيراد كود JSON عبر 3 خطوات 🚀
+                </p>
                 <p className="mt-0.5 text-[12px] leading-relaxed text-zen-on-surface-variant font-medium">
                   انتقل لوصول سريع لنظام استيراد الشرح والخريطة والـ MCQs
                 </p>

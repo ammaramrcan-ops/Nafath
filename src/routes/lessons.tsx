@@ -41,12 +41,14 @@ function LessonsPage() {
     }
   };
 
-  const filtered = library.filter((l) =>
-    l.title.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = library.filter((l) => l.title.toLowerCase().includes(search.toLowerCase()));
 
   return (
-    <div dir="rtl" lang="ar" className="min-h-screen bg-zen-surface text-zen-on-surface antialiased">
+    <div
+      dir="rtl"
+      lang="ar"
+      className="min-h-screen bg-zen-surface text-zen-on-surface antialiased"
+    >
       {/* Top Header */}
       <header className="fixed inset-x-0 top-0 z-40 bg-white/80 backdrop-blur-md border-b border-zen-surface-container/60">
         <div className="relative mx-auto flex w-full max-w-[800px] items-center justify-between px-6 py-4">

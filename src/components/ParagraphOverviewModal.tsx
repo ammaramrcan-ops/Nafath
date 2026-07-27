@@ -8,8 +8,6 @@ import {
   ArrowRight,
   X,
   BookOpen,
-  CheckCircle2,
-  Layers,
 } from "lucide-react";
 import type { ParagraphBlock } from "@/lib/lesson-data";
 
@@ -99,7 +97,9 @@ export function ParagraphOverviewModal({
               </div>
               <div>
                 <p className="text-xs font-bold text-[#584237]/70">عدد المفاهيم:</p>
-                <p className="text-lg font-extrabold text-[#0b1c30]">{conceptCount} معلومات ومفاهيم</p>
+                <p className="text-lg font-extrabold text-[#0b1c30]">
+                  {conceptCount} معلومات ومفاهيم
+                </p>
               </div>
             </div>
 
@@ -110,7 +110,9 @@ export function ParagraphOverviewModal({
               </div>
               <div>
                 <p className="text-xs font-bold text-[#584237]/70">الأسئلة التقييمية:</p>
-                <p className="text-lg font-extrabold text-[#0b1c30]">{questionsCount} أسئلة في الفقرة</p>
+                <p className="text-lg font-extrabold text-[#0b1c30]">
+                  {questionsCount} أسئلة في الفقرة
+                </p>
               </div>
             </div>
 
@@ -139,7 +141,9 @@ export function ParagraphOverviewModal({
           <div className="bg-[#ffdbca]/30 border-2 border-dashed border-[#ffdbca] p-6 sm:p-8 rounded-3xl space-y-3">
             <div className="flex items-center gap-2 text-[#9d4300]">
               <Sparkles className="h-5 w-5 fill-current" />
-              <h3 className="text-base sm:text-lg font-extrabold">الزيتونة بالبلدي (الفكرة ببساطة شديدة):</h3>
+              <h3 className="text-base sm:text-lg font-extrabold">
+                الزيتونة بالبلدي (الفكرة ببساطة شديدة):
+              </h3>
             </div>
             <div className="bg-white/90 p-5 rounded-2xl border border-white shadow-xs">
               <p className="text-sm sm:text-base font-bold text-[#0b1c30] leading-relaxed">

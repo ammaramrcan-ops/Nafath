@@ -8,10 +8,6 @@ import {
   Settings as SettingsIcon,
   Cpu,
   RefreshCw,
-  Lightbulb,
-  BookOpen,
-  HelpCircle,
-  MessageSquare,
   ChevronDown,
   ChevronUp,
   AlertTriangle,
@@ -20,7 +16,7 @@ import {
 import { useAiSettings } from "@/lib/ai-settings";
 import { SettingsDialog } from "@/components/SettingsDialog";
 import { generateSahmResponse, type ChatMessage } from "@/lib/ai-assistant-service";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 export function AiAssistantSidebar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -39,7 +35,7 @@ export function AiAssistantSidebar() {
     {
       id: "msg_welcome_1",
       sender: "assistant",
-      text: "أهلاً بك يا بطل! أنا مساعدك الآلي الشخصي \"سهم\".",
+      text: 'أهلاً بك يا بطل! أنا مساعدك الآلي الشخصي "سهم".',
       timestamp: new Date().toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" }),
     },
     {
@@ -159,13 +155,18 @@ export function AiAssistantSidebar() {
           <div className="flex items-center gap-1.5 font-extrabold text-xs">
             <span>سهم 🎯</span>
           </div>
-          <ChevronLeft className={`h-4 w-4 text-orange-100 transition-transform ${isOpen ? "" : "rotate-180"}`} />
+          <ChevronLeft
+            className={`h-4 w-4 text-orange-100 transition-transform ${isOpen ? "" : "rotate-180"}`}
+          />
         </button>
       </div>
 
       {/* Slide-over Drawer Panel on the RIGHT side */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end bg-slate-900/40 backdrop-blur-xs transition-opacity animate-fade-in" dir="rtl">
+        <div
+          className="fixed inset-0 z-50 flex justify-end bg-slate-900/40 backdrop-blur-xs transition-opacity animate-fade-in"
+          dir="rtl"
+        >
           <div className="relative w-full max-w-sm h-full bg-[#eff4ff] shadow-2xl flex flex-col text-right dir-rtl border-r border-[#e0c0b1]">
             {/* AI Drawer Header (Exact Match to Image) */}
             <div className="p-6 border-b border-[#e0c0b1]/50 bg-white space-y-4">
@@ -179,7 +180,9 @@ export function AiAssistantSidebar() {
                       المساعد "سهم"
                     </h3>
                     <div className="flex items-center gap-1.5 pt-0.5">
-                      <span className={`w-2 w-2 h-2 rounded-full ${hasApiKey ? "bg-emerald-500 animate-pulse" : "bg-amber-400"}`} />
+                      <span
+                        className={`w-2 w-2 h-2 rounded-full ${hasApiKey ? "bg-emerald-500 animate-pulse" : "bg-amber-400"}`}
+                      />
                       <span className="text-[11px] font-bold text-slate-500">
                         {hasApiKey ? "مستعد للمساعدة 🟢" : "مفتوح (أدخل المفتاح)"}
                       </span>
@@ -227,7 +230,11 @@ export function AiAssistantSidebar() {
               >
                 <Cpu className="h-4 w-4 text-[#f97316]" />
                 <span>المزود: {providerNames[aiSettings.provider] || "NVIDIA NIM"}</span>
-                {showStatusDetails ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                {showStatusDetails ? (
+                  <ChevronUp className="h-3 w-3" />
+                ) : (
+                  <ChevronDown className="h-3 w-3" />
+                )}
               </button>
 
               <button
@@ -241,7 +248,12 @@ export function AiAssistantSidebar() {
 
             {showStatusDetails && (
               <div className="bg-white p-3 text-[11px] font-semibold text-[#0b1c30] border-b border-[#e0c0b1]/40 space-y-1">
-                <p>النموذج: <code className="font-mono bg-[#eff4ff] px-1.5 py-0.5 rounded text-[#9d4300]">{aiSettings.modelName}</code></p>
+                <p>
+                  النموذج:{" "}
+                  <code className="font-mono bg-[#eff4ff] px-1.5 py-0.5 rounded text-[#9d4300]">
+                    {aiSettings.modelName}
+                  </code>
+                </p>
                 <p>مفتاح API: {hasApiKey ? "مكتمل ومحفوظ 🔑" : "غير محدد ⚠️"}</p>
               </div>
             )}
@@ -286,9 +298,7 @@ export function AiAssistantSidebar() {
                   >
                     <p className="whitespace-pre-line">{msg.text}</p>
                   </div>
-                  <span className="text-[10px] text-slate-400 mr-2 pt-1">
-                    {msg.timestamp}
-                  </span>
+                  <span className="text-[10px] text-slate-400 mr-2 pt-1">{msg.timestamp}</span>
                 </motion.div>
               ))}
 

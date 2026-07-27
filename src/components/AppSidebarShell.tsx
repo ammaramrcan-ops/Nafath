@@ -6,8 +6,8 @@
  * single overflow-y-auto div, making flex-1/shrink-0 on children no-ops.
  * This native flex-col implementation gives full layout control.
  */
-import { useState, useCallback } from 'react'
-import type { ReactNode } from 'react'
+import { useState, useCallback } from "react";
+import type { ReactNode } from "react";
 import {
   Avatar,
   AvatarFallback,
@@ -16,48 +16,42 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@blinkdotnew/ui'
-import {
-  LayoutDashboard,
-  FileText,
-  Settings,
-  LogOut,
-  PanelLeft,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
+} from "@blinkdotnew/ui";
+import { LayoutDashboard, FileText, Settings, LogOut, PanelLeft } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-const SIDEBAR_KEY = 'sidebar_collapsed'
+const SIDEBAR_KEY = "sidebar_collapsed";
 
 interface NavItemDef {
-  href: string
-  icon: ReactNode
-  label: string
-  active?: boolean
+  href: string;
+  icon: ReactNode;
+  label: string;
+  active?: boolean;
 }
 
 const NAV_ITEMS: NavItemDef[] = [
-  { href: '/', icon: <LayoutDashboard className="h-4 w-4" />, label: 'Dashboard', active: true },
-  { href: '/items', icon: <FileText className="h-4 w-4" />, label: 'Items' },
-  { href: '/settings', icon: <Settings className="h-4 w-4" />, label: 'Settings' },
-]
+  { href: "/", icon: <LayoutDashboard className="h-4 w-4" />, label: "Dashboard", active: true },
+  { href: "/items", icon: <FileText className="h-4 w-4" />, label: "Items" },
+  { href: "/settings", icon: <Settings className="h-4 w-4" />, label: "Settings" },
+];
 
 function NavItem({ item, collapsed }: { item: NavItemDef; collapsed: boolean }) {
   const link = (
     <a
       href={item.href}
       className={cn(
-        'flex items-center gap-2.5 rounded-md text-sm transition-colors cursor-pointer',
-        collapsed ? 'justify-center w-8 h-8 mx-auto' : 'px-3 py-2 w-full',
+        "flex items-center gap-2.5 rounded-md text-sm transition-colors cursor-pointer",
+        collapsed ? "justify-center w-8 h-8 mx-auto" : "px-3 py-2 w-full",
         item.active
-          ? 'bg-accent text-foreground font-medium'
-          : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+          ? "bg-accent text-foreground font-medium"
+          : "text-muted-foreground hover:bg-accent hover:text-foreground",
       )}
     >
       <span className="shrink-0">{item.icon}</span>
       {!collapsed && <span className="truncate">{item.label}</span>}
     </a>
-  )
-  if (!collapsed) return link
+  );
+  if (!collapsed) return link;
   return (
     <TooltipProvider delayDuration={0}>
       <Tooltip>
@@ -72,37 +66,37 @@ function NavItem({ item, collapsed }: { item: NavItemDef; collapsed: boolean }) 
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
-  )
+  );
 }
 
 export function AppSidebarShell() {
   const [collapsed, setCollapsed] = useState(() => {
-    if (typeof window === 'undefined') return false
-    return localStorage.getItem(SIDEBAR_KEY) === 'true'
-  })
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem(SIDEBAR_KEY) === "true";
+  });
 
   const toggle = useCallback(() => {
-    setCollapsed(v => {
-      const next = !v
-      localStorage.setItem(SIDEBAR_KEY, String(next))
-      return next
-    })
-  }, [])
+    setCollapsed((v) => {
+      const next = !v;
+      localStorage.setItem(SIDEBAR_KEY, String(next));
+      return next;
+    });
+  }, []);
 
   return (
     <TooltipProvider delayDuration={0}>
       <div
         className={cn(
-          'flex flex-col h-full bg-background border-r border-border overflow-hidden',
-          'transition-[width] duration-200 ease-linear shrink-0',
-          collapsed ? 'w-[3rem]' : 'w-[15rem]'
+          "flex flex-col h-full bg-background border-r border-border overflow-hidden",
+          "transition-[width] duration-200 ease-linear shrink-0",
+          collapsed ? "w-[3rem]" : "w-[15rem]",
         )}
       >
         {/* ── Header ────────────────────────────────────── */}
         <div
           className={cn(
-            'flex items-center gap-2 shrink-0 border-b border-border h-[52px] px-3',
-            collapsed && 'justify-center px-2'
+            "flex items-center gap-2 shrink-0 border-b border-border h-[52px] px-3",
+            collapsed && "justify-center px-2",
           )}
         >
           {!collapsed && (
@@ -123,8 +117,8 @@ export function AppSidebarShell() {
               >
                 <PanelLeft
                   className={cn(
-                    'h-4 w-4 transition-transform duration-200',
-                    collapsed && 'rotate-180'
+                    "h-4 w-4 transition-transform duration-200",
+                    collapsed && "rotate-180",
                   )}
                 />
               </Button>
@@ -135,7 +129,7 @@ export function AppSidebarShell() {
               onPointerEnterCapture={() => {}}
               onPointerLeaveCapture={() => {}}
             >
-              {collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              {collapsed ? "Expand sidebar" : "Collapse sidebar"}
             </TooltipContent>
           </Tooltip>
         </div>
@@ -147,7 +141,7 @@ export function AppSidebarShell() {
               Main
             </p>
           )}
-          {NAV_ITEMS.map(item => (
+          {NAV_ITEMS.map((item) => (
             <NavItem key={item.href} item={item} collapsed={collapsed} />
           ))}
         </div>
@@ -155,8 +149,8 @@ export function AppSidebarShell() {
         {/* ── Footer (always pinned to bottom) ──────────── */}
         <div
           className={cn(
-            'shrink-0 border-t border-border',
-            collapsed ? 'flex flex-col items-center gap-1 p-2' : 'p-3 space-y-1'
+            "shrink-0 border-t border-border",
+            collapsed ? "flex flex-col items-center gap-1 p-2" : "p-3 space-y-1",
           )}
         >
           {/* User row */}
@@ -252,5 +246,5 @@ export function AppSidebarShell() {
         </div>
       </div>
     </TooltipProvider>
-  )
+  );
 }

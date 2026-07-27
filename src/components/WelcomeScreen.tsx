@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { Clock, BookOpen, Layers, ArrowLeft, ArrowRight, Sparkles, HelpCircle, GraduationCap } from "lucide-react";
+import {
+  Clock,
+  BookOpen,
+  Layers,
+  ArrowRight,
+  Sparkles,
+} from "lucide-react";
 import type { Lesson } from "@/lib/lesson-data";
 import { PrepModal, type LearningLevel } from "./PrepModal";
 
@@ -18,10 +24,7 @@ export function WelcomeScreen({
     onStart(data.level);
   };
 
-  const totalTerms = lesson.blocks.reduce(
-    (acc, b) => acc + (b.hard_words?.length || 0),
-    0
-  );
+  const totalTerms = lesson.blocks.reduce((acc, b) => acc + (b.hard_words?.length || 0), 0);
 
   return (
     <div

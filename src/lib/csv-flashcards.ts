@@ -1,8 +1,4 @@
-import {
-  autoCategory,
-  type FlashcardCategory,
-  type SmartFlashcard,
-} from "./spaced-repetition";
+import { autoCategory, type FlashcardCategory, type SmartFlashcard } from "./spaced-repetition";
 
 /**
  * Parses CSV file text into SmartFlashcard objects.
@@ -75,12 +71,13 @@ export function parseCSVToSmartCards(csvText: string): SmartFlashcard[] {
 
     const category = sanitizeCategory(categoryRaw, question);
     const keywords = keywordsRaw
-      ? keywordsRaw.split(/[|،,]/).map((k) => k.trim()).filter(Boolean)
+      ? keywordsRaw
+          .split(/[|،,]/)
+          .map((k) => k.trim())
+          .filter(Boolean)
       : autoExtractKeywords(modelAnswer);
 
-    const cues = keywordCues
-      ? keywordCues.replace(/\|/g, " / ")
-      : generateKeywordCues(keywords);
+    const cues = keywordCues ? keywordCues.replace(/\|/g, " / ") : generateKeywordCues(keywords);
 
     cards.push({
       id: `csv_${crypto.randomUUID()}`,
@@ -136,7 +133,8 @@ function parseCSVRow(text: string): string[] {
 
 function sanitizeCategory(raw: string, question: string): FlashcardCategory {
   const r = (raw || "").trim().toLowerCase();
-  if (r === "reasoning" || r === " علل" || r.includes("علل") || r.includes("سبب")) return "reasoning";
+  if (r === "reasoning" || r === " علل" || r.includes("علل") || r.includes("سبب"))
+    return "reasoning";
   if (r === "rulings" || r.includes("حكم") || r.includes("أحكام")) return "rulings";
   if (r === "evidence" || r.includes("دليل") || r.includes("نص")) return "evidence";
   if (r === "definition" || r.includes("تعريف") || r.includes("مصطلح")) return "definition";
@@ -180,7 +178,9 @@ export function exportCardsToCSV(cards: SmartFlashcard[]): string {
     const ans = escapeCSV(c.model_answer);
     const kw = escapeCSV(c.keywords ? c.keywords.join("|") : "");
     const mn = escapeCSV(c.hint?.mnemonic || "");
-    const cues = escapeCSV(c.hint?.keyword_cues ? c.hint.keyword_cues.replace(/\s*\/\s*/g, "|") : "");
+    const cues = escapeCSV(
+      c.hint?.keyword_cues ? c.hint.keyword_cues.replace(/\s*\/\s*/g, "|") : "",
+    );
 
     return `${cat},${q},${ans},${kw},${mn},${cues}`;
   });

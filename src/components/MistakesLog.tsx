@@ -62,7 +62,9 @@ export function MistakesLogModal({
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 mb-4">
                 <CheckCircle2 className="h-8 w-8" />
               </div>
-              <p className="text-base font-semibold text-zen-on-surface">السجل تم تصحيحه بالكامل!</p>
+              <p className="text-base font-semibold text-zen-on-surface">
+                السجل تم تصحيحه بالكامل!
+              </p>
               <p className="text-xs text-zen-on-surface-variant mt-1">
                 لا توجد أخطاء مسجلة حالياً. استمر في التفوق.
               </p>
@@ -99,7 +101,9 @@ export function MistakesLogModal({
                     <p className="font-semibold">{item.userAnswer || "لا توجد إجابة"}</p>
                   </div>
                   <div className="rounded-xl bg-emerald-50 p-3 text-emerald-800 border border-emerald-100">
-                    <span className="block font-medium mb-0.5 text-emerald-600">الإجابة الصحيحة:</span>
+                    <span className="block font-medium mb-0.5 text-emerald-600">
+                      الإجابة الصحيحة:
+                    </span>
                     <p className="font-semibold">{item.correctAnswer}</p>
                   </div>
                 </div>

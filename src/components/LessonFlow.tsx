@@ -1,6 +1,15 @@
 import { useState, useEffect, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Pencil, AlertCircle, ArrowRight, Clock, Hourglass, BarChart2, Home, ChevronDown } from "lucide-react";
+import {
+  Pencil,
+  AlertCircle,
+  ArrowRight,
+  Clock,
+  Hourglass,
+  BarChart2,
+  Home,
+  ChevronDown,
+} from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { type Lesson, type Quizzes, defaultLesson, khulLesson } from "@/lib/lesson-data";
@@ -98,7 +107,7 @@ export function LessonFlow({
         settings.stageOrder,
         learningLevel,
         lesson.levelStageOrders,
-        lesson.levelDisabledStages
+        lesson.levelDisabledStages,
       );
       return acc + stages.length;
     }, 0);
@@ -131,10 +140,7 @@ export function LessonFlow({
       ? 100
       : Math.min(
           99,
-          Math.max(
-            5,
-            Math.round((completedStagesCount / Math.max(1, totalStagesInLesson)) * 100)
-          )
+          Math.max(5, Math.round((completedStagesCount / Math.max(1, totalStagesInLesson)) * 100)),
         );
 
   // Automatic Milestone Celebrations (at 25%, 50%, and 80%)
@@ -209,7 +215,10 @@ export function LessonFlow({
   };
 
   return (
-    <div className="relative min-h-screen bg-zen-surface font-sans text-zen-on-surface dir-rtl" dir="rtl">
+    <div
+      className="relative min-h-screen bg-zen-surface font-sans text-zen-on-surface dir-rtl"
+      dir="rtl"
+    >
       {/* Top Header Bar - Contains exit, dynamic study metrics, and shortcuts without overlapping */}
       <header className="sticky top-0 z-40 border-b border-zen-surface-container bg-white/90 backdrop-blur-md px-6 py-3 shadow-sm">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
@@ -339,20 +348,21 @@ export function LessonFlow({
           exit={{ opacity: 0, y: -12 }}
           transition={{ duration: 0.3 }}
         >
-          {phase === "welcome" && (
-            <WelcomeScreen lesson={lesson} onStart={handleStartFromPrep} />
-          )}
+          {phase === "welcome" && <WelcomeScreen lesson={lesson} onStart={handleStartFromPrep} />}
 
           {/* Pre-test Phase for Level 2 & Level 3 */}
           {phase === "pre-test" && (
             <div className="mx-auto min-h-screen w-full max-w-[85vw] px-6 py-12 dir-rtl" dir="rtl">
               <div className="mb-8 text-center space-y-2">
                 <span className="inline-block rounded-full bg-amber-100 px-4 py-1 text-xs font-bold text-amber-800">
-                  {learningLevel === 2 ? "الاختبار القبلي — المستوى الثاني (مسح وفهم دقيق)" : "الاختبار القبلي الشامل — المستوى الثالث (إتقان وتحدي صارم)"}
+                  {learningLevel === 2
+                    ? "الاختبار القبلي — المستوى الثاني (مسح وفهم دقيق)"
+                    : "الاختبار القبلي الشامل — المستوى الثالث (إتقان وتحدي صارم)"}
                 </span>
                 <h2 className="text-2xl font-bold text-zen-on-surface">قياس المستوى القبلي</h2>
                 <p className="text-xs text-zen-on-surface-variant">
-                  أجب عن الأسئلة التالية لتحديد حصيلتك واختبار استيعابك المبسط قبل البدء بالشرح التفاعلي.
+                  أجب عن الأسئلة التالية لتحديد حصيلتك واختبار استيعابك المبسط قبل البدء بالشرح
+                  التفاعلي.
                 </p>
               </div>
 
@@ -386,7 +396,7 @@ export function LessonFlow({
                 settings.stageOrder,
                 learningLevel,
                 lesson.levelStageOrders,
-                lesson.levelDisabledStages
+                lesson.levelDisabledStages,
               )}
               mode="student"
               subjectId={lesson.subjectId}

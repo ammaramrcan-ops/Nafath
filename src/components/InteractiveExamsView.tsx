@@ -6,23 +6,16 @@ import {
   CheckCircle2,
   AlertCircle,
   Sparkles,
-  HelpCircle,
-  FileText,
-  Upload,
   Brain,
   Zap,
   RotateCcw,
   Check,
-  Tag,
   BookOpen,
   Send,
   Plus,
-  Flame,
   BarChart2,
   Trash2,
   StickyNote,
-  Award,
-  CheckSquare,
   AlertTriangle,
   Lightbulb,
   X,
@@ -36,7 +29,6 @@ import {
   Code,
   Copy,
   FileCode,
-  HelpCircle as QuestionIcon,
   Star,
   Edit3,
   TrendingUp,
@@ -57,8 +49,8 @@ import {
   type ExamQuestion,
   type ExamQuestionType,
   type QuestionPerformance,
-  type TopicReportItem,
   type ExamMistake,
+  type TopicReportItem,
   type LessonNote,
 } from "@/lib/interactive-exams-service";
 import { EditQuestionModal } from "./EditQuestionModal";
@@ -72,7 +64,9 @@ export function InteractiveExamsView({
 }) {
   const navigate = useNavigate();
   const [bankQuestions, setBankQuestions] = useState<ExamQuestion[]>(() => getQuestionBank());
-  const [activeTab, setActiveTab] = useState<"exam" | "stats" | "mistakes" | "notebook" | "ingest">(initialTab);
+  const [activeTab, setActiveTab] = useState<"exam" | "stats" | "mistakes" | "notebook" | "ingest">(
+    initialTab,
+  );
 
   // Question Type Selector Modal State
   const [showTypeModal, setShowTypeModal] = useState(false);
@@ -92,9 +86,10 @@ export function InteractiveExamsView({
   // Lesson Notes / Notebook State
   const [notes, setNotes] = useState<LessonNote[]>(() => getStoredLessonNotes());
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
-  const [selectedNotebookSubject, setSelectedNotebookSubject] = useState("الفقه الإسلامي");
   const [noteTitle, setNoteTitle] = useState("أحكام المعاملات المالية");
-  const [noteContent, setNoteContent] = useState("المعاملات المالية تعتمد على التراضي وتوفر الشروط الفقهية مع اجتناب الغرر والربا والجهالة المؤدية للنزاع...");
+  const [noteContent, setNoteContent] = useState(
+    "المعاملات المالية تعتمد على التراضي وتوفر الشروط الفقهية مع اجتناب الغرر والربا والجهالة المؤدية للنزاع...",
+  );
   const [isZenActive, setIsZenActive] = useState(false);
 
   // Exam Session State
@@ -113,7 +108,6 @@ export function InteractiveExamsView({
   // User Answer Inputs
   const [userAnswerInput, setUserAnswerInput] = useState("");
   const [selectedMcqOption, setSelectedMcqOption] = useState<string | null>(null);
-  const [showEssayHint, setShowEssayHint] = useState(false);
 
   // Ingestion AI Text State
   const [rawIngestText, setRawIngestText] = useState("");
@@ -153,7 +147,6 @@ export function InteractiveExamsView({
       setIsPaused(false);
       setUserAnswerInput("");
       setSelectedMcqOption(null);
-      setShowEssayHint(false);
     }
   }, [currentIndex, isExamActive, currentQ?.id]);
 
@@ -176,7 +169,8 @@ export function InteractiveExamsView({
   };
 
   const handleStartExam = (typeFilter: "all" | ExamQuestionType = "all") => {
-    const pool = typeFilter === "all" ? bankQuestions : bankQuestions.filter((q) => q.type === typeFilter);
+    const pool =
+      typeFilter === "all" ? bankQuestions : bankQuestions.filter((q) => q.type === typeFilter);
     if (pool.length === 0) {
       toast.error("لا توجد أسئلة متاحة في هذا النمط حالياً.");
       return;
@@ -352,7 +346,9 @@ export function InteractiveExamsView({
         }));
 
       if (validItems.length === 0) {
-        toast.error("لم يتم العثور على أسئلة صالحة بالـ JSON. تأكد من وجود حقول question و model_answer.");
+        toast.error(
+          "لم يتم العثور على أسئلة صالحة بالـ JSON. تأكد من وجود حقول question و model_answer.",
+        );
         return;
       }
 
@@ -374,7 +370,7 @@ export function InteractiveExamsView({
       (item) =>
         item.question.toLowerCase().includes(q) ||
         item.topic_label.toLowerCase().includes(q) ||
-        item.model_answer.toLowerCase().includes(q)
+        item.model_answer.toLowerCase().includes(q),
     );
   }, [bankQuestions, bankSearchQuery]);
 
@@ -409,7 +405,10 @@ export function InteractiveExamsView({
   }, [noteContent]);
 
   return (
-    <div className="w-full max-w-[1100px] mx-auto px-4 py-8 space-y-10 dir-rtl text-right font-body-md" dir="rtl">
+    <div
+      className="w-full max-w-[1100px] mx-auto px-4 py-8 space-y-10 dir-rtl text-right font-body-md"
+      dir="rtl"
+    >
       {/* Top Header Navigation Bar */}
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#e0c0b1]/30 pb-4">
         <div className="space-y-1">
@@ -520,9 +519,12 @@ export function InteractiveExamsView({
                 تحليل الأداء
               </span>
             </div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0b1c30]">إحصائيات التعلم 📊</h2>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0b1c30]">
+              إحصائيات التعلم 📊
+            </h2>
             <p className="text-base text-[#584237]/80 max-w-2xl leading-relaxed">
-              نظرة شاملة ومبسطة على تقدمك الأكاديمي. نحن نستخدم الذكاء الاصطناعي لتحليل نقاط قوتك وتحديد المجالات التي تحتاج إلى تركيز.
+              نظرة شاملة ومبسطة على تقدمك الأكاديمي. نحن نستخدم الذكاء الاصطناعي لتحليل نقاط قوتك
+              وتحديد المجالات التي تحتاج إلى تركيز.
             </p>
           </section>
 
@@ -534,7 +536,9 @@ export function InteractiveExamsView({
                 <div className="w-12 h-12 rounded-2xl bg-[#ffdbca]/30 flex items-center justify-center text-[#9d4300]">
                   <Star className="h-6 w-6 fill-[#9d4300]" />
                 </div>
-                <span className="text-[#9d4300] font-extrabold text-xs bg-[#ffdbca]/30 px-2.5 py-1 rounded-full">+2.5%</span>
+                <span className="text-[#9d4300] font-extrabold text-xs bg-[#ffdbca]/30 px-2.5 py-1 rounded-full">
+                  +2.5%
+                </span>
               </div>
               <div>
                 <p className="text-xs font-bold text-[#584237]/80 mb-1">معدل الإتقان</p>
@@ -548,11 +552,15 @@ export function InteractiveExamsView({
                 <div className="w-12 h-12 rounded-2xl bg-purple-100 flex items-center justify-center text-[#8127cf]">
                   <Edit3 className="h-6 w-6" />
                 </div>
-                <span className="text-[#8127cf] font-extrabold text-xs bg-purple-100 px-2.5 py-1 rounded-full">منوع</span>
+                <span className="text-[#8127cf] font-extrabold text-xs bg-purple-100 px-2.5 py-1 rounded-full">
+                  منوع
+                </span>
               </div>
               <div>
                 <p className="text-xs font-bold text-[#584237]/80 mb-1">إجمالي الملاحظات</p>
-                <h3 className="text-3xl sm:text-4xl font-extrabold text-[#0b1c30]">{notes.length || 12}</h3>
+                <h3 className="text-3xl sm:text-4xl font-extrabold text-[#0b1c30]">
+                  {notes.length || 12}
+                </h3>
               </div>
             </div>
 
@@ -562,11 +570,15 @@ export function InteractiveExamsView({
                 <div className="w-12 h-12 rounded-2xl bg-rose-100 flex items-center justify-center text-[#ba1a1a]">
                   <AlertCircle className="h-6 w-6" />
                 </div>
-                <span className="text-[#ba1a1a] font-extrabold text-xs bg-rose-100 px-2.5 py-1 rounded-full">عاجل</span>
+                <span className="text-[#ba1a1a] font-extrabold text-xs bg-rose-100 px-2.5 py-1 rounded-full">
+                  عاجل
+                </span>
               </div>
               <div>
                 <p className="text-xs font-bold text-[#584237]/80 mb-1">أخطاء معلقة</p>
-                <h3 className="text-3xl sm:text-4xl font-extrabold text-[#0b1c30]">{mistakes.length}</h3>
+                <h3 className="text-3xl sm:text-4xl font-extrabold text-[#0b1c30]">
+                  {mistakes.length}
+                </h3>
               </div>
             </div>
 
@@ -576,7 +588,9 @@ export function InteractiveExamsView({
                 <div className="w-12 h-12 rounded-2xl bg-[#eff4ff] flex items-center justify-center text-[#0b1c30]">
                   <Zap className="h-6 w-6 fill-current text-[#9d4300]" />
                 </div>
-                <span className="text-[#584237] font-extrabold text-xs bg-[#eff4ff] px-2.5 py-1 rounded-full">-1s</span>
+                <span className="text-[#584237] font-extrabold text-xs bg-[#eff4ff] px-2.5 py-1 rounded-full">
+                  -1s
+                </span>
               </div>
               <div>
                 <p className="text-xs font-bold text-[#584237]/80 mb-1">متوسط السرعة</p>
@@ -628,7 +642,9 @@ export function InteractiveExamsView({
                     </div>
 
                     <div>
-                      <h4 className="text-xl font-extrabold text-[#0b1c30] mb-1">فقه الخُلع وعوض المهر</h4>
+                      <h4 className="text-xl font-extrabold text-[#0b1c30] mb-1">
+                        فقه الخُلع وعوض المهر
+                      </h4>
                       <p className="text-xs font-semibold text-[#584237]/80">المستوى المتقدم</p>
                     </div>
                   </div>
@@ -677,7 +693,9 @@ export function InteractiveExamsView({
                     </div>
 
                     <div>
-                      <h4 className="text-xl font-extrabold text-[#0b1c30] mb-1">أحكام الطلاق والعدّة</h4>
+                      <h4 className="text-xl font-extrabold text-[#0b1c30] mb-1">
+                        أحكام الطلاق والعدّة
+                      </h4>
                       <p className="text-xs font-semibold text-[#584237]/80">المستوى المتوسط</p>
                     </div>
                   </div>
@@ -713,7 +731,10 @@ export function InteractiveExamsView({
                 { day: "جمع", height: "90%", color: "bg-purple-200" },
                 { day: "سبت", height: "35%", color: "bg-[#eff4ff]" },
               ].map((bar, idx) => (
-                <div key={idx} className="flex-1 flex flex-col items-center gap-3 group cursor-pointer">
+                <div
+                  key={idx}
+                  className="flex-1 flex flex-col items-center gap-3 group cursor-pointer"
+                >
                   <div
                     className={`w-full ${bar.color} rounded-t-full transition-all duration-500 hover:opacity-80 group-hover:scale-y-105`}
                     style={{ height: bar.height }}
@@ -733,9 +754,12 @@ export function InteractiveExamsView({
           <header className="space-y-6 border-b border-[#e0c0b1]/30 pb-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div className="space-y-2">
-                <h1 className="text-3xl sm:text-4xl font-extrabold text-[#0b1c30]">بنك الأخطاء ❌</h1>
+                <h1 className="text-3xl sm:text-4xl font-extrabold text-[#0b1c30]">
+                  بنك الأخطاء ❌
+                </h1>
                 <p className="text-sm font-semibold text-[#584237]/80 max-w-2xl leading-relaxed">
-                  الأخطاء ليست نهاية الطريق، بل هي البداية الحقيقية للتعلم. هنا جمعنا لك كل النقاط التي واجهت فيها صعوبة لتتمكن من إتقانها.
+                  الأخطاء ليست نهاية الطريق، بل هي البداية الحقيقية للتعلم. هنا جمعنا لك كل النقاط
+                  التي واجهت فيها صعوبة لتتمكن من إتقانها.
                 </p>
               </div>
 
@@ -762,7 +786,9 @@ export function InteractiveExamsView({
               <div className="bg-[#eff4ff] p-6 rounded-3xl border border-[#e0c0b1]/30 flex items-center justify-between">
                 <div>
                   <div className="text-xs font-bold text-[#584237]/80">انتظار المراجعة</div>
-                  <div className="text-3xl font-extrabold text-[#8127cf]">{mistakes.filter(m => !m.reviewed).length || mistakes.length}</div>
+                  <div className="text-3xl font-extrabold text-[#8127cf]">
+                    {mistakes.length}
+                  </div>
                 </div>
                 <Clock className="h-10 w-10 text-[#8127cf]/40" />
               </div>
@@ -782,8 +808,12 @@ export function InteractiveExamsView({
             {mistakes.length === 0 ? (
               <div className="text-center py-16 space-y-4 bg-white rounded-[2.5rem] border border-[#e0c0b1]/40 shadow-xs">
                 <CheckCircle2 className="h-14 w-14 text-emerald-600 mx-auto" />
-                <h3 className="text-xl font-extrabold text-[#0b1c30]">ممتاز جداً! لا توجد أخطاء معلقة بالسجل حالياً 🎉</h3>
-                <p className="text-xs font-semibold text-[#584237]/70">يمكنك إجراء اختبارات جديدة لاختبار معلوماتك ودعم إتقانك.</p>
+                <h3 className="text-xl font-extrabold text-[#0b1c30]">
+                  ممتاز جداً! لا توجد أخطاء معلقة بالسجل حالياً 🎉
+                </h3>
+                <p className="text-xs font-semibold text-[#584237]/70">
+                  يمكنك إجراء اختبارات جديدة لاختبار معلوماتك ودعم إتقانك.
+                </p>
               </div>
             ) : (
               mistakes.map((m) => (
@@ -829,7 +859,9 @@ export function InteractiveExamsView({
                         <Check className="h-4 w-4" />
                         <span>الإجابة النموذجية الصحيحة:</span>
                       </div>
-                      <p className="text-sm font-semibold text-[#0b1c30]">{m.question.model_answer}</p>
+                      <p className="text-sm font-semibold text-[#0b1c30]">
+                        {m.question.model_answer}
+                      </p>
                     </div>
                   </div>
 
@@ -885,7 +917,9 @@ export function InteractiveExamsView({
               <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
                 {notes.length === 0 ? (
                   <div className="text-center py-10 space-y-3 border border-dashed border-[#e0c0b1]/60 rounded-2xl p-4 bg-[#f8f9ff]">
-                    <p className="text-xs font-bold text-[#584237]/80">لا توجد ملاحظات مسجلة حالياً</p>
+                    <p className="text-xs font-bold text-[#584237]/80">
+                      لا توجد ملاحظات مسجلة حالياً
+                    </p>
                     <button
                       type="button"
                       onClick={handleCreateNewNote}
@@ -912,8 +946,12 @@ export function InteractiveExamsView({
                         }`}
                       >
                         <div className="space-y-0.5 overflow-hidden flex-grow">
-                          <span className="text-[10px] font-bold text-[#8127cf] block">{item.date || "اليوم"}</span>
-                          <span className="text-sm font-extrabold text-[#0b1c30] truncate block">{item.lessonTitle}</span>
+                          <span className="text-[10px] font-bold text-[#8127cf] block">
+                            {item.date || "اليوم"}
+                          </span>
+                          <span className="text-sm font-extrabold text-[#0b1c30] truncate block">
+                            {item.lessonTitle}
+                          </span>
                         </div>
                         <button
                           type="button"
@@ -951,20 +989,36 @@ export function InteractiveExamsView({
                     <StickyNote className="h-5 w-5" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-extrabold text-[#0b1c30]">دفتر الملاحظات والفوائد</h2>
-                    <p className="text-xs font-bold text-[#8127cf]">{noteTitle || "ملاحظة جديدة"}</p>
+                    <h2 className="text-lg font-extrabold text-[#0b1c30]">
+                      دفتر الملاحظات والفوائد
+                    </h2>
+                    <p className="text-xs font-bold text-[#8127cf]">
+                      {noteTitle || "ملاحظة جديدة"}
+                    </p>
                   </div>
                 </div>
 
                 {/* Formatting Controls Bar */}
                 <div className="flex items-center bg-[#f8f9ff] rounded-full px-4 py-2 gap-2 border border-[#e0c0b1]/40 text-xs font-bold text-[#584237]">
-                  <button type="button" className="p-1 hover:text-[#9d4300] transition" title="Bold">
+                  <button
+                    type="button"
+                    className="p-1 hover:text-[#9d4300] transition"
+                    title="Bold"
+                  >
                     <b>B</b>
                   </button>
-                  <button type="button" className="p-1 hover:text-[#9d4300] transition" title="Italic">
+                  <button
+                    type="button"
+                    className="p-1 hover:text-[#9d4300] transition"
+                    title="Italic"
+                  >
                     <i>I</i>
                   </button>
-                  <button type="button" className="p-1 hover:text-[#9d4300] transition" title="List">
+                  <button
+                    type="button"
+                    className="p-1 hover:text-[#9d4300] transition"
+                    title="List"
+                  >
                     •
                   </button>
                   <div className="w-px h-4 bg-[#e0c0b1]" />
@@ -1052,9 +1106,12 @@ export function InteractiveExamsView({
               </div>
 
               <div className="max-w-2xl space-y-3">
-                <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0b1c30]">الجلسة التكيفية للاختبارات التفاعلية</h2>
+                <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0b1c30]">
+                  الجلسة التكيفية للاختبارات التفاعلية
+                </h2>
                 <p className="text-base text-[#584237]/80 max-w-lg mx-auto leading-relaxed">
-                  ابدأ اختبارك الآن، يمكنك اختيار نمط الأسئلة المفضل (MCQs، أكمل، مقالي) أو إجراء اختبار شامل لجميع الموضوعات.
+                  ابدأ اختبارك الآن، يمكنك اختيار نمط الأسئلة المفضل (MCQs، أكمل، مقالي) أو إجراء
+                  اختبار شامل لجميع الموضوعات.
                 </p>
               </div>
 
@@ -1107,7 +1164,11 @@ export function InteractiveExamsView({
                     onClick={() => setIsPaused(!isPaused)}
                     className="flex items-center gap-2 text-xs font-bold text-[#584237] hover:text-rose-600 transition cursor-pointer"
                   >
-                    {isPaused ? <PlayCircle className="h-4 w-4 text-emerald-600" /> : <PauseCircle className="h-4 w-4 text-amber-600" />}
+                    {isPaused ? (
+                      <PlayCircle className="h-4 w-4 text-emerald-600" />
+                    ) : (
+                      <PauseCircle className="h-4 w-4 text-amber-600" />
+                    )}
                     <span>{isPaused ? "استئناف" : "إيقاف مؤقت"}</span>
                   </button>
                 </div>
@@ -1145,7 +1206,9 @@ export function InteractiveExamsView({
                                   >
                                     {mcqOptionLabels[i] || i + 1}
                                   </span>
-                                  <span className="text-base font-semibold text-[#0b1c30]">{opt}</span>
+                                  <span className="text-base font-semibold text-[#0b1c30]">
+                                    {opt}
+                                  </span>
                                 </button>
                               );
                             })}
@@ -1239,18 +1302,27 @@ export function InteractiveExamsView({
                 🏆
               </div>
               <div className="space-y-2">
-                <h3 className="text-3xl font-extrabold text-[#0b1c30]">تم إكمال الجلسة التفاعلية بنجاح!</h3>
+                <h3 className="text-3xl font-extrabold text-[#0b1c30]">
+                  تم إكمال الجلسة التفاعلية بنجاح!
+                </h3>
                 <p className="text-sm font-semibold text-[#584237]/80 max-w-md mx-auto">
                   تقرير التحليل الإدراكي وتحديد التاجات المفاهيمية ومواضع القوة والضعف:
                 </p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-right">
-                {topicReport.map((item, idx) => (
-                  <div key={idx} className="p-6 rounded-3xl bg-[#eff4ff] border border-[#dce9ff] space-y-4">
+                {topicReport.items.map((item: TopicReportItem, idx: number) => (
+                  <div
+                    key={idx}
+                    className="p-6 rounded-3xl bg-[#eff4ff] border border-[#dce9ff] space-y-4"
+                  >
                     <div className="flex items-center justify-between border-b border-[#e0c0b1]/40 pb-3">
-                      <span className="font-extrabold text-base text-[#0b1c30]">{item.topic_label}</span>
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${item.badgeBg} ${item.badgeText}`}>
+                      <span className="font-extrabold text-base text-[#0b1c30]">
+                        {item.topic_label}
+                      </span>
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-bold ${item.badgeBg} ${item.badgeText}`}
+                      >
                         {item.assessmentIcon} {item.assessmentLabel}
                       </span>
                     </div>
@@ -1262,7 +1334,9 @@ export function InteractiveExamsView({
                       </div>
                       <div>
                         <span className="text-[#584237]">متوسط زمن الإجابة:</span>
-                        <p className="text-[#0b1c30] font-extrabold text-lg">{item.avgLatencySec} ثانية</p>
+                        <p className="text-[#0b1c30] font-extrabold text-lg">
+                          {item.avgLatencySec} ثانية
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -1294,7 +1368,9 @@ export function InteractiveExamsView({
                     <Brain className="h-6 w-6" />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-extrabold text-[#0b1c30]">صفحة إدارة وتغذية بنك الأسئلة الموحد 📥</h2>
+                    <h2 className="text-2xl font-extrabold text-[#0b1c30]">
+                      صفحة إدارة وتغذية بنك الأسئلة الموحد 📥
+                    </h2>
                     <p className="text-xs font-semibold text-[#584237]/70">
                       إضافة أسئلة بـ JSON أو يدوياً أو تفكيك بالنصوص واستعراض وتعديل الأسئلة الحالية
                     </p>
@@ -1389,7 +1465,11 @@ export function InteractiveExamsView({
                             {q.topic_label}
                           </span>
                           <span className="inline-block px-2.5 py-0.5 rounded-full bg-slate-200 text-[#0b1c30] text-[10px] font-bold">
-                            {q.type === "mcq" ? "⚡ اختيار متعدد" : q.type === "fill" ? "✏️ أكمل الفراغ" : "✍️ مقالي"}
+                            {q.type === "mcq"
+                              ? "⚡ اختيار متعدد"
+                              : q.type === "fill"
+                                ? "✏️ أكمل الفراغ"
+                                : "✍️ مقالي"}
                           </span>
                         </div>
                         <h4 className="font-extrabold text-[#0b1c30] text-sm sm:text-base leading-relaxed">
@@ -1528,7 +1608,10 @@ export function InteractiveExamsView({
 
                   <div className="space-y-3">
                     {parsedPreviewQs.map((q, idx) => (
-                      <div key={idx} className="p-4 rounded-2xl bg-purple-50/60 border border-purple-200 text-xs font-bold space-y-1">
+                      <div
+                        key={idx}
+                        className="p-4 rounded-2xl bg-purple-50/60 border border-purple-200 text-xs font-bold space-y-1"
+                      >
                         <span className="text-purple-800 font-extrabold">{q.topic_label}</span>
                         <p className="text-slate-900 text-sm">{q.question}</p>
                         <p className="text-purple-700">الإجابة: {q.model_answer}</p>
@@ -1545,7 +1628,10 @@ export function InteractiveExamsView({
       {/* QUESTION TYPE SELECTOR MODAL */}
       <AnimatePresence>
         {showTypeModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs dir-rtl text-right" dir="rtl">
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs dir-rtl text-right"
+            dir="rtl"
+          >
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -1558,8 +1644,12 @@ export function InteractiveExamsView({
                     <Zap className="h-5 w-5" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-extrabold text-[#0b1c30]">اختر نمط الأسئلة لبدء الاختبار 🎯</h3>
-                    <p className="text-xs text-[#584237]/70 font-semibold">حدد نمط الأسئلة الذي ترغب في التدرب عليه الآن</p>
+                    <h3 className="text-lg font-extrabold text-[#0b1c30]">
+                      اختر نمط الأسئلة لبدء الاختبار 🎯
+                    </h3>
+                    <p className="text-xs text-[#584237]/70 font-semibold">
+                      حدد نمط الأسئلة الذي ترغب في التدرب عليه الآن
+                    </p>
                   </div>
                 </div>
                 <button
@@ -1581,8 +1671,12 @@ export function InteractiveExamsView({
                   <div className="flex items-center gap-3">
                     <span className="text-xl">⚡</span>
                     <div>
-                      <h4 className="font-extrabold text-[#0b1c30] text-sm">اختيارات من متعدد (MCQs)</h4>
-                      <p className="text-[11px] text-[#584237]/70 font-semibold">أسئلة خيارات متعددة مع قياس زمن الإجابة</p>
+                      <h4 className="font-extrabold text-[#0b1c30] text-sm">
+                        اختيارات من متعدد (MCQs)
+                      </h4>
+                      <p className="text-[11px] text-[#584237]/70 font-semibold">
+                        أسئلة خيارات متعددة مع قياس زمن الإجابة
+                      </p>
                     </div>
                   </div>
                   <ChevronRight className="h-5 w-5 text-[#9d4300] rotate-180" />
@@ -1598,8 +1692,12 @@ export function InteractiveExamsView({
                   <div className="flex items-center gap-3">
                     <span className="text-xl">✏️</span>
                     <div>
-                      <h4 className="font-extrabold text-[#0b1c30] text-sm">أكمل الفراغات المفاهيمية</h4>
-                      <p className="text-[11px] text-[#584237]/70 font-semibold">اختبار الكلمات والمصطلحات الرئيسية مع التدقيق</p>
+                      <h4 className="font-extrabold text-[#0b1c30] text-sm">
+                        أكمل الفراغات المفاهيمية
+                      </h4>
+                      <p className="text-[11px] text-[#584237]/70 font-semibold">
+                        اختبار الكلمات والمصطلحات الرئيسية مع التدقيق
+                      </p>
                     </div>
                   </div>
                   <ChevronRight className="h-5 w-5 text-[#8127cf] rotate-180" />
@@ -1616,7 +1714,9 @@ export function InteractiveExamsView({
                     <span className="text-xl">✍️</span>
                     <div>
                       <h4 className="font-extrabold text-[#0b1c30] text-sm">أسئلة مقالية وعلّل</h4>
-                      <p className="text-[11px] text-[#584237]/70 font-semibold">تحليل الأحكام والتعليلات بصياغتك الخاصة</p>
+                      <p className="text-[11px] text-[#584237]/70 font-semibold">
+                        تحليل الأحكام والتعليلات بصياغتك الخاصة
+                      </p>
                     </div>
                   </div>
                   <ChevronRight className="h-5 w-5 text-purple-700 rotate-180" />
@@ -1632,8 +1732,12 @@ export function InteractiveExamsView({
                   <div className="flex items-center gap-3">
                     <span className="text-xl">🚀</span>
                     <div>
-                      <h4 className="font-extrabold text-white text-sm">اختبار شامل لجميع الأنماط</h4>
-                      <p className="text-[11px] text-white/80 font-semibold">جلسة متكاملة تشمل كل أنواع الأسئلة</p>
+                      <h4 className="font-extrabold text-white text-sm">
+                        اختبار شامل لجميع الأنماط
+                      </h4>
+                      <p className="text-[11px] text-white/80 font-semibold">
+                        جلسة متكاملة تشمل كل أنواع الأسئلة
+                      </p>
                     </div>
                   </div>
                   <ChevronRight className="h-5 w-5 text-white rotate-180" />

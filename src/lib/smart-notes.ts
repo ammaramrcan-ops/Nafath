@@ -82,7 +82,8 @@ export function clearAllLessonNotes(lessonTitle: string): SmartNote[] {
         if (
           k &&
           k.startsWith("nafath_smart_notes_") &&
-          (k.includes(lessonTitle.trim()) || lessonTitle.trim().includes(k.replace("nafath_smart_notes_", "")))
+          (k.includes(lessonTitle.trim()) ||
+            lessonTitle.trim().includes(k.replace("nafath_smart_notes_", "")))
         ) {
           localStorage.removeItem(k);
         }

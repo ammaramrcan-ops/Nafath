@@ -9,31 +9,24 @@
  * The sidebar is hidden on mobile and toggled by the built-in hamburger button.
  * Customize sidebar width, colors, and nav items — but keep this structure.
  */
-import React from 'react'
-import {
-  AppShell,
-  AppShellSidebar,
-  AppShellMain,
-  MobileSidebarTrigger,
-} from '@blinkdotnew/ui'
+import React from "react";
+import { AppShell, AppShellSidebar, AppShellMain, MobileSidebarTrigger } from "@blinkdotnew/ui";
 
 interface ShellProps {
   /** Sidebar content — e.g. <Sidebar><SidebarItem .../></Sidebar> */
-  sidebar: React.ReactNode
+  sidebar: React.ReactNode;
   /** App name shown in mobile header */
-  appName?: string
-  children: React.ReactNode
+  appName?: string;
+  children: React.ReactNode;
 }
 
-export function Shell({ sidebar, appName = 'App', children }: ShellProps) {
+export function Shell({ sidebar, appName = "App", children }: ShellProps) {
   return (
     <AppShell>
       {/* Sidebar — hidden on mobile, always visible on md+.
           No explicit width here — AppSidebarShell owns its own width
           and animates it on collapse/expand. */}
-      <AppShellSidebar className="shrink-0">
-        {sidebar}
-      </AppShellSidebar>
+      <AppShellSidebar className="shrink-0">{sidebar}</AppShellSidebar>
 
       {/* Main content */}
       <AppShellMain>
@@ -47,5 +40,5 @@ export function Shell({ sidebar, appName = 'App', children }: ShellProps) {
         {children}
       </AppShellMain>
     </AppShell>
-  )
+  );
 }

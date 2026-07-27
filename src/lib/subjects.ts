@@ -18,7 +18,16 @@ export type Subject = {
 
 const DEFAULT_STAGE_ORDERS = {
   1: ["story", "baladi_terms", "paper_summary", "mindmap", "quizzes_mcq"] as Stage[],
-  2: ["examples", "original", "mental", "mindmap", "quizzes_fill", "quizzes_essay", "flashcards", "zaitouna"] as Stage[],
+  2: [
+    "examples",
+    "original",
+    "mental",
+    "mindmap",
+    "quizzes_fill",
+    "quizzes_essay",
+    "flashcards",
+    "zaitouna",
+  ] as Stage[],
   3: ["original", "mental", "funny", "mindmap", "quizzes_essay", "zaitouna"] as Stage[],
 };
 
@@ -69,16 +78,20 @@ export function getSubjectById(id: string): Subject | undefined {
 export function updateSubjectStages(id: string, level: 1 | 2 | 3, stages: Stage[]): boolean {
   const subject = getSubjectById(id);
   if (!subject) return false;
-  
+
   subject.levelStageOrders[level] = stages;
   saveSubjectsToStorage();
   return true;
 }
 
-export function updateSubjectDisabledStages(id: string, level: 1 | 2 | 3, disabledStages: Stage[]): boolean {
+export function updateSubjectDisabledStages(
+  id: string,
+  level: 1 | 2 | 3,
+  disabledStages: Stage[],
+): boolean {
   const subject = getSubjectById(id);
   if (!subject) return false;
-  
+
   subject.levelDisabledStages[level] = disabledStages;
   saveSubjectsToStorage();
   return true;

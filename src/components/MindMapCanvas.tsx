@@ -5,30 +5,18 @@ import {
   ZoomOut,
   RotateCcw,
   Plus,
-  Minus,
   Trash2,
-  Maximize2,
-  ChevronDown,
-  ChevronLeft,
-  Pencil,
   Check,
   X,
   Palette,
   Shapes,
   Sparkles,
-  Layers,
-  ArrowLeftRight,
   Sliders,
-  Link,
   Move,
   GitMerge,
-  Eye,
-  EyeOff,
   Scaling,
-  Unlink,
 } from "lucide-react";
 import {
-  PASTEL_PALETTES,
   SHAPE_LABELS,
   LINE_COLORS,
   LINE_THICKNESSES,
@@ -98,7 +86,7 @@ export function MindMapCanvas({
 
   const updateNodesAndSave = (newNodes: MindMapNode[]) => {
     setNodes(newNodes);
-    onUpdateMap({ ...mapData, nodes: newNodes });
+    onUpdateMap?.({ ...mapData, nodes: newNodes });
   };
 
   const handleResetCanvas = () => {
@@ -139,7 +127,7 @@ export function MindMapCanvas({
       const newY = e.clientY / scale - nodeDragOffsetRef.current.y;
 
       const updated = nodes.map((n) =>
-        n.id === draggingNodeId ? { ...n, x: Math.round(newX), y: Math.round(newY) } : n
+        n.id === draggingNodeId ? { ...n, x: Math.round(newX), y: Math.round(newY) } : n,
       );
       updateNodesAndSave(updated);
     } else if (isCanvasDragging) {
@@ -158,9 +146,7 @@ export function MindMapCanvas({
   // Toggle Collapse/Expand connected children by clicking handle
   const handleToggleHandleCollapse = (e: React.MouseEvent, nodeId: string) => {
     e.stopPropagation();
-    const updated = nodes.map((n) =>
-      n.id === nodeId ? { ...n, isCollapsed: !n.isCollapsed } : n
-    );
+    const updated = nodes.map((n) => (n.id === nodeId ? { ...n, isCollapsed: !n.isCollapsed } : n));
     updateNodesAndSave(updated);
     const target = nodes.find((n) => n.id === nodeId);
     if (target?.isCollapsed) {
@@ -176,7 +162,7 @@ export function MindMapCanvas({
 
     const collectHidden = (parentId: string) => {
       const children = nodes.filter(
-        (n) => n.parentId === parentId || (n.parentIds && n.parentIds.includes(parentId))
+        (n) => n.parentId === parentId || (n.parentIds && n.parentIds.includes(parentId)),
       );
       children.forEach((c) => {
         hiddenSet.add(c.id);
@@ -204,7 +190,7 @@ export function MindMapCanvas({
       text: "عقدة فرعية جديدة 📌",
       shape: "rounded-square",
       x: parentX - 250,
-      y: parentY + ((crypto.getRandomValues(new Uint32Array(1))[0] / 2**32) * 90 - 45),
+      y: parentY + ((crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32) * 90 - 45),
       width: 200,
       height: 65,
       backgroundColor: "#E0E7FF",
@@ -221,36 +207,6 @@ export function MindMapCanvas({
     updateNodesAndSave(updated);
     setSelectedNodeId(newChild.id);
     toast.success("تم إنشاء العقدة والسهم المرتبط بنجاح! ➕");
-  };
-
-  // Create Summary Node
-  const handleCreateSummaryNode = (selectedParentId: string) => {
-    const parent = nodes.find((n) => n.id === selectedParentId);
-    const parentX = parent ? parent.x : 300;
-    const parentY = parent ? parent.y : 300;
-
-    const summaryNode: MindMapNode = {
-      id: `summary_${Date.now()}`,
-      text: "عقدة ملخص تجميعية: دمج الأحكام والعلل 🔀",
-      shape: "hexagon",
-      x: parentX - 300,
-      y: parentY,
-      width: 260,
-      height: 90,
-      backgroundColor: "#E11D48",
-      textColor: "#FFFFFF",
-      borderColor: "#BE123C",
-      lineColor: "#E11D48",
-      lineThickness: 6,
-      lineStyle: "solid",
-      isSummaryNode: true,
-      parentIds: [selectedParentId],
-    };
-
-    const updated = [...nodes, summaryNode];
-    updateNodesAndSave(updated);
-    setSelectedNodeId(summaryNode.id);
-    toast.success("تم إنشاء عقدة ملخص تجميعية! اضغط [ربط سهم مصدري آخر] لإضافة أسهم أخرى تنصب فيها. 🔀");
   };
 
   // CONNECT NODES (MULTI-PARENT SAFE: Keeps existing parent arrows intact!)
@@ -280,53 +236,12 @@ export function MindMapCanvas({
             ...n,
             parentIds: newParentIds,
           }
-        : n
+        : n,
     );
 
     updateNodesAndSave(updated);
     setLinkingParentId(null);
     toast.success("تم إضافة السهم الإضافي بنجاح مع الحفاظ على السهم الأصلي 100%! 🔀🔗");
-  };
-
-  // Remove a specific parent arrow link
-  const handleRemoveParentLink = (nodeId: string, parentIdToRemove: string) => {
-    const updated = nodes.map((n) => {
-      if (n.id === nodeId) {
-        const newParentId = n.parentId === parentIdToRemove ? null : n.parentId;
-        const newParentIds = n.parentIds ? n.parentIds.filter((pid) => pid !== parentIdToRemove) : [];
-        return {
-          ...n,
-          parentId: newParentId,
-          parentIds: newParentIds,
-        };
-      }
-      return n;
-    });
-    updateNodesAndSave(updated);
-    toast.success("تم إزالة سهم الربط المحدد بنجاح. ✂️");
-  };
-
-  // Node Size Change Handler
-  const handleResizeNode = (nodeId: string, dw: number, dh: number) => {
-    const updated = nodes.map((n) => {
-      if (n.id === nodeId) {
-        const curW = n.width || 200;
-        const curH = n.height || 70;
-        return {
-          ...n,
-          width: Math.max(120, Math.min(450, curW + dw)),
-          height: Math.max(45, Math.min(250, curH + dh)),
-        };
-      }
-      return n;
-    });
-    updateNodesAndSave(updated);
-  };
-
-  const handleSetNodePresetSize = (nodeId: string, width: number, height: number) => {
-    const updated = nodes.map((n) => (n.id === nodeId ? { ...n, width, height } : n));
-    updateNodesAndSave(updated);
-    toast.success("تم تعديل حجم العقدة! 📏");
   };
 
   const handleDeleteNode = (nodeId: string) => {
@@ -335,7 +250,8 @@ export function MindMapCanvas({
       return;
     }
     const updated = nodes.filter(
-      (n) => n.id !== nodeId && n.parentId !== nodeId && (!n.parentIds || !n.parentIds.includes(nodeId))
+      (n) =>
+        n.id !== nodeId && n.parentId !== nodeId && (!n.parentIds || !n.parentIds.includes(nodeId)),
     );
     updateNodesAndSave(updated);
     setSelectedNodeId(null);
@@ -371,7 +287,11 @@ export function MindMapCanvas({
   }, [visibleNodes]);
 
   return (
-    <div ref={containerRef} className="relative w-full h-full min-h-screen bg-[#0b1329] overflow-hidden dir-rtl text-right select-none" dir="rtl">
+    <div
+      ref={containerRef}
+      className="relative w-full h-full min-h-screen bg-[#0b1329] overflow-hidden dir-rtl text-right select-none"
+      dir="rtl"
+    >
       {/* Top Floating Control Bar */}
       {/* Floating Canvas Zoom & Pan Controls (Bottom Left Stitch UI) */}
       <div className="fixed bottom-8 left-8 z-40 flex flex-col gap-2 bg-white/95 backdrop-blur-md p-2 rounded-2xl border border-[#e0c0b1]/50 shadow-2xl">
@@ -488,8 +408,10 @@ export function MindMapCanvas({
               let pathD: string;
 
               // Distribute handle connection Y offset evenly along parent edge to prevent overlapping line bundles
-              const siblings = visibleNodes.filter(n => n.parentId === parentId || (n.parentIds && n.parentIds.includes(parentId)));
-              const siblingIdx = siblings.findIndex(s => s.id === childId);
+              const siblings = visibleNodes.filter(
+                (n) => n.parentId === parentId || (n.parentIds && n.parentIds.includes(parentId)),
+              );
+              const siblingIdx = siblings.findIndex((s) => s.id === childId);
               const siblingCount = Math.max(1, siblings.length);
               const yPortion = siblingCount > 1 ? (siblingIdx + 0.5) / siblingCount : 0.5;
               const distributedStartY = parent.y + pH * 0.15 + pH * 0.7 * yPortion + 2000;
@@ -561,8 +483,22 @@ export function MindMapCanvas({
                     markerEnd={`url(#arrow-${lineColor.replace("#", "")})`}
                   />
 
-                  <circle cx={startX} cy={startY} r={5} fill="#FFFFFF" stroke={lineColor} strokeWidth={2} />
-                  <circle cx={endX} cy={endY} r={5} fill={lineColor} stroke="#FFFFFF" strokeWidth={2} />
+                  <circle
+                    cx={startX}
+                    cy={startY}
+                    r={5}
+                    fill="#FFFFFF"
+                    stroke={lineColor}
+                    strokeWidth={2}
+                  />
+                  <circle
+                    cx={endX}
+                    cy={endY}
+                    r={5}
+                    fill={lineColor}
+                    stroke="#FFFFFF"
+                    strokeWidth={2}
+                  />
                 </g>
               );
             })}
@@ -576,7 +512,7 @@ export function MindMapCanvas({
             const isCollapsed = Boolean(node.isCollapsed);
 
             const childCount = nodes.filter(
-              (n) => n.parentId === node.id || (n.parentIds && n.parentIds.includes(node.id))
+              (n) => n.parentId === node.id || (n.parentIds && n.parentIds.includes(node.id)),
             ).length;
 
             const textLen = node.text?.length || 10;
@@ -590,12 +526,12 @@ export function MindMapCanvas({
               node.shape === "circle"
                 ? "rounded-full"
                 : node.shape === "pill"
-                ? "rounded-full px-6"
-                : node.shape === "hexagon"
-                ? "rounded-3xl border-dashed"
-                : node.shape === "rectangle"
-                ? "rounded-xl"
-                : "rounded-2xl"; // rounded-square
+                  ? "rounded-full px-6"
+                  : node.shape === "hexagon"
+                    ? "rounded-3xl border-dashed"
+                    : node.shape === "rectangle"
+                      ? "rounded-xl"
+                      : "rounded-2xl"; // rounded-square
 
             return (
               <div
@@ -613,7 +549,9 @@ export function MindMapCanvas({
                   setEditingText(node.text);
                 }}
                 className={`mind-node absolute transition-all duration-75 cursor-grab active:cursor-grabbing border-2 font-bold text-sm flex items-center justify-center p-4 text-center shadow-xl select-none group z-10 ${shapeStyle} ${
-                  isSelected ? "ring-4 ring-amber-400 ring-offset-4 ring-offset-slate-900 scale-105" : "hover:scale-102"
+                  isSelected
+                    ? "ring-4 ring-amber-400 ring-offset-4 ring-offset-slate-900 scale-105"
+                    : "hover:scale-102"
                 } ${isLinking ? "ring-4 ring-emerald-400 animate-pulse" : ""} ${
                   node.isSummaryNode ? "border-amber-400 ring-2 ring-rose-500" : ""
                 }`}
@@ -632,7 +570,9 @@ export function MindMapCanvas({
                   type="button"
                   onClick={(e) => handleToggleHandleCollapse(e, node.id)}
                   className={`absolute -right-2 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-white border-2 border-amber-500 shadow-md flex items-center justify-center text-[9px] font-black hover:scale-125 transition cursor-pointer z-20 ${
-                    isCollapsed ? "bg-amber-400 text-amber-950 ring-2 ring-amber-300" : "text-amber-700"
+                    isCollapsed
+                      ? "bg-amber-400 text-amber-950 ring-2 ring-amber-300"
+                      : "text-amber-700"
                   }`}
                   title={isCollapsed ? "إظهار الفروع المرتبطة" : "طي وإخفاء الفروع المرتبطة"}
                 >
@@ -643,7 +583,9 @@ export function MindMapCanvas({
                   type="button"
                   onClick={(e) => handleToggleHandleCollapse(e, node.id)}
                   className={`absolute -left-2 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-white border-2 border-amber-500 shadow-md flex items-center justify-center text-[9px] font-black hover:scale-125 transition cursor-pointer z-20 ${
-                    isCollapsed ? "bg-amber-400 text-amber-950 ring-2 ring-amber-300" : "text-amber-700"
+                    isCollapsed
+                      ? "bg-amber-400 text-amber-950 ring-2 ring-amber-300"
+                      : "text-amber-700"
                   }`}
                   title={isCollapsed ? "إظهار الفروع المرتبطة" : "طي وإخفاء الفروع المرتبطة"}
                 >
@@ -668,7 +610,10 @@ export function MindMapCanvas({
                 <Move className="absolute top-1.5 right-2 h-3 w-3 opacity-0 group-hover:opacity-40 text-slate-700 transition" />
 
                 {isEditing ? (
-                  <div className="flex items-center gap-1 w-full z-20" onClick={(e) => e.stopPropagation()}>
+                  <div
+                    className="flex items-center gap-1 w-full z-20"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <input
                       type="text"
                       value={editingText}
@@ -687,7 +632,9 @@ export function MindMapCanvas({
                     </button>
                   </div>
                 ) : (
-                  <p className="leading-snug font-extrabold" title="انقر مرتين للتعديل المباشر">{node.text}</p>
+                  <p className="leading-snug font-extrabold" title="انقر مرتين للتعديل المباشر">
+                    {node.text}
+                  </p>
                 )}
               </div>
             );
@@ -717,9 +664,13 @@ export function MindMapCanvas({
                   <div>
                     <h3 className="text-lg font-bold text-[#0b1c30] leading-tight flex items-center gap-1.5">
                       <span>تحكم العقدة</span>
-                      <span className="text-[10px] font-normal text-[#584237]/60 bg-[#eff4ff] px-2 py-0.5 rounded-full">عائمة 🖐️</span>
+                      <span className="text-[10px] font-normal text-[#584237]/60 bg-[#eff4ff] px-2 py-0.5 rounded-full">
+                        عائمة 🖐️
+                      </span>
                     </h3>
-                    <p className="text-xs text-[#584237]/70 font-medium">اسحب النافذة لأي مكان في الشاشة</p>
+                    <p className="text-xs text-[#584237]/70 font-medium">
+                      اسحب النافذة لأي مكان في الشاشة
+                    </p>
                   </div>
                 </div>
                 <button
@@ -740,7 +691,7 @@ export function MindMapCanvas({
                   value={selectedNode.text}
                   onChange={(e) => {
                     const updated = nodes.map((n) =>
-                      n.id === selectedNode.id ? { ...n, text: e.target.value } : n
+                      n.id === selectedNode.id ? { ...n, text: e.target.value } : n,
                     );
                     updateNodesAndSave(updated);
                   }}
@@ -774,7 +725,9 @@ export function MindMapCanvas({
                         type="button"
                         onClick={() => {
                           const updated = nodes.map((n) =>
-                            n.id === selectedNode.id ? { ...n, width: sizeOpt.w, height: sizeOpt.h } : n
+                            n.id === selectedNode.id
+                              ? { ...n, width: sizeOpt.w, height: sizeOpt.h }
+                              : n,
                           );
                           updateNodesAndSave(updated);
                         }}
@@ -807,11 +760,17 @@ export function MindMapCanvas({
                 <button
                   type="button"
                   onClick={() => {
-                    const shapes: NodeShape[] = ["rectangle", "rounded-square", "circle", "pill", "hexagon"];
+                    const shapes: NodeShape[] = [
+                      "rectangle",
+                      "rounded-square",
+                      "circle",
+                      "pill",
+                      "hexagon",
+                    ];
                     const currentIndex = shapes.indexOf(selectedNode.shape);
                     const nextShape = shapes[(currentIndex + 1) % shapes.length];
                     const updated = nodes.map((n) =>
-                      n.id === selectedNode.id ? { ...n, shape: nextShape } : n
+                      n.id === selectedNode.id ? { ...n, shape: nextShape } : n,
                     );
                     updateNodesAndSave(updated);
                   }}
@@ -825,16 +784,19 @@ export function MindMapCanvas({
                 <button
                   type="button"
                   onClick={() => {
-                    const nextStyle: LineStyle = selectedNode.lineStyle === "dashed" ? "solid" : "dashed";
+                    const nextStyle: LineStyle =
+                      selectedNode.lineStyle === "dashed" ? "solid" : "dashed";
                     const updated = nodes.map((n) =>
-                      n.id === selectedNode.id ? { ...n, lineStyle: nextStyle } : n
+                      n.id === selectedNode.id ? { ...n, lineStyle: nextStyle } : n,
                     );
                     updateNodesAndSave(updated);
                   }}
                   className="flex flex-col items-center justify-center p-3.5 bg-[#eff4ff] text-[#0b1c30] rounded-2xl hover:bg-[#dce9ff] transition active:scale-95 cursor-pointer font-bold border border-[#e0c0b1]/30"
                 >
                   <Sliders className="w-5 h-5 mb-1 text-[#8127cf]" />
-                  <span className="text-xs">{selectedNode.lineStyle === "dashed" ? "منقط - -" : "متصل ──"}</span>
+                  <span className="text-xs">
+                    {selectedNode.lineStyle === "dashed" ? "منقط - -" : "متصل ──"}
+                  </span>
                 </button>
 
                 {/* Delete Node */}
@@ -850,7 +812,9 @@ export function MindMapCanvas({
 
               {/* Color Swatches */}
               <div className="space-y-2">
-                <label className="text-xs font-bold text-[#584237] block">لون العقدة والخلفية</label>
+                <label className="text-xs font-bold text-[#584237] block">
+                  لون العقدة والخلفية
+                </label>
                 <div className="flex items-center gap-2">
                   {[
                     { bg: "#FEF3C7", text: "#78350F", border: "#F59E0B" },
@@ -871,7 +835,7 @@ export function MindMapCanvas({
                                 textColor: palette.text,
                                 borderColor: palette.border,
                               }
-                            : n
+                            : n,
                         );
                         updateNodesAndSave(updated);
                       }}
@@ -879,14 +843,17 @@ export function MindMapCanvas({
                       style={{ backgroundColor: palette.bg }}
                     />
                   ))}
-                  <label className="w-7 h-7 rounded-full flex items-center justify-center border border-[#e0c0b1] cursor-pointer hover:bg-black/5 transition" title="لون مخصص">
+                  <label
+                    className="w-7 h-7 rounded-full flex items-center justify-center border border-[#e0c0b1] cursor-pointer hover:bg-black/5 transition"
+                    title="لون مخصص"
+                  >
                     <Palette className="w-3.5 h-3.5 text-[#584237]" />
                     <input
                       type="color"
                       value={selectedNode.backgroundColor || "#FEF3C7"}
                       onChange={(e) => {
                         const updated = nodes.map((n) =>
-                          n.id === selectedNode.id ? { ...n, backgroundColor: e.target.value } : n
+                          n.id === selectedNode.id ? { ...n, backgroundColor: e.target.value } : n,
                         );
                         updateNodesAndSave(updated);
                       }}
@@ -898,7 +865,9 @@ export function MindMapCanvas({
 
               {/* Line Thickness & Line Color Picker */}
               <div className="space-y-2 pt-2 border-t border-[#e0c0b1]/30">
-                <label className="text-xs font-bold text-[#584237] block">سُمك ولون السهم الرابط</label>
+                <label className="text-xs font-bold text-[#584237] block">
+                  سُمك ولون السهم الرابط
+                </label>
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex gap-1 bg-[#eff4ff] p-1 rounded-xl">
                     {LINE_THICKNESSES.map((thick) => (
@@ -906,7 +875,9 @@ export function MindMapCanvas({
                         key={thick.value}
                         type="button"
                         onClick={() => {
-                          const updated = nodes.map((n) => (n.id === selectedNode.id ? { ...n, lineThickness: thick.value } : n));
+                          const updated = nodes.map((n) =>
+                            n.id === selectedNode.id ? { ...n, lineThickness: thick.value } : n,
+                          );
                           updateNodesAndSave(updated);
                         }}
                         className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition cursor-pointer ${
@@ -927,7 +898,7 @@ export function MindMapCanvas({
                       value={selectedNode.lineColor || "#F59E0B"}
                       onChange={(e) => {
                         const updated = nodes.map((n) =>
-                          n.id === selectedNode.id ? { ...n, lineColor: e.target.value } : n
+                          n.id === selectedNode.id ? { ...n, lineColor: e.target.value } : n,
                         );
                         updateNodesAndSave(updated);
                       }}

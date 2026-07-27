@@ -41,7 +41,9 @@ export function TextHighlightWithButtons({
       return <HardWordText text={text} words={words} />;
     }
 
-    let processedNodes: React.ReactNode[] = [<HardWordText key="original" text={text} words={words} />];
+    let processedNodes: React.ReactNode[] = [
+      <HardWordText key="original" text={text} words={words} />,
+    ];
 
     highlights.forEach((h) => {
       processedNodes = processedNodes.map((node, nIdx) => {
@@ -63,7 +65,7 @@ export function TextHighlightWithButtons({
                   }
                 >
                   {h.text}
-                </span>
+                </span>,
               );
             }
           });

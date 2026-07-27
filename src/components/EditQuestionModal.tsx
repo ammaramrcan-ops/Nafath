@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { X, Pencil, Plus, Trash2, Check, Sparkles, HelpCircle } from "lucide-react";
+import {motion} from "framer-motion";
+import {X, Pencil, Plus, Trash2, Check} from "lucide-react";
 import type { ExamQuestion, ExamQuestionType } from "@/lib/interactive-exams-service";
 import { toast } from "sonner";
 
@@ -36,7 +36,7 @@ export function EditQuestionModal({
       setOptions(
         questionToEdit.options && questionToEdit.options.length > 0
           ? [...questionToEdit.options]
-          : ["", "", "", ""]
+          : ["", "", "", ""],
       );
     } else {
       setType("mcq");
@@ -80,7 +80,8 @@ export function EditQuestionModal({
       return;
     }
 
-    const filteredOptions = type === "mcq" ? options.map((o) => o.trim()).filter(Boolean) : undefined;
+    const filteredOptions =
+      type === "mcq" ? options.map((o) => o.trim()).filter(Boolean) : undefined;
 
     if (type === "mcq" && (!filteredOptions || filteredOptions.length < 2)) {
       toast.error("يرجى إدخال خيارين على الأقل لسؤال الاختيارات.");
@@ -104,7 +105,10 @@ export function EditQuestionModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs dir-rtl text-right font-body-md" dir="rtl">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs dir-rtl text-right font-body-md"
+      dir="rtl"
+    >
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -216,7 +220,9 @@ export function EditQuestionModal({
 
           {/* Model Answer */}
           <div className="space-y-2">
-            <label className="block text-xs font-bold text-[#0b1c30]">الإجابة النموذجية الصحيحة:</label>
+            <label className="block text-xs font-bold text-[#0b1c30]">
+              الإجابة النموذجية الصحيحة:
+            </label>
             <textarea
               rows={2}
               placeholder="الإجابة الصحيحة أو الخيار المطابق..."
@@ -252,7 +258,9 @@ export function EditQuestionModal({
           </div>
 
           <div className="space-y-2">
-            <label className="block text-xs font-bold text-[#0b1c30]">الشرح البلدي الميسر (اختياري):</label>
+            <label className="block text-xs font-bold text-[#0b1c30]">
+              الشرح البلدي الميسر (اختياري):
+            </label>
             <input
               type="text"
               placeholder="شرح بسيط وميسر للإصلاح عند الخطأ..."

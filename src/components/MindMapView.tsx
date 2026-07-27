@@ -1,11 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { motion } from "framer-motion";
-import {
-  Plus,
-  Shapes,
-  Download,
-  Layers,
-} from "lucide-react";
+import {Plus, Download} from "lucide-react";
 import {
   getDefaultKhulMindMap,
   getStoredMindMaps,
@@ -13,8 +7,6 @@ import {
   getSubjectMindMaps,
   saveSubjectMindMaps,
   createEmptySubjectMindMap,
-  SHAPE_LABELS,
-  PASTEL_PALETTES,
   type MindMapData,
 } from "@/lib/mind-map-types";
 import { MindMapCanvas } from "./MindMapCanvas";
@@ -29,12 +21,9 @@ export function MindMapView({
 }) {
   const [maps, setMaps] = useState<MindMapData[]>([]);
   const [selectedMapId, setSelectedMapId] = useState<string>("");
-  const [showLegend, setShowLegend] = useState(false);
 
   useEffect(() => {
-    const loaded = subjectId
-      ? getSubjectMindMaps(subjectId, subjectName)
-      : getStoredMindMaps();
+    const loaded = subjectId ? getSubjectMindMaps(subjectId, subjectName) : getStoredMindMaps();
     setMaps(loaded);
     if (loaded.length > 0) {
       setSelectedMapId(loaded[0].id);
@@ -45,9 +34,7 @@ export function MindMapView({
     return (
       maps.find((m) => m.id === selectedMapId) ||
       maps[0] ||
-      (subjectId
-        ? createEmptySubjectMindMap(subjectName || "المادة")
-        : getDefaultKhulMindMap())
+      (subjectId ? createEmptySubjectMindMap(subjectName || "المادة") : getDefaultKhulMindMap())
     );
   }, [maps, selectedMapId, subjectId, subjectName]);
 
@@ -65,7 +52,9 @@ export function MindMapView({
     const rootId = `root_${Date.now()}`;
     const newMap: MindMapData = {
       id: `map_${Date.now()}`,
-      title: subjectName ? `خريطة جديدة لمادة ${subjectName}` : `خريطة ذهنية مخصصة #${maps.length + 1}`,
+      title: subjectName
+        ? `خريطة جديدة لمادة ${subjectName}`
+        : `خريطة ذهنية مخصصة #${maps.length + 1}`,
       rootId,
       nodes: [
         {
@@ -98,7 +87,8 @@ export function MindMapView({
   };
 
   const handleExportJson = () => {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(activeMap, null, 2));
+    const dataStr =
+      "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(activeMap, null, 2));
     const downloadAnchor = document.createElement("a");
     downloadAnchor.setAttribute("href", dataStr);
     downloadAnchor.setAttribute("download", `${activeMap.title}.json`);
@@ -109,7 +99,10 @@ export function MindMapView({
   };
 
   return (
-    <div className="w-full h-full min-h-screen relative overflow-hidden bg-[#0b1329] text-right font-body-md" dir="rtl">
+    <div
+      className="w-full h-full min-h-screen relative overflow-hidden bg-[#0b1329] text-right font-body-md"
+      dir="rtl"
+    >
       {/* Top Floating Map Actions & Selector Toolbar */}
       <div className="fixed top-20 right-6 z-30 flex flex-wrap items-center gap-2 bg-white/95 backdrop-blur-md p-2 rounded-2xl border border-[#e0c0b1]/50 shadow-lg">
         {maps.length > 1 && (

@@ -47,7 +47,7 @@ export function VisualHighlightArea({
     };
 
     const exists = highlights.some(
-      (h) => h.startOffset === start && h.endOffset === end && h.color === color
+      (h) => h.startOffset === start && h.endOffset === end && h.color === color,
     );
     if (!exists) {
       onChangeHighlights([...highlights, newHighlight]);
@@ -60,11 +60,16 @@ export function VisualHighlightArea({
 
   const getColorLabel = (c: HighlightColor) => {
     switch (c) {
-      case "yellow": return { bg: "bg-amber-200 text-amber-950 border-amber-300", label: "أصفر 🟡" };
-      case "green": return { bg: "bg-emerald-200 text-emerald-950 border-emerald-300", label: "أخضر 🟢" };
-      case "blue": return { bg: "bg-sky-200 text-sky-950 border-sky-300", label: "أزرق 🔵" };
-      case "pink": return { bg: "bg-pink-200 text-pink-950 border-pink-300", label: "وردي 🩷" };
-      case "purple": return { bg: "bg-purple-200 text-purple-950 border-purple-300", label: "بنفسجي 🟣" };
+      case "yellow":
+        return { bg: "bg-amber-200 text-amber-950 border-amber-300", label: "أصفر 🟡" };
+      case "green":
+        return { bg: "bg-emerald-200 text-emerald-950 border-emerald-300", label: "أخضر 🟢" };
+      case "blue":
+        return { bg: "bg-sky-200 text-sky-950 border-sky-300", label: "أزرق 🔵" };
+      case "pink":
+        return { bg: "bg-pink-200 text-pink-950 border-pink-300", label: "وردي 🩷" };
+      case "purple":
+        return { bg: "bg-purple-200 text-purple-950 border-purple-300", label: "بنفسجي 🟣" };
     }
   };
 
@@ -163,7 +168,9 @@ export function VisualHighlightArea({
         {/* Display Active Visual Highlights Badges */}
         {highlights.length > 0 && (
           <div className="flex flex-wrap items-center gap-2 pt-1">
-            <span className="text-[11px] font-medium text-zen-on-surface-variant">التظليلات المطبقة:</span>
+            <span className="text-[11px] font-medium text-zen-on-surface-variant">
+              التظليلات المطبقة:
+            </span>
             {highlights.map((h, i) => {
               const meta = getColorLabel(h.color);
               return (
@@ -172,7 +179,9 @@ export function VisualHighlightArea({
                   className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-0.5 text-xs font-bold shadow-xs ${meta.bg}`}
                 >
                   <span>"{h.text}"</span>
-                  {h.fontSize === "large" && <span className="text-[10px] bg-black/10 px-1.5 rounded">مكبرة</span>}
+                  {h.fontSize === "large" && (
+                    <span className="text-[10px] bg-black/10 px-1.5 rounded">مكبرة</span>
+                  )}
                   <button
                     type="button"
                     onClick={() => removeHighlight(i)}

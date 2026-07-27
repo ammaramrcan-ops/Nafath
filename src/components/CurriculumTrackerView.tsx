@@ -14,8 +14,6 @@ import {
   Save,
   X,
   Settings2,
-  Sparkles,
-  RotateCcw,
 } from "lucide-react";
 
 import {
@@ -43,8 +41,14 @@ interface TrackedSubject {
 
 const STORAGE_KEY = "nafath.curriculumTracker";
 const SUBJECT_COLORS = [
-  "#9d4300", "#8127cf", "#0b6e4f", "#1a56db", "#c0392b",
-  "#d35400", "#16a085", "#8e44ad",
+  "#9d4300",
+  "#8127cf",
+  "#0b6e4f",
+  "#1a56db",
+  "#c0392b",
+  "#d35400",
+  "#16a085",
+  "#8e44ad",
 ];
 const SUBJECT_ICONS = ["📖", "🔬", "🧠", "📐", "🌿", "⚖️", "🕌", "📜"];
 
@@ -63,7 +67,7 @@ function loadData(): TrackedSubject[] {
       processedSubjectIds.add(sub.id);
 
       const matchingSaved = savedTracked.find(
-        (t) => t.id === sub.id || t.name.trim() === sub.name.trim()
+        (t) => t.id === sub.id || t.name.trim() === sub.name.trim(),
       );
 
       const existingLessons = matchingSaved?.lessons || [];
@@ -109,7 +113,10 @@ function loadData(): TrackedSubject[] {
     });
 
     savedTracked.forEach((saved) => {
-      if (!processedSubjectIds.has(saved.id) && !result.some((r) => r.name.trim() === saved.name.trim())) {
+      if (
+        !processedSubjectIds.has(saved.id) &&
+        !result.some((r) => r.name.trim() === saved.name.trim())
+      ) {
         result.push(saved);
         try {
           addCurriculumSubject(saved.name, "عامة", undefined, saved.icon);
@@ -171,7 +178,7 @@ export function CurriculumTrackerView() {
       subjects.map((s) => ({
         ...s,
         lessons: s.lessons.filter((l) => !l.done),
-      }))
+      })),
     );
   }
 
@@ -183,8 +190,8 @@ export function CurriculumTrackerView() {
     const lesson: TrackedLesson = { id: uid(), title: quickTaskTitle.trim(), done: false };
     persist(
       subjects.map((s) =>
-        s.id === targetSubId ? { ...s, lessons: [...s.lessons, lesson], expanded: true } : s
-      )
+        s.id === targetSubId ? { ...s, lessons: [...s.lessons, lesson], expanded: true } : s,
+      ),
     );
     setQuickTaskTitle("");
   }
@@ -238,9 +245,7 @@ export function CurriculumTrackerView() {
     if (!newLessonTitle.trim()) return;
     const lesson: TrackedLesson = { id: uid(), title: newLessonTitle.trim(), done: false };
     persist(
-      subjects.map((s) =>
-        s.id === subjectId ? { ...s, lessons: [...s.lessons, lesson] } : s
-      )
+      subjects.map((s) => (s.id === subjectId ? { ...s, lessons: [...s.lessons, lesson] } : s)),
     );
     setNewLessonTitle("");
     setAddingLessonForId(null);
@@ -252,22 +257,18 @@ export function CurriculumTrackerView() {
         s.id === subjectId
           ? {
               ...s,
-              lessons: s.lessons.map((l) =>
-                l.id === lessonId ? { ...l, done: !l.done } : l
-              ),
+              lessons: s.lessons.map((l) => (l.id === lessonId ? { ...l, done: !l.done } : l)),
             }
-          : s
-      )
+          : s,
+      ),
     );
   }
 
   function deleteLesson(subjectId: string, lessonId: string) {
     persist(
       subjects.map((s) =>
-        s.id === subjectId
-          ? { ...s, lessons: s.lessons.filter((l) => l.id !== lessonId) }
-          : s
-      )
+        s.id === subjectId ? { ...s, lessons: s.lessons.filter((l) => l.id !== lessonId) } : s,
+      ),
     );
   }
 
@@ -325,7 +326,9 @@ export function CurriculumTrackerView() {
 
               {/* 1. Quick Task Add Form */}
               <div className="space-y-3 bg-[#eff4ff]/60 p-5 rounded-2xl border border-[#e0c0b1]/30">
-                <span className="text-xs font-extrabold text-[#9d4300] block">⚡ إضافة مهمة/درس سريع مخصص</span>
+                <span className="text-xs font-extrabold text-[#9d4300] block">
+                  ⚡ إضافة مهمة/درس سريع مخصص
+                </span>
                 <div className="space-y-2">
                   <select
                     value={quickTaskSubjectId || (subjects[0]?.id ?? "")}
@@ -364,7 +367,9 @@ export function CurriculumTrackerView() {
 
               {/* 2. Add New Subject Form */}
               <div className="space-y-3 bg-amber-50/60 p-5 rounded-2xl border border-amber-200/60">
-                <span className="text-xs font-extrabold text-amber-950 block">➕ إضافة مادة دراسية جديدة</span>
+                <span className="text-xs font-extrabold text-amber-950 block">
+                  ➕ إضافة مادة دراسية جديدة
+                </span>
                 <div className="space-y-3">
                   <input
                     type="text"
@@ -381,7 +386,9 @@ export function CurriculumTrackerView() {
                           type="button"
                           onClick={() => setNewSubjectIcon(ico)}
                           className={`w-7 h-7 rounded-lg text-sm flex items-center justify-center transition cursor-pointer ${
-                            newSubjectIcon === ico ? "bg-amber-200 border border-amber-400 scale-110" : "bg-white border border-slate-200"
+                            newSubjectIcon === ico
+                              ? "bg-amber-200 border border-amber-400 scale-110"
+                              : "bg-white border border-slate-200"
                           }`}
                         >
                           {ico}
@@ -402,7 +409,9 @@ export function CurriculumTrackerView() {
 
               {/* 3. List of Subjects and Tasks with Individual Deletion */}
               <div className="space-y-3">
-                <span className="text-xs font-extrabold text-[#0b1c30] block">📋 قائمة المواد والمهام الحالية (تعديل وإزالة)</span>
+                <span className="text-xs font-extrabold text-[#0b1c30] block">
+                  📋 قائمة المواد والمهام الحالية (تعديل وإزالة)
+                </span>
                 {subjects.length === 0 ? (
                   <div className="p-4 text-center text-xs font-bold text-slate-400 border border-dashed border-slate-200 rounded-2xl">
                     لا توجد مواد مضافة حالياً.
@@ -410,12 +419,17 @@ export function CurriculumTrackerView() {
                 ) : (
                   <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
                     {subjects.map((s) => (
-                      <div key={s.id} className="rounded-2xl border border-slate-200 p-3.5 bg-white space-y-2 shadow-2xs">
+                      <div
+                        key={s.id}
+                        className="rounded-2xl border border-slate-200 p-3.5 bg-white space-y-2 shadow-2xs"
+                      >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <span className="text-base">{s.icon}</span>
                             <span className="text-xs font-extrabold text-[#0b1c30]">{s.name}</span>
-                            <span className="text-[10px] font-bold text-slate-400">({s.lessons.length} درس)</span>
+                            <span className="text-[10px] font-bold text-slate-400">
+                              ({s.lessons.length} درس)
+                            </span>
                           </div>
                           <button
                             type="button"
@@ -431,8 +445,13 @@ export function CurriculumTrackerView() {
                         {s.lessons.length > 0 && (
                           <div className="space-y-1 pt-1 border-t border-slate-100 pr-2">
                             {s.lessons.map((l) => (
-                              <div key={l.id} className="flex items-center justify-between text-[11px] font-bold py-1 px-2 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700">
-                                <span className={l.done ? "line-through text-slate-400" : ""}>{l.title}</span>
+                              <div
+                                key={l.id}
+                                className="flex items-center justify-between text-[11px] font-bold py-1 px-2 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700"
+                              >
+                                <span className={l.done ? "line-through text-slate-400" : ""}>
+                                  {l.title}
+                                </span>
                                 <button
                                   type="button"
                                   onClick={() => deleteLesson(s.id, l.id)}
@@ -605,7 +624,10 @@ export function CurriculumTrackerView() {
                   إضافة
                 </button>
                 <button
-                  onClick={() => { setShowAddSubject(false); setNewSubjectName(""); }}
+                  onClick={() => {
+                    setShowAddSubject(false);
+                    setNewSubjectName("");
+                  }}
                   className="px-6 py-3 border border-[#e0c0b1]/60 text-[#584237] rounded-2xl font-bold text-sm hover:bg-[#eff4ff] transition cursor-pointer"
                 >
                   إلغاء
@@ -627,7 +649,8 @@ export function CurriculumTrackerView() {
           {subjects.map((subject) => {
             const subjectDone = subject.lessons.filter((l) => l.done).length;
             const subjectTotal = subject.lessons.length;
-            const subjectPercent = subjectTotal > 0 ? Math.round((subjectDone / subjectTotal) * 100) : 0;
+            const subjectPercent =
+              subjectTotal > 0 ? Math.round((subjectDone / subjectTotal) * 100) : 0;
 
             return (
               <motion.div
@@ -655,8 +678,18 @@ export function CurriculumTrackerView() {
                             className="border border-[#e0c0b1] rounded-xl px-3 py-1 text-sm font-bold focus:outline-none focus:border-[#9d4300] bg-[#f8f9ff]"
                             autoFocus
                           />
-                          <button onClick={() => saveEditSubject(subject.id)} className="text-emerald-600 cursor-pointer"><Save className="h-4 w-4" /></button>
-                          <button onClick={() => setEditingSubjectId(null)} className="text-[#584237] cursor-pointer"><X className="h-4 w-4" /></button>
+                          <button
+                            onClick={() => saveEditSubject(subject.id)}
+                            className="text-emerald-600 cursor-pointer"
+                          >
+                            <Save className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => setEditingSubjectId(null)}
+                            className="text-[#584237] cursor-pointer"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
                         </div>
                       ) : (
                         <p
@@ -718,7 +751,11 @@ export function CurriculumTrackerView() {
                       onClick={() => toggleExpand(subject.id)}
                       className="p-2 text-[#584237] hover:bg-[#eff4ff] rounded-xl transition cursor-pointer"
                     >
-                      {subject.expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                      {subject.expanded ? (
+                        <ChevronUp className="h-4 w-4" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4" />
+                      )}
                     </button>
                   </div>
                 </div>
@@ -744,7 +781,10 @@ export function CurriculumTrackerView() {
                               className="shrink-0 cursor-pointer"
                             >
                               {lesson.done ? (
-                                <CheckCircle2 className="h-5 w-5" style={{ color: subject.color }} />
+                                <CheckCircle2
+                                  className="h-5 w-5"
+                                  style={{ color: subject.color }}
+                                />
                               ) : (
                                 <Circle className="h-5 w-5 text-[#e0c0b1]" />
                               )}
@@ -782,7 +822,10 @@ export function CurriculumTrackerView() {
                               إضافة
                             </button>
                             <button
-                              onClick={() => { setAddingLessonForId(null); setNewLessonTitle(""); }}
+                              onClick={() => {
+                                setAddingLessonForId(null);
+                                setNewLessonTitle("");
+                              }}
                               className="px-3 py-2 border border-[#e0c0b1]/60 text-[#584237] rounded-2xl text-xs font-bold hover:bg-[#eff4ff] transition cursor-pointer"
                             >
                               إلغاء

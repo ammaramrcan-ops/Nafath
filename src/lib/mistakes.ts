@@ -5,7 +5,7 @@ export interface MistakeRecord {
   question: string;
   userAnswer: string;
   correctAnswer: string;
-  type: 'mcq' | 'fill' | 'essay';
+  type: "mcq" | "fill" | "essay";
   timestamp: number;
 }
 

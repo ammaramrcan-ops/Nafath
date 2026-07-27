@@ -32,7 +32,9 @@ export function StudentMindMapSection({ block }: { block: Block }) {
     <div className="w-full space-y-4 text-right" dir="rtl">
       <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-100 shadow-xs">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-extrabold text-[#0b1c30]">الخريطة الذهنية التفاعلية 🗺️</span>
+          <span className="text-sm font-extrabold text-[#0b1c30]">
+            الخريطة الذهنية التفاعلية 🗺️
+          </span>
           <span className="text-xs font-semibold text-slate-400 hidden sm:inline-block">
             (اسحب التكبير والتصغير وتصفّح الخريطة بحرية)
           </span>
@@ -51,11 +53,19 @@ export function StudentMindMapSection({ block }: { block: Block }) {
         className="relative w-full rounded-[2.5rem] overflow-hidden border border-slate-100 shadow-[0_20px_60px_-15px_rgba(11,28,48,0.08)] bg-[#0b1329]"
         style={{ height: "520px" }}
       >
-        <MindMapCanvas mapData={mapData} onUpdateMap={handleUpdate} readOnly={false} hideSideControls={true} />
+        <MindMapCanvas
+          mapData={mapData}
+          onUpdateMap={handleUpdate}
+          readOnly={false}
+          hideSideControls={true}
+        />
       </div>
 
       {isFullscreen && (
-        <div className="fixed inset-0 z-50 bg-[#0b1329] p-4 sm:p-6 flex flex-col space-y-4 text-right" dir="rtl">
+        <div
+          className="fixed inset-0 z-50 bg-[#0b1329] p-4 sm:p-6 flex flex-col space-y-4 text-right"
+          dir="rtl"
+        >
           <div className="flex items-center justify-between bg-white/95 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/20 shadow-lg">
             <div className="flex items-center gap-3">
               <span className="text-sm font-extrabold text-[#0b1c30]">
@@ -77,7 +87,12 @@ export function StudentMindMapSection({ block }: { block: Block }) {
           </div>
 
           <div className="flex-1 w-full rounded-3xl border border-white/10 shadow-2xl relative">
-            <MindMapCanvas mapData={mapData} onUpdateMap={handleUpdate} readOnly={false} hideSideControls={false} />
+            <MindMapCanvas
+              mapData={mapData}
+              onUpdateMap={handleUpdate}
+              readOnly={false}
+              hideSideControls={false}
+            />
           </div>
         </div>
       )}

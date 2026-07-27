@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   Search,
-  Plus,
   BookOpen,
   Trash2,
   FlaskConical,
@@ -10,15 +9,10 @@ import {
   PlayCircle,
   Settings,
   X,
+  Plus,
 } from "lucide-react";
-import {
-  getCurriculum,
-  addSubject,
-  deleteSubject,
-  type Subject,
-} from "@/lib/curriculum";
+import { getCurriculum, addSubject, deleteSubject, type Subject } from "@/lib/curriculum";
 import { getLibrary, type SavedLesson } from "@/lib/lesson-library";
-import { getAssignedLessonIds } from "@/lib/curriculum";
 import { SettingsDialog } from "@/components/SettingsDialog";
 
 export const Route = createFileRoute("/subjects/")({
@@ -51,29 +45,32 @@ export function SubjectsPage() {
     return () => window.removeEventListener("focus", onFocus);
   }, []);
 
-  const assigned = getAssignedLessonIds();
   const uncategorized = library.filter((l) => !l.subjectId);
 
   // Realtime Search Filter
   const filteredSubjects = subjects.filter(
     (s) =>
       s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (s.description && s.description.toLowerCase().includes(searchQuery.toLowerCase()))
+      (s.description && s.description.toLowerCase().includes(searchQuery.toLowerCase())),
   );
 
   // Group by category
   const shariaSubjects = filteredSubjects.filter(
-    (s) => s.category === "شرعية" || ["الفقه", "التوحيد", "الحديث", "التفسير"].includes(s.name)
+    (s) => s.category === "شرعية" || ["الفقه", "التوحيد", "الحديث", "التفسير"].includes(s.name),
   );
   const scienceSubjects = filteredSubjects.filter(
-    (s) => s.category === "علمية" || ["الأحياء", "الفيزياء", "الكيمياء"].includes(s.name)
+    (s) => s.category === "علمية" || ["الأحياء", "الفيزياء", "الكيمياء"].includes(s.name),
   );
   const arabicSubjects = filteredSubjects.filter(
-    (s) => s.category === "عربية" || ["النحو", "الأدب"].includes(s.name)
+    (s) => s.category === "عربية" || ["النحو", "الأدب"].includes(s.name),
   );
 
   return (
-    <div dir="rtl" lang="ar" className="min-h-screen bg-[#f8f9ff] text-[#0b1c30] antialiased flex flex-col items-center">
+    <div
+      dir="rtl"
+      lang="ar"
+      className="min-h-screen bg-[#f8f9ff] text-[#0b1c30] antialiased flex flex-col items-center"
+    >
       {/* Top Navigation Bar */}
       <header className="w-full h-20 bg-[#f8f9ff]/90 backdrop-blur-md fixed top-0 z-50 border-b border-[#e0c0b1]/30 flex justify-center">
         <nav className="flex justify-between items-center w-full max-w-[1280px] px-8 md:px-16 h-full">
@@ -176,7 +173,9 @@ export function SubjectsPage() {
                   return (
                     <div
                       key={sub.id}
-                      onClick={() => navigate({ to: "/subjects/$subjectId", params: { subjectId: sub.id } })}
+                      onClick={() =>
+                        navigate({ to: "/subjects/$subjectId", params: { subjectId: sub.id } })
+                      }
                       className="group relative bg-white p-7 rounded-2xl border border-[#e0c0b1]/40 hover:border-[#9d4300]/50 shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between min-h-[190px]"
                     >
                       <div className="flex justify-between items-start mb-5">
@@ -238,7 +237,9 @@ export function SubjectsPage() {
                   return (
                     <div
                       key={sub.id}
-                      onClick={() => navigate({ to: "/subjects/$subjectId", params: { subjectId: sub.id } })}
+                      onClick={() =>
+                        navigate({ to: "/subjects/$subjectId", params: { subjectId: sub.id } })
+                      }
                       className="group relative bg-white p-7 rounded-2xl border border-[#e0c0b1]/40 hover:border-[#8127cf]/50 shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between min-h-[190px]"
                     >
                       <div className="flex justify-between items-start mb-5">
@@ -293,7 +294,9 @@ export function SubjectsPage() {
                   return (
                     <div
                       key={sub.id}
-                      onClick={() => navigate({ to: "/subjects/$subjectId", params: { subjectId: sub.id } })}
+                      onClick={() =>
+                        navigate({ to: "/subjects/$subjectId", params: { subjectId: sub.id } })
+                      }
                       className="group relative bg-white p-7 rounded-2xl border border-[#e0c0b1]/40 hover:border-[#5c5f61]/50 shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between min-h-[190px]"
                     >
                       <div className="flex justify-between items-start mb-5">
@@ -398,8 +401,10 @@ export function SubjectsPage() {
               <button
                 onClick={() => {
                   const nameInput = document.getElementById("subject-name") as HTMLInputElement;
-                  const categorySelect = document.getElementById("subject-category") as HTMLSelectElement;
-                  
+                  const categorySelect = document.getElementById(
+                    "subject-category",
+                  ) as HTMLSelectElement;
+
                   const name = nameInput?.value?.trim();
                   const category = categorySelect?.value as "شرعية" | "عربية" | "علمية";
 
