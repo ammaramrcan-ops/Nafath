@@ -1,7 +1,7 @@
 name: Fix bun.lockb
 
 on:
-  workflow_dispatch:  # تتيح لك تشغيل الأمر يدوياً
+  workflow_dispatch: # تتيح لك تشغيل الأمر يدوياً
 
 jobs:
   regenerate:

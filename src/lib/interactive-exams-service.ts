@@ -96,7 +96,7 @@ export function saveQuestionBank(questions: ExamQuestion[]) {
 export function evaluateQuestionAnswer(
   q: ExamQuestion,
   userAnswer: string,
-  latencySec: number
+  latencySec: number,
 ): QuestionPerformance {
   const normUser = normalizeArabicText(userAnswer);
 
@@ -140,14 +140,17 @@ export function evaluateQuestionAnswer(
  */
 export function generateTopicReport(
   questions: ExamQuestion[],
-  performances: QuestionPerformance[]
+  performances: QuestionPerformance[],
 ): {
   items: TopicReportItem[];
   totalScorePercentage: number;
   aiGuidance: string;
   weakQuestions: ExamQuestion[];
 } {
-  const map = new Map<string, { label: string; count: number; correct: number; totalLatency: number; weakQs: ExamQuestion[] }>();
+  const map = new Map<
+    string,
+    { label: string; count: number; correct: number; totalLatency: number; weakQs: ExamQuestion[] }
+  >();
 
   performances.forEach((p) => {
     const tag = p.topic_tag || "#عام";
@@ -211,7 +214,8 @@ export function generateTopicReport(
 
   // Calculate overall score
   const totalCorrect = performances.filter((p) => p.isCorrect).length;
-  const totalScorePercentage = performances.length > 0 ? Math.round((totalCorrect / performances.length) * 100) : 0;
+  const totalScorePercentage =
+    performances.length > 0 ? Math.round((totalCorrect / performances.length) * 100) : 0;
 
   // AI Guidance Note
   const strongTags = items.filter((i) => i.assessment === "mastered").map((i) => i.topic_label);
@@ -258,9 +262,13 @@ export function exportWeakQuestionsToFlashcards(questions: ExamQuestion[]) {
         keywords: q.keywords || [q.model_answer],
         hint: {
           mnemonic: q.hint || `تذكر مفاهيم ${q.topic_label}`,
-          keyword_cues: q.keywords ? q.keywords.map((k) => `${k.slice(0, 1)}ـ...`).join(" / ") : undefined,
+          keyword_cues: q.keywords
+            ? q.keywords.map((k) => `${k.slice(0, 1)}ـ...`).join(" / ")
+            : undefined,
         },
-        explanation_baladi: q.explanation_baladi || `تحويل تلقائي من الامتحان لترسيخ موضوع (${q.topic_label}) بعد التعثر فيه.`,
+        explanation_baladi:
+          q.explanation_baladi ||
+          `تحويل تلقائي من الامتحان لترسيخ موضوع (${q.topic_label}) بعد التعثر فيه.`,
         stats: {
           interval: 1,
           repetition: 0,
@@ -291,7 +299,7 @@ export function parseRawTextToExamQuestions(rawText: string): ExamQuestion[] {
   const questions: ExamQuestion[] = [];
   let curQ: Partial<ExamQuestion> | null = null;
 
-  lines.forEach((line, idx) => {
+  lines.forEach((line) => {
     // Check if line starts with question number e.g. 1. or س1 or - or ؟
     const isNewQuestion =
       /^(?:س?\d+[\.\-\)]|س\/|\d+[\.\-\)]|علل|ما حكم|ما المقصود|اختر|أكمل)/i.test(line) ||
@@ -306,8 +314,10 @@ export function parseRawTextToExamQuestions(rawText: string): ExamQuestion[] {
       // Determine question type & topic tag
       let qType: ExamQuestionType = "essay";
       if (line.includes("اختر") || line.includes("أماكن") || line.includes("إجابة")) qType = "mcq";
-      else if (line.includes("أكمل") || line.includes("الفراغ") || line.includes("____")) qType = "fill";
-      else if (line.includes("علل") || line.includes("حكم") || line.includes("دليل")) qType = "essay";
+      else if (line.includes("أكمل") || line.includes("الفراغ") || line.includes("____"))
+        qType = "fill";
+      else if (line.includes("علل") || line.includes("حكم") || line.includes("دليل"))
+        qType = "essay";
 
       const tagMatch = extractTopicTag(line);
 
@@ -319,7 +329,13 @@ export function parseRawTextToExamQuestions(rawText: string): ExamQuestion[] {
         options: [],
         keywords: [],
       };
-    } else if (line.startsWith("أ)") || line.startsWith("ب)") || line.startsWith("ج)") || line.startsWith("1-") || line.startsWith("2-")) {
+    } else if (
+      line.startsWith("أ)") ||
+      line.startsWith("ب)") ||
+      line.startsWith("ج)") ||
+      line.startsWith("1-") ||
+      line.startsWith("2-")
+    ) {
       // Option line for MCQ
       if (!curQ.options) curQ.options = [];
       curQ.options.push(line.replace(/^[أبجد1234][\.\-\)]\s*/, ""));
@@ -331,8 +347,9 @@ export function parseRawTextToExamQuestions(rawText: string): ExamQuestion[] {
     }
   });
 
-  if (curQ && curQ.question && curQ.model_answer) {
-    questions.push(finalizeQuestion(curQ, questions.length + 1));
+  const lastQ = curQ as Partial<ExamQuestion> | null;
+  if (lastQ?.question && lastQ.model_answer) {
+    questions.push(finalizeQuestion(lastQ, questions.length + 1));
   }
 
   return questions;
@@ -341,7 +358,8 @@ export function parseRawTextToExamQuestions(rawText: string): ExamQuestion[] {
 function finalizeQuestion(raw: Partial<ExamQuestion>, index: number): ExamQuestion {
   const qText = raw.question || `سؤال ${index}`;
   const ansText = raw.model_answer || "إجابة نموذجية";
-  const type: ExamQuestionType = raw.type || (qText.includes("علل") ? "essay" : qText.includes("أكمل") ? "fill" : "mcq");
+  const type: ExamQuestionType =
+    raw.type || (qText.includes("علل") ? "essay" : qText.includes("أكمل") ? "fill" : "mcq");
 
   const keywords = extractKeywordsFromText(ansText);
   const tagMatch = extractTopicTag(qText);
@@ -350,7 +368,12 @@ function finalizeQuestion(raw: Partial<ExamQuestion>, index: number): ExamQuesti
     id: `ingest_q_${Date.now()}_${index}_${crypto.randomUUID().slice(0, 8)}`,
     type,
     question: qText,
-    options: raw.options && raw.options.length > 0 ? raw.options : type === "mcq" ? [ansText, "خيار خاطئ 1", "خيار خاطئ 2"] : undefined,
+    options:
+      raw.options && raw.options.length > 0
+        ? raw.options
+        : type === "mcq"
+          ? [ansText, "خيار خاطئ 1", "خيار خاطئ 2"]
+          : undefined,
     model_answer: ansText,
     keywords: keywords.length > 0 ? keywords : [ansText],
     topic_tag: tagMatch.tag,
@@ -361,11 +384,16 @@ function finalizeQuestion(raw: Partial<ExamQuestion>, index: number): ExamQuesti
 
 function extractTopicTag(text: string): { tag: string; label: string } {
   const t = text.toLowerCase();
-  if (t.includes("سكران") || t.includes("سكر")) return { tag: "#طلاق_السكران", label: "طلاق السكران" };
-  if (t.includes("حيض") || t.includes("بدعي")) return { tag: "#أحكام_الطلاق_البدعي", label: "الطلاق البدعي والحيض" };
-  if (t.includes("شرط") || t.includes("شروط") || t.includes("أركان")) return { tag: "#شروط_الطلاق", label: "شروط الطلاق وأركانه" };
-  if (t.includes("خلع") || t.includes("عوض")) return { tag: "#أحكام_الخلع", label: "أحكام الخلع والعوض" };
-  if (t.includes("بناء ضوئي") || t.includes("نبات")) return { tag: "#البناء_الضوئي", label: "عملية البناء الضوئي" };
+  if (t.includes("سكران") || t.includes("سكر"))
+    return { tag: "#طلاق_السكران", label: "طلاق السكران" };
+  if (t.includes("حيض") || t.includes("بدعي"))
+    return { tag: "#أحكام_الطلاق_البدعي", label: "الطلاق البدعي والحيض" };
+  if (t.includes("شرط") || t.includes("شروط") || t.includes("أركان"))
+    return { tag: "#شروط_الطلاق", label: "شروط الطلاق وأركانه" };
+  if (t.includes("خلع") || t.includes("عوض"))
+    return { tag: "#أحكام_الخلع", label: "أحكام الخلع والعوض" };
+  if (t.includes("بناء ضوئي") || t.includes("نبات"))
+    return { tag: "#البناء_الضوئي", label: "عملية البناء الضوئي" };
   return { tag: "#مفاهيم_عامة", label: "مفاهيم وقواعد عامة" };
 }
 
@@ -385,12 +413,17 @@ export function getInitialQuestionBank(): ExamQuestion[] {
       id: "ex_q_1",
       type: "mcq",
       question: "ما الحكم الفقهي لو طلق الزوج زوجته في فترة الحيض من حيث وقوع الطلاق؟",
-      options: ["لا يقع الطلاق إطلاقاً", "يقع الطلاق حارماً مع الإثم (بدعي) 🟢", "يقع الخلع رجعياً"],
+      options: [
+        "لا يقع الطلاق إطلاقاً",
+        "يقع الطلاق حارماً مع الإثم (بدعي) 🟢",
+        "يقع الخلع رجعياً",
+      ],
       model_answer: "يقع الطلاق حارماً مع الإثم (بدعي) 🟢",
       keywords: ["يقع الطلاق", "بدعي", "الإثم"],
       topic_tag: "#أحكام_الطلاق_البدعي",
       topic_label: "أحكام الطلاق البدعي والحيض",
-      explanation_baladi: "الطلاق في الحيض حرام شرعاً (بدعي) لتضرر الزوجة بطول العدة، ولكنه يقع قضاءً مع إثم الزوج.",
+      explanation_baladi:
+        "الطلاق في الحيض حرام شرعاً (بدعي) لتضرر الزوجة بطول العدة، ولكنه يقع قضاءً مع إثم الزوج.",
     },
     {
       id: "ex_q_2",
@@ -400,23 +433,30 @@ export function getInitialQuestionBank(): ExamQuestion[] {
       keywords: ["تغليظاً عليه", "عقوبة", "معصية"],
       topic_tag: "#طلاق_السكران",
       topic_label: "طلاق السكران",
-      explanation_baladi: "السكران اللي شرب بمزاجه، الشرع يعاقبه بزجره وإيقاع طلاقه حتى لا يتخذ السكر ذريعة للتنصل من الأحكام.",
+      explanation_baladi:
+        "السكران اللي شرب بمزاجه، الشرع يعاقبه بزجره وإيقاع طلاقه حتى لا يتخذ السكر ذريعة للتنصل من الأحكام.",
     },
     {
       id: "ex_q_3",
       type: "fill",
-      question: "المهر الذي تستحقه المرأة المقارنة لأقاربها من النساء عند جهالة عوض الخلع يسمى ____",
+      question:
+        "المهر الذي تستحقه المرأة المقارنة لأقاربها من النساء عند جهالة عوض الخلع يسمى ____",
       model_answer: "مهر المثل",
       keywords: ["مهر المثل"],
       topic_tag: "#أحكام_الخلع",
       topic_label: "أحكام الخلع والعوض",
-      explanation_baladi: "لما العوض يكون مجهول، نرجع لمهر البنت اللي زيها في عيلتها لقطع النزاع والجهالة.",
+      explanation_baladi:
+        "لما العوض يكون مجهول، نرجع لمهر البنت اللي زيها في عيلتها لقطع النزاع والجهالة.",
     },
     {
       id: "ex_q_4",
       type: "mcq",
       question: "ما هو شرط صحة الملتزم بدفع العوض في الخلع من الناحية المالية؟",
-      options: ["إطلاق التصرف المالي (البلوغ والعقل والرشيد) 🟢", "أن يكون الزوج ولياً", "أن يكون في فترة العدة"],
+      options: [
+        "إطلاق التصرف المالي (البلوغ والعقل والرشيد) 🟢",
+        "أن يكون الزوج ولياً",
+        "أن يكون في فترة العدة",
+      ],
       model_answer: "إطلاق التصرف المالي (البلوغ والعقل والرشيد) 🟢",
       keywords: ["إطلاق التصرف", "البلوغ", "الرشيد"],
       topic_tag: "#شروط_الطلاق",
@@ -426,12 +466,15 @@ export function getInitialQuestionBank(): ExamQuestion[] {
     {
       id: "ex_q_5",
       type: "essay",
-      question: "ما الحكم الشرعي مع الدليل لو قال الزوج لخالعته: 'خالعتك على ما في كفك' ففتحت يدها وكان فارغاً؟",
-      model_answer: "يقع الخلع بائناً وتلزم بمهر المثل، لقوله تعالى: ﴿فَلَا جُنَاحَ عَلَيْهِمَا فِيمَا افْتَدَتْ بِهِ﴾.",
+      question:
+        "ما الحكم الشرعي مع الدليل لو قال الزوج لخالعته: 'خالعتك على ما في كفك' ففتحت يدها وكان فارغاً؟",
+      model_answer:
+        "يقع الخلع بائناً وتلزم بمهر المثل، لقوله تعالى: ﴿فَلَا جُنَاحَ عَلَيْهِمَا فِيمَا افْتَدَتْ بِهِ﴾.",
       keywords: ["ما في كفك", "فارغاً", "عوض"],
       topic_tag: "#أحكام_الخلع",
       topic_label: "أحكام الخلع والعوض",
-      explanation_baladi: "لأنها رضيت بالفراق والخلع بائن، لكن لما طلع العوض معدوم نرجع لمهر المثل.",
+      explanation_baladi:
+        "لأنها رضيت بالفراق والخلع بائن، لكن لما طلع العوض معدوم نرجع لمهر المثل.",
     },
   ];
 }
@@ -530,7 +573,8 @@ function getInitialMistakes(): ExamMistake[] {
         keywords: ["تغليظاً عليه", "عقوبة", "معصية"],
         topic_tag: "#طلاق_السكران",
         topic_label: "طلاق السكران",
-        explanation_baladi: "السكران اللي شرب بمزاجه، الشرع يعاقبه بزجره وإيقاع طلاقه حتى لا يتخذ السكر ذريعة للتنصل من الأحكام.",
+        explanation_baladi:
+          "السكران اللي شرب بمزاجه، الشرع يعاقبه بزجره وإيقاع طلاقه حتى لا يتخذ السكر ذريعة للتنصل من الأحكام.",
       },
       userAnswer: "لأنه غير عاقل وقت الطلاق",
       date: new Date().toLocaleDateString("ar-SA"),
@@ -540,12 +584,14 @@ function getInitialMistakes(): ExamMistake[] {
       question: {
         id: "ex_q_3",
         type: "fill",
-        question: "المهر الذي تستحقه المرأة المقارنة لأقاربها من النساء عند جهالة عوض الخلع يسمى ____",
+        question:
+          "المهر الذي تستحقه المرأة المقارنة لأقاربها من النساء عند جهالة عوض الخلع يسمى ____",
         model_answer: "مهر المثل",
         keywords: ["مهر المثل"],
         topic_tag: "#أحكام_الخلع",
         topic_label: "أحكام الخلع والعوض",
-        explanation_baladi: "لما العوض يكون مجهول، نرجع لمهر البنت اللي زيها في عيلتها لقطع النزاع والجهالة.",
+        explanation_baladi:
+          "لما العوض يكون مجهول، نرجع لمهر البنت اللي زيها في عيلتها لقطع النزاع والجهالة.",
       },
       userAnswer: "مهر المسمى",
       date: new Date().toLocaleDateString("ar-SA"),
@@ -558,7 +604,8 @@ function getInitialLessonNotes(): LessonNote[] {
     {
       id: "note_1",
       lessonTitle: "درس فقه الخُلع والشروط",
-      content: "عند جهالة عوض الخلع، يُرد الصداق لمهر المثل لقطع النزاع، ولا يصح الخلع من سفيه أو محجور عليه.",
+      content:
+        "عند جهالة عوض الخلع، يُرد الصداق لمهر المثل لقطع النزاع، ولا يصح الخلع من سفيه أو محجور عليه.",
       date: new Date().toLocaleDateString("ar-SA"),
     },
     {

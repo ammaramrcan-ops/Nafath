@@ -1,59 +1,65 @@
-# Enhanced Vite React TypeScript Template
+# Nafath - منصة التعلم التكيّفي
 
-This template includes built-in detection for missing CSS variables between your Tailwind config and CSS files.
+منصة تعليمية تفاعلية تقدم تجربة تعلم مخصصة ومتدرّجة باستخدام تقنيات الذكاء الاصطناعي.
 
-## Features
+## المميزات الرئيسية
 
-- **CSS Variable Detection**: Automatically detects if CSS variables referenced in `tailwind.config.cjs` are defined in `src/index.css`
-- **Enhanced Linting**: Includes ESLint, Stylelint, and custom CSS variable validation
-- **Shadcn/ui**: Pre-configured with all Shadcn components
-- **Modern Stack**: Vite + React + TypeScript + Tailwind CSS
+- **تدفق الدروس التكيّفي**: مراحل تعليمية متدرجة (قصة، أمثلة، اختبارات، بطاقات استذكار)
+- **مساعد ذكاء اصطناعي**: مساعد "سهم" للإجابة على أسئلة الطلاب
+- **بطاقات الاستذكار**: نظام تكرار متباعد لتعزيز الذاكرة
+- **الخريطة الذهنية**: عرض بصري للمفاهيم والعلاقات
+- ** الاختبارات التفاعلية**: MCQ، أكمل الفراغ، أسئلة مقالية
+- **وضع Zen**: واجهة هادئة ومُركّزة للتعلم
+- **لوحة المعلّم**: إنشاء وإدارة الدروس
 
-## Available Scripts
+## التقنيات المستخدمة
+
+| الفئة           | التقنية                         |
+| --------------- | ------------------------------- |
+| الإطار          | React 19 + TanStack Start (SSR) |
+| الراوتر         | TanStack Router (file-based)    |
+| البناء          | Vite 7                          |
+| التصميم         | Tailwind CSS v4 + shadcn/ui     |
+| البيانات        | TanStack React Query 5          |
+| الأنيميشن       | Framer Motion 12                |
+| الأيقونات       | Lucide React                    |
+| الرسوم البيانية | Recharts                        |
+| النشر           | Cloudflare Pages                |
+
+## بدء التشغيل
 
 ```bash
-# Run all linting (includes CSS variable check)
-npm run lint
+# تثبيت الاعتماديات
+bun install
 
-# Check only CSS variables
-npm run check:css-vars
+# نسخ متغيّرات البيئة
+cp .env.example .env.local
 
-# Individual linting
-npm run lint:js    # ESLint
-npm run lint:css   # Stylelint
+# التشغيل المحلي
+bun run dev
+
+# البناء للإنتاج
+bun run build
 ```
 
-## CSS Variable Detection
+## هيكل المشروع
 
-The template includes a custom script that:
-
-1. **Parses `tailwind.config.cjs`** to find all `var(--variable)` references
-2. **Parses `src/index.css`** to find all defined CSS variables (`--variable:`)
-3. **Cross-references** them to find missing definitions
-4. **Reports undefined variables** with clear error messages
-
-### Example Output
-
-When CSS variables are missing:
 ```
-❌ Undefined CSS variables found in tailwind.config.cjs:
-   --sidebar-background
-   --sidebar-foreground
-   --sidebar-primary
-
-Add these variables to src/index.css
+src/
+├── routes/          # مسارات TanStack Router (file-based)
+├── components/      # مكوّنات React (~44 مكوّن مخصص + 46 shadcn/ui)
+├── hooks/           # Custom hooks
+├── lib/             # الخدمات والأدوات المساعدة
+├── layouts/         # التخطيطات المشتركة
+└── styles.css       # الأنماط العامة (نقطة دخول Tailwind)
 ```
 
-When all variables are defined:
-```
-✅ All CSS variables in tailwind.config.cjs are defined
-```
+## متطلبات التشغيل
 
-## How It Works
+- Node.js 18+
+- Bun (مدير الحزم)
+- مفتاح API للذكاء الاصطناعي (اختياري للمساعد)
 
-The detection happens during the `npm run lint` command, which will:
-- Exit with error code 1 if undefined variables are found
-- Show exactly which variables need to be added to your CSS file
-- Integrate seamlessly with your development workflow
+## الترخيص
 
-This prevents runtime CSS issues where Tailwind classes reference undefined CSS variables.
+مشروع خاص

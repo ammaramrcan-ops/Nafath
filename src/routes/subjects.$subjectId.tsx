@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   ChevronRight,
-  Plus,
   Trash2,
   BookOpen,
   Settings,
@@ -15,10 +14,14 @@ import {
   PlayCircle,
   Pencil,
   FileJson,
-  Upload,
 } from "lucide-react";
-import { getSubject, addLessonToUnit, addUnit, type Subject } from "@/lib/curriculum";
-import { getLibrary, deleteFromLibrary, saveToLibrary, type SavedLesson } from "@/lib/lesson-library";
+import {getSubject, type Subject} from "@/lib/curriculum";
+import {
+  getLibrary,
+  deleteFromLibrary,
+  saveToLibrary,
+  type SavedLesson,
+} from "@/lib/lesson-library";
 import { type Lesson } from "@/lib/lesson-data";
 import { RestoreDialog } from "@/components/RestoreDialog";
 import { SettingsDialog } from "@/components/SettingsDialog";
@@ -29,9 +32,11 @@ export const Route = createFileRoute("/subjects/$subjectId")({
     <div dir="rtl" className="flex min-h-screen items-center justify-center bg-[#f8f9ff]">
       <div className="text-center p-8 bg-white rounded-3xl border border-[#e0c0b1]/40 shadow-sm max-w-md">
         <p className="text-lg font-bold text-[#0b1c30] mb-2">المادة غير موجودة</p>
-        <p className="text-sm text-[#584237]/70 mb-6">قد تكون المادة حُذفت أو أن الرابط غير صحيح.</p>
+        <p className="text-sm text-[#584237]/70 mb-6">
+          قد تكون المادة حُذفت أو أن الرابط غير صحيح.
+        </p>
         <button
-          onClick={() => window.location.href = "/subjects"}
+          onClick={() => (window.location.href = "/subjects")}
           className="inline-flex items-center gap-2 bg-[#9d4300] text-white px-6 py-2.5 rounded-full text-sm font-bold hover:bg-[#833800] transition"
         >
           ← العودة للمواد
@@ -66,7 +71,9 @@ function SubjectPage() {
       <div dir="rtl" className="flex min-h-screen items-center justify-center bg-[#f8f9ff]">
         <div className="text-center p-8 bg-white rounded-3xl border border-[#e0c0b1]/40 shadow-sm max-w-md">
           <p className="text-lg font-bold text-[#0b1c30] mb-2">المادة غير موجودة</p>
-          <p className="text-sm text-[#584237]/70 mb-6">قد تكون المادة حُذفت أو أن الرابط غير صحيح.</p>
+          <p className="text-sm text-[#584237]/70 mb-6">
+            قد تكون المادة حُذفت أو أن الرابط غير صحيح.
+          </p>
           <button
             onClick={() => navigate({ to: "/subjects" })}
             className="inline-flex items-center gap-2 bg-[#9d4300] text-white px-6 py-2.5 rounded-full text-sm font-bold hover:bg-[#833800] transition cursor-pointer"
@@ -102,7 +109,11 @@ function SubjectPage() {
   const displayLessons = subjectLessons;
 
   return (
-    <div dir="rtl" lang="ar" className="min-h-screen bg-[#f8f9ff] text-[#0b1c30] antialiased flex flex-col items-center">
+    <div
+      dir="rtl"
+      lang="ar"
+      className="min-h-screen bg-[#f8f9ff] text-[#0b1c30] antialiased flex flex-col items-center"
+    >
       {/* Top Header Navigation Bar */}
       <header className="w-full h-20 bg-[#f8f9ff]/90 backdrop-blur-md fixed top-0 z-50 border-b border-[#e0c0b1]/30 flex justify-center">
         <nav className="flex justify-between items-center w-full max-w-[1280px] px-8 md:px-16 h-full">
@@ -166,7 +177,8 @@ function SubjectPage() {
                 <div>
                   <h1 className="text-4xl font-extrabold text-[#0b1c30] mb-3">{subject.name}</h1>
                   <p className="text-base text-[#584237]/80 max-w-2xl leading-relaxed font-medium">
-                    {subject.description || "دراسة الأحكام والمفاهيم الشاملة المستنبطة من أدلتها ومصادرها بمنهجية علمية ميسرة."}
+                    {subject.description ||
+                      "دراسة الأحكام والمفاهيم الشاملة المستنبطة من أدلتها ومصادرها بمنهجية علمية ميسرة."}
                   </p>
                 </div>
               </div>
@@ -202,7 +214,12 @@ function SubjectPage() {
           </button>
 
           <button
-            onClick={() => navigate({ to: "/mind-map", search: { subjectId: subject.id, subjectName: subject.name } })}
+            onClick={() =>
+              navigate({
+                to: "/mind-map",
+                search: { subjectId: subject.id, subjectName: subject.name },
+              })
+            }
             className="group p-7 bg-white border border-[#e0c0b1]/40 rounded-3xl text-right transition-all hover:shadow-lg hover:border-[#9d4300] cursor-pointer flex flex-col justify-between"
           >
             <div className="w-14 h-14 rounded-2xl bg-orange-50 flex items-center justify-center text-[#9d4300] mb-5 transition-transform group-hover:scale-110">
@@ -223,7 +240,9 @@ function SubjectPage() {
             </div>
             <div>
               <h4 className="text-xl font-bold text-[#0b1c30] mb-1">بنك الأسئلة</h4>
-              <p className="text-xs font-medium text-[#584237]/80">اختبارات شاملة وتدريبات تفاعلية</p>
+              <p className="text-xs font-medium text-[#584237]/80">
+                اختبارات شاملة وتدريبات تفاعلية
+              </p>
             </div>
           </button>
 
@@ -240,7 +259,9 @@ function SubjectPage() {
             </div>
             <div>
               <h4 className="text-xl font-bold text-[#0b1c30] mb-1">التكرار المتباعد</h4>
-              <p className="text-xs font-medium text-[#584237]/80">تثبيت المعلومات عبر البطاقات الذكية</p>
+              <p className="text-xs font-medium text-[#584237]/80">
+                تثبيت المعلومات عبر البطاقات الذكية
+              </p>
             </div>
           </button>
         </section>
@@ -250,7 +271,9 @@ function SubjectPage() {
           <div className="flex justify-between items-center mb-8 border-b border-[#e0c0b1]/30 pb-4">
             <div>
               <h2 className="text-2xl font-bold text-[#0b1c30]">خطة التعلم والدروس</h2>
-              <p className="text-xs text-[#584237]/80 mt-1">الدروس المستردة بكود JSON المخصصة لهذه المادة</p>
+              <p className="text-xs text-[#584237]/80 mt-1">
+                الدروس المستردة بكود JSON المخصصة لهذه المادة
+              </p>
             </div>
             <div className="flex items-center gap-3">
               <button
@@ -261,7 +284,9 @@ function SubjectPage() {
                 استرداد درس
               </button>
               <button
-                onClick={() => navigate({ to: "/subject-stages/$subjectId", params: { subjectId } })}
+                onClick={() =>
+                  navigate({ to: "/subject-stages/$subjectId", params: { subjectId } })
+                }
                 className="inline-flex items-center gap-1.5 text-xs font-bold text-[#9d4300] bg-[#ffdbca] hover:bg-[#e0c0b1] px-4 py-2 rounded-full transition-colors cursor-pointer"
               >
                 <Settings className="w-4 h-4" />
@@ -273,8 +298,12 @@ function SubjectPage() {
           {displayLessons.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-12 rounded-3xl border-2 border-dashed border-[#e0c0b1]/60 bg-white/70 text-center">
               <FileJson className="w-12 h-12 text-[#9d4300]/50 mb-3" />
-              <p className="text-lg font-bold text-[#0b1c30]">لا توجد دروس محملة في مادة {subject.name}</p>
-              <p className="text-sm text-[#584237]/80 mt-1">اضغط على زر تعديل المراحل لإدارة إعدادات المادة</p>
+              <p className="text-lg font-bold text-[#0b1c30]">
+                لا توجد دروس محملة في مادة {subject.name}
+              </p>
+              <p className="text-sm text-[#584237]/80 mt-1">
+                اضغط على زر تعديل المراحل لإدارة إعدادات المادة
+              </p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -343,11 +372,7 @@ function SubjectPage() {
         </section>
       </main>
 
-      <RestoreDialog
-        open={restoreOpen}
-        onOpenChange={setRestoreOpen}
-        onLoad={handleLessonLoad}
-      />
+      <RestoreDialog open={restoreOpen} onOpenChange={setRestoreOpen} onLoad={handleLessonLoad} />
 
       <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
     </div>

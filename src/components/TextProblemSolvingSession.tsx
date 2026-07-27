@@ -1,6 +1,10 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, AlertCircle, CheckCircle2, RotateCcw, Send, HelpCircle, BookOpen } from "lucide-react";
+import {motion} from "framer-motion";
+import {
+  Sparkles,
+  AlertCircle,
+  CheckCircle2,
+} from "lucide-react";
 import type { SmartFlashcard } from "@/lib/spaced-repetition";
 
 export function TextProblemSolvingSession({
@@ -19,7 +23,10 @@ export function TextProblemSolvingSession({
 
   if (!currentCard || completedIds.size >= blindSpotCards.length) {
     return (
-      <div className="mx-auto w-full max-w-xl text-center space-y-6 dir-rtl p-8 bg-emerald-50 rounded-[28px] border-2 border-emerald-300 shadow-lg" dir="rtl">
+      <div
+        className="mx-auto w-full max-w-xl text-center space-y-6 dir-rtl p-8 bg-emerald-50 rounded-[28px] border-2 border-emerald-300 shadow-lg"
+        dir="rtl"
+      >
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 text-3xl">
           🎉
         </div>
@@ -28,7 +35,8 @@ export function TextProblemSolvingSession({
             أحسنت بطل! تم إغلاق الفجوات المعرفية بنجاح 🟢✨
           </h3>
           <p className="text-xs font-bold text-emerald-900 leading-relaxed">
-            تمت إعادة كتابة كافة الكروت المعقدة والمغالطات الخطيرة وتثبيت مفاهيمها في ذاكرتك الدائمة.
+            تمت إعادة كتابة كافة الكروت المعقدة والمغالطات الخطيرة وتثبيت مفاهيمها في ذاكرتك
+            الدائمة.
           </p>
         </div>
         <button
@@ -77,7 +85,8 @@ export function TextProblemSolvingSession({
           </span>
         </div>
         <p className="text-xs font-semibold text-rose-100">
-          هذه الجلسة مخصصة للكروت التي أجبت عليها بثقة مرتفعة ولكن إجابتك تضمنت مغالطة أو نقص في المفاهيم الأساسية.
+          هذه الجلسة مخصصة للكروت التي أجبت عليها بثقة مرتفعة ولكن إجابتك تضمنت مغالطة أو نقص في
+          المفاهيم الأساسية.
         </p>
       </div>
 
@@ -120,7 +129,10 @@ export function TextProblemSolvingSession({
             <div className="pt-2 text-xs font-semibold text-slate-300 flex flex-wrap gap-2">
               <span className="text-amber-300">الكلمات المفتاحية:</span>
               {currentCard.keywords.map((kw, i) => (
-                <span key={i} className="bg-slate-800 text-amber-200 px-2.5 py-0.5 rounded-full border border-slate-700">
+                <span
+                  key={i}
+                  className="bg-slate-800 text-amber-200 px-2.5 py-0.5 rounded-full border border-slate-700"
+                >
                   {kw}
                 </span>
               ))}

@@ -4,8 +4,6 @@ import {
   XCircle,
   Lightbulb,
   Tag,
-  Lock,
-  BookMarked,
   ArrowRight,
   ArrowLeft,
   Sparkles,
@@ -35,7 +33,7 @@ function normalize(s: string) {
   return s.trim().replace(/\s+/g, " ").toLowerCase();
 }
 
-function padMcqsToMinimumFive(rawMcqs: MCQ[], lessonTitle: string): MCQ[] {
+function padMcqsToMinimumFive(rawMcqs: MCQ[]): MCQ[] {
   if (rawMcqs.length >= 5) return rawMcqs;
 
   const padded = [...rawMcqs];
@@ -121,23 +119,19 @@ export function QuizSection({
   let rawMcqs = !showMcq
     ? []
     : quizzes.mcqs.filter(
-        (q) =>
-          (q.question.trim() || q.image_url?.trim()) &&
-          q.options.some((o) => o.trim())
+        (q) => (q.question.trim() || q.image_url?.trim()) && q.options.some((o) => o.trim()),
       );
 
   const mcqs = useMemo(() => {
     if (showMcq && rawMcqs.length > 0) {
-      return padMcqsToMinimumFive(rawMcqs, lessonTitle);
+      return padMcqsToMinimumFive(rawMcqs);
     }
     return rawMcqs;
   }, [showMcq, rawMcqs, lessonTitle]);
 
   const fills = !showFill
     ? []
-    : quizzes.fills.filter(
-        (q) => (q.question.trim() || q.image_url?.trim()) && q.answer.trim()
-      );
+    : quizzes.fills.filter((q) => (q.question.trim() || q.image_url?.trim()) && q.answer.trim());
   const essays = !showEssay
     ? []
     : quizzes.essays.filter((q) => q.question.trim() || q.image_url?.trim());
@@ -145,12 +139,8 @@ export function QuizSection({
   const unifiedList = useMemo<UnifiedQuestion[]>(() => {
     const list: UnifiedQuestion[] = [];
     mcqs.forEach((q, i) => list.push({ kind: "mcq", data: q, id: `mcq-${i}` }));
-    fills.forEach((q, i) =>
-      list.push({ kind: "fill", data: q, id: `fill-${i}` })
-    );
-    essays.forEach((q, i) =>
-      list.push({ kind: "essay", data: q, id: `essay-${i}` })
-    );
+    fills.forEach((q, i) => list.push({ kind: "fill", data: q, id: `fill-${i}` }));
+    essays.forEach((q, i) => list.push({ kind: "essay", data: q, id: `essay-${i}` }));
     return list;
   }, [mcqs, fills, essays]);
 
@@ -161,7 +151,7 @@ export function QuizSection({
 
   const correctCount = useMemo(
     () => Object.values(metrics).filter((m) => m.status === "correct").length,
-    [metrics]
+    [metrics],
   );
 
   const allCorrect = total === 0 || correctCount === total;
@@ -200,13 +190,9 @@ export function QuizSection({
         total === 0 ||
         Object.values(next).filter((m) => m.status === "correct").length === total
       ) {
-        const stats = Object.fromEntries(
-          Object.entries(next).map(([id, m]) => [id, m])
-        );
+        const stats = Object.fromEntries(Object.entries(next).map(([id, m]) => [id, m]));
 
-        const existingStats = JSON.parse(
-          localStorage.getItem("nafath_quiz_stats") ?? "{}"
-        );
+        const existingStats = JSON.parse(localStorage.getItem("nafath_quiz_stats") ?? "{}");
         const mergedStats = { ...existingStats, ...stats };
         localStorage.setItem("nafath_quiz_stats", JSON.stringify(mergedStats));
       }
@@ -259,8 +245,8 @@ export function QuizSection({
                   isDone
                     ? "bg-emerald-500"
                     : isCurrent
-                    ? "bg-[#9d4300]"
-                    : "bg-slate-200 hover:bg-slate-300"
+                      ? "bg-[#9d4300]"
+                      : "bg-slate-200 hover:bg-slate-300",
                 )}
                 title={`انتقل للسؤال ${idx + 1}`}
               />
@@ -331,8 +317,6 @@ export function QuizSection({
             <EssayHybridCard
               num={currentIndex + 1}
               q={activeQuestion.data}
-              lessonTitle={lessonTitle}
-              subjectId={subjectId}
               metric={
                 metrics[activeQuestion.id] || {
                   status: "idle",
@@ -387,8 +371,8 @@ export function QuizSection({
                 !canProceedNext
                   ? "bg-slate-200 text-slate-400 border border-slate-300 cursor-not-allowed opacity-60 shadow-none"
                   : currentIndex === total - 1
-                  ? "bg-[#9d4300] hover:bg-[#833800] text-white cursor-pointer"
-                  : "bg-[#213145] hover:bg-[#0b1c30] text-white cursor-pointer"
+                    ? "bg-[#9d4300] hover:bg-[#833800] text-white cursor-pointer"
+                    : "bg-[#213145] hover:bg-[#0b1c30] text-white cursor-pointer",
               )}
             >
               <span>
@@ -437,11 +421,7 @@ function ConfidenceRatingBar({
         </span>
         {selected ? (
           <span className="text-[11px] font-extrabold bg-[#ffdbca] text-[#9d4300] px-3 py-0.5 rounded-full">
-            {selected === "easy"
-              ? "🟢 سهل"
-              : selected === "medium"
-              ? "🟡 متوسط"
-              : "🔴 صعب"}
+            {selected === "easy" ? "🟢 سهل" : selected === "medium" ? "🟡 متوسط" : "🔴 صعب"}
           </span>
         ) : (
           <span className="text-[10px] font-bold text-slate-400">
@@ -471,16 +451,10 @@ function ConfidenceRatingBar({
                 diff === "hard" &&
                   (isSelected
                     ? "bg-rose-600 text-white border-rose-600 shadow-xs"
-                    : "bg-white text-rose-900 border-rose-200 hover:bg-rose-50")
+                    : "bg-white text-rose-900 border-rose-200 hover:bg-rose-50"),
               )}
             >
-              <span>
-                {diff === "easy"
-                  ? "🟢 سهل"
-                  : diff === "medium"
-                  ? "🟡 متوسط"
-                  : "🔴 صعب"}
-              </span>
+              <span>{diff === "easy" ? "🟢 سهل" : diff === "medium" ? "🟡 متوسط" : "🔴 صعب"}</span>
             </button>
           );
         })}
@@ -601,44 +575,32 @@ function McqHybridCard({
 
       <div className="grid gap-3.5 pt-2">
         {(shuffledOptions.length > 0 ? shuffledOptions : q.options).map((opt) => {
-            const isSel = sel === opt;
-            const showCorrect = metric.status !== "idle" && normalize(opt) === normalize(q.answer);
-            const showWrong = metric.status === "wrong" && isSel;
-            const isLocked = metric.status !== "idle";
-            return (
-              <button
-                key={opt}
-                disabled={isLocked}
-                onClick={() => handleSelectOption(opt)}
-                className={cn(
-                  "flex items-center justify-between rounded-2xl bg-[#eff4ff] px-8 py-5 sm:py-5.5 text-right text-xs sm:text-base font-bold text-[#0b1c30] transition border border-[#e0c0b1]/30 shadow-2xs",
-                  !isLocked && "hover:bg-[#dce9ff] cursor-pointer",
-                  isLocked && "cursor-not-allowed opacity-90",
-                  isSel &&
-                    metric.status === "idle" &&
-                    "bg-[#9d4300] text-white border-[#9d4300]",
-                  showCorrect &&
-                    "bg-emerald-100 text-emerald-950 border-emerald-400 font-extrabold",
-                  showWrong &&
-                    "bg-rose-100 text-rose-950 border-rose-400 font-extrabold"
-                )}
-              >
-                <span>{opt}</span>
-                {showCorrect && (
-                  <CheckCircle2
-                    className="h-5 w-5 text-emerald-600"
-                    strokeWidth={2.5}
-                  />
-                )}
-                {showWrong && (
-                  <XCircle
-                    className="h-5 w-5 text-rose-600"
-                    strokeWidth={2.5}
-                  />
-                )}
-              </button>
-            );
-          })}
+          const isSel = sel === opt;
+          const showCorrect = metric.status !== "idle" && normalize(opt) === normalize(q.answer);
+          const showWrong = metric.status === "wrong" && isSel;
+          const isLocked = metric.status !== "idle";
+          return (
+            <button
+              key={opt}
+              disabled={isLocked}
+              onClick={() => handleSelectOption(opt)}
+              className={cn(
+                "flex items-center justify-between rounded-2xl bg-[#eff4ff] px-8 py-5 sm:py-5.5 text-right text-xs sm:text-base font-bold text-[#0b1c30] transition border border-[#e0c0b1]/30 shadow-2xs",
+                !isLocked && "hover:bg-[#dce9ff] cursor-pointer",
+                isLocked && "cursor-not-allowed opacity-90",
+                isSel && metric.status === "idle" && "bg-[#9d4300] text-white border-[#9d4300]",
+                showCorrect && "bg-emerald-100 text-emerald-950 border-emerald-400 font-extrabold",
+                showWrong && "bg-rose-100 text-rose-950 border-rose-400 font-extrabold",
+              )}
+            >
+              <span>{opt}</span>
+              {showCorrect && (
+                <CheckCircle2 className="h-5 w-5 text-emerald-600" strokeWidth={2.5} />
+              )}
+              {showWrong && <XCircle className="h-5 w-5 text-rose-600" strokeWidth={2.5} />}
+            </button>
+          );
+        })}
       </div>
 
       {metric.status === "correct" && (
@@ -661,9 +623,7 @@ function McqHybridCard({
             className="px-6 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold transition cursor-pointer flex items-center gap-1.5 shadow-sm"
           >
             <span>
-              {isLastQuestion
-                ? "إكمال الاختبار والانتقال للمرحلة التالية ✨"
-                : "السؤال التالي"}
+              {isLastQuestion ? "إكمال الاختبار والانتقال للمرحلة التالية ✨" : "السؤال التالي"}
             </span>
             <ArrowLeft className="h-4 w-4" />
           </button>
@@ -680,19 +640,19 @@ function McqHybridCard({
           </div>
 
           <motion.div
-              initial={{ opacity: 0, y: -5 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-white p-4.5 rounded-2xl border border-rose-200 text-xs font-semibold text-[#0b1c30] leading-relaxed space-y-2 shadow-2xs"
-            >
-              <div className="flex items-center gap-2 text-[#9d4300] font-extrabold">
-                <Lightbulb className="h-4 w-4 text-amber-500" />
-                <span>الشرح والتلميح العلمي التلقائي 💡:</span>
-              </div>
-              <p className="text-slate-700 leading-relaxed">
-                {q.explanation ||
-                  `الإجابة الصحيحة هي: "${q.answer}". في الأحكام الفقهية، يُشترط الوضوح والدقة لضمان نفاذ وملاءمة العوض.`}
-              </p>
-            </motion.div>
+            initial={{ opacity: 0, y: -5 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white p-4.5 rounded-2xl border border-rose-200 text-xs font-semibold text-[#0b1c30] leading-relaxed space-y-2 shadow-2xs"
+          >
+            <div className="flex items-center gap-2 text-[#9d4300] font-extrabold">
+              <Lightbulb className="h-4 w-4 text-amber-500" />
+              <span>الشرح والتلميح العلمي التلقائي 💡:</span>
+            </div>
+            <p className="text-slate-700 leading-relaxed">
+              {q.explanation ||
+                `الإجابة الصحيحة هي: "${q.answer}". في الأحكام الفقهية، يُشترط الوضوح والدقة لضمان نفاذ وملاءمة العوض.`}
+            </p>
+          </motion.div>
 
           <div className="flex justify-end pt-1">
             <button
@@ -803,8 +763,7 @@ function FillHybridCard({
             "h-16 w-full rounded-2xl bg-[#eff4ff] px-6 text-right text-sm sm:text-base font-bold text-[#0b1c30] outline-none placeholder:text-slate-400 focus:bg-white border border-[#e0c0b1]/30 shadow-2xs",
             metric.status === "correct" &&
               "bg-emerald-100 text-emerald-950 border-emerald-400 font-extrabold",
-            metric.status === "wrong" &&
-              "bg-rose-100 border-rose-400 text-rose-950 font-extrabold"
+            metric.status === "wrong" && "bg-rose-100 border-rose-400 text-rose-950 font-extrabold",
           )}
         />
 
@@ -822,9 +781,7 @@ function FillHybridCard({
 
       {metric.status === "correct" && (
         <div className="flex items-center justify-between rounded-3xl bg-emerald-50 border border-emerald-200 p-6">
-          <p className="text-sm font-black text-emerald-800">
-            إجابة صحيحة ممتازة! 🎉
-          </p>
+          <p className="text-sm font-black text-emerald-800">إجابة صحيحة ممتازة! 🎉</p>
           <button
             type="button"
             onClick={onNext}
@@ -844,16 +801,12 @@ function FillHybridCard({
 function EssayHybridCard({
   num,
   q,
-  lessonTitle,
-  subjectId,
   metric,
   setMetric,
   onNext,
 }: {
   num: number;
   q: Essay;
-  lessonTitle?: string;
-  subjectId?: string;
   metric: QuestionMetrics;
   setMetric: (m: Partial<QuestionMetrics>) => void;
   onNext: () => void;
@@ -895,9 +848,7 @@ function EssayHybridCard({
 
       {showAnswer && (
         <div className="rounded-3xl bg-emerald-50 border border-emerald-200 p-6 space-y-4 text-right">
-          <span className="text-sm font-black text-emerald-800 block">
-            الإجابة النموذجية:
-          </span>
+          <span className="text-sm font-black text-emerald-800 block">الإجابة النموذجية:</span>
           <p className="text-xs sm:text-base font-bold text-emerald-950 leading-relaxed">
             {q.sampleAnswer ||
               q.explanation ||

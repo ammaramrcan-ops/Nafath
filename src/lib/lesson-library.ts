@@ -69,7 +69,11 @@ export function saveToLibrary(lesson: Lesson, subjectId?: string): string {
   if (existingIdx >= 0) {
     // Preserve existing subjectId if no new one provided
     const existing = lib[existingIdx];
-    lib[existingIdx] = { ...entry, id: existing.id, subjectId: entry.subjectId ?? existing.subjectId };
+    lib[existingIdx] = {
+      ...entry,
+      id: existing.id,
+      subjectId: entry.subjectId ?? existing.subjectId,
+    };
     writeLibrary(lib);
     return lib[existingIdx].id;
   }

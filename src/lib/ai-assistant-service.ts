@@ -13,7 +13,7 @@ export interface ChatMessage {
 export async function generateSahmResponse(
   userPrompt: string,
   history: ChatMessage[],
-  aiSettings: AiSettings
+  aiSettings: AiSettings,
 ): Promise<string> {
   const result = await callAiProviderApi(userPrompt, history, aiSettings);
   if (result.ok) {
@@ -30,7 +30,11 @@ export async function testAiConnection(aiSettings: AiSettings): Promise<{
   text: string;
   error?: string;
 }> {
-  return callAiProviderApi("كم نتيجة 5 * 5؟ أجب بالنتيجة المباشرة فقط في سطر واحد.", [], aiSettings);
+  return callAiProviderApi(
+    "كم نتيجة 5 * 5؟ أجب بالنتيجة المباشرة فقط في سطر واحد.",
+    [],
+    aiSettings,
+  );
 }
 
 /**
@@ -39,7 +43,7 @@ export async function testAiConnection(aiSettings: AiSettings): Promise<{
 async function callAiProviderApi(
   userPrompt: string,
   history: ChatMessage[],
-  aiSettings: AiSettings
+  aiSettings: AiSettings,
 ): Promise<{ ok: boolean; text: string; error?: string }> {
   const apiKey = (aiSettings.apiKey || "").trim();
   const provider = aiSettings.provider || "nvidia_nim";
@@ -88,7 +92,8 @@ async function callAiProviderApi(
       messages: [
         {
           role: "system",
-          content: "أنت المساعد الذكي 'سهم' 🏹 في منصة نفاذ للتعلم التكيفي. تجيب بدقة باللغة العربية.",
+          content:
+            "أنت المساعد الذكي 'سهم' 🏹 في منصة نفاذ للتعلم التكيفي. تجيب بدقة باللغة العربية.",
         },
         ...history
           .filter((m) => !m.text.includes("فشل الاتصال"))

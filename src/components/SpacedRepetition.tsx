@@ -1,29 +1,14 @@
 import { useState, useEffect, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import {
-  Sparkles,
   Flame,
   Clock,
-  Calendar,
   FileSpreadsheet,
   AlertCircle,
-  CheckCircle2,
   Brain,
-  Plus,
-  Zap,
-  RotateCcw,
-  BookOpen,
-  ArrowRight,
-  ChevronLeft,
-  GraduationCap,
-  Layers,
-  Pending,
-  HelpCircle,
-  UploadFile,
-  Gavel,
-  Scissors,
-  Pencil,
   Trash2,
+  Pencil,
+  Layers,
+  ArrowRight,
 } from "lucide-react";
 import {
   getDailyStreak,
@@ -35,12 +20,10 @@ import {
   saveStoredSmartCards,
   type SmartFlashcard,
 } from "@/lib/spaced-repetition";
-import { defaultLesson, khulLesson, type Lesson } from "@/lib/lesson-data";
 import { getLibrary, deleteFromLibrary, type SavedLesson } from "@/lib/lesson-library";
 import { generateSmartCardsFromLesson } from "@/lib/auto-flashcards";
 import { SmartFlashcardCard } from "./SmartFlashcardCard";
 import { useNavigate } from "@tanstack/react-router";
-import { TextProblemSolvingSession } from "./TextProblemSolvingSession";
 import { CSVImportExportModal } from "./CSVImportExportModal";
 import { EditFlashcardModal } from "./EditFlashcardModal";
 import { LessonCardsManagerModal } from "./LessonCardsManagerModal";
@@ -65,8 +48,6 @@ export function SpacedRepetitionView() {
     title: string;
     cards: SmartFlashcard[];
   } | null>(null);
-
-  const [activeTab, setActiveTab] = useState<"review" | "problems">("review");
 
   // Saved lessons from library
   const [libraryLessons, setLibraryLessons] = useState<SavedLesson[]>([]);
@@ -125,14 +106,22 @@ export function SpacedRepetitionView() {
         const titleLower = (saved.title || "").toLowerCase();
         const subIdLower = (saved.subjectId || "").toLowerCase();
 
-        if (filterSubjectId && (subIdLower === filterSubjectId.toLowerCase() || filterSubjectId.toLowerCase().includes(subIdLower))) {
+        if (
+          filterSubjectId &&
+          (subIdLower === filterSubjectId.toLowerCase() ||
+            filterSubjectId.toLowerCase().includes(subIdLower))
+        ) {
           return true;
         }
 
         if (filterSubjectName) {
           const sNameLower = filterSubjectName.toLowerCase();
           if (titleLower.includes(sNameLower) || sNameLower.includes(titleLower)) return true;
-          if (sNameLower.includes("فقه") && (subIdLower === "fiqh" || titleLower.includes("خُلع") || titleLower.includes("خلع"))) return true;
+          if (
+            sNameLower.includes("فقه") &&
+            (subIdLower === "fiqh" || titleLower.includes("خُلع") || titleLower.includes("خلع"))
+          )
+            return true;
           if (sNameLower.includes("أحياء") && titleLower.includes("بناء ضوئي")) return true;
         }
 
@@ -144,7 +133,12 @@ export function SpacedRepetitionView() {
       id: saved.id,
       title: saved.title,
       subtitle: `درس من المكتبة — ${saved.blocks || 0} كتل`,
-      icon: saved.title.includes("فقه") || saved.title.includes("خُلع") ? "⚖️" : saved.title.includes("بناء") || saved.title.includes("أحياء") ? "🌿" : "📚",
+      icon:
+        saved.title.includes("فقه") || saved.title.includes("خُلع")
+          ? "⚖️"
+          : saved.title.includes("بناء") || saved.title.includes("أحياء")
+            ? "🌿"
+            : "📚",
       data: saved.data,
     }));
   }, [libraryLessons, filterSubjectId, filterSubjectName]);
@@ -167,7 +161,7 @@ export function SpacedRepetitionView() {
 
   const daysToExam = useMemo(() => {
     if (!examDate) return undefined;
-    return getDaysToExam(examDate);
+    return getDaysToExam();
   }, [examDate]);
 
   const handleStartLessonStudy = (lessonId: string) => {
@@ -178,13 +172,13 @@ export function SpacedRepetitionView() {
 
   const handleCompleteCard = (
     updatedCard: SmartFlashcard,
-    isBlindSpot: boolean,
-    evaluation: {
+    _isBlindSpot: boolean,
+    _evaluation: {
       matchedKeywords: string[];
       missingKeywords: string[];
       isCorrect: boolean;
       diagnostic: string;
-    }
+    },
   ) => {
     const newCards = allCards.map((c) => (c.id === updatedCard.id ? updatedCard : c));
     if (!newCards.some((c) => c.id === updatedCard.id)) {
@@ -231,7 +225,10 @@ export function SpacedRepetitionView() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-[1100px] px-6 py-10 dir-rtl text-right space-y-12 font-body-md" dir="rtl">
+    <div
+      className="mx-auto w-full max-w-[1100px] px-6 py-10 dir-rtl text-right space-y-12 font-body-md"
+      dir="rtl"
+    >
       {/* Active Study Session Screen */}
       {isStudying && currentStudyCards.length > 0 ? (
         <SmartFlashcardCard
@@ -253,7 +250,8 @@ export function SpacedRepetitionView() {
               مركز التكرار المتباعد والتذكر التكيفي
             </h1>
             <p className="text-sm sm:text-base font-semibold text-[#584237]/80 leading-relaxed">
-              نظام ذكي مصمم لتعزيز ذاكرتك من خلال مراجعة مدروسة تعتمد على فترات متباعدة علمياً لضمان استقرار المعلومة.
+              نظام ذكي مصمم لتعزيز ذاكرتك من خلال مراجعة مدروسة تعتمد على فترات متباعدة علمياً لضمان
+              استقرار المعلومة.
             </p>
           </section>
 
@@ -366,7 +364,8 @@ export function SpacedRepetitionView() {
           {filterSubjectName && (
             <div className="flex items-center justify-between p-4 rounded-2xl bg-[#eff4ff] border border-[#9d4300]/30 text-right">
               <span className="text-sm font-bold text-[#0b1c30]">
-                📌 تصفية بطاقات التكرار المتباعد لمادة: <span className="text-[#9d4300] font-extrabold">{filterSubjectName}</span>
+                📌 تصفية بطاقات التكرار المتباعد لمادة:{" "}
+                <span className="text-[#9d4300] font-extrabold">{filterSubjectName}</span>
               </span>
               <button
                 type="button"
@@ -416,7 +415,9 @@ export function SpacedRepetitionView() {
                             title="تعديل بطاقات هذا الدرس"
                           >
                             <Pencil className="h-4 w-4 text-[#9d4300]" />
-                            <span className="text-[11px] font-bold hidden sm:inline-block">تعديل</span>
+                            <span className="text-[11px] font-bold hidden sm:inline-block">
+                              تعديل
+                            </span>
                           </button>
                           <button
                             type="button"
@@ -429,7 +430,9 @@ export function SpacedRepetitionView() {
                             title="حذف الدرس"
                           >
                             <Trash2 className="h-4 w-4 text-rose-600" />
-                            <span className="text-[11px] font-bold hidden sm:inline-block">حذف</span>
+                            <span className="text-[11px] font-bold hidden sm:inline-block">
+                              حذف
+                            </span>
                           </button>
                         </div>
                       </div>

@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
-import { ChevronRight, Plus, Download, Shapes, Layers } from "lucide-react";
+import {ChevronRight, Layers} from "lucide-react";
 import { MindMapView } from "@/components/MindMapView";
 
 interface MindMapSearch {
@@ -18,7 +18,10 @@ export const Route = createFileRoute("/mind-map")({
   head: () => ({
     meta: [
       { title: "الخرائط الذهنية الدلالية — نفاذ" },
-      { name: "description", content: "نظام الخرائط الذهنية التفاعلي المتقدم بالأشكال والألوان واللوحة اللانهائية." },
+      {
+        name: "description",
+        content: "نظام الخرائط الذهنية التفاعلي المتقدم بالأشكال والألوان واللوحة اللانهائية.",
+      },
     ],
   }),
 });
@@ -39,7 +42,11 @@ function MindMapPage() {
   };
 
   return (
-    <div dir="rtl" lang="ar" className="w-screen h-screen overflow-hidden bg-[#0b1329] text-on-background antialiased relative">
+    <div
+      dir="rtl"
+      lang="ar"
+      className="w-screen h-screen overflow-hidden bg-[#0b1329] text-on-background antialiased relative"
+    >
       {/* Top Header Floating Navigation Bar */}
       <header className="fixed top-4 inset-x-6 z-40 bg-white/95 backdrop-blur-md border border-[#e0c0b1]/50 rounded-2xl shadow-xl px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -54,7 +61,9 @@ function MindMapPage() {
           <div>
             <div className="text-base font-extrabold text-[#0b1c30] flex items-center gap-2">
               <Layers className="h-5 w-5 text-[#9d4300]" />
-              <span>{subjectName ? `الخرائط الذهنية — ${subjectName}` : "الخرائط الذهنية الدلالية"}</span>
+              <span>
+                {subjectName ? `الخرائط الذهنية — ${subjectName}` : "الخرائط الذهنية الدلالية"}
+              </span>
             </div>
           </div>
         </div>

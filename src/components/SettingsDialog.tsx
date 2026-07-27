@@ -1,10 +1,6 @@
 import { useState } from "react";
 import {
   Settings as SettingsIcon,
-  Copy,
-  Check,
-  Sparkles,
-  Code2,
   Bot,
   Key,
   Cpu,
@@ -29,134 +25,6 @@ import { testAiConnection } from "@/lib/ai-assistant-service";
 
 import { useSettings } from "@/lib/settings";
 
-const NAFATH_JSON_PROMPT = `أنت خبير في التصميم التعليمي وتحويل المناهج إلى دروس تفاعلية ممتعة ومبسطة لمنصة "نفاذ - Nafath".
-المطلوب منك تحويل النص/الموضوع الذي سأرفقه لك في نهاية هذه الرسالة إلى كود JSON دقيق ومطابق بنسبة 100% للهيكل التفاعلي لمنصة نفاذ.
-
-اتبع الشروط الصارمة التالية:
-1. قم بتقسيم الدرس إلى فقرات منطقية متوازنة (من 2 إلى 5 فقرات).
-2. بالنسبة لكل فقرة (Section / Block)، صغ التالي بعناية:
-   - story: قصة تشبيهية عامية أو مبسطة تشرح المفهوم بأسلوب دايركت طريف وعملي بالبلدي.
-   - examples: مثال تطبيقي من الحياة اليومية.
-   - full_text: النص العلمي الكامل والمشروح بدقة.
-   - hard_words: قائمة بالمصطلحات الصعبة وتفسيرها اللغوي والمفهومي بالبلدي بين قوسين [{ "term": "المصطلح", "definition": "الشرح بالبلدي" }].
-   - highlights: كلمات هامة للتظليل مع لونها (yellow, green, blue, pink, purple).
-   - mnemonic: جملة تذكّر ذكية ومختصرة لبناء رابط ذهني.
-   - funny_link: ربط طريف أو فكاهي لترسيخ المعلومة في الذاكرة بعيدة المدى.
-   - mind_map_nodes: خريطة ذهنية تفصيلية مخصصة لكل فقرة على حدة تتفرع هرمياً (Root -> Category -> Subtopics -> Details).
-   - meta_card: بطاقة نظرة سريعة (understanding_level, memorization_level, estimated_time_range, info_count).
-   - quizzes: 
-       * mcqs: صغ (5 أسئلة اختيار من متعدد) حصرية ومطابقة 100% لنص وقصة هذه الفقرة فقط دون طرح أي سؤال عن فقرات أخرى!
-       * fills: أسئلة أكمل الفراغ الخاصة بهذه الفقرة.
-       * essays: أسئلة علل ومشكلات فقهية/علمية مخصصة للفقرة.
-   - zaitouna: خلاصة الزيتونة (definitions, reasoning, links).
-
-3. أخرج النتيجة في مربع كود JSON الصافي وبدون أي مقدمات أو شروحات جانبية.
-
----
-[الصق نص أو موضوع الدرس المطلوب تحويله هنا]`;
-
-const PROMPT_STEP_1_CONTENT = `أنت خبير في التصميم التعليمي لمنصة "نفاذ - Nafath".
-قم بتحويل النص/الموضوع أدناه إلى كود JSON مخصص لـ (الشرح والقصص والمصطلحات) فقط، وفق الهيكل الآتي:
-{
-  "title": "عنوان الدرس الرئيسي",
-  "blocks": [
-    {
-      "id": 1,
-      "title": "عنوان الفقرة الأولى",
-      "short_sentence": "الفكرة الرئيسية المختصرة جداً",
-      "story": "قصة تشبيهية عامية طريفة بالبلدي تشرح المفهوم بأسلوب دايركت وممتع.",
-      "examples": "مثال تطبيقي من الحياة اليومية.",
-      "full_text": "النص العلمي الكامل والمشروح بدقة.",
-      "hard_words": [
-        { "term": "المصطلح", "definition": "التفسير والشرح بالبلدي بين قوسين" }
-      ],
-      "mnemonic": "جملة تذكّر ذكية ومختصرة لبناء رابط ذهني.",
-      "funny_link": "ربط طريف وفكاهي لترسيخ المعلومة في الذاكرة."
-    }
-  ]
-}
-
-أخرج النتيجة في مربع كود JSON الصافي فقط وبدون أي مقدمات.
-
----
-[الصق نص أو موضوع الدرس المطلوب تحويله هنا]`;
-
-const PROMPT_STEP_2_MINDMAP = `أنت خبير رسم الخرائط الذهنية لمنصة "نفاذ - Nafath".
-بناءً على موضوع الدرس أو الفقرات أدناه، قم بتوليد كود JSON لخريطة ذهنية شجرية تفصيلية مخصصة لكل فقرة على حدة (Root -> Categories -> Subtopics -> Details)، وفق الهيكل الآتي:
-{
-  "mind_maps_by_block": [
-    {
-      "block_id": 1,
-      "block_title": "عنوان الفقرة الأولى",
-      "mind_map_nodes": [
-        { "id": "b1_root", "text": "العنوان الرئيسي للفقرة الأولى", "parentId": null },
-        { "id": "b1_n1", "text": "1. الفرع الرئيسي الأول للفقرة 1", "parentId": "b1_root" },
-        { "id": "b1_n1_1", "text": "تفصيل فرعي 1.1", "parentId": "b1_n1" },
-        { "id": "b1_n1_2", "text": "تفصيل فرعي 1.2 أو شاهد/دليل", "parentId": "b1_n1" },
-        { "id": "b1_n2", "text": "2. الفرع الرئيسي الثاني للفقرة 1", "parentId": "b1_root" },
-        { "id": "b1_n2_1", "text": "تفصيل فرعي 2.1", "parentId": "b1_n2" }
-      ]
-    }
-  ]
-}
-
-أخرج النتيجة في مربع كود JSON الصافي فقط وبدون أي مقدمات.
-
----
-[الصق نص أو موضوع الدرس المطلوب تحويله هنا]`;
-
-const PROMPT_STEP_3_QUIZZES = `أنت خبير إعداد الاختبارات لمنصة "نفاذ - Nafath".
-بناءً على فقرات الدرس أدناه، صغ كود JSON لأسئلة الاختبارات والـ MCQs، بشرط صارم: كل فقرة (Block) تحتوي على 5 أسئلة اختيار من متعدد (MCQ) حصرية ومطابقة 100% لنص وقصة هذه الفقرة فقط دون أي سؤال عن فقرات أخرى!
-
-الهيكل المطلوب:
-{
-  "quizzes_by_block": [
-    {
-      "block_id": 1,
-      "quizzes": {
-        "mcqs": [
-          {
-            "question": "سؤال 1 خاص بالفقرة 1 فقط؟",
-            "options": ["خيار 1", "خيار 2", "خيار 3", "خيار 4"],
-            "correct_answer": "خيار 1"
-          },
-          {
-            "question": "سؤال 2 خاص بالفقرة 1 فقط؟",
-            "options": ["خيار 1", "خيار 2", "خيار 3", "خيار 4"],
-            "correct_answer": "خيار 1"
-          },
-          {
-            "question": "سؤال 3 خاص بالفقرة 1 فقط؟",
-            "options": ["خيار 1", "خيار 2", "خيار 3", "خيار 4"],
-            "correct_answer": "خيار 1"
-          },
-          {
-            "question": "سؤال 4 خاص بالفقرة 1 فقط؟",
-            "options": ["خيار 1", "خيار 2", "خيار 3", "خيار 4"],
-            "correct_answer": "خيار 1"
-          },
-          {
-            "question": "سؤال 5 خاص بالفقرة 1 فقط؟",
-            "options": ["خيار 1", "خيار 2", "خيار 3", "خيار 4"],
-            "correct_answer": "خيار 1"
-          }
-        ],
-        "fills": [
-          { "question": "سؤال أكمل الفراغ 1 للفقرة 1", "answer": "الكلمة المناسبة" }
-        ],
-        "essays": [
-          { "question": "سؤال علل أو فكري للفقرة 1؟", "answer": "الإجابة النموذجية" }
-        ]
-      }
-    }
-  ]
-}
-
-أخرج النتيجة في مربع كود JSON الصافي فقط وبدون أي مقدمات.
-
----
-[الصق نص أو موضوع الدرس المطلوب تحويله هنا]`;
-
 export function SettingsDialog({
   open,
   onOpenChange,
@@ -165,10 +33,9 @@ export function SettingsDialog({
   onOpenChange?: (v: boolean) => void;
 }) {
   const [tab, setTab] = useState<"ai" | "dev">("ai");
-  const [copied, setCopied] = useState(false);
   const [showApiKey, setShowApiKey] = useState(false);
   const { aiSettings, updateAiSettings } = useAiSettings();
-  const { isLocalhost, devModeActive, settings, updateDevMode } = useSettings();
+  const {isLocalhost, settings, updateDevMode} = useSettings();
 
   // API Live Testing State
   const [isTesting, setIsTesting] = useState(false);
@@ -177,13 +44,6 @@ export function SettingsDialog({
     text: string;
     error?: string;
   } | null>(null);
-
-  const handleCopyPrompt = () => {
-    navigator.clipboard.writeText(NAFATH_JSON_PROMPT);
-    setCopied(true);
-    toast.success("تم نسخ دليل كود JSON والبرومبت بنجاح! 📋");
-    setTimeout(() => setCopied(false), 3000);
-  };
 
   const handleRunLiveTest = async () => {
     if (!aiSettings.apiKey || aiSettings.apiKey.trim().length < 4) {
@@ -328,7 +188,9 @@ export function SettingsDialog({
               {/* Model Name & Base URL */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="rounded-2xl bg-white p-4 border border-zen-surface-container shadow-xs space-y-2">
-                  <label className="text-xs font-bold text-amber-950">اسم النموذج (Model Name):</label>
+                  <label className="text-xs font-bold text-amber-950">
+                    اسم النموذج (Model Name):
+                  </label>
                   <input
                     type="text"
                     value={aiSettings.modelName}
@@ -342,7 +204,9 @@ export function SettingsDialog({
                 </div>
 
                 <div className="rounded-2xl bg-white p-4 border border-zen-surface-container shadow-xs space-y-2">
-                  <label className="text-xs font-bold text-amber-950">رابط الخدمة (Base URL):</label>
+                  <label className="text-xs font-bold text-amber-950">
+                    رابط الخدمة (Base URL):
+                  </label>
                   <input
                     type="text"
                     value={aiSettings.baseUrl}
@@ -365,7 +229,8 @@ export function SettingsDialog({
                       اختبار الاتصال المباشر بالنموذج والـ API
                     </h4>
                     <p className="text-[11px] font-semibold text-amber-800">
-                      يرسل سؤالاً بسيطاً (5 * 5) لاختبار الاستجابة المباشرة من خادم الذكاء الاصطناعي.
+                      يرسل سؤالاً بسيطاً (5 * 5) لاختبار الاستجابة المباشرة من خادم الذكاء
+                      الاصطناعي.
                     </p>
                   </div>
 
@@ -375,8 +240,14 @@ export function SettingsDialog({
                     disabled={isTesting}
                     className="inline-flex items-center gap-2 rounded-xl bg-amber-600 px-5 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-amber-700 disabled:opacity-50 transition cursor-pointer"
                   >
-                    {isTesting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />}
-                    <span>{isTesting ? "جاري تجربة الاتصال..." : "🧪 اختبار الاتصال حياً (5 * 5)"}</span>
+                    {isTesting ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Zap className="h-4 w-4" />
+                    )}
+                    <span>
+                      {isTesting ? "جاري تجربة الاتصال..." : "🧪 اختبار الاتصال حياً (5 * 5)"}
+                    </span>
                   </button>
                 </div>
 
@@ -395,12 +266,18 @@ export function SettingsDialog({
                       ) : (
                         <XCircle className="h-4 w-4 text-rose-600" />
                       )}
-                      <span>{testResult.ok ? "🟢 نجح الاتصال بالذكاء الاصطناعي حياً!" : "🔴 فشل الاتصال بالـ API"}</span>
+                      <span>
+                        {testResult.ok
+                          ? "🟢 نجح الاتصال بالذكاء الاصطناعي حياً!"
+                          : "🔴 فشل الاتصال بالـ API"}
+                      </span>
                     </div>
 
                     {testResult.ok ? (
                       <div className="pt-1">
-                        <span className="text-[11px] text-emerald-800 block">إجابة النموذج المباشرة:</span>
+                        <span className="text-[11px] text-emerald-800 block">
+                          إجابة النموذج المباشرة:
+                        </span>
                         <p className="font-mono bg-white p-2.5 rounded-lg border border-emerald-200 mt-1 text-slate-900 leading-relaxed">
                           {testResult.text}
                         </p>
@@ -426,7 +303,8 @@ export function SettingsDialog({
                       <span>تفعيل وضع المطور السريع (Developer Mode ⚡)</span>
                     </h3>
                     <p className="text-xs font-semibold text-slate-500">
-                      يظهر هذا الخيار فقط أثناء التشغيل على السيرفر المحلي (Localhost) لتسهيل وتنسيق التجربة واختبار الواجهات بسرعة.
+                      يظهر هذا الخيار فقط أثناء التشغيل على السيرفر المحلي (Localhost) لتسهيل وتنسيق
+                      التجربة واختبار الواجهات بسرعة.
                     </p>
                   </div>
 
@@ -445,10 +323,16 @@ export function SettingsDialog({
 
                 {settings.devModeEnabled && (
                   <div className="rounded-2xl bg-white p-4 border border-[#e0c0b1]/40 text-xs font-bold text-[#0b1c30] space-y-2">
-                    <span className="text-[#9d4300] font-extrabold block">✨ الاختصارات المتاحة عند تفعيل وضع المطور:</span>
+                    <span className="text-[#9d4300] font-extrabold block">
+                      ✨ الاختصارات المتاحة عند تفعيل وضع المطور:
+                    </span>
                     <ul className="list-disc list-inside space-y-1 text-slate-600 font-semibold">
-                      <li>تخطي تمارین ودقائق تمرين التنفس والتأمل في نافذة الاستعداد بنقرة واحدة.</li>
-                      <li>إظهار زر "⚡ تخطي السؤال وحله فوراً" داخل بطاقات الأسئلة للاختبار السريع.</li>
+                      <li>
+                        تخطي تمارین ودقائق تمرين التنفس والتأمل في نافذة الاستعداد بنقرة واحدة.
+                      </li>
+                      <li>
+                        إظهار زر "⚡ تخطي السؤال وحله فوراً" داخل بطاقات الأسئلة للاختبار السريع.
+                      </li>
                       <li>التنقل الفوري والسريع بين كافة مراحل الفقرات دون قيود وقت.</li>
                     </ul>
                   </div>

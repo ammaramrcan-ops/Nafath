@@ -3,10 +3,13 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 
 function getHighlightStyles(color?: string, fontSize?: string) {
   let colorClass = "bg-amber-300 text-amber-950 border-b-2 border-amber-500 font-bold";
-  if (color === "green") colorClass = "bg-emerald-300 text-emerald-950 border-b-2 border-emerald-500 font-bold";
+  if (color === "green")
+    colorClass = "bg-emerald-300 text-emerald-950 border-b-2 border-emerald-500 font-bold";
   if (color === "blue") colorClass = "bg-sky-300 text-sky-950 border-b-2 border-sky-500 font-bold";
-  if (color === "pink") colorClass = "bg-pink-300 text-pink-950 border-b-2 border-pink-500 font-bold";
-  if (color === "purple") colorClass = "bg-purple-300 text-purple-950 border-b-2 border-purple-500 font-bold";
+  if (color === "pink")
+    colorClass = "bg-pink-300 text-pink-950 border-b-2 border-pink-500 font-bold";
+  if (color === "purple")
+    colorClass = "bg-purple-300 text-purple-950 border-b-2 border-purple-500 font-bold";
 
   let sizeClass = "";
   if (fontSize === "large") sizeClass = "text-[1.2em] font-extrabold tracking-wide";
@@ -28,20 +31,31 @@ export function HardWordText({
   if (typeof text === "string") {
     safeText = text;
   } else if (Array.isArray(text)) {
-    safeText = text.map((item) => (typeof item === "string" ? item : item?.text || item?.title || JSON.stringify(item))).join(" ");
+    safeText = text
+      .map((item) =>
+        typeof item === "string" ? item : item?.text || item?.title || JSON.stringify(item),
+      )
+      .join(" ");
   } else if (text && typeof text === "object") {
-    safeText = (text as any).text || (text as any).title || (text as any).content || (text as any).value || JSON.stringify(text);
+    safeText =
+      (text as any).text ||
+      (text as any).title ||
+      (text as any).content ||
+      (text as any).value ||
+      JSON.stringify(text);
   } else if (text != null) {
     safeText = String(text);
   }
 
   if (!safeText) return null;
 
-  const validHighlights = (highlights || []).filter((h) => h && h.text && typeof h.text === "string" && h.text.trim().length > 0);
+  const validHighlights = (highlights || []).filter(
+    (h) => h && h.text && typeof h.text === "string" && h.text.trim().length > 0,
+  );
 
   // Check if any highlight uses explicit startOffset & endOffset
   const hasRangeHighlights = validHighlights.some(
-    (h) => typeof h.startOffset === "number" && typeof h.endOffset === "number"
+    (h) => typeof h.startOffset === "number" && typeof h.endOffset === "number",
   );
 
   let nodes: React.ReactNode[] = [];
@@ -55,7 +69,7 @@ export function HardWordText({
           typeof h.endOffset === "number" &&
           h.startOffset >= 0 &&
           h.endOffset <= safeText.length &&
-          h.startOffset < h.endOffset
+          h.startOffset < h.endOffset,
       )
       .sort((a, b) => a.startOffset! - b.startOffset!);
 
@@ -71,7 +85,7 @@ export function HardWordText({
         nodes.push(
           <span key={`hl-range-${idx}`} className={getHighlightStyles(h.color, h.fontSize)}>
             {safeText.substring(start, end)}
-          </span>
+          </span>,
         );
         cursor = end;
       }
@@ -99,7 +113,7 @@ export function HardWordText({
                   className={getHighlightStyles(h.color, h.fontSize)}
                 >
                   {h.text}
-                </span>
+                </span>,
               );
             }
           });
@@ -153,7 +167,10 @@ function renderWords(textStr: string, words: HardWord[]) {
             {part}
           </span>
         </TooltipTrigger>
-        <TooltipContent side="top" className="max-w-xs rounded-2xl bg-zen-on-surface px-4 py-2.5 text-right text-white">
+        <TooltipContent
+          side="top"
+          className="max-w-xs rounded-2xl bg-zen-on-surface px-4 py-2.5 text-right text-white"
+        >
           <p className="text-[13px] font-light leading-relaxed">{getWordMeaning(match)}</p>
         </TooltipContent>
       </Tooltip>

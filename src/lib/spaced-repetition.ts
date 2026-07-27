@@ -109,16 +109,41 @@ export function normalizeArabicText(text: string): string {
 
 export function autoCategory(question: string, defaultTag?: string): FlashcardCategory {
   const q = question.toLowerCase();
-  if (q.includes("علل") || q.includes("سبب") || q.includes("دليل") || q.includes("لماذا") || q.includes("علة")) {
+  if (
+    q.includes("علل") ||
+    q.includes("سبب") ||
+    q.includes("دليل") ||
+    q.includes("لماذا") ||
+    q.includes("علة")
+  ) {
     return "reasoning";
   }
-  if (q.includes("دليل") || q.includes("قوله") || q.includes("اية") || q.includes("حديث") || q.includes("نص")) {
+  if (
+    q.includes("دليل") ||
+    q.includes("قوله") ||
+    q.includes("اية") ||
+    q.includes("حديث") ||
+    q.includes("نص")
+  ) {
     return "evidence";
   }
-  if (q.includes("تعريف") || q.includes("مقصود") || q.includes("معنى") || q.includes("مصطلح") || defaultTag?.includes("مصطلح")) {
+  if (
+    q.includes("تعريف") ||
+    q.includes("مقصود") ||
+    q.includes("معنى") ||
+    q.includes("مصطلح") ||
+    defaultTag?.includes("مصطلح")
+  ) {
     return "definition";
   }
-  if (q.includes("حكم") || q.includes("يجوز") || q.includes("لا يجوز") || q.includes("شرط") || q.includes("أركان") || q.includes("أثر")) {
+  if (
+    q.includes("حكم") ||
+    q.includes("يجوز") ||
+    q.includes("لا يجوز") ||
+    q.includes("شرط") ||
+    q.includes("أركان") ||
+    q.includes("أثر")
+  ) {
     return "rulings";
   }
   if (q.includes("مسألة") || q.includes("فتوى") || q.includes("حالة") || q.includes("صورة")) {
@@ -131,7 +156,7 @@ export function autoCategory(question: string, defaultTag?: string): FlashcardCa
 export function evaluateAnswerAccuracy(
   userAnswer: string,
   modelAnswer: string,
-  keywords: string[]
+  keywords: string[],
 ): {
   accuracyPercentage: number;
   matchedKeywords: string[];
@@ -190,7 +215,7 @@ export function evaluateSmartSR(
   confidence: "low" | "medium" | "high",
   latencySec: number,
   usedHint: boolean,
-  daysToExam?: number
+  daysToExam?: number,
 ): {
   updatedCard: SmartFlashcard;
   isBlindSpot: boolean;
@@ -249,7 +274,6 @@ export function evaluateSmartSR(
 
   // Apply Exam Crunch Factor if exam is near (D <= 7)
   if (typeof daysToExam === "number" && daysToExam > 0 && daysToExam <= 7) {
-    const crunchFactor = Math.min(1.0, daysToExam / 7);
     interval = Math.max(1, Math.min(interval, Math.floor(daysToExam / 2)));
     diagnostic += ` [⚡ ضاغط طوارئ الامتحان: تم ضغط الفاصل لضمان المراجعة قبل الامتحان بـ ${daysToExam} أيام]`;
   }
@@ -359,7 +383,8 @@ export function getInitialSmartCards(): SmartFlashcard[] {
         mnemonic: "السكران بيلبس طلاقه عقوبة لخمرة الشرب",
         keyword_cues: "تـ... / عـ... / مـ...",
       },
-      explanation_baladi: "السكران اللي شرب بمزاجه وبإرادته، الشرع بيعاقبه ويوقع طلاقه زجراً له على جريمة الشرب، بعكس المكره أو المعذور.",
+      explanation_baladi:
+        "السكران اللي شرب بمزاجه وبإرادته، الشرع بيعاقبه ويوقع طلاقه زجراً له على جريمة الشرب، بعكس المكره أو المعذور.",
       stats: {
         interval: 1,
         repetition: 0,
@@ -377,7 +402,8 @@ export function getInitialSmartCards(): SmartFlashcard[] {
         mnemonic: "المكره برة اللعبة لغياب الاختيار",
         keyword_cues: "لا... / الا... / الإ...",
       },
-      explanation_baladi: "اللي مهدد بالسلاح أو بالقوة ومش قاصد الطلاق من قلبه، الشرع بيعتبر كلامه لغو ولا يقع طلاقه إطلاقاً.",
+      explanation_baladi:
+        "اللي مهدد بالسلاح أو بالقوة ومش قاصد الطلاق من قلبه، الشرع بيعتبر كلامه لغو ولا يقع طلاقه إطلاقاً.",
       stats: {
         interval: 1,
         repetition: 0,
@@ -395,7 +421,8 @@ export function getInitialSmartCards(): SmartFlashcard[] {
         mnemonic: "آية الفداء في سورة البقرة",
         keyword_cues: "فلا... / افـ...",
       },
-      explanation_baladi: "القرآن صرّح بـ (افتدت به) أي أن الزوجة تدفع الفدية المالية لفك عقد النكاح برضا الطرفين.",
+      explanation_baladi:
+        "القرآن صرّح بـ (افتدت به) أي أن الزوجة تدفع الفدية المالية لفك عقد النكاح برضا الطرفين.",
       stats: {
         interval: 1,
         repetition: 0,
@@ -413,7 +440,8 @@ export function getInitialSmartCards(): SmartFlashcard[] {
         mnemonic: "مهر أختها أو قريبتها اللي شبهها",
         keyword_cues: "مـ... / العـ... / الصـ...",
       },
-      explanation_baladi: "لما العوض يتقال مبهم زي 'سيارة' أو 'بيت'، بنرجع لمهر قرايبها البنات اللي زيها في العيلة لإلغاء الجهالة.",
+      explanation_baladi:
+        "لما العوض يتقال مبهم زي 'سيارة' أو 'بيت'، بنرجع لمهر قرايبها البنات اللي زيها في العيلة لإلغاء الجهالة.",
       stats: {
         interval: 1,
         repetition: 0,

@@ -117,7 +117,11 @@ export function createEmptySubjectMindMap(subjectName: string): MindMapData {
   };
 }
 
-export function parseBlockMindMap(block: { id?: string | number; title?: string; mind_map_nodes?: any[] }): MindMapData {
+export function parseBlockMindMap(block: {
+  id?: string | number;
+  title?: string;
+  mind_map_nodes?: any[];
+}): MindMapData {
   const blockTitle = block.title || "الموضوع الرئيسي";
   const blockId = block.id ?? "default";
 
@@ -133,7 +137,12 @@ export function parseBlockMindMap(block: { id?: string | number; title?: string;
     }
 
     // Check if rawNodes is an array of node objects with id & text & parentId
-    if (Array.isArray(rawNodes) && typeof first === "object" && first.id && (first.text || first.title)) {
+    if (
+      Array.isArray(rawNodes) &&
+      typeof first === "object" &&
+      first.id &&
+      (first.text || first.title)
+    ) {
       const palette = [
         { bg: "#FEF3C7", text: "#78350F", border: "#F59E0B" },
         { bg: "#E0E7FF", text: "#1E1B4B", border: "#6366F1" },
@@ -149,7 +158,8 @@ export function parseBlockMindMap(block: { id?: string | number; title?: string;
         if (visited.has(id)) return 0;
         visited.add(id);
         const node = nodesMap.get(id);
-        if (!node || !node.parentId || node.parentId === "null" || node.parentId === "root") return 0;
+        if (!node || !node.parentId || node.parentId === "null" || node.parentId === "root")
+          return 0;
         return 1 + getDepth(String(node.parentId), visited);
       };
 
@@ -285,7 +295,10 @@ export function parseBlockMindMap(block: { id?: string | number; title?: string;
   };
 }
 
-export function getSubjectMindMaps(subjectId: string, subjectName: string = "المادة"): MindMapData[] {
+export function getSubjectMindMaps(
+  subjectId: string,
+  subjectName: string = "المادة",
+): MindMapData[] {
   if (typeof window === "undefined") return [createEmptySubjectMindMap(subjectName)];
   const key = `nafath.mind_maps_sub_${subjectId}`;
   try {

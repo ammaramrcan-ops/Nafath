@@ -24,7 +24,11 @@ function SpacedRepetitionPage() {
   };
 
   return (
-    <div dir="rtl" lang="ar" className="min-h-screen bg-zen-surface text-zen-on-surface antialiased">
+    <div
+      dir="rtl"
+      lang="ar"
+      className="min-h-screen bg-zen-surface text-zen-on-surface antialiased"
+    >
       {/* Top Bar */}
       <header className="fixed inset-x-0 top-0 z-40 bg-white/90 backdrop-blur-md border-b border-zen-surface-container/60">
         <div className="relative mx-auto flex w-full max-w-[900px] items-center justify-between px-6 py-4">

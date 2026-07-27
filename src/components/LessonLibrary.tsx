@@ -111,7 +111,9 @@ export function LessonLibrary({ onOpen }: { onOpen: (lesson: Lesson) => void }) 
       </div>
 
       {importError && (
-        <p className="mb-3 rounded-xl bg-destructive/10 px-4 py-2 text-xs text-destructive">{importError}</p>
+        <p className="mb-3 rounded-xl bg-destructive/10 px-4 py-2 text-xs text-destructive">
+          {importError}
+        </p>
       )}
 
       <div className="grid gap-3 sm:grid-cols-2">

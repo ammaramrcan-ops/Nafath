@@ -6,38 +6,74 @@ const KEY = "nafath.curriculum.v1";
 function generateSlug(name: string): string {
   // Simple transliteration mapping
   const arabicToEnglish: Record<string, string> = {
-    'ا': 'a', 'أ': 'a', 'إ': 'i', 'آ': 'aa',
-    'ب': 'b', 'ت': 't', 'ث': 'th', 'ج': 'j',
-    'ح': 'h', 'خ': 'kh', 'د': 'd', 'ذ': 'dh',
-    'ر': 'r', 'ز': 'z', 'س': 's', 'ش': 'sh',
-    'ص': 's', 'ض': 'd', 'ط': 't', 'ظ': 'z',
-    'ع': 'a', 'غ': 'gh', 'ف': 'f', 'ق': 'q',
-    'ك': 'k', 'ل': 'l', 'م': 'm', 'ن': 'n',
-    'ه': 'h', 'و': 'w', 'ي': 'y', 'ة': 'a',
-    ' ': '-', 'ى': 'a', 'ئ': 'i', 'ؤ': 'u'
+    ا: "a",
+    أ: "a",
+    إ: "i",
+    آ: "aa",
+    ب: "b",
+    ت: "t",
+    ث: "th",
+    ج: "j",
+    ح: "h",
+    خ: "kh",
+    د: "d",
+    ذ: "dh",
+    ر: "r",
+    ز: "z",
+    س: "s",
+    ش: "sh",
+    ص: "s",
+    ض: "d",
+    ط: "t",
+    ظ: "z",
+    ع: "a",
+    غ: "gh",
+    ف: "f",
+    ق: "q",
+    ك: "k",
+    ل: "l",
+    م: "m",
+    ن: "n",
+    ه: "h",
+    و: "w",
+    ي: "y",
+    ة: "a",
+    " ": "-",
+    ى: "a",
+    ئ: "i",
+    ؤ: "u",
   };
-  
+
   let slug = name.trim();
-  slug = slug.replace(/[^\w\s\u0600-\u06FF]/g, ''); // Remove special chars except Arabic
-  
+  slug = slug.replace(/[^\w\s\u0600-\u06FF]/g, ""); // Remove special chars except Arabic
+
   // Transliterate
-  let result = '';
+  let result = "";
   for (const char of slug) {
     result += arabicToEnglish[char] || char;
   }
-  
+
   // Clean up
   result = result.toLowerCase();
-  result = result.replace(/[^a-z0-9-]/g, '-');
-  result = result.replace(/-+/g, '-');
-  result = result.replace(/^-|-$/g, '');
-  
-  return result || 'subject';
+  result = result.replace(/[^a-z0-9-]/g, "-");
+  result = result.replace(/-+/g, "-");
+  result = result.replace(/^-|-$/g, "");
+
+  return result || "subject";
 }
 
 const DEFAULT_STAGE_ORDERS = {
   1: ["story", "baladi_terms", "paper_summary", "mindmap", "quizzes_mcq"] as Stage[],
-  2: ["examples", "original", "mental", "mindmap", "quizzes_fill", "quizzes_essay", "flashcards", "zaitouna"] as Stage[],
+  2: [
+    "examples",
+    "original",
+    "mental",
+    "mindmap",
+    "quizzes_fill",
+    "quizzes_essay",
+    "flashcards",
+    "zaitouna",
+  ] as Stage[],
   3: ["original", "mental", "funny", "mindmap", "quizzes_essay", "zaitouna"] as Stage[],
 };
 
@@ -111,7 +147,7 @@ const DEFAULT_CUSTOM_PROMPTS = {
 أخرج النتيجة في مربع كود JSON الصافي فقط وبدون أي مقدمات.
 
 ---
-[الصق نص أو موضوع الدرس المطلوب تحويله هنا]`
+[الصق نص أو موضوع الدرس المطلوب تحويله هنا]`,
 };
 
 const DEFAULT_DISABLED_STAGES = {
@@ -130,7 +166,7 @@ export type Unit = {
 export type Subject = {
   id: string;
   name: string;
-  category?: "شرعية" | "علمية" | "عربية";
+  category?: "شرعية" | "علمية" | "عربية" | "عامة";
   description?: string;
   emoji?: string;
   teacherUrl?: string; // URL to teacher page for this subject
@@ -193,7 +229,12 @@ export function seedDefaultSubjects(): Curriculum {
       customPrompts: DEFAULT_CUSTOM_PROMPTS,
       createdAt: new Date().toISOString(),
       units: [
-        { id: "u-fiqh-1", name: "أحكام العبادات والمعاملات", createdAt: new Date().toISOString(), lessonIds: [] }
+        {
+          id: "u-fiqh-1",
+          name: "أحكام العبادات والمعاملات",
+          createdAt: new Date().toISOString(),
+          lessonIds: [],
+        },
       ],
     },
     {
@@ -207,7 +248,12 @@ export function seedDefaultSubjects(): Curriculum {
       customPrompts: DEFAULT_CUSTOM_PROMPTS,
       createdAt: new Date().toISOString(),
       units: [
-        { id: "u-tawheed-1", name: "أقسام التوحيد والإيمان", createdAt: new Date().toISOString(), lessonIds: [] }
+        {
+          id: "u-tawheed-1",
+          name: "أقسام التوحيد والإيمان",
+          createdAt: new Date().toISOString(),
+          lessonIds: [],
+        },
       ],
     },
     {
@@ -317,11 +363,17 @@ export function getUnit(subjectId: string, unitId: string): Unit | undefined {
   return getSubject(subjectId)?.units.find((u) => u.id === unitId);
 }
 
-export function addSubject(name: string, category?: "شرعية" | "علمية" | "عربية", description?: string, emoji?: string, teacherUrl?: string): Subject {
+export function addSubject(
+  name: string,
+  category?: "شرعية" | "علمية" | "عربية" | "عامة",
+  description?: string,
+  emoji?: string,
+  teacherUrl?: string,
+): Subject {
   const c = getCurriculum();
   const slug = generateSlug(name);
   const autoTeacherUrl = `/teacher?subject=${slug}`;
-  
+
   const subject: Subject = {
     id: `sub-${Date.now()}`,
     name: name.trim() || "مادة جديدة",
@@ -350,27 +402,34 @@ export function updateSubjectStages(id: string, level: 1 | 2 | 3, stages: Stage[
   const c = read();
   const subject = c.subjects.find((s) => s.id === id);
   if (!subject) return false;
-  
+
   subject.levelStageOrders[level] = stages;
   write(c);
   return true;
 }
 
-export function updateSubjectDisabledStages(id: string, level: 1 | 2 | 3, disabledStages: Stage[]): boolean {
+export function updateSubjectDisabledStages(
+  id: string,
+  level: 1 | 2 | 3,
+  disabledStages: Stage[],
+): boolean {
   const c = read();
   const subject = c.subjects.find((s) => s.id === id);
   if (!subject) return false;
-  
+
   subject.levelDisabledStages[level] = disabledStages;
   write(c);
   return true;
 }
 
-export function updateSubjectPrompts(id: string, prompts: { explanation: string; mindmap: string; mcq: string }): boolean {
+export function updateSubjectPrompts(
+  id: string,
+  prompts: { explanation: string; mindmap: string; mcq: string },
+): boolean {
   const c = read();
   const subject = c.subjects.find((s) => s.id === id);
   if (!subject) return false;
-  
+
   subject.customPrompts = prompts;
   write(c);
   return true;

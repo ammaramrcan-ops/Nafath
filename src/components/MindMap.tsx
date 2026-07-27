@@ -34,7 +34,10 @@ export function MindMap({ title, nodes }: { title: string; nodes: any[] }) {
       .filter((item): item is string => typeof item === "string" && item.trim().length > 0);
   }, [nodes]);
 
-  const displayNodes = stringNodes.length > 0 ? stringNodes : ["المفهوم الرئيسي", "الفكرة الأساسية", "العناصر الفرعية"];
+  const displayNodes =
+    stringNodes.length > 0
+      ? stringNodes
+      : ["المفهوم الرئيسي", "الفكرة الأساسية", "العناصر الفرعية"];
 
   return (
     <div className="relative mx-auto flex h-[520px] w-full max-w-[85vw] items-center justify-center bg-white rounded-[2.5rem] p-8 shadow-[0_20px_60px_-15px_rgba(11,28,48,0.08)] border border-slate-100">

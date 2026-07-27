@@ -1,6 +1,7 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { Toaster } from "@/components/ui/sonner";
 import { AiAssistantSidebar } from "@/components/AiAssistantSidebar";
+import { PasswordGate } from "@/components/PasswordGate";
 import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
@@ -34,14 +35,28 @@ export const Route = createRootRoute({
       { name: "description", content: "منصة نفاذ للتعلم المتكيف - تجربة تعليمية مخصصة وتفاعلية." },
       { name: "author", content: "نفاذ" },
       { property: "og:title", content: "نفاذ" },
-      { property: "og:description", content: "منصة نفاذ للتعلم المتكيف - تجربة تعليمية مخصصة وتفاعلية." },
+      {
+        property: "og:description",
+        content: "منصة نفاذ للتعلم المتكيف - تجربة تعليمية مخصصة وتفاعلية.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Nafath" },
       { name: "twitter:title", content: "نفاذ" },
-      { name: "twitter:description", content: "منصة نفاذ للتعلم المتكيف - تجربة تعليمية مخصصة وتفاعلية." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/aed3cbb0-b697-4937-adc3-98f16d96cace/id-preview-fe32cb3b--272949a8-fdcc-4a8b-801e-8cb6707c0371.lovable.app-1776723367196.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/aed3cbb0-b697-4937-adc3-98f16d96cace/id-preview-fe32cb3b--272949a8-fdcc-4a8b-801e-8cb6707c0371.lovable.app-1776723367196.png" },
+      {
+        name: "twitter:description",
+        content: "منصة نفاذ للتعلم المتكيف - تجربة تعليمية مخصصة وتفاعلية.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/aed3cbb0-b697-4937-adc3-98f16d96cace/id-preview-fe32cb3b--272949a8-fdcc-4a8b-801e-8cb6707c0371.lovable.app-1776723367196.png",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/aed3cbb0-b697-4937-adc3-98f16d96cace/id-preview-fe32cb3b--272949a8-fdcc-4a8b-801e-8cb6707c0371.lovable.app-1776723367196.png",
+      },
     ],
     links: [
       { rel: "icon", href: "/logo.png" },
@@ -75,10 +90,10 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   return (
-    <>
+    <PasswordGate>
       <Outlet />
       <Toaster position="bottom-left" dir="rtl" />
       <AiAssistantSidebar />
-    </>
+    </PasswordGate>
   );
 }

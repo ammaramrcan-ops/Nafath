@@ -10,11 +10,8 @@ import {
   BookOpen,
   TrendingUp,
   BarChart2,
-  Brain,
 } from "lucide-react";
-import { getStoredMistakes } from "@/lib/interactive-exams-service";
 import { getStoredLessonNotes } from "@/lib/interactive-exams-service";
-import { getStoredSmartCards } from "@/lib/spaced-repetition";
 import { getLibrary } from "@/lib/lesson-library";
 import { getMistakes } from "@/lib/mistakes";
 
@@ -22,20 +19,19 @@ export function StatisticsView({ subjectId }: { subjectId?: string }) {
   const navigate = useNavigate();
 
   const mistakes = useMemo(() => {
-    try { return getMistakes(subjectId); } catch { return []; }
+    try {
+      return getMistakes(subjectId);
+    } catch {
+      return [];
+    }
   }, [subjectId]);
 
   const notes = useMemo(() => {
-    try { return getStoredLessonNotes(); } catch { return []; }
-  }, []);
-
-  const flashcardStats = useMemo(() => {
     try {
-      const cards = getStoredSmartCards();
-      const total = cards.length;
-      const reviewed = cards.filter((c) => c.stats?.lastReviewDate && c.stats.lastReviewDate > 0).length;
-      return { reviewed, total, percent: total > 0 ? Math.round((reviewed / total) * 100) : 0 };
-    } catch { return { reviewed: 0, total: 0, percent: 0 }; }
+      return getStoredLessonNotes();
+    } catch {
+      return [];
+    }
   }, []);
 
   const library = useMemo(() => getLibrary(), []);
@@ -57,7 +53,8 @@ export function StatisticsView({ subjectId }: { subjectId?: string }) {
           إحصائيات التعلم
         </h1>
         <p className="text-base text-[#584237]/80 max-w-2xl leading-relaxed">
-          نظرة شاملة ومبسطة على تقدمك الأكاديمي. نحن نستخدم الذكاء الاصطناعي لتحليل نقاط قوتك وتحديد المجالات التي تحتاج إلى تركيز.
+          نظرة شاملة ومبسطة على تقدمك الأكاديمي. نحن نستخدم الذكاء الاصطناعي لتحليل نقاط قوتك وتحديد
+          المجالات التي تحتاج إلى تركيز.
         </p>
       </section>
 
@@ -69,7 +66,9 @@ export function StatisticsView({ subjectId }: { subjectId?: string }) {
             <div className="w-12 h-12 rounded-2xl bg-[#ffdbca]/30 flex items-center justify-center text-[#9d4300]">
               <Star className="h-6 w-6 fill-[#9d4300]" />
             </div>
-            <span className="text-[#9d4300] font-extrabold text-xs bg-[#ffdbca]/30 px-2.5 py-1 rounded-full">+2.5%</span>
+            <span className="text-[#9d4300] font-extrabold text-xs bg-[#ffdbca]/30 px-2.5 py-1 rounded-full">
+              +2.5%
+            </span>
           </div>
           <div>
             <p className="text-xs font-bold text-[#584237]/80 mb-1">معدل الإتقان</p>
@@ -83,11 +82,15 @@ export function StatisticsView({ subjectId }: { subjectId?: string }) {
             <div className="w-12 h-12 rounded-2xl bg-purple-100 flex items-center justify-center text-[#8127cf]">
               <Edit3 className="h-6 w-6" />
             </div>
-            <span className="text-[#8127cf] font-extrabold text-xs bg-purple-100 px-2.5 py-1 rounded-full">منوع</span>
+            <span className="text-[#8127cf] font-extrabold text-xs bg-purple-100 px-2.5 py-1 rounded-full">
+              منوع
+            </span>
           </div>
           <div>
             <p className="text-xs font-bold text-[#584237]/80 mb-1">إجمالي الملاحظات</p>
-            <h3 className="text-3xl sm:text-4xl font-extrabold text-[#0b1c30]">{notes.length || 0}</h3>
+            <h3 className="text-3xl sm:text-4xl font-extrabold text-[#0b1c30]">
+              {notes.length || 0}
+            </h3>
           </div>
         </div>
 
@@ -97,11 +100,15 @@ export function StatisticsView({ subjectId }: { subjectId?: string }) {
             <div className="w-12 h-12 rounded-2xl bg-rose-100 flex items-center justify-center text-[#ba1a1a]">
               <AlertCircle className="h-6 w-6" />
             </div>
-            <span className="text-[#ba1a1a] font-extrabold text-xs bg-rose-100 px-2.5 py-1 rounded-full">عاجل</span>
+            <span className="text-[#ba1a1a] font-extrabold text-xs bg-rose-100 px-2.5 py-1 rounded-full">
+              عاجل
+            </span>
           </div>
           <div>
             <p className="text-xs font-bold text-[#584237]/80 mb-1">أخطاء معلقة</p>
-            <h3 className="text-3xl sm:text-4xl font-extrabold text-[#0b1c30]">{mistakes.length}</h3>
+            <h3 className="text-3xl sm:text-4xl font-extrabold text-[#0b1c30]">
+              {mistakes.length}
+            </h3>
           </div>
         </div>
 
@@ -111,7 +118,9 @@ export function StatisticsView({ subjectId }: { subjectId?: string }) {
             <div className="w-12 h-12 rounded-2xl bg-[#eff4ff] flex items-center justify-center">
               <Zap className="h-6 w-6 fill-current text-[#9d4300]" />
             </div>
-            <span className="text-[#584237] font-extrabold text-xs bg-[#eff4ff] px-2.5 py-1 rounded-full">-1s</span>
+            <span className="text-[#584237] font-extrabold text-xs bg-[#eff4ff] px-2.5 py-1 rounded-full">
+              -1s
+            </span>
           </div>
           <div>
             <p className="text-xs font-bold text-[#584237]/80 mb-1">متوسط السرعة</p>
@@ -187,14 +196,17 @@ export function StatisticsView({ subjectId }: { subjectId?: string }) {
             <div className="text-center py-16 bg-white rounded-[2.5rem] border border-[#e0c0b1]/40">
               <BookOpen className="h-12 w-12 text-[#9d4300]/30 mx-auto mb-3" />
               <p className="text-base font-bold text-[#0b1c30]">لا توجد دروس محفوظة بعد</p>
-              <p className="text-xs text-[#584237]/60 mt-1">استرد درساً من الصفحة الرئيسية لعرض تقدمك هنا</p>
+              <p className="text-xs text-[#584237]/60 mt-1">
+                استرد درساً من الصفحة الرئيسية لعرض تقدمك هنا
+              </p>
             </div>
           ) : (
             library.slice(0, 3).map((saved, idx) => {
               const colors = ["#9d4300", "#8127cf", "#0b6e4f"];
               const color = colors[idx % colors.length];
               const percent = idx === 0 ? 96 : idx === 1 ? 45 : 70;
-              const status = idx === 0 ? "تقريباً انتهى ✅" : idx === 1 ? "قيد المراجعة ⏳" : "جاري التعلم 📖";
+              const status =
+                idx === 0 ? "تقريباً انتهى ✅" : idx === 1 ? "قيد المراجعة ⏳" : "جاري التعلم 📖";
               return (
                 <div
                   key={saved.id}
@@ -221,11 +233,17 @@ export function StatisticsView({ subjectId }: { subjectId?: string }) {
                             d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                           />
                         </svg>
-                        <span className="absolute font-extrabold text-sm text-[#0b1c30]">{percent}%</span>
+                        <span className="absolute font-extrabold text-sm text-[#0b1c30]">
+                          {percent}%
+                        </span>
                       </div>
                       <div>
-                        <h4 className="text-xl font-extrabold text-[#0b1c30] mb-1">{saved.title}</h4>
-                        <p className="text-xs font-semibold text-[#584237]/80">{saved.blocks} كتلة تعليمية</p>
+                        <h4 className="text-xl font-extrabold text-[#0b1c30] mb-1">
+                          {saved.title}
+                        </h4>
+                        <p className="text-xs font-semibold text-[#584237]/80">
+                          {saved.blocks} كتلة تعليمية
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-4">
@@ -258,13 +276,13 @@ export function StatisticsView({ subjectId }: { subjectId?: string }) {
         </div>
         <div className="h-48 w-full flex items-end gap-3 sm:gap-6 justify-between px-2">
           {[
-            { day: "أحد",  height: "60%", color: "bg-[#eff4ff]"   },
-            { day: "اث",   height: "40%", color: "bg-[#eff4ff]"   },
-            { day: "ثلاث", height: "85%", color: "bg-[#ffdbca]"   },
-            { day: "أرب",  height: "55%", color: "bg-[#eff4ff]"   },
-            { day: "خمس",  height: "75%", color: "bg-[#eff4ff]"   },
-            { day: "جمع",  height: "90%", color: "bg-purple-200"  },
-            { day: "سبت",  height: "35%", color: "bg-[#eff4ff]"   },
+            { day: "أحد", height: "60%", color: "bg-[#eff4ff]" },
+            { day: "اث", height: "40%", color: "bg-[#eff4ff]" },
+            { day: "ثلاث", height: "85%", color: "bg-[#ffdbca]" },
+            { day: "أرب", height: "55%", color: "bg-[#eff4ff]" },
+            { day: "خمس", height: "75%", color: "bg-[#eff4ff]" },
+            { day: "جمع", height: "90%", color: "bg-purple-200" },
+            { day: "سبت", height: "35%", color: "bg-[#eff4ff]" },
           ].map((bar, idx) => (
             <div key={idx} className="flex-1 flex flex-col items-center gap-3 group cursor-pointer">
               <div

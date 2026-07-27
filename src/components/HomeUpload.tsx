@@ -33,15 +33,13 @@ export function HomeUpload({ onLoad }: { onLoad: (lesson: Lesson) => void }) {
       <Textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder='الصق محتوى الدرس بصيغة JSON هنا...'
+        placeholder="الصق محتوى الدرس بصيغة JSON هنا..."
         rows={10}
         dir="ltr"
         className="rounded-2xl border-border/70 bg-card font-mono text-sm leading-relaxed shadow-sm focus-visible:ring-brand"
       />
 
-      {error && (
-        <p className="mt-3 text-center text-sm text-destructive">{error}</p>
-      )}
+      {error && <p className="mt-3 text-center text-sm text-destructive">{error}</p>}
 
       <div className="mt-6 flex flex-col items-stretch gap-3 sm:flex-row sm:justify-center">
         <button

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { X, Tag, Check, BookOpen, Plus } from "lucide-react";
+import {motion} from "framer-motion";
+import {X, Tag, Check} from "lucide-react";
 import { getCurriculum, type Subject } from "@/lib/curriculum";
 import { updateLessonSubject, type SavedLesson } from "@/lib/lesson-library";
 import { toast } from "sonner";
@@ -43,7 +43,10 @@ export function CategorizeLessonModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs dir-rtl text-right font-body-md" dir="rtl">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs dir-rtl text-right font-body-md"
+      dir="rtl"
+    >
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}

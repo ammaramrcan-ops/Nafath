@@ -40,25 +40,29 @@ pnpm install
 ## 🎨 معايير الكود
 
 ### TypeScript
+
 - **TypeScript صارم** — لا `any`، لا `@ts-ignore`، لا `as unknown as X`
 - كل prop وكل function يجب أن يكون له type صريح
 - استخدم `interface` للـ props، `type` للـ unions
 
 ### تسمية الملفات والمكوّنات
-| النوع | الأسلوب | مثال |
-|-------|---------|------|
-| مكوّنات React | PascalCase | `LessonFlow.tsx` |
-| ملفات utils | kebab-case | `format-date.ts` |
-| hooks | camelCase مع `use` | `useLesson.ts` |
-| أنواع/interfaces | PascalCase | `LessonType.ts` |
+
+| النوع            | الأسلوب            | مثال             |
+| ---------------- | ------------------ | ---------------- |
+| مكوّنات React    | PascalCase         | `LessonFlow.tsx` |
+| ملفات utils      | kebab-case         | `format-date.ts` |
+| hooks            | camelCase مع `use` | `useLesson.ts`   |
+| أنواع/interfaces | PascalCase         | `LessonType.ts`  |
 
 ### Styling
+
 - **Tailwind CSS v4 فقط** — لا inline styles، لا CSS modules
 - **لا تُضيف `postcss.config`** — المشروع يستخدم `@tailwindcss/vite` plugin مباشرة
 - الثيم الموحّد: ألوان Zen (هادئة، بدون صخب بصري)
 - دعم RTL: استخدم `dir="rtl"` والـ classes المناسبة (`text-right`, `ms-*`, `me-*`)
 
 ### مكوّنات UI
+
 - استخدم مكوّنات **shadcn/ui + Radix UI** الموجودة أولاً قبل إنشاء جديدة
 - الأيقونات من **Lucide React** فقط
 - الرسوم البيانية من **Recharts** فقط
@@ -74,18 +78,19 @@ pnpm install
 [جسم اختياري: ماذا تغيّر ولماذا]
 ```
 
-| النوع | متى تستخدمه |
-|-------|-------------|
-| `feat` | ميزة جديدة للمستخدم |
-| `fix` | إصلاح خطأ |
-| `chore` | تغيير في الإعدادات أو البنية |
-| `docs` | توثيق فقط |
-| `refactor` | إعادة هيكلة بدون تغيير سلوك |
-| `style` | تنسيق فقط (لا منطق) |
-| `perf` | تحسين أداء |
-| `test` | إضافة أو تعديل اختبارات |
+| النوع      | متى تستخدمه                  |
+| ---------- | ---------------------------- |
+| `feat`     | ميزة جديدة للمستخدم          |
+| `fix`      | إصلاح خطأ                    |
+| `chore`    | تغيير في الإعدادات أو البنية |
+| `docs`     | توثيق فقط                    |
+| `refactor` | إعادة هيكلة بدون تغيير سلوك  |
+| `style`    | تنسيق فقط (لا منطق)          |
+| `perf`     | تحسين أداء                   |
+| `test`     | إضافة أو تعديل اختبارات      |
 
 ### ✅ أمثلة صحيحة
+
 ```
 feat(quiz): إضافة وضع الاختبار التكيّفي
 fix(lesson-flow): إصلاح مشكلة الـ scroll في الموبايل
@@ -94,6 +99,7 @@ refactor(flashcards): فصل منطق الـ flip إلى hook مستقل
 ```
 
 ### ❌ أمثلة ممنوعة
+
 ```
 Changes
 Work in progress
@@ -106,29 +112,34 @@ updated files
 ## 🗂️ مسؤولية كل وكيل (لا تتجاوزها)
 
 ### 🎨 UI Agent — Lovable
+
 - ✅ **مسموح:** `src/components/` فقط
 - ✅ إضافة مكوّنات بصرية، تحسين layouts، تعديل Tailwind classes
 - ❌ **ممنوع:** تعديل `src/hooks/`، `src/lib/`، أي config ملف
 - 🌿 **الفرع:** `feat/ui-<اسم-الميزة>`
 
 ### 🧠 Logic Agent — Replit
+
 - ✅ **مسموح:** `src/hooks/`، `src/lib/`، `src/routes/` (منطق فقط)
 - ✅ State management، data fetching، business logic
 - ❌ **ممنوع:** تعديل styles أو layouts أو مكوّنات بصرية
 - 🌿 **الفرع:** `feat/logic-<اسم-الميزة>`
 
 ### 🧪 QA Agent — Cursor / Windsurf
+
 - ✅ **مسموح:** `src/__tests__/`، إصلاح TypeScript errors، تحسين types
 - ✅ كتابة اختبارات Vitest، إصلاح bugs موثّقة في Issues
 - ❌ **ممنوع:** إضافة features جديدة
 - 🌿 **الفرع:** `fix/<رقم-الـ-issue>`
 
 ### 📝 Docs Agent
+
 - ✅ **مسموح:** `*.md` فقط، تحسين JSDoc comments
 - ❌ **ممنوع:** تعديل أي `.ts` أو `.tsx`
 - 🌿 **الفرع:** `docs/<الموضوع>`
 
 ### ⚙️ Config Agent
+
 - ✅ **مسموح:** `vite.config.ts`، `.gitignore`، `tsconfig.json`، ملفات الـ root
 - ❌ **ممنوع:** تعديل `src/` بأي شكل
 - 🌿 **الفرع:** `chore/<الموضوع>`
@@ -154,6 +165,7 @@ Deployment:   Replit (autoscale)
 ```
 
 ### هيكل المجلدات
+
 ```
 src/
 ├── routes/          # مسارات TanStack Router (file-based)
@@ -181,6 +193,7 @@ src/
 ```
 
 ### ✅ checklist قبل فتح PR
+
 - [ ] التعليمات البرمجية تعمل بدون أخطاء TypeScript
 - [ ] لا توجد ملفات `.env` أو build logs في الـ commit
 - [ ] رسالة الـ commit تتبع Conventional Commits
@@ -205,10 +218,11 @@ server.mjs          ← SSR entry point
 ## 📞 في حال الشك
 
 إذا لم تكن متأكّداً من شيء:
+
 1. **لا تتصرّف** — اترك comment في الـ PR
 2. **اسأل** — افتح Issue بعنوان `question: <سؤالك>`
 3. **لا تحذف** — إذا اعتقدت أن ملفاً غير ضروري، علّق عليه فقط
 
 ---
 
-*آخر تحديث: أبريل 2026 | المشروع: Nafath — منصة التعلّم التكيّفي*
+_آخر تحديث: أبريل 2026 | المشروع: Nafath — منصة التعلّم التكيّفي_

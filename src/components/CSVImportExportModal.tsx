@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import {motion} from "framer-motion";
 import {
   X,
   Upload,
@@ -7,14 +7,9 @@ import {
   Copy,
   Check,
   FileSpreadsheet,
-  HelpCircle,
   Sparkles,
 } from "lucide-react";
-import {
-  downloadCSVFile,
-  exportCardsToCSV,
-  parseCSVToSmartCards,
-} from "@/lib/csv-flashcards";
+import { downloadCSVFile, exportCardsToCSV, parseCSVToSmartCards } from "@/lib/csv-flashcards";
 import type { SmartFlashcard } from "@/lib/spaced-repetition";
 import { toast } from "sonner";
 
@@ -88,7 +83,10 @@ export function CSVImportExportModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs dir-rtl text-right" dir="rtl">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs dir-rtl text-right"
+      dir="rtl"
+    >
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -179,7 +177,9 @@ export function CSVImportExportModal({
                 Category,Question,ModelAnswer,Keywords,Mnemonic,KeywordCues
               </p>
               <p className="text-[10px] text-amber-800">
-                الأقسام المتاحة: <code>reasoning</code> (علل) | <code>rulings</code> (أحكام) | <code>evidence</code> (أدلة) | <code>definition</code> (تعريفات) | <code>issue</code> (مسائل) | <code>summary</code> (خلاصة).
+                الأقسام المتاحة: <code>reasoning</code> (علل) | <code>rulings</code> (أحكام) |{" "}
+                <code>evidence</code> (أدلة) | <code>definition</code> (تعريفات) |{" "}
+                <code>issue</code> (مسائل) | <code>summary</code> (خلاصة).
               </p>
             </div>
 
@@ -220,7 +220,11 @@ export function CSVImportExportModal({
                   onClick={handleCopyExport}
                   className="inline-flex items-center gap-1.5 rounded-lg bg-blue-50 px-3 py-1 text-xs font-bold text-blue-900 border border-blue-200 hover:bg-blue-100 transition cursor-pointer"
                 >
-                  {copied ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5 text-blue-600" />}
+                  {copied ? (
+                    <Check className="h-3.5 w-3.5 text-emerald-600" />
+                  ) : (
+                    <Copy className="h-3.5 w-3.5 text-blue-600" />
+                  )}
                   <span>{copied ? "تم النسخ!" : "نسخ الكود"}</span>
                 </button>
               </div>

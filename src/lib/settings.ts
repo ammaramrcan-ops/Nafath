@@ -76,8 +76,7 @@ export function isLocalhost(): boolean {
 function sanitize(order: unknown): Stage[] {
   if (!Array.isArray(order)) return DEFAULT_STAGE_ORDER;
   const valid = order.filter(
-    (k): k is Stage =>
-      typeof k === "string" && (DEFAULT_STAGE_ORDER as string[]).includes(k)
+    (k): k is Stage => typeof k === "string" && (DEFAULT_STAGE_ORDER as string[]).includes(k),
   );
   // Ensure every stage is included exactly once
   const missing = DEFAULT_STAGE_ORDER.filter((k) => !valid.includes(k));

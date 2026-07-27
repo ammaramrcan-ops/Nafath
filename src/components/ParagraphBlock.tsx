@@ -1,21 +1,27 @@
-import { useState, useEffect, useMemo } from "react";
-import { RotateCcw, Brain, Play, Pause, Clock, Sparkles, Lightbulb, BookOpen, BookMarked, HelpCircle, BarChart2, ArrowLeft, Maximize2, Minimize2 } from "lucide-react";
+import {useState, useEffect} from "react";
+import {
+  RotateCcw,
+  Brain,
+  Play,
+  Pause,
+  Clock,
+  Sparkles,
+  Lightbulb,
+  BookOpen,
+  BookMarked,
+  HelpCircle,
+  BarChart2,
+  ArrowLeft,
+} from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-import { toast } from "sonner";
 import type { ParagraphBlock as Block } from "@/lib/lesson-data";
 import { HardWordText } from "./HardWordText";
-import { MindMap } from "./MindMap";
-import { MindMapCanvas } from "./MindMapCanvas";
-import type { MindMapData, MindMapNode } from "@/lib/mind-map-types";
 import { cn } from "@/lib/utils";
 import { DEFAULT_STAGE_ORDER, STAGE_LABELS, type Stage } from "@/lib/settings";
 import { QuizSection } from "./QuizSection";
 import { SmartNotesModal } from "./SmartNotesModal";
 import { FlashcardsSection } from "./FlashcardsSection";
 import { StudentMindMapSection } from "./StudentMindMapSection";
-
-const SPEED_THRESHOLD_QUICK = 20;
-const SPEED_THRESHOLD_SLOW = 45;
 
 export function ParagraphBlockCard({
   block,
@@ -27,7 +33,12 @@ export function ParagraphBlockCard({
 }: {
   block: Block;
   onComplete: () => void;
-  onStageChange?: (completedStageKey: Stage, timeSpentSeconds: number, currentStageIndex: number, totalStagesInBlock: number) => void;
+  onStageChange?: (
+    completedStageKey: Stage,
+    timeSpentSeconds: number,
+    currentStageIndex: number,
+    totalStagesInBlock: number,
+  ) => void;
   stageOrder?: Stage[];
   mode?: "student" | "teacher";
   subjectId?: string;
@@ -38,13 +49,13 @@ export function ParagraphBlockCard({
   const [started, setStarted] = useState(!showIntro);
   const [idx, setIdx] = useState(0);
 
-
   const stage = STAGES[idx].key;
   const isQuiz = stage.startsWith("quizzes_");
-  const [isQuizDone, setIsQuizDone] = useState(false);
   const [showBlockNotesModal, setShowBlockNotesModal] = useState(false);
 
-  const intervalEnabled = block.enable_stage_intervals?.[stage] ?? (block.stage_interval ? block.stage_interval > 0 : false);
+  const intervalEnabled =
+    block.enable_stage_intervals?.[stage] ??
+    (block.stage_interval ? block.stage_interval > 0 : false);
   const timeGateSeconds = block.stage_intervals?.[stage] ?? block.stage_interval ?? 0;
   const [stageStartTime, setStageStartTime] = useState<number | null>(null);
   const [timeGateRemaining, setTimeGateRemaining] = useState(timeGateSeconds);
@@ -54,13 +65,8 @@ export function ParagraphBlockCard({
 
   const stageAudio = block.stage_audio?.[stage] ?? "";
 
-
   const enforceTimeGate = mode === "student" && intervalEnabled && !isQuiz && timeGateSeconds > 0;
   const timeGatePassed = !enforceTimeGate || timeGateRemaining <= 0;
-
-  useEffect(() => {
-    setIsQuizDone(false);
-  }, [stage]);
 
   useEffect(() => {
     setTimeGateRemaining(timeGateSeconds);
@@ -76,16 +82,21 @@ export function ParagraphBlockCard({
   }, [stage, timeGateSeconds]);
 
   if (showBlockIntro && mode === "student") {
-    const quizCount = (block.quizzes?.mcqs?.length || 0) + (block.quizzes?.fills?.length || 0) + (block.quizzes?.essays?.length || 0);
+    const quizCount =
+      (block.quizzes?.mcqs?.length || 0) +
+      (block.quizzes?.fills?.length || 0) +
+      (block.quizzes?.essays?.length || 0);
     const infoCount = block.meta_card?.info_count ?? (block.mind_map_nodes?.length || 3);
     const estTime = block.meta_card?.estimated_time_range || "2 - 5 دقائق";
     const undLevel = block.meta_card?.understanding_level || "سهل";
     const memLevel = block.meta_card?.memorization_level || "متوسط";
 
     return (
-      <div className="mx-auto flex min-h-[85vh] w-full max-w-[85vw] flex-col items-center justify-center p-4 sm:p-6 text-center dir-rtl relative font-body-md" dir="rtl">
+      <div
+        className="mx-auto flex min-h-[85vh] w-full max-w-[85vw] flex-col items-center justify-center p-4 sm:p-6 text-center dir-rtl relative font-body-md"
+        dir="rtl"
+      >
         <div className="w-full rounded-[2.5rem] bg-white p-8 sm:p-14 shadow-[0_20px_60px_-15px_rgba(11,28,48,0.08)] border border-slate-100 space-y-8 text-center relative">
-          
           {/* Top Badge Chip */}
           <div className="inline-flex items-center gap-2.5 px-6 py-2.5 rounded-full bg-[#f0dbff] text-[#8127cf] text-xs sm:text-sm font-black mx-auto">
             <BookOpen className="h-4.5 w-4.5" />
@@ -119,7 +130,9 @@ export function ParagraphBlockCard({
             <div className="bg-[#eaf1ff] p-5 sm:p-6 rounded-3xl flex items-center justify-between shadow-2xs">
               <div>
                 <span className="text-xs font-bold text-slate-400 block mb-1">عدد المعلومات:</span>
-                <span className="text-sm sm:text-base font-black text-[#0b1c30]">{infoCount} مفاهيم</span>
+                <span className="text-sm sm:text-base font-black text-[#0b1c30]">
+                  {infoCount} مفاهيم
+                </span>
               </div>
               <div className="w-10 h-10 rounded-2xl bg-[#ffdbca] text-[#9d4300] flex items-center justify-center shrink-0">
                 <Lightbulb className="h-5 w-5" />
@@ -129,8 +142,12 @@ export function ParagraphBlockCard({
             {/* Box 3: Questions */}
             <div className="bg-[#eaf1ff] p-5 sm:p-6 rounded-3xl flex items-center justify-between shadow-2xs">
               <div>
-                <span className="text-xs font-bold text-slate-400 block mb-1">الأسئلة التقييمية:</span>
-                <span className="text-sm sm:text-base font-black text-[#0b1c30]">{quizCount} أسئلة في الفقرة</span>
+                <span className="text-xs font-bold text-slate-400 block mb-1">
+                  الأسئلة التقييمية:
+                </span>
+                <span className="text-sm sm:text-base font-black text-[#0b1c30]">
+                  {quizCount} أسئلة في الفقرة
+                </span>
               </div>
               <div className="w-10 h-10 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
                 <HelpCircle className="h-5 w-5" />
@@ -142,8 +159,12 @@ export function ParagraphBlockCard({
               <div>
                 <span className="text-xs font-bold text-slate-400 block mb-1">صعوبة الفقرة:</span>
                 <div className="flex gap-1.5 mt-1 text-xs font-black">
-                  <span className="bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full">فهم: {undLevel}</span>
-                  <span className="bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded-full">حفظ: {memLevel}</span>
+                  <span className="bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full">
+                    فهم: {undLevel}
+                  </span>
+                  <span className="bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded-full">
+                    حفظ: {memLevel}
+                  </span>
                 </div>
               </div>
               <div className="w-10 h-10 rounded-2xl bg-slate-200 text-slate-600 flex items-center justify-center shrink-0">
@@ -160,7 +181,10 @@ export function ParagraphBlockCard({
             </div>
             <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-100 shadow-2xs">
               <p className="text-sm sm:text-base font-bold text-[#0b1c30] leading-relaxed">
-                {block.short_sentence || (block.story ? block.story.split("!")[0] + "!" : "الخلع يعني الست بتدفع عوض مالي للزوج عشان تفك الجوازة بالتراضي وتشتري راحتها.")}
+                {block.short_sentence ||
+                  (block.story
+                    ? block.story.split("!")[0] + "!"
+                    : "الخلع يعني الست بتدفع عوض مالي للزوج عشان تفك الجوازة بالتراضي وتشتري راحتها.")}
               </p>
             </div>
           </div>
@@ -186,7 +210,11 @@ export function ParagraphBlockCard({
           الفكرة الأولى
         </p>
         <div className="text-[24px] font-light leading-loose text-zen-on-surface sm:text-[28px] w-full">
-          <HardWordText text={block.short_sentence} words={block.hard_words} highlights={block.highlights} />
+          <HardWordText
+            text={block.short_sentence}
+            words={block.hard_words}
+            highlights={block.highlights}
+          />
         </div>
         <button
           onClick={() => {
@@ -204,9 +232,9 @@ export function ParagraphBlockCard({
   const isLast = idx === STAGES.length - 1;
 
   const handleNextClick = () => {
-
-
-    const elapsed = stageStartTime ? Math.max(5, Math.floor((Date.now() - stageStartTime) / 1000)) : 15;
+    const elapsed = stageStartTime
+      ? Math.max(5, Math.floor((Date.now() - stageStartTime) / 1000))
+      : 15;
 
     if (!speedChecked) {
       setSpeedChecked(true);
@@ -230,7 +258,6 @@ export function ParagraphBlockCard({
             onClick={() => {
               setStarted(false);
               setIdx(0);
-              setRecallText("");
             }}
             className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium text-zen-on-surface-variant transition hover:bg-zen-surface-low cursor-pointer"
           >
@@ -310,11 +337,6 @@ export function ParagraphBlockCard({
           exit={{ opacity: 0, x: -16 }}
           transition={{ duration: 0.35, ease: "easeOut" }}
         >
-          {stage === "short" && (
-            <div className="rounded-[2.5rem] bg-white p-8 sm:p-12 shadow-[0_20px_60px_-15px_rgba(11,28,48,0.08)] border border-slate-100 min-h-[380px] sm:min-h-[440px] flex items-center justify-center text-center text-xl sm:text-3xl font-bold leading-relaxed text-[#0b1c30]">
-              <HardWordText text={block.short_sentence} words={block.hard_words} highlights={block.highlights} />
-            </div>
-          )}
 
           {stage === "story" && (
             <div className="rounded-[2.5rem] bg-white p-8 sm:p-12 shadow-[0_20px_60px_-15px_rgba(11,28,48,0.08)] border border-amber-200/80 space-y-6 min-h-[380px] sm:min-h-[440px] flex flex-col justify-between">
@@ -324,7 +346,10 @@ export function ParagraphBlockCard({
               </div>
               <div className="text-base sm:text-2xl font-bold leading-relaxed sm:leading-loose text-[#0b1c30] p-6 sm:p-8 bg-slate-50/50 rounded-3xl border border-slate-100 flex-grow flex items-center">
                 <HardWordText
-                  text={block.story || "في البستان، تمتص الأشجار الخضراء أشعة الشمس الهادئة وتصنع طعامها دون الحاجة للتحرك."}
+                  text={
+                    block.story ||
+                    "في البستان، تمتص الأشجار الخضراء أشعة الشمس الهادئة وتصنع طعامها دون الحاجة للتحرك."
+                  }
                   words={block.hard_words}
                   highlights={block.highlights}
                 />
@@ -348,7 +373,10 @@ export function ParagraphBlockCard({
                     const term = hw.word || hw.term || "";
                     const meaning = hw.meaning || hw.definition || hw.explanation || "";
                     return (
-                      <div key={i} className="rounded-2xl bg-amber-50/70 p-5 border border-amber-200/80 space-y-2 text-right">
+                      <div
+                        key={i}
+                        className="rounded-2xl bg-amber-50/70 p-5 border border-amber-200/80 space-y-2 text-right"
+                      >
                         <span className="inline-block font-black text-amber-950 text-sm bg-amber-200 px-3.5 py-1 rounded-full border border-amber-300 shadow-xs">
                           ({term})
                         </span>
@@ -364,7 +392,8 @@ export function ParagraphBlockCard({
                       ({block.title})
                     </span>
                     <p className="text-xs font-bold text-amber-950 leading-relaxed pt-1">
-                      👈 المعنى الشارح بالبلدي: {block.short_sentence || "المفهوم الرئيسي مقصود به التبسيط والتيسير الصريح."}
+                      👈 المعنى الشارح بالبلدي:{" "}
+                      {block.short_sentence || "المفهوم الرئيسي مقصود به التبسيط والتيسير الصريح."}
                     </p>
                   </div>
                 )}
@@ -378,7 +407,11 @@ export function ParagraphBlockCard({
                 💡 أمثلة توضيحية
               </p>
               <div className="text-base sm:text-2xl font-bold leading-relaxed sm:leading-loose text-[#0b1c30] p-6 sm:p-8 bg-slate-50/50 rounded-3xl border border-slate-100 flex-grow flex items-center">
-                <HardWordText text={block.examples} words={block.hard_words} highlights={block.highlights} />
+                <HardWordText
+                  text={block.examples}
+                  words={block.hard_words}
+                  highlights={block.highlights}
+                />
               </div>
             </div>
           )}
@@ -396,7 +429,11 @@ export function ParagraphBlockCard({
                 </div>
               )}
               <div className="text-base sm:text-2xl font-bold leading-relaxed sm:leading-loose text-[#0b1c30] bg-white p-8 sm:p-12 rounded-[2.5rem] border border-slate-100 shadow-[0_20px_60px_-15px_rgba(11,28,48,0.08)]">
-                <HardWordText text={block.full_text} words={block.hard_words} highlights={block.highlights} />
+                <HardWordText
+                  text={block.full_text}
+                  words={block.hard_words}
+                  highlights={block.highlights}
+                />
               </div>
             </div>
           )}
@@ -413,7 +450,9 @@ export function ParagraphBlockCard({
                   text={
                     typeof block.mnemonic === "string" && block.mnemonic.trim().length > 0
                       ? block.mnemonic
-                      : (block.mnemonic as any)?.text || (block.mnemonic as any)?.title || "الرابط الذهني والاختصار التوضيحي للحفظ"
+                      : (block.mnemonic as any)?.text ||
+                        (block.mnemonic as any)?.title ||
+                        "الرابط الذهني والاختصار التوضيحي للحفظ"
                   }
                   words={block.hard_words}
                   highlights={block.highlights}
@@ -434,7 +473,9 @@ export function ParagraphBlockCard({
                   text={
                     typeof block.funny_link === "string" && block.funny_link.trim().length > 0
                       ? block.funny_link
-                      : (block.funny_link as any)?.text || (block.funny_link as any)?.title || "الرابط الفكاهي الطريف لترسيخ المعلومة بالذاكرة"
+                      : (block.funny_link as any)?.text ||
+                        (block.funny_link as any)?.title ||
+                        "الرابط الفكاهي الطريف لترسيخ المعلومة بالذاكرة"
                   }
                   words={block.hard_words}
                   highlights={block.highlights}
@@ -444,9 +485,7 @@ export function ParagraphBlockCard({
           )}
 
           {/* Stage 7: Mindmap (Interactive 2D Canvas with Panning and Zooming) */}
-          {stage === "mindmap" && (
-            <StudentMindMapSection block={block} />
-          )}
+          {stage === "mindmap" && <StudentMindMapSection block={block} />}
 
           {/* Stage 8: Zaitouna (New Premium 85vw Design) */}
           {stage === "zaitouna" && (
@@ -454,12 +493,15 @@ export function ParagraphBlockCard({
               {/* Top Hero / Weakness Radar Report Banner */}
               <div className="bg-[#fffbf9] border-2 border-dashed border-[#ffdbca] rounded-[2.5rem] p-8 sm:p-10 shadow-[0_20px_50px_-15px_rgba(11,28,48,0.06)] space-y-8 text-center sm:text-right">
                 <div className="text-center space-y-2">
-                  <span className="text-xs font-bold text-slate-500 block">تهانينا! أتممت مراجعة هذه الفقرة بنجاح 🎉</span>
+                  <span className="text-xs font-bold text-slate-500 block">
+                    تهانينا! أتممت مراجعة هذه الفقرة بنجاح 🎉
+                  </span>
                   <h2 className="text-xl sm:text-3xl font-black text-[#0b1c30]">
                     الزيتونة والملخص المركّز — {block.title}
                   </h2>
                   <p className="text-xs sm:text-sm font-semibold text-slate-500 max-w-2xl mx-auto">
-                    استعرض خلاصة التعريفات، أسئلة علّل، والتعليلات والروابط الذكية لتثبيت الفهم المستدام.
+                    استعرض خلاصة التعريفات، أسئلة علّل، والتعليلات والروابط الذكية لتثبيت الفهم
+                    المستدام.
                   </p>
                 </div>
 
@@ -474,7 +516,8 @@ export function ParagraphBlockCard({
                         <span>تقرير رادار نقاط الضعف (Weakness Radar Report):</span>
                       </h3>
                       <p className="text-xs font-semibold text-slate-600 pt-1 leading-relaxed">
-                        أنت ممتاز في هذه الفقرة! ننصحك بمراجعة التفسيرات والروابط الذكية أدناه لمدة 3 دقائق فقط لترسيخ الفهم الكامل والتأكد من استيعاب كافة التفاصيل.
+                        أنت ممتاز في هذه الفقرة! ننصحك بمراجعة التفسيرات والروابط الذكية أدناه لمدة
+                        3 دقائق فقط لترسيخ الفهم الكامل والتأكد من استيعاب كافة التفاصيل.
                       </p>
                     </div>
                   </div>
@@ -494,29 +537,41 @@ export function ParagraphBlockCard({
               <div className="space-y-6">
                 <div className="flex items-center gap-3 border-b border-[#e0c0b1]/40 pb-3">
                   <BookOpen className="h-5 w-5 text-[#8127cf]" />
-                  <h3 className="text-base sm:text-lg font-black text-[#0b1c30]">أهم التعريفات والمفاهيم الرئيسية</h3>
-                  <span className="mr-auto text-xs font-bold text-slate-400">بنية بينتو متطورة</span>
+                  <h3 className="text-base sm:text-lg font-black text-[#0b1c30]">
+                    أهم التعريفات والمفاهيم الرئيسية
+                  </h3>
+                  <span className="mr-auto text-xs font-bold text-slate-400">
+                    بنية بينتو متطورة
+                  </span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="zen-card bg-white p-6 rounded-3xl border border-[#e0c0b1]/40 shadow-2xs space-y-2 hover:-translate-y-1 transition">
-                    <span className="text-[11px] font-extrabold text-[#8127cf] block">مفهوم أساسي</span>
+                    <span className="text-[11px] font-extrabold text-[#8127cf] block">
+                      مفهوم أساسي
+                    </span>
                     <h4 className="text-sm font-extrabold text-[#0b1c30]">عوض معلوم</h4>
                     <p className="text-xs font-semibold text-slate-600 leading-relaxed">
-                      {block.zaitouna?.definitions || "مقابل مالي أو عيني محدد القيمة والمقدار لضمان الصحة والتحديد التام."}
+                      {block.zaitouna?.definitions ||
+                        "مقابل مالي أو عيني محدد القيمة والمقدار لضمان الصحة والتحديد التام."}
                     </p>
                   </div>
 
                   <div className="zen-card bg-white p-6 rounded-3xl border border-[#e0c0b1]/40 shadow-2xs space-y-2 hover:-translate-y-1 transition">
-                    <span className="text-[11px] font-extrabold text-[#8127cf] block">ضابط شرعي</span>
+                    <span className="text-[11px] font-extrabold text-[#8127cf] block">
+                      ضابط شرعي
+                    </span>
                     <h4 className="text-sm font-extrabold text-[#0b1c30]">مفاداة بالتراضي</h4>
                     <p className="text-xs font-semibold text-slate-600 leading-relaxed">
-                      {block.short_sentence || "دفع المال أو العوض مقابل فك الارتباط والتخلص من العقد بعوض معلوم."}
+                      {block.short_sentence ||
+                        "دفع المال أو العوض مقابل فك الارتباط والتخلص من العقد بعوض معلوم."}
                     </p>
                   </div>
 
                   <div className="zen-card bg-white p-6 rounded-3xl border border-[#e0c0b1]/40 shadow-2xs space-y-2 hover:-translate-y-1 transition">
-                    <span className="text-[11px] font-extrabold text-[#8127cf] block">شرط الأهلية</span>
+                    <span className="text-[11px] font-extrabold text-[#8127cf] block">
+                      شرط الأهلية
+                    </span>
                     <h4 className="text-sm font-extrabold text-[#0b1c30]">إطلاق تصرف مالي</h4>
                     <p className="text-xs font-semibold text-slate-600 leading-relaxed">
                       أن يكون الملتزم بالعوض حراً بالغاً عاقلاً رشيداً لا يُحجر على أمواله.
@@ -529,19 +584,28 @@ export function ParagraphBlockCard({
               <div className="space-y-6">
                 <div className="flex items-center gap-3 border-b border-[#e0c0b1]/40 pb-3">
                   <HelpCircle className="h-5 w-5 text-[#8127cf]" />
-                  <h3 className="text-base sm:text-lg font-black text-[#0b1c30]">أسئلة علّل واسترجاع التعليلات</h3>
-                  <span className="mr-auto text-xs font-bold text-slate-400">أسئلة فكرية تكيّفية</span>
+                  <h3 className="text-base sm:text-lg font-black text-[#0b1c30]">
+                    أسئلة علّل واسترجاع التعليلات
+                  </h3>
+                  <span className="mr-auto text-xs font-bold text-slate-400">
+                    أسئلة فكرية تكيّفية
+                  </span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="zen-card bg-white p-6 rounded-3xl border border-[#e0c0b1]/40 shadow-2xs space-y-4">
-                    <span className="text-[11px] font-bold text-slate-400 block">{block.title}</span>
+                    <span className="text-[11px] font-bold text-slate-400 block">
+                      {block.title}
+                    </span>
                     <h4 className="text-xs sm:text-sm font-extrabold text-[#0b1c30] leading-relaxed">
                       اشرح بأسلوبك: لماذا يُشترط التحديد والدقة في العوض والتعليل الشرعي للفقرة؟
                     </h4>
                     <div className="flex flex-wrap gap-2 pt-2">
                       {["#عوض", "#جهالة", "#مهر_المثل", "#رفع_الضرر"].map((tag) => (
-                        <span key={tag} className="px-3.5 py-1 bg-[#eff4ff] rounded-full text-[11px] font-bold text-[#0b1c30]">
+                        <span
+                          key={tag}
+                          className="px-3.5 py-1 bg-[#eff4ff] rounded-full text-[11px] font-bold text-[#0b1c30]"
+                        >
                           {tag}
                         </span>
                       ))}
@@ -549,13 +613,18 @@ export function ParagraphBlockCard({
                   </div>
 
                   <div className="zen-card bg-white p-6 rounded-3xl border border-[#e0c0b1]/40 shadow-2xs space-y-4">
-                    <span className="text-[11px] font-bold text-slate-400 block">ضوابط الأهلية الشرعية</span>
+                    <span className="text-[11px] font-bold text-slate-400 block">
+                      ضوابط الأهلية الشرعية
+                    </span>
                     <h4 className="text-xs sm:text-sm font-extrabold text-[#0b1c30] leading-relaxed">
                       علّل: يُشترط في "الملتزم للعوض" إطلاق التصرف المالي وفق القواعد الفقهية؟
                     </h4>
                     <div className="flex flex-wrap gap-2 pt-2">
                       {["#تصرف", "#مال", "#أهلية", "#رشد"].map((tag) => (
-                        <span key={tag} className="px-3.5 py-1 bg-[#eff4ff] rounded-full text-[11px] font-bold text-[#0b1c30]">
+                        <span
+                          key={tag}
+                          className="px-3.5 py-1 bg-[#eff4ff] rounded-full text-[11px] font-bold text-[#0b1c30]"
+                        >
                           {tag}
                         </span>
                       ))}
@@ -568,43 +637,69 @@ export function ParagraphBlockCard({
               <div className="space-y-6">
                 <div className="flex items-center gap-3 border-b border-[#e0c0b1]/40 pb-3">
                   <Brain className="h-5 w-5 text-[#8127cf]" />
-                  <h3 className="text-base sm:text-lg font-black text-[#0b1c30]">التفسيرات والروابط الذكية</h3>
-                  <span className="mr-auto text-xs font-bold text-slate-400">قواعد تثبيت الذكاء الاصطناعي</span>
+                  <h3 className="text-base sm:text-lg font-black text-[#0b1c30]">
+                    التفسيرات والروابط الذكية
+                  </h3>
+                  <span className="mr-auto text-xs font-bold text-slate-400">
+                    قواعد تثبيت الذكاء الاصطناعي
+                  </span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="zen-card bg-[#fffbf9] p-7 rounded-3xl border border-[#ffdbca] space-y-4 shadow-2xs">
-                    <span className="text-[11px] font-extrabold text-[#9d4300] block">الملخص الشامل</span>
+                    <span className="text-[11px] font-extrabold text-[#9d4300] block">
+                      الملخص الشامل
+                    </span>
                     <h4 className="text-xs sm:text-sm font-bold text-[#0b1c30] leading-relaxed">
-                      {block.zaitouna?.reasoning || block.mnemonic || "الخلع فسخ للعقد بعوض معلوم لرفع الضرر وحماية الحقوق بالتراضي."}
+                      {block.zaitouna?.reasoning ||
+                        block.mnemonic ||
+                        "الخلع فسخ للعقد بعوض معلوم لرفع الضرر وحماية الحقوق بالتراضي."}
                     </h4>
                     <div className="grid grid-cols-1 gap-3 pt-2">
                       <div className="bg-white p-4 rounded-2xl border-r-4 border-[#9d4300] shadow-2xs">
-                        <span className="text-[11px] font-black text-[#9d4300] block mb-1">📌 قاعدة سريعة:</span>
-                        <p className="text-xs font-bold text-slate-700">فرقة بعوض معلوم = بينونة فورية وحماية تامة للحقوق.</p>
+                        <span className="text-[11px] font-black text-[#9d4300] block mb-1">
+                          📌 قاعدة سريعة:
+                        </span>
+                        <p className="text-xs font-bold text-slate-700">
+                          فرقة بعوض معلوم = بينونة فورية وحماية تامة للحقوق.
+                        </p>
                       </div>
                       <div className="bg-white p-4 rounded-2xl border-r-4 border-[#8127cf] shadow-2xs">
-                        <span className="text-[11px] font-black text-[#8127cf] block mb-1">💡 رابط ظريف للذاكرة:</span>
+                        <span className="text-[11px] font-black text-[#8127cf] block mb-1">
+                          💡 رابط ظريف للذاكرة:
+                        </span>
                         <p className="text-xs font-bold text-slate-700">
-                          {block.funny_link || "زي ما اشتريت تذكرة الدخول بمهر، بتدفع تذكرة الخروج بعوض معلوم!"}
+                          {block.funny_link ||
+                            "زي ما اشتريت تذكرة الدخول بمهر، بتدفع تذكرة الخروج بعوض معلوم!"}
                         </p>
                       </div>
                     </div>
                   </div>
 
                   <div className="zen-card bg-[#fffbf9] p-7 rounded-3xl border border-[#ffdbca] space-y-4 shadow-2xs">
-                    <span className="text-[11px] font-extrabold text-[#9d4300] block">الربط الشرعي والتطبيقي</span>
+                    <span className="text-[11px] font-extrabold text-[#9d4300] block">
+                      الربط الشرعي والتطبيقي
+                    </span>
                     <h4 className="text-xs sm:text-sm font-bold text-[#0b1c30] leading-relaxed">
-                      {block.zaitouna?.links || "يُباح الخلع في جميع الأوقات لرفع المشقة وتيسير المعاملات الشرعية."}
+                      {block.zaitouna?.links ||
+                        "يُباح الخلع في جميع الأوقات لرفع المشقة وتيسير المعاملات الشرعية."}
                     </h4>
                     <div className="grid grid-cols-1 gap-3 pt-2">
                       <div className="bg-white p-4 rounded-2xl border-r-4 border-[#9d4300] shadow-2xs">
-                        <span className="text-[11px] font-black text-[#9d4300] block mb-1">📌 قاعدة سريعة:</span>
-                        <p className="text-xs font-bold text-slate-700">البينونة تمنع الرجعة إلا بعقد ومهر جديدين.</p>
+                        <span className="text-[11px] font-black text-[#9d4300] block mb-1">
+                          📌 قاعدة سريعة:
+                        </span>
+                        <p className="text-xs font-bold text-slate-700">
+                          البينونة تمنع الرجعة إلا بعقد ومهر جديدين.
+                        </p>
                       </div>
                       <div className="bg-white p-4 rounded-2xl border-r-4 border-[#8127cf] shadow-2xs">
-                        <span className="text-[11px] font-black text-[#8127cf] block mb-1">💡 رابط ظريف للذاكرة:</span>
-                        <p className="text-xs font-bold text-slate-700">الباب المتقفل بالخلع مبيتفتحش إلا بمفتاح جديد (عقد ومهر)!</p>
+                        <span className="text-[11px] font-black text-[#8127cf] block mb-1">
+                          💡 رابط ظريف للذاكرة:
+                        </span>
+                        <p className="text-xs font-bold text-slate-700">
+                          الباب المتقفل بالخلع مبيتفتحش إلا بمفتاح جديد (عقد ومهر)!
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -620,16 +715,15 @@ export function ParagraphBlockCard({
                 stage === "quizzes_mcq"
                   ? "mcq"
                   : stage === "quizzes_fill"
-                  ? "fill"
-                  : stage === "quizzes_essay"
-                  ? "essay"
-                  : "all"
+                    ? "fill"
+                    : stage === "quizzes_essay"
+                      ? "essay"
+                      : "all"
               }
               stage={stage}
               lessonTitle={block.title}
               subjectId={subjectId}
               onAllCorrect={() => {
-                setIsQuizDone(true);
                 handleNextClick();
               }}
             />
@@ -640,7 +734,10 @@ export function ParagraphBlockCard({
 
           {/* Stage: Standalone Paper Summary Page for Level 1 */}
           {stage === "paper_summary" && (
-            <div className="rounded-[28px] bg-amber-50/95 p-8 shadow-[var(--shadow-soft)] border-2 border-amber-300 space-y-6 text-right dir-rtl" dir="rtl">
+            <div
+              className="rounded-[28px] bg-amber-50/95 p-8 shadow-[var(--shadow-soft)] border-2 border-amber-300 space-y-6 text-right dir-rtl"
+              dir="rtl"
+            >
               <div className="flex items-center justify-between border-b border-amber-200/90 pb-4">
                 <div className="flex items-center gap-2.5 text-amber-950 font-black text-lg">
                   <Sparkles className="h-6 w-6 text-amber-600" />
@@ -656,12 +753,17 @@ export function ParagraphBlockCard({
                   🎉 أحسنت بطل! الآن احضر كراستك الخارجية وقلمك..
                 </p>
                 <p className="text-xs font-semibold text-amber-900 leading-relaxed">
-                  أمامك النص الأصلي للفقرة كاملاً بدون أي ضغط أو إجبار على الحفظ صم.. اكتب ملخصك الخاص بأسلوبك أو ارسم خريطتك الذهنية بيديك لترسيخ المعلومة في ذاكرتك الأعمق!
+                  أمامك النص الأصلي للفقرة كاملاً بدون أي ضغط أو إجبار على الحفظ صم.. اكتب ملخصك
+                  الخاص بأسلوبك أو ارسم خريطتك الذهنية بيديك لترسيخ المعلومة في ذاكرتك الأعمق!
                 </p>
               </div>
 
               <div className="rounded-2xl bg-white p-6 border border-amber-200 text-sm font-light leading-loose text-zen-on-surface shadow-xs">
-                <HardWordText text={block.full_text} words={block.hard_words} highlights={block.highlights} />
+                <HardWordText
+                  text={block.full_text}
+                  words={block.hard_words}
+                  highlights={block.highlights}
+                />
               </div>
 
               <div className="flex items-center justify-between pt-2 border-t border-amber-200/80">

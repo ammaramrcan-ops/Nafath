@@ -7,10 +7,6 @@ import {
   Brain,
   CheckCircle2,
   ArrowLeft,
-  ArrowRight,
-  FastForward,
-  Check,
-  X,
   HelpCircle,
   Zap,
 } from "lucide-react";
@@ -21,11 +17,7 @@ export type LearningLevel = 1 | 2 | 3;
 
 interface PrepModalProps {
   isOpen: boolean;
-  onConfirm: (data: {
-    distractions: string[];
-    hasWater: boolean;
-    level: LearningLevel;
-  }) => void;
+  onConfirm: (data: { distractions: string[]; hasWater: boolean; level: LearningLevel }) => void;
   onCancel?: () => void;
 }
 
@@ -81,7 +73,6 @@ export function PrepModal({ isOpen, onConfirm, onCancel }: PrepModalProps) {
     >
       {/* Centered Modal Card Container (Expanded 85% width) */}
       <div className="relative w-full max-w-[85vw] mx-auto bg-white rounded-[2.5rem] p-8 sm:p-12 shadow-[0_20px_60px_-15px_rgba(11,28,48,0.08)] border border-slate-100 my-auto space-y-8">
-        
         {/* Header Progress Indicators & Dev Mode Skip All Button */}
         <div className="flex items-center justify-between border-b border-slate-100 pb-4">
           <div className="flex items-center gap-1.5">
@@ -92,8 +83,8 @@ export function PrepModal({ isOpen, onConfirm, onCancel }: PrepModalProps) {
                   step === s
                     ? "w-7 bg-[#f97316]"
                     : step > s
-                    ? "w-4 bg-emerald-500"
-                    : "w-4 bg-slate-200"
+                      ? "w-4 bg-emerald-500"
+                      : "w-4 bg-slate-200"
                 }`}
               />
             ))}
@@ -109,9 +100,7 @@ export function PrepModal({ isOpen, onConfirm, onCancel }: PrepModalProps) {
               <span>تخطي الـ 4 خطوات ⚡</span>
             </button>
           ) : (
-            <span className="text-xs font-semibold text-slate-400">
-              الخطوة {step} من 4
-            </span>
+            <span className="text-xs font-semibold text-slate-400">الخطوة {step} من 4</span>
           )}
         </div>
 
@@ -178,11 +167,10 @@ export function PrepModal({ isOpen, onConfirm, onCancel }: PrepModalProps) {
               </div>
 
               <div className="space-y-1.5">
-                <h2 className="text-xl sm:text-2xl font-bold text-[#0b1c30]">
-                  هل بجانبك كوب ماء؟
-                </h2>
+                <h2 className="text-xl sm:text-2xl font-bold text-[#0b1c30]">هل بجانبك كوب ماء؟</h2>
                 <p className="text-xs text-slate-500 font-normal leading-relaxed max-w-xs mx-auto">
-                  شرب الماء أثناء التعلم يغذي الدماغ ويساعد على التركيز والتحصيل الدراسي. خذ وقتك لتكون في أبهى حالاتك الذهنية.
+                  شرب الماء أثناء التعلم يغذي الدماغ ويساعد على التركيز والتحصيل الدراسي. خذ وقتك
+                  لتكون في أبهى حالاتك الذهنية.
                 </p>
               </div>
 
@@ -194,9 +182,7 @@ export function PrepModal({ isOpen, onConfirm, onCancel }: PrepModalProps) {
                   }}
                   className="flex flex-col items-center justify-center rounded-2xl border-2 border-[#8127cf] bg-white p-5 hover:bg-purple-50/50 transition cursor-pointer text-center"
                 >
-                  <span className="text-sm font-bold text-[#8127cf]">
-                    نعم، بجانبي 💧
-                  </span>
+                  <span className="text-sm font-bold text-[#8127cf]">نعم، بجانبي 💧</span>
                   <span className="text-[10px] text-slate-400 font-medium mt-1">
                     جاهز للانتقال للخطوة التالية
                   </span>
@@ -209,9 +195,7 @@ export function PrepModal({ isOpen, onConfirm, onCancel }: PrepModalProps) {
                   }}
                   className="flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white p-5 hover:bg-slate-50 transition cursor-pointer text-center"
                 >
-                  <span className="text-sm font-bold text-[#0b1c30]">
-                    سوف أذهب وأحضر 🏃
-                  </span>
+                  <span className="text-sm font-bold text-[#0b1c30]">سوف أذهب وأحضر 🏃</span>
                   <span className="text-[10px] text-slate-400 font-medium mt-1">
                     خذ دقيقة لإحضار الماء
                   </span>
@@ -221,7 +205,9 @@ export function PrepModal({ isOpen, onConfirm, onCancel }: PrepModalProps) {
               <div className="pt-2 text-center">
                 <button
                   type="button"
-                  onClick={() => alert("شرب الماء يزيد من نشاط خلايا الدماغ ويعزز التذكر بنسبة 15%.")}
+                  onClick={() =>
+                    alert("شرب الماء يزيد من نشاط خلايا الدماغ ويعزز التذكر بنسبة 15%.")
+                  }
                   className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-[#8127cf] font-medium cursor-pointer"
                 >
                   <HelpCircle className="h-3.5 w-3.5" />
@@ -269,9 +255,7 @@ export function PrepModal({ isOpen, onConfirm, onCancel }: PrepModalProps) {
                   <span className="font-bold text-[#0b1c30] text-sm">
                     {Math.max(0, breathingDuration - breathingElapsed)} ثانية
                   </span>
-                  <span className="text-[11px] text-slate-500 font-medium">
-                    الوقت المتبقي:
-                  </span>
+                  <span className="text-[11px] text-slate-500 font-medium">الوقت المتبقي:</span>
                 </div>
                 <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
                   <div
@@ -298,7 +282,7 @@ export function PrepModal({ isOpen, onConfirm, onCancel }: PrepModalProps) {
                     ? "اكتمال التمرين! الانتقال لاختيار المستوى ✨"
                     : `انتظر حتى انتهاء الدقيقة (${Math.max(
                         0,
-                        breathingDuration - breathingElapsed
+                        breathingDuration - breathingElapsed,
                       )}s)`}
                 </button>
 
@@ -353,9 +337,7 @@ export function PrepModal({ isOpen, onConfirm, onCancel }: PrepModalProps) {
                 >
                   <div className="flex items-center justify-between font-bold text-[#0b1c30] mb-1 text-sm">
                     <span>المستوى الأول: التعلم المباشر 🌱</span>
-                    {selectedLevel === 1 && (
-                      <CheckCircle2 className="h-4 w-4 text-[#9d4300]" />
-                    )}
+                    {selectedLevel === 1 && <CheckCircle2 className="h-4 w-4 text-[#9d4300]" />}
                   </div>
                   <p className="text-slate-500 leading-relaxed font-normal">
                     لا يوجد اختبار قبلي — البدء المباشر بشرح واستعراض الدرس بترتيب سلس ومريح.
@@ -374,9 +356,7 @@ export function PrepModal({ isOpen, onConfirm, onCancel }: PrepModalProps) {
                 >
                   <div className="flex items-center justify-between font-bold text-[#0b1c30] mb-1 text-sm">
                     <span>المستوى الثاني: التحدي المتوسط 🌿</span>
-                    {selectedLevel === 2 && (
-                      <CheckCircle2 className="h-4 w-4 text-[#9d4300]" />
-                    )}
+                    {selectedLevel === 2 && <CheckCircle2 className="h-4 w-4 text-[#9d4300]" />}
                   </div>
                   <p className="text-slate-500 leading-relaxed font-normal">
                     يبدأ باختبار قبلي يتضمن أسئلة اختيار من متعدد (اختر) لقياس مستواك القبلي.
@@ -395,9 +375,7 @@ export function PrepModal({ isOpen, onConfirm, onCancel }: PrepModalProps) {
                 >
                   <div className="flex items-center justify-between font-bold text-[#0b1c30] mb-1 text-sm">
                     <span>المستوى الثالث: التحدي المتقدم والشامل 🌳</span>
-                    {selectedLevel === 3 && (
-                      <CheckCircle2 className="h-4 w-4 text-[#9d4300]" />
-                    )}
+                    {selectedLevel === 3 && <CheckCircle2 className="h-4 w-4 text-[#9d4300]" />}
                   </div>
                   <p className="text-slate-500 leading-relaxed font-normal">
                     اختبار قبلي مكثف يشمل أسئلة اختر، أكمل الفراغ، وأسئلة مقالية تفاعلية.

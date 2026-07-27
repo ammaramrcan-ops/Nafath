@@ -1,19 +1,7 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  X,
-  Pencil,
-  Plus,
-  Trash2,
-  BookOpen,
-  Sparkles,
-  ChevronRight,
-  Layers,
-} from "lucide-react";
-import {
-  CATEGORY_INFO,
-  type SmartFlashcard,
-} from "@/lib/spaced-repetition";
+import {motion} from "framer-motion";
+import {X, Pencil, Plus, Trash2, BookOpen, ChevronRight, Layers} from "lucide-react";
+import { CATEGORY_INFO, type SmartFlashcard } from "@/lib/spaced-repetition";
 import { toast } from "sonner";
 
 export function LessonCardsManagerModal({
@@ -38,7 +26,10 @@ export function LessonCardsManagerModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs dir-rtl text-right font-body-md" dir="rtl">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs dir-rtl text-right font-body-md"
+      dir="rtl"
+    >
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -96,8 +87,12 @@ export function LessonCardsManagerModal({
                   <Plus className="h-6 w-6" />
                 </div>
                 <div>
-                  <h4 className="font-extrabold text-[#0b1c30] text-base">إضافة بطاقة جديدة لهذا الدرس ➕</h4>
-                  <p className="text-xs font-semibold text-[#584237]/70">إنشاء سؤال استرجاعي وإجابة نموذجية مخصصة</p>
+                  <h4 className="font-extrabold text-[#0b1c30] text-base">
+                    إضافة بطاقة جديدة لهذا الدرس ➕
+                  </h4>
+                  <p className="text-xs font-semibold text-[#584237]/70">
+                    إنشاء سؤال استرجاعي وإجابة نموذجية مخصصة
+                  </p>
                 </div>
               </div>
               <ChevronRight className="h-5 w-5 text-amber-700 rotate-180" />
@@ -113,8 +108,12 @@ export function LessonCardsManagerModal({
                   <Layers className="h-6 w-6" />
                 </div>
                 <div>
-                  <h4 className="font-extrabold text-[#0b1c30] text-base">تعديل البطاقات الحالية ({lessonCards.length}) 📝</h4>
-                  <p className="text-xs font-semibold text-[#584237]/70">استعراض وتعديل أو حذف أي بطاقة مسجلة حالياً</p>
+                  <h4 className="font-extrabold text-[#0b1c30] text-base">
+                    تعديل البطاقات الحالية ({lessonCards.length}) 📝
+                  </h4>
+                  <p className="text-xs font-semibold text-[#584237]/70">
+                    استعراض وتعديل أو حذف أي بطاقة مسجلة حالياً
+                  </p>
                 </div>
               </div>
               <ChevronRight className="h-5 w-5 text-[#9d4300] rotate-180" />
@@ -145,7 +144,9 @@ export function LessonCardsManagerModal({
             {lessonCards.length === 0 ? (
               <div className="text-center py-8 bg-[#f8f9ff] rounded-2xl border border-[#e0c0b1]/40 space-y-2">
                 <BookOpen className="h-8 w-8 text-[#584237]/50 mx-auto" />
-                <p className="text-xs font-bold text-[#584237]">لا توجد بطاقات مسجلة حالياً لهذا الدرس.</p>
+                <p className="text-xs font-bold text-[#584237]">
+                  لا توجد بطاقات مسجلة حالياً لهذا الدرس.
+                </p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -158,7 +159,9 @@ export function LessonCardsManagerModal({
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="space-y-1">
-                          <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-extrabold ${catInfo.badgeBg} ${catInfo.badgeText}`}>
+                          <span
+                            className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-extrabold ${catInfo.badgeBg} ${catInfo.badgeText}`}
+                          >
                             {catInfo.label}
                           </span>
                           <h4 className="font-extrabold text-[#0b1c30] text-xs leading-snug">
