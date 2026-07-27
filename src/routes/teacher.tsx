@@ -284,7 +284,7 @@ function TeacherPage() {
       const next = { ...prev, ...patch };
       saveToLibrary(next);
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitizeJsonInput(next)));
       } catch {}
       return next;
     });
@@ -297,7 +297,7 @@ function TeacherPage() {
       };
       saveToLibrary(next);
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitizeJsonInput(next)));
       } catch {}
       return next;
     });
@@ -310,7 +310,7 @@ function TeacherPage() {
       };
       saveToLibrary(next);
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitizeJsonInput(next)));
       } catch {}
       return next;
     });
@@ -325,7 +325,7 @@ function TeacherPage() {
       };
       saveToLibrary(next);
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitizeJsonInput(next)));
       } catch {}
       return next;
     });
@@ -334,8 +334,9 @@ function TeacherPage() {
 
   const handleSaveToLibrary = () => {
     try {
-      saveToLibrary(lesson);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(lesson));
+      const safe = sanitizeJsonInput(lesson);
+      saveToLibrary(safe);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(safe));
       setLibSaved(true);
       setTimeout(() => setLibSaved(false), 2000);
     } catch {
@@ -345,10 +346,11 @@ function TeacherPage() {
 
   const handlePreviewStudent = () => {
     try {
-      saveToLibrary(lesson);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(lesson));
-      localStorage.setItem("nafath.openLesson", JSON.stringify(lesson));
-      sessionStorage.setItem("nafath.openLesson", JSON.stringify(lesson));
+      const safe = sanitizeJsonInput(lesson);
+      saveToLibrary(safe);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(safe));
+      localStorage.setItem("nafath.openLesson", JSON.stringify(safe));
+      sessionStorage.setItem("nafath.openLesson", JSON.stringify(safe));
       toast.success("جاري فتح تجربة الطالب للدرس الحالية... 🎓");
       setTimeout(() => {
         window.location.href = "/";

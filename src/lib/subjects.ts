@@ -61,7 +61,7 @@ function loadSubjectsFromStorage(): Subject[] {
   return DEFAULT_SUBJECTS;
 }
 
-export let SUBJECTS: Subject[] = loadSubjectsFromStorage();
+export const SUBJECTS: Subject[] = loadSubjectsFromStorage();
 
 export function saveSubjectsToStorage() {
   try {
