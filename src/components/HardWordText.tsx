@@ -23,7 +23,7 @@ export function HardWordText({
   words = [],
   highlights = [],
 }: {
-  text: any;
+  text: unknown;
   words?: HardWord[];
   highlights?: TextHighlight[];
 }) {
@@ -32,17 +32,24 @@ export function HardWordText({
     safeText = text;
   } else if (Array.isArray(text)) {
     safeText = text
-      .map((item) =>
-        typeof item === "string" ? item : item?.text || item?.title || JSON.stringify(item),
-      )
+      .map((item: unknown) => {
+        if (typeof item === "string") return item;
+        if (item && typeof item === "object") {
+          const itemObj = item as Record<string, unknown>;
+          return String(itemObj.text || itemObj.title || JSON.stringify(item));
+        }
+        return String(item ?? "");
+      })
       .join(" ");
   } else if (text && typeof text === "object") {
-    safeText =
-      (text as any).text ||
-      (text as any).title ||
-      (text as any).content ||
-      (text as any).value ||
-      JSON.stringify(text);
+    const textObj = text as Record<string, unknown>;
+    safeText = String(
+      textObj.text ||
+      textObj.title ||
+      textObj.content ||
+      textObj.value ||
+      JSON.stringify(text)
+    );
   } else if (text != null) {
     safeText = String(text);
   }
@@ -138,11 +145,11 @@ export function HardWordText({
   );
 }
 
-function getWordTerm(w: any): string {
+function getWordTerm(w: HardWord): string {
   return w?.word || w?.term || "";
 }
 
-function getWordMeaning(w: any): string {
+function getWordMeaning(w: HardWord): string {
   return w?.meaning || w?.definition || w?.explanation || "";
 }
 

@@ -85,11 +85,18 @@ export function InteractiveExamsView({
 
   // Lesson Notes / Notebook State
   const [notes, setNotes] = useState<LessonNote[]>(() => getStoredLessonNotes());
-  const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
-  const [noteTitle, setNoteTitle] = useState("أحكام المعاملات المالية");
-  const [noteContent, setNoteContent] = useState(
-    "المعاملات المالية تعتمد على التراضي وتوفر الشروط الفقهية مع اجتناب الغرر والربا والجهالة المؤدية للنزاع...",
-  );
+  const [selectedNoteId, setSelectedNoteId] = useState<string | null>(() => {
+    const initialNotes = getStoredLessonNotes();
+    return initialNotes.length > 0 ? initialNotes[0].id : null;
+  });
+  const [noteTitle, setNoteTitle] = useState(() => {
+    const initialNotes = getStoredLessonNotes();
+    return initialNotes.length > 0 ? initialNotes[0].lessonTitle : "";
+  });
+  const [noteContent, setNoteContent] = useState(() => {
+    const initialNotes = getStoredLessonNotes();
+    return initialNotes.length > 0 ? initialNotes[0].content : "";
+  });
   const [isZenActive, setIsZenActive] = useState(false);
 
   // Exam Session State

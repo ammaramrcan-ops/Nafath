@@ -1,21 +1,27 @@
 import { useMemo } from "react";
 import { motion } from "framer-motion";
 
-export function MindMap({ title, nodes }: { title: string; nodes: any[] }) {
+export function MindMap({ title, nodes }: { title: string; nodes: unknown[] }) {
   const radius = 220;
 
   // Safely extract string titles from nodes whether they are strings, objects, or MindMapData
   const stringNodes: string[] = useMemo(() => {
     if (!Array.isArray(nodes)) return [];
     return nodes
-      .map((n) => {
+      .map((n: unknown) => {
         if (!n) return null;
         if (typeof n === "string") {
           try {
             const parsed = JSON.parse(n);
             if (parsed && typeof parsed === "object") {
               if (Array.isArray(parsed.nodes)) {
-                return parsed.nodes.map((item: any) => item.text || item.title).filter(Boolean);
+                return parsed.nodes
+                  .map((item: unknown) =>
+                    item && typeof item === "object"
+                      ? (item as Record<string, unknown>).text || (item as Record<string, unknown>).title
+                      : null,
+                  )
+                  .filter(Boolean);
               }
               return parsed.text || parsed.title || parsed.name || null;
             }
@@ -23,10 +29,17 @@ export function MindMap({ title, nodes }: { title: string; nodes: any[] }) {
           return n;
         }
         if (typeof n === "object") {
-          if (Array.isArray(n.nodes)) {
-            return n.nodes.map((item: any) => item.text || item.title).filter(Boolean);
+          const nObj = n as Record<string, unknown>;
+          if (Array.isArray(nObj.nodes)) {
+            return nObj.nodes
+              .map((item: unknown) =>
+                item && typeof item === "object"
+                  ? (item as Record<string, unknown>).text || (item as Record<string, unknown>).title
+                  : null,
+              )
+              .filter(Boolean);
           }
-          return n.text || n.title || n.name || null;
+          return nObj.text || nObj.title || nObj.name || null;
         }
         return String(n);
       })

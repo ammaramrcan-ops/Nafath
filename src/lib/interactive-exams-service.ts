@@ -497,18 +497,17 @@ const MISTAKES_KEY = "nafath.exam_mistakes_v1";
 const NOTES_KEY = "nafath.lesson_notes_v1";
 
 export function getStoredMistakes(): ExamMistake[] {
-  if (typeof window === "undefined") return getInitialMistakes();
+  if (typeof window === "undefined") return [];
   try {
     const raw = localStorage.getItem(MISTAKES_KEY);
-    if (!raw) {
-      const initial = getInitialMistakes();
-      saveStoredMistakes(initial);
-      return initial;
+    if (raw === null) {
+      saveStoredMistakes([]);
+      return [];
     }
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : getInitialMistakes();
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
-    return getInitialMistakes();
+    return [];
   }
 }
 
@@ -523,18 +522,17 @@ export function removeMistake(id: string) {
 }
 
 export function getStoredLessonNotes(): LessonNote[] {
-  if (typeof window === "undefined") return getInitialLessonNotes();
+  if (typeof window === "undefined") return [];
   try {
     const raw = localStorage.getItem(NOTES_KEY);
-    if (!raw) {
-      const initial = getInitialLessonNotes();
-      saveStoredLessonNotes(initial);
-      return initial;
+    if (raw === null) {
+      saveStoredLessonNotes([]);
+      return [];
     }
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : getInitialLessonNotes();
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
-    return getInitialLessonNotes();
+    return [];
   }
 }
 
@@ -562,57 +560,9 @@ export function deleteLessonNote(id: string) {
 }
 
 function getInitialMistakes(): ExamMistake[] {
-  return [
-    {
-      id: "mistake_1",
-      question: {
-        id: "ex_q_2",
-        type: "fill",
-        question: "ما هو التعليل الفقهي لإيقاع طلاق السكران المتعدي بسكره؟",
-        model_answer: "عقوبة وتغليظاً عليه لارتكابه معصية السكر",
-        keywords: ["تغليظاً عليه", "عقوبة", "معصية"],
-        topic_tag: "#طلاق_السكران",
-        topic_label: "طلاق السكران",
-        explanation_baladi:
-          "السكران اللي شرب بمزاجه، الشرع يعاقبه بزجره وإيقاع طلاقه حتى لا يتخذ السكر ذريعة للتنصل من الأحكام.",
-      },
-      userAnswer: "لأنه غير عاقل وقت الطلاق",
-      date: new Date().toLocaleDateString("ar-SA"),
-    },
-    {
-      id: "mistake_2",
-      question: {
-        id: "ex_q_3",
-        type: "fill",
-        question:
-          "المهر الذي تستحقه المرأة المقارنة لأقاربها من النساء عند جهالة عوض الخلع يسمى ____",
-        model_answer: "مهر المثل",
-        keywords: ["مهر المثل"],
-        topic_tag: "#أحكام_الخلع",
-        topic_label: "أحكام الخلع والعوض",
-        explanation_baladi:
-          "لما العوض يكون مجهول، نرجع لمهر البنت اللي زيها في عيلتها لقطع النزاع والجهالة.",
-      },
-      userAnswer: "مهر المسمى",
-      date: new Date().toLocaleDateString("ar-SA"),
-    },
-  ];
+  return [];
 }
 
 function getInitialLessonNotes(): LessonNote[] {
-  return [
-    {
-      id: "note_1",
-      lessonTitle: "درس فقه الخُلع والشروط",
-      content:
-        "عند جهالة عوض الخلع، يُرد الصداق لمهر المثل لقطع النزاع، ولا يصح الخلع من سفيه أو محجور عليه.",
-      date: new Date().toLocaleDateString("ar-SA"),
-    },
-    {
-      id: "note_2",
-      lessonTitle: "درس طلاق السكران والعدة",
-      content: "طلاق السكران المتعدي يقع زجراً له وتغليظاً، بخلاف السكران المكره أو المخطئ.",
-      date: new Date().toLocaleDateString("ar-SA"),
-    },
-  ];
+  return [];
 }

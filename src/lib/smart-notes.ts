@@ -9,16 +9,24 @@ export type SmartNote = {
 };
 
 export function getLessonNotes(lessonTitle: string): SmartNote[] {
+  if (typeof window === "undefined") return [];
   try {
     const key = `nafath_smart_notes_${lessonTitle.trim()}`;
     const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : [];
+    return raw ? (JSON.parse(raw) as SmartNote[]) : [];
   } catch {
     return [];
   }
 }
 
 export function saveSmartNote(note: Omit<SmartNote, "id" | "createdAt">): SmartNote {
+  if (typeof window === "undefined") {
+    return {
+      ...note,
+      id: crypto.randomUUID(),
+      createdAt: Date.now(),
+    };
+  }
   const existing = getLessonNotes(note.lessonTitle);
   const newNote: SmartNote = {
     ...note,

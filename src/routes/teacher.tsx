@@ -1,5 +1,5 @@
-import {useEffect, useMemo, useState} from "react";
-import {createFileRoute, Link} from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowRight,
   ArrowLeft,
@@ -27,17 +27,14 @@ import {
   type Lesson,
   type ParagraphBlock,
 } from "@/lib/lesson-data";
-import {STAGE_LABELS, DEFAULT_STAGE_ORDER, type Stage} from "@/lib/settings";
+import { STAGE_LABELS, DEFAULT_STAGE_ORDER, type Stage } from "@/lib/settings";
 import { saveToLibrary } from "@/lib/lesson-library";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { VisualHighlightArea } from "@/components/VisualHighlightArea";
 import { cn } from "@/lib/utils";
 import { MindMapCanvas } from "@/components/MindMapCanvas";
-import {
-  parseBlockMindMap,
-  type MindMapData,
-} from "@/lib/mind-map-types";
+import { parseBlockMindMap, type MindMapData } from "@/lib/mind-map-types";
 import { getSubjectById } from "@/lib/subjects";
 
 type FillStage = Stage | "quizzes_mcq" | "quizzes_fill" | "quizzes_essay";
@@ -94,7 +91,7 @@ function emptyBlock(id: number): ParagraphBlock {
 const STORAGE_KEY = "teacher.lesson.draft";
 
 const LEVEL_DEFAULT_STAGES: Record<1 | 2 | 3, Stage[]> = {
-  1: ["story", "baladi_terms", "quizzes_mcq", "paper_summary"],
+  1: ["story", "baladi_terms", "paper_summary", "mindmap", "quizzes_mcq"],
   2: [
     "examples",
     "original",
@@ -130,12 +127,15 @@ function TeacherPage() {
   const [selectedLevelFilter, setSelectedLevelFilter] = useState<1 | 2 | 3 | "all">(1);
   const [libSaved, setLibSaved] = useState(false);
 
-  // 3-Step Dedicated Wizard Modal State
+  // 6-Step Dedicated Modular AI Wizard Modal State
   const [showImportModal, setShowImportModal] = useState(false);
-  const [wizardStep, setWizardStep] = useState<1 | 2 | 3>(1);
+  const [wizardStep, setWizardStep] = useState<1 | 2 | 3 | 4 | 5 | 6>(1);
   const [jsonInput1, setJsonInput1] = useState("");
   const [jsonInput2, setJsonInput2] = useState("");
   const [jsonInput3, setJsonInput3] = useState("");
+  const [jsonInput4, setJsonInput4] = useState("");
+  const [jsonInput5, setJsonInput5] = useState("");
+  const [jsonInput6, setJsonInput6] = useState("");
 
   useEffect(() => {
     if (typeof window !== "undefined" && window.location.search.includes("import=true")) {
@@ -158,6 +158,7 @@ function TeacherPage() {
     }
   }, []);
 
+  // STEP 1: Story & Master Story Handler
   const handleImportStepContent = (jsonStr: string) => {
     if (!jsonStr.trim()) {
       toast.error("يرجى لصق كود JSON 1 أولاً للمتابعة.");
@@ -166,6 +167,7 @@ function TeacherPage() {
     try {
       const data = JSON.parse(jsonStr);
       const title = data.title || data.lesson_title || lesson.title;
+      const masterStory = String(data.master_story ?? data.masterStory ?? data.intro_story ?? lesson.master_story ?? "");
       const rawBlocks = Array.isArray(data.blocks)
         ? data.blocks
         : Array.isArray(data.sections)
@@ -188,8 +190,8 @@ function TeacherPage() {
         };
       });
 
-      updateLesson({ title, blocks: newBlocks });
-      toast.success("تم استيراد الشرح والقصص والمصطلحات بنجاح! 📖✨");
+      updateLesson({ title, master_story: masterStory, blocks: newBlocks });
+      toast.success("تم استيراد القصة التمهيدية والمواقف الحوارية بنجاح! 📖✨");
       return true;
     } catch {
       toast.error("كود JSON غير صالح. يرجى التثبت من الصيغة.");
@@ -197,53 +199,80 @@ function TeacherPage() {
     }
   };
 
-  const handleImportStepMindMap = (jsonStr: string) => {
+  // STEP 2: Mnemonic Takeaways Handler
+  const handleImportStepMnemonics = (jsonStr: string) => {
     if (!jsonStr.trim()) {
       toast.error("يرجى لصق كود JSON 2 أولاً للمتابعة.");
       return false;
     }
     try {
       const data = sanitizeJsonInput(JSON.parse(jsonStr));
-      const mindMapList = Array.isArray(data.mind_maps_by_block)
-        ? data.mind_maps_by_block
+      const mneumonicList = Array.isArray(data.takeaways_by_block)
+        ? data.takeaways_by_block
         : Array.isArray(data.blocks)
           ? data.blocks
-          : null;
+          : [data];
 
-      if (mindMapList) {
-        const updatedBlocks = lesson.blocks.map((b, i) => {
-          const item =
-            mindMapList[i] || mindMapList.find((m: any) => m.block_id === b.id) || mindMapList[0];
-          const nodes = item ? item.mind_map_nodes || item.nodes || item : b.mind_map_nodes;
-          return {
-            ...b,
-            mind_map_nodes: Array.isArray(nodes) ? nodes : [nodes],
-          };
-        });
-        updateLesson({ blocks: updatedBlocks });
-      } else {
-        let nodes = data.mind_map_nodes || data.nodes || data;
-        if (!Array.isArray(nodes) && typeof nodes === "object") {
-          nodes = [nodes];
-        }
-        const updatedBlocks = lesson.blocks.map((b) => ({
+      const updatedBlocks = lesson.blocks.map((b, i) => {
+        const item = mneumonicList[i] || mneumonicList.find((m: any) => m.block_id === b.id) || mneumonicList[0];
+        if (!item) return b;
+        const norm = normalizeBlock(item, i);
+        return {
           ...b,
-          mind_map_nodes: nodes,
-        }));
-        updateLesson({ blocks: updatedBlocks });
-      }
+          mnemonic: norm.mnemonic || b.mnemonic,
+        };
+      });
 
-      toast.success("تم استيراد الخريطة الذهنية المخصصة لكل فقرة بنجاح! 🎨✨");
+      updateLesson({ blocks: updatedBlocks });
+      toast.success("تم استيراد تنبيهات (💡 خد بالك منها) بنجاح! ✨");
       return true;
     } catch {
-      toast.error("كود JSON غير صالح لإنشاء الخريطة الذهنية.");
+      toast.error("كود JSON غير صالح لتنبيهات خد بالك منها.");
       return false;
     }
   };
 
-  const handleImportStepQuizzes = (jsonStr: string) => {
+  // STEP 3: Zaitouna Summary Handler
+  const handleImportStepZaitouna = (jsonStr: string) => {
     if (!jsonStr.trim()) {
-      toast.error("يرجى لصق كود JSON 3 أولاً لإنهاء الدرس.");
+      toast.error("يرجى لصق كود JSON 3 أولاً للمتابعة.");
+      return false;
+    }
+    try {
+      const data = sanitizeJsonInput(JSON.parse(jsonStr));
+      const list = Array.isArray(data.zaitouna_by_block)
+        ? data.zaitouna_by_block
+        : Array.isArray(data.blocks)
+          ? data.blocks
+          : [data];
+
+      const updatedBlocks = lesson.blocks.map((b, i) => {
+        const item = list[i] || list.find((z: any) => z.block_id === b.id) || list[0];
+        if (!item) return b;
+        const zObj = item.zaitouna || item;
+        return {
+          ...b,
+          zaitouna: {
+            definitions: zObj.definitions || b.zaitouna?.definitions || "",
+            reasoning: zObj.reasoning || b.zaitouna?.reasoning || "",
+            links: zObj.links || b.zaitouna?.links || "",
+          },
+        };
+      });
+
+      updateLesson({ blocks: updatedBlocks });
+      toast.success("تم استيراد بطاقات الزيتونة المخصصة لكل فقرة بنجاح! 🫒✨");
+      return true;
+    } catch {
+      toast.error("كود JSON غير صالح لكروت الزيتونة.");
+      return false;
+    }
+  };
+
+  // STEP 4: Level 1 Simple Contextual MCQs Handler
+  const handleImportStepLevel1MCQs = (jsonStr: string) => {
+    if (!jsonStr.trim()) {
+      toast.error("يرجى لصق كود JSON 4 أولاً للمتابعة.");
       return false;
     }
     try {
@@ -261,7 +290,85 @@ function TeacherPage() {
         return {
           ...b,
           quizzes: {
+            ...b.quizzes,
             mcqs: norm.quizzes.mcqs.length > 0 ? norm.quizzes.mcqs : b.quizzes.mcqs,
+          },
+        };
+      });
+
+      updateLesson({ blocks: updatedBlocks });
+      toast.success("تم استيراد أسئلة المستوى الأول القصصية بنجاح! 🎯✨");
+      return true;
+    } catch {
+      toast.error("كود JSON غير صالح لأسئلة المستوى الأول.");
+      return false;
+    }
+  };
+
+  // STEP 5: Single-Concept Flashcards Handler
+  const handleImportStepFlashcards = (jsonStr: string) => {
+    if (!jsonStr.trim()) {
+      toast.error("يرجى لصق كود JSON 5 أولاً للمتابعة.");
+      return false;
+    }
+    try {
+      const data = sanitizeJsonInput(JSON.parse(jsonStr));
+      const list = Array.isArray(data.flashcards_by_block)
+        ? data.flashcards_by_block
+        : Array.isArray(data.blocks)
+          ? data.blocks
+          : [data];
+
+      const updatedBlocks = lesson.blocks.map((b, i) => {
+        const item = list[i] || list.find((f: any) => f.block_id === b.id) || list[0];
+        if (!item) return b;
+        const rawWords = Array.isArray(item.flashcards)
+          ? item.flashcards
+          : Array.isArray(item.hard_words)
+            ? item.hard_words
+            : [];
+        const words = rawWords.map((w: any) => ({
+          word: String(w.word || w.term || w.question || ""),
+          meaning: String(w.meaning || w.definition || w.answer || ""),
+        }));
+
+        return {
+          ...b,
+          hard_words: words.length > 0 ? words : b.hard_words,
+        };
+      });
+
+      updateLesson({ blocks: updatedBlocks });
+      toast.success("تم استيراد بطاقات الفلاش كاردز الفردية الميسرة بنجاح! 🗂️✨");
+      return true;
+    } catch {
+      toast.error("كود JSON غير صالح لبطاقات الفلاش كاردز.");
+      return false;
+    }
+  };
+
+  // STEP 6: Level 2 & 3 Advanced Quizzes Handler
+  const handleImportStepAdvancedQuizzes = (jsonStr: string) => {
+    if (!jsonStr.trim()) {
+      toast.error("يرجى لصق كود JSON 6 أولاً لإنهاء المعالج.");
+      return false;
+    }
+    try {
+      const data = sanitizeJsonInput(JSON.parse(jsonStr));
+      const quizList = Array.isArray(data.quizzes_by_block)
+        ? data.quizzes_by_block
+        : Array.isArray(data.blocks)
+          ? data.blocks
+          : [data];
+
+      const updatedBlocks = lesson.blocks.map((b, i) => {
+        const item = quizList[i] || quizList.find((q: any) => q.block_id === b.id) || quizList[0];
+        if (!item) return b;
+        const norm = normalizeBlock(item, i);
+        return {
+          ...b,
+          quizzes: {
+            ...b.quizzes,
             fills: norm.quizzes.fills.length > 0 ? norm.quizzes.fills : b.quizzes.fills,
             essays: norm.quizzes.essays.length > 0 ? norm.quizzes.essays : b.quizzes.essays,
           },
@@ -269,10 +376,10 @@ function TeacherPage() {
       });
 
       updateLesson({ blocks: updatedBlocks });
-      toast.success("تم استيراد أسئلة الـ MCQs المخصصة لكل فقرة بنجاح! 📝✨");
+      toast.success("تم استيراد أسئلة المستويين الثاني والثالث بنجاح! 🧠✨");
       return true;
     } catch {
-      toast.error("كود JSON غير صالح لأسئلة الاختبارات.");
+      toast.error("كود JSON غير صالح لأسئلة المستوى الثاني والثالث.");
       return false;
     }
   };
@@ -284,7 +391,7 @@ function TeacherPage() {
       const next = { ...prev, ...patch };
       saveToLibrary(next);
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitizeJsonInput(next)));
       } catch {}
       return next;
     });
@@ -297,7 +404,7 @@ function TeacherPage() {
       };
       saveToLibrary(next);
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitizeJsonInput(next)));
       } catch {}
       return next;
     });
@@ -310,7 +417,7 @@ function TeacherPage() {
       };
       saveToLibrary(next);
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitizeJsonInput(next)));
       } catch {}
       return next;
     });
@@ -325,7 +432,7 @@ function TeacherPage() {
       };
       saveToLibrary(next);
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitizeJsonInput(next)));
       } catch {}
       return next;
     });
@@ -334,8 +441,9 @@ function TeacherPage() {
 
   const handleSaveToLibrary = () => {
     try {
-      saveToLibrary(lesson);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(lesson));
+      const safe = sanitizeJsonInput(lesson);
+      saveToLibrary(safe);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(safe));
       setLibSaved(true);
       setTimeout(() => setLibSaved(false), 2000);
     } catch {
@@ -345,10 +453,11 @@ function TeacherPage() {
 
   const handlePreviewStudent = () => {
     try {
-      saveToLibrary(lesson);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(lesson));
-      localStorage.setItem("nafath.openLesson", JSON.stringify(lesson));
-      sessionStorage.setItem("nafath.openLesson", JSON.stringify(lesson));
+      const safe = sanitizeJsonInput(lesson);
+      saveToLibrary(safe);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(safe));
+      localStorage.setItem("nafath.openLesson", JSON.stringify(safe));
+      sessionStorage.setItem("nafath.openLesson", JSON.stringify(safe));
       toast.success("جاري فتح تجربة الطالب للدرس الحالية... 🎓");
       setTimeout(() => {
         window.location.href = "/";
@@ -388,6 +497,7 @@ function TeacherPage() {
         <div className="fixed inset-0 bg-slate-950/75 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 z-[99999] dir-rtl overflow-y-auto">
           <div className="bg-white border border-[#e0c0b1] rounded-3xl p-6 sm:p-10 max-w-4xl w-full shadow-2xl space-y-6 text-right max-h-[92vh] overflow-y-auto">
             {/* Modal Header */}
+            {/* Stepper Header */}
             <div className="flex items-center justify-between border-b border-[#e0c0b1]/30 pb-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-2xl bg-[#ffdbca] text-[#9d4300] flex items-center justify-center font-black shadow-xs">
@@ -395,10 +505,10 @@ function TeacherPage() {
                 </div>
                 <div>
                   <h3 className="text-lg font-extrabold text-[#0b1c30]">
-                    نظام إضافة الدرس الذكي (3 خطوات متتابعة بـ JSON) 🚀
+                    نظام إضافة الدرس الذكي (6 خطوات متتابعة بـ JSON) 🚀
                   </h3>
                   <p className="text-xs font-semibold text-[#584237]/70">
-                    انسخ البرومبت لكل مرحلة، الصقه في الذكاء الاصطناعي، ثم الصق كود JSON الناتج هنا
+                    توليد منظم ودقيق لكل مكون في الدرس لضمان أعلى جودة تعليمية بدون أخطاء
                   </p>
                 </div>
               </div>
@@ -411,88 +521,94 @@ function TeacherPage() {
               </button>
             </div>
 
-            {/* Stepper Tabs */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {/* Stepper Tabs (Grid 6) */}
+            <div className="grid grid-cols-2 sm:grid-cols-6 gap-2">
               <button
                 type="button"
                 onClick={() => setWizardStep(1)}
                 className={cn(
-                  "p-4 rounded-2xl border text-right transition cursor-pointer flex items-center gap-3",
+                  "p-3 rounded-2xl border text-right transition cursor-pointer flex flex-col gap-1",
                   wizardStep === 1
                     ? "bg-[#9d4300] text-white border-[#9d4300] shadow-md"
                     : "bg-[#fffaf7] text-[#584237] border-[#ffdbca] hover:bg-[#ffeddf]",
                 )}
               >
-                <div
-                  className={cn(
-                    "w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs shrink-0",
-                    wizardStep === 1 ? "bg-white text-[#9d4300]" : "bg-[#ffdbca] text-[#9d4300]",
-                  )}
-                >
-                  1
-                </div>
-                <div>
-                  <h4 className="text-xs font-extrabold">المرحلة الأولى</h4>
-                  <p className="text-[11px] opacity-90 font-semibold">الشرح والقصص والمصطلحات 📖</p>
-                </div>
+                <span className="text-[10px] font-black opacity-80">1. القصة والدراما</span>
+                <span className="text-xs font-black truncate">التمهيد والدراما 📖</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setWizardStep(2)}
                 className={cn(
-                  "p-4 rounded-2xl border text-right transition cursor-pointer flex items-center gap-3",
+                  "p-3 rounded-2xl border text-right transition cursor-pointer flex flex-col gap-1",
                   wizardStep === 2
                     ? "bg-[#8127cf] text-white border-[#8127cf] shadow-md"
                     : "bg-[#eff4ff] text-[#584237] border-[#e0c0b1]/60 hover:bg-[#dce9ff]",
                 )}
               >
-                <div
-                  className={cn(
-                    "w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs shrink-0",
-                    wizardStep === 2 ? "bg-white text-[#8127cf]" : "bg-[#e0e7ff] text-[#8127cf]",
-                  )}
-                >
-                  2
-                </div>
-                <div>
-                  <h4 className="text-xs font-extrabold">المرحلة الثانية</h4>
-                  <p className="text-[11px] opacity-90 font-semibold">
-                    الخريطة الذهنية التفاعلية 🎨
-                  </p>
-                </div>
+                <span className="text-[10px] font-black opacity-80">2. التنبيهات</span>
+                <span className="text-xs font-black truncate">خد بالك منها 💡</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setWizardStep(3)}
                 className={cn(
-                  "p-4 rounded-2xl border text-right transition cursor-pointer flex items-center gap-3",
+                  "p-3 rounded-2xl border text-right transition cursor-pointer flex flex-col gap-1",
                   wizardStep === 3
+                    ? "bg-amber-700 text-white border-amber-700 shadow-md"
+                    : "bg-amber-50 text-[#584237] border-amber-200 hover:bg-amber-100/80",
+                )}
+              >
+                <span className="text-[10px] font-black opacity-80">3. الخلاصة</span>
+                <span className="text-xs font-black truncate">كروت الزيتونة 🫒</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setWizardStep(4)}
+                className={cn(
+                  "p-3 rounded-2xl border text-right transition cursor-pointer flex flex-col gap-1",
+                  wizardStep === 4
                     ? "bg-emerald-700 text-white border-emerald-700 shadow-md"
                     : "bg-[#f0fdf4] text-[#584237] border-emerald-200 hover:bg-emerald-100/70",
                 )}
               >
-                <div
-                  className={cn(
-                    "w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs shrink-0",
-                    wizardStep === 3
-                      ? "bg-white text-emerald-800"
-                      : "bg-emerald-200 text-emerald-800",
-                  )}
-                >
-                  3
-                </div>
-                <div>
-                  <h4 className="text-xs font-extrabold">المرحلة الثالثة</h4>
-                  <p className="text-[11px] opacity-90 font-semibold">
-                    أسئلة الـ MCQs وبنك الأسئلة 📝
-                  </p>
-                </div>
+                <span className="text-[10px] font-black opacity-80">4. المستوى 1</span>
+                <span className="text-xs font-black truncate">أسئلة الـ MCQs 🎯</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setWizardStep(5)}
+                className={cn(
+                  "p-3 rounded-2xl border text-right transition cursor-pointer flex flex-col gap-1",
+                  wizardStep === 5
+                    ? "bg-purple-700 text-white border-purple-700 shadow-md"
+                    : "bg-purple-50 text-[#584237] border-purple-200 hover:bg-purple-100/70",
+                )}
+              >
+                <span className="text-[10px] font-black opacity-80">5. الاستذكار</span>
+                <span className="text-xs font-black truncate">الفلاش كاردز 🗂️</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setWizardStep(6)}
+                className={cn(
+                  "p-3 rounded-2xl border text-right transition cursor-pointer flex flex-col gap-1",
+                  wizardStep === 6
+                    ? "bg-blue-700 text-white border-blue-700 shadow-md"
+                    : "bg-[#eff6ff] text-[#584237] border-blue-200 hover:bg-blue-100/70",
+                )}
+              >
+                <span className="text-[10px] font-black opacity-80">6. المستويات 2 و 3</span>
+                <span className="text-xs font-black truncate">أكمل ومقالي 🧠</span>
               </button>
             </div>
 
-            {/* SCREEN 1: Content & Story JSON */}
+            {/* SCREEN 1: Story & Master Story JSON */}
             {wizardStep === 1 && (
               <div className="space-y-6 pt-2">
                 <div className="bg-[#fffaf7] border border-[#ffdbca] rounded-3xl p-6 space-y-4 text-right">
@@ -500,18 +616,43 @@ function TeacherPage() {
                     <div className="space-y-1">
                       <h3 className="text-base font-extrabold text-[#9d4300] flex items-center gap-2">
                         <BookOpen className="h-5 w-5" />
-                        <span>البرومبت المخصص 1: (الشرح والقصص والمصطلحات 📖)</span>
+                        <span>البرومبت المخصص 1: (القصة التمهيدية الجامعة والمواقف الحوارية 📖)</span>
                       </h3>
                       <p className="text-xs text-[#584237]/70 font-semibold">
-                        انسخ هذا الأمر والصقه في نموذج الذكاء الاصطناعي (ChatGPT / Claude / Gemini)
+                        انسخ هذا الأمر والصقه في الذكاء الاصطناعي لتوليد القصة الشاملة للدرس ككل والمواقف الحوارية لكل فقرة
                       </p>
                     </div>
                     <button
                       type="button"
                       onClick={() => {
-                        const promptText = `أنت خبير في التصميم التعليمي لمنصة "نفاذ - Nafath".\nقم بتحويل النص/الموضوع أدناه إلى كود JSON مخصص لـ (الشرح والقصص والمصطلحات) فقط، وفق الهيكل الآتي:\n{\n  "title": "عنوان الدرس الرئيسي",\n  "blocks": [\n    {\n      "id": 1,\n      "title": "عنوان الفقرة الأولى",\n      "short_sentence": "الفكرة الرئيسية المختصرة جداً",\n      "story": "قصة تشبيهية عامية طريفة بالبلدي تشرح المفهوم بأسلوب دايركت وممتع.",\n      "examples": "مثال تطبيقي من الحياة اليومية.",\n      "full_text": "النص العلمي الكامل والمشروح بدقة.",\n      "hard_words": [\n        { "term": "المصطلح", "definition": "التفسير والشرح بالبلدي بين قوسين" }\n      ],\n      "mnemonic": "جملة تذكّر ذكية ومختصرة لبناء رابط ذهني.",\n      "funny_link": "ربط طريف وفكاهي لترسيخ المعلومة في الذاكرة."\n    }\n  ]\n}\n\nأخرج النتيجة في مربع كود JSON الصافي فقط وبدون أي مقدمات.\n\n---\n[الصق نص أو موضوع الدرس المطلوب تحويله هنا]`;
+                        const promptText = `أنت خبير التصميم التعليمي لمنصة "نفاذ - Nafath".
+مهمتك تحويل النص أدناه إلى كود JSON للقصص الحوارية والتمهيد، وفق القواعد التالية:
+
+1. الفهم الفكري لا الحفظ (شرط جوهري): هدف المستوى الأول هو الفهم العام والسلس للفكرة الجوهرية للفقرة دون الحاجة للحفظ الميكانيكي أو البصم الحرفي!
+2. اللهجة والأسلوب: اكتب القصة التمهيدية والمواقف الحوارية 100% بالعامية المصرية الميسرة جداً والبسيطة (حوار طبيعي ككلامنا اليومي).
+3. حظر لغة الكتب المعقدة: يمنع منعاً باتاً استخدام لغة الكتب الجافة أو الألفاظ المعقدة في القصة حتى لا يصبح كأنه في المستوى الثاني! القصة هدفها التشويق والفهم المباشر.
+4. القصة التمهيدية العامة (master_story): اكتب قصة سينمائية ممتعة بالعامية المصرية تعطي المدخل الواقعي والمشكلة والحل الشرعي بأسلوب شائق.
+5. القصة المصغرة (story): موقف حواري مصغر جداً بالعامية المصرية لكل فقرة يشرح المفهوم بأسلوب دايركت ومختصر.
+6. أخرج النتيجة في كود JSON صافي فقط.
+
+الهيكل المطلوب:
+{
+  "title": "عنوان الدرس الرئيسي",
+  "master_story": "القصة التمهيدية العامة بالعامية المصرية للدرس ككل",
+  "blocks": [
+    {
+      "id": 1,
+      "title": "عنوان الفقرة",
+      "short_sentence": "الفكرة الجوهرية للفقرة",
+      "story": "الموقف الحواري المصغر بالعامية المصرية المختصر جداً",
+      "full_text": "النص العلمي الكامل والمشروح بدقة"
+    }
+  ]
+}
+---
+[الصق نص الدرس هنا]`;
                         navigator.clipboard.writeText(promptText);
-                        toast.success("تم نسخ برومبت الشرح والقصص بنجاح! 📋");
+                        toast.success("تم نسخ برومبت القصة والدراما بالعامية المصرية بنجاح! 📋");
                       }}
                       className="px-5 py-2 bg-[#9d4300] text-white rounded-full text-xs font-extrabold hover:bg-[#833800] transition cursor-pointer shadow-xs flex items-center gap-2"
                     >
@@ -523,7 +664,7 @@ function TeacherPage() {
 
                 <div className="space-y-3 text-right">
                   <label className="text-sm font-extrabold text-[#0b1c30] block">
-                    الصق كود JSON الناتج (JSON 1) الخاص بالشرح والقصص أدناه:
+                    الصق كود JSON الناتج (JSON 1) الخاص بالقصة والدراما أدناه:
                   </label>
                   <textarea
                     rows={10}
@@ -541,7 +682,7 @@ function TeacherPage() {
                       }}
                       className="px-8 py-3 bg-[#9d4300] text-white rounded-full text-sm font-extrabold hover:bg-[#833800] transition cursor-pointer shadow-md flex items-center gap-2"
                     >
-                      <span>اعتماد وانتقال للخطوة 2 (الخريطة الذهنية)</span>
+                      <span>اعتماد وانتقال للخطوة 2 (تنبيهات خد بالك منها)</span>
                       <ArrowLeft className="h-4 w-4" />
                     </button>
                   </div>
@@ -549,7 +690,7 @@ function TeacherPage() {
               </div>
             )}
 
-            {/* SCREEN 2: MindMap JSON */}
+            {/* SCREEN 2: Mnemonic JSON */}
             {wizardStep === 2 && (
               <div className="space-y-6 pt-2">
                 <div className="bg-[#eff4ff] border border-[#e0c0b1]/60 rounded-3xl p-6 space-y-4 text-right">
@@ -557,18 +698,37 @@ function TeacherPage() {
                     <div className="space-y-1">
                       <h3 className="text-base font-extrabold text-[#8127cf] flex items-center gap-2">
                         <Sparkles className="h-5 w-5" />
-                        <span>البرومبت المخصص 2: (الخريطة الذهنية التفاعلية لكل فقرة 🎨)</span>
+                        <span>البرومبت المخصص 2: (تنبيهات واستبصارات "💡 خد بالك منها" 💡)</span>
                       </h3>
                       <p className="text-xs text-[#584237]/70 font-semibold">
-                        انسخ هذا الأمر والصقه في الذكاء الاصطناعي بعد إعطائه نص الشرح
+                        انسخ هذا الأمر والصقه في الذكاء الاصطناعي لاستنباط التنبيهات الفقهية الدقيقة لكل فقرة
                       </p>
                     </div>
                     <button
                       type="button"
                       onClick={() => {
-                        const promptText = `أنت خبير رسم الخرائط الذهنية لمنصة "نفاذ - Nafath".\nبناءً على موضوع الدرس أو الفقرات أدناه، قم بتوليد كود JSON لخريطة ذهنية شجرية تفصيلية مخصصة لكل فقرة على حدة (Root -> Categories -> Subtopics -> Details)، وفق الهيكل الآتي:\n{\n  "mind_maps_by_block": [\n    {\n      "block_id": 1,\n      "block_title": "عنوان الفقرة الأولى",\n      "mind_map_nodes": [\n        { "id": "b1_root", "text": "العنوان الرئيسي للفقرة الأولى", "parentId": null },\n        { "id": "b1_n1", "text": "1. الفرع الرئيسي الأول للفقرة 1", "parentId": "b1_root" },\n        { "id": "b1_n1_1", "text": "تفصيل فرعي 1.1", "parentId": "b1_n1" },\n        { "id": "b1_n1_2", "text": "تفصيل فرعي 1.2 أو شاهد/دليل", "parentId": "b1_n1" },\n        { "id": "b1_n2", "text": "2. الفرع الرئيسي الثاني للفقرة 1", "parentId": "b1_root" },\n        { "id": "b1_n2_1", "text": "تفصيل فرعي 2.1", "parentId": "b1_n2" }\n      ]\n    }\n  ]\n}\n\nأخرج النتيجة في مربع كود JSON الصافي فقط وبدون أي مقدمات.\n\n---\n[الصق نص أو موضوع الدرس المطلوب تحويله هنا]`;
+                        const promptText = `أنت خبير الاستبصار والتأهيل الشرعي لمنصة "نفاذ - Nafath".
+مهمتك استنباط القواعد الفقهية والتنبيهات الدقيقة وتفريغها في كود JSON تحت مفتاح "mnemonic" لكل فقرة.
+
+القواعد:
+1. صغ فقرات "💡 خد بالك منها" كقواعد فقهية وتأهيلية تستنبط أحكام الفقرة ودقائقها (مثل حكم الكراهة، العوض المعلوم والمجهول، مهر المثل).
+2. كل تنبيه يبدأ بـ "💡 خد بالك: ".
+
+الهيكل المطلوب:
+{
+  "takeaways_by_block": [
+    {
+      "block_id": 1,
+      "mnemonic": "💡 خد بالك: الأصل في طلب الخلع أنه مكروه ويشرع بلا كراهة عند خوف ألا تقيم حدود الله.\\n💡 خد بالك: العوض المجهول يوجب (مهر المثل)."
+    }
+  ]
+}
+
+أخرج كود JSON الصافي فقط وبدون أي نصوص خارجيّة.
+---
+[الصق نص الدرس هنا]`;
                         navigator.clipboard.writeText(promptText);
-                        toast.success("تم نسخ برومبت الخريطة الذهنية بنجاح! 📋");
+                        toast.success("تم نسخ برومبت تنبيهات خد بالك منها بنجاح! 📋");
                       }}
                       className="px-5 py-2 bg-[#8127cf] text-white rounded-full text-xs font-extrabold hover:bg-[#6b1fb0] transition cursor-pointer shadow-xs flex items-center gap-2"
                     >
@@ -580,7 +740,7 @@ function TeacherPage() {
 
                 <div className="space-y-3 text-right">
                   <label className="text-sm font-extrabold text-[#0b1c30] block">
-                    الصق كود JSON الناتج (JSON 2) الخاص بالخريطة الذهنية أدناه:
+                    الصق كود JSON الناتج (JSON 2) الخاص بتنبيهات "خد بالك منها" أدناه:
                   </label>
                   <textarea
                     rows={10}
@@ -601,12 +761,12 @@ function TeacherPage() {
                     <button
                       type="button"
                       onClick={() => {
-                        const ok = handleImportStepMindMap(jsonInput2);
+                        const ok = handleImportStepMnemonics(jsonInput2);
                         if (ok) setWizardStep(3);
                       }}
                       className="px-8 py-3 bg-[#8127cf] text-white rounded-full text-sm font-extrabold hover:bg-[#6b1fb0] transition cursor-pointer shadow-md flex items-center gap-2"
                     >
-                      <span>اعتماد وانتقال للخطوة 3 (أسئلة الـ MCQs)</span>
+                      <span>اعتماد وانتقال للخطوة 3 (كروت الزيتونة)</span>
                       <ArrowLeft className="h-4 w-4" />
                     </button>
                   </div>
@@ -614,29 +774,50 @@ function TeacherPage() {
               </div>
             )}
 
-            {/* SCREEN 3: Block MCQs JSON */}
+            {/* SCREEN 3: Zaitouna Summary JSON */}
             {wizardStep === 3 && (
               <div className="space-y-6 pt-2">
-                <div className="bg-[#f0fdf4] border border-emerald-200 rounded-3xl p-6 space-y-4 text-right">
-                  <div className="flex items-center justify-between border-b border-emerald-200/60 pb-3">
+                <div className="bg-amber-50 border border-amber-200 rounded-3xl p-6 space-y-4 text-right">
+                  <div className="flex items-center justify-between border-b border-amber-200/60 pb-3">
                     <div className="space-y-1">
-                      <h3 className="text-base font-extrabold text-emerald-950 flex items-center gap-2">
-                        <CheckCircle2 className="h-5 w-5 text-emerald-700" />
-                        <span>البرومبت المخصص 3: (أسئلة الـ MCQs وبنك الأسئلة لكل فقرة 📝)</span>
+                      <h3 className="text-base font-extrabold text-amber-950 flex items-center gap-2">
+                        <Sparkles className="h-5 w-5 text-amber-700" />
+                        <span>البرومبت المخصص 3: (بطاقات الزيتونة والخلاصة المركزة 🫒)</span>
                       </h3>
-                      <p className="text-xs text-[#584237]/70 font-semibold">
-                        انسخ هذا الأمر والصقه في الذكاء الاصطناعي لتوليد 5 أسئلة خيار من متعدد حصرية
-                        لكل فقرة
+                      <p className="text-xs text-amber-800 font-semibold">
+                        انسخ هذا الأمر والصقه في الذكاء الاصطناعي لاستخلاص خلاصة الزيتونة (التعريفات المركزة، التوجيهات الشرعية، والروابط)
                       </p>
                     </div>
                     <button
                       type="button"
                       onClick={() => {
-                        const promptText = `أنت خبير إعداد الاختبارات لمنصة "نفاذ - Nafath".\nبناءً على فقرات الدرس أدناه، صغ كود JSON لأسئلة الاختبارات والـ MCQs، بشرط صارم: كل فقرة (Block) تحتوي على 5 أسئلة اختيار من متعدد (MCQ) حصرية ومطابقة 100% لنص وقصة هذه الفقرة فقط دون أي سؤال عن فقرات أخرى!\n\nالهيكل المطلوب:\n{\n  "quizzes_by_block": [\n    {\n      "block_id": 1,\n      "quizzes": {\n        "mcqs": [\n          {\n            "question": "سؤال 1 خاص بالفقرة 1 فقط؟",\n            "options": ["خيار 1", "خيار 2", "خيار 3", "خيار 4"],\n            "correct_answer": "خيار 1"\n          },\n          {\n            "question": "سؤال 2 خاص بالفقرة 1 فقط؟",\n            "options": ["خيار 1", "خيار 2", "خيار 3", "خيار 4"],\n            "correct_answer": "خيار 1"\n          },\n          {\n            "question": "سؤال 3 خاص بالفقرة 1 فقط؟",\n            "options": ["خيار 1", "خيار 2", "خيار 3", "خيار 4"],\n            "correct_answer": "خيار 1"\n          },\n          {\n            "question": "سؤال 4 خاص بالفقرة 1 فقط؟",\n            "options": ["خيار 1", "خيار 2", "خيار 3", "خيار 4"],\n            "correct_answer": "خيار 1"\n          },\n          {\n            "question": "سؤال 5 خاص بالفقرة 1 فقط؟",\n            "options": ["خيار 1", "خيار 2", "خيار 3", "خيار 4"],\n            "correct_answer": "خيار 1"\n          }\n        ],\n        "fills": [\n          { "question": "سؤال أكمل الفراغ 1 للفقرة 1", "answer": "الكلمة المناسبة" }\n        ],\n        "essays": [\n          { "question": "سؤال علل أو فكري للفقرة 1؟", "answer": "الإجابة النموذجية" }\n        ]\n      }\n    }\n  ]\n}\n\nأخرج النتيجة في مربع كود JSON الصافي فقط وبدون أي مقدمات.\n\n---\n[الصق نص أو موضوع الدرس المطلوب تحويله هنا]`;
+                        const promptText = `أنت خبير تلخيص واستخلاص "الزيتونة الفقهية" لمنصة "نفاذ - Nafath".
+مهمتك تلخيص كل فقرة في 3 عناصر مركزة ومباشرة جداً:
+1. definitions (التعريفات الجوهرية والحدود الفقهية): سطر واحد دقيق.
+2. reasoning (التوجيه والعلة الشرعية): سطر واحد يدعم الفهم العلمي.
+3. links (الروابط والارتباطات الفقهية): سطر واحد يربط المسألة بأبواب الفقه الأخرى.
+
+الهيكل المطلوب:
+{
+  "zaitouna_by_block": [
+    {
+      "block_id": 1,
+      "zaitouna": {
+        "definitions": "الخلع: فرقة بين الزوجين بعوض مقصود راجع للزوج لفك عقد النكاح.",
+        "reasoning": "إذا كان العوض مجهولاً يقع الخلع بائناً بمهر المثل لئلا يبطل عقد الفداء مع عدم صحة التسمية.",
+        "links": "مرتبط بقواعد عقود المعاوضات المالية وتملّك البضع في الشريعة."
+      }
+    }
+  ]
+}
+
+أخرج كود JSON الصافي فقط وبدون أي مقدمات.
+---
+[الصق نص الدرس هنا]`;
                         navigator.clipboard.writeText(promptText);
-                        toast.success("تم نسخ برومبت الأسئلة بنجاح! 📋");
+                        toast.success("تم نسخ برومبت كروت الزيتونة بنجاح! 📋");
                       }}
-                      className="px-5 py-2 bg-emerald-700 text-white rounded-full text-xs font-extrabold hover:bg-emerald-800 transition cursor-pointer shadow-xs flex items-center gap-2"
+                      className="px-5 py-2 bg-amber-700 text-white rounded-full text-xs font-extrabold hover:bg-amber-800 transition cursor-pointer shadow-xs flex items-center gap-2"
                     >
                       <Copy className="h-4 w-4" />
                       <span>نسخ البرومبت 3 📋</span>
@@ -646,14 +827,14 @@ function TeacherPage() {
 
                 <div className="space-y-3 text-right">
                   <label className="text-sm font-extrabold text-[#0b1c30] block">
-                    الصق كود JSON الناتج (JSON 3) الخاص بالأسئلة والـ MCQs أدناه:
+                    الصق كود JSON الناتج (JSON 3) الخاص بكروت الزيتونة أدناه:
                   </label>
                   <textarea
                     rows={10}
                     value={jsonInput3}
                     onChange={(e) => setJsonInput3(e.target.value)}
                     placeholder="الصق كود JSON 3 هنا..."
-                    className="w-full bg-[#f8f9ff] border border-[#e0c0b1] rounded-2xl p-4 text-xs font-mono text-[#0b1c30] focus:outline-none focus:ring-2 focus:ring-emerald-600 leading-relaxed"
+                    className="w-full bg-[#f8f9ff] border border-[#e0c0b1] rounded-2xl p-4 text-xs font-mono text-[#0b1c30] focus:outline-none focus:ring-2 focus:ring-amber-600 leading-relaxed"
                   />
                   <div className="flex items-center justify-between pt-2">
                     <button
@@ -667,14 +848,319 @@ function TeacherPage() {
                     <button
                       type="button"
                       onClick={() => {
-                        const ok = handleImportStepQuizzes(jsonInput3);
+                        const ok = handleImportStepZaitouna(jsonInput3);
+                        if (ok) setWizardStep(4);
+                      }}
+                      className="px-8 py-3 bg-amber-700 text-white rounded-full text-sm font-extrabold hover:bg-amber-800 transition cursor-pointer shadow-md flex items-center gap-2"
+                    >
+                      <span>اعتماد وانتقال للخطوة 4 (أسئلة المستوى 1)</span>
+                      <ArrowLeft className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* SCREEN 4: Level 1 MCQs JSON */}
+            {wizardStep === 4 && (
+              <div className="space-y-6 pt-2">
+                <div className="bg-[#f0fdf4] border border-emerald-200 rounded-3xl p-6 space-y-4 text-right">
+                  <div className="flex items-center justify-between border-b border-emerald-200/60 pb-3">
+                    <div className="space-y-1">
+                      <h3 className="text-base font-extrabold text-emerald-950 flex items-center gap-2">
+                        <CheckCircle2 className="h-5 w-5 text-emerald-700" />
+                        <span>البرومبت المخصص 4: (أسئلة المستوى الأول القصصية 🎯)</span>
+                      </h3>
+                      <p className="text-xs text-[#584237]/70 font-semibold">
+                        انسخ هذا الأمر والصقه في الذكاء الاصطناعي لتوليد 5 أسئلة خيار من متعدد بالعامية المصرية الميسرة
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const promptText = `أنت خبير إعداد أسئلة المستوى الأول لمنصة "نفاذ - Nafath".
+بناءً على فقرات الدرس والقصة، صغ كود JSON لأسئلة اختيار من متعدد (MCQ) ميسرة ومباشرة بالعامية المصرية (5 أسئلة لكل فقرة)، وفق الشروط الحازمة التالية:
+
+1. قياس الفهم لا الحفظ الحرفي (شرط جوهري): هدف المستوى الأول هو قياس الفهم العام والفكرة الجوهرية للفقرة والحل الشرعي، وليس الحفظ الميكانيكي أو البصم!
+2. حظر الأسئلة السطحية والغبية: يمنع منعاً باتاً السؤال عن أسماء الشخصيات الجانبية في القصة (مثل: ما اسم خالة سارة؟ ما اسم صديقة سلمى؟)! الأسئلة يجب أن تسأل عن الفهم الشرعي والمشكلة الواقعية والحل الشرعي في القصة.
+3. الربط بالقصة والفقرة: جميع الأسئلة يجب أن تكون مستوحاة ومربوطة مباشرة بأحداث القصة والموقف الحواري وعناصر الفقرة دون أي سؤال خارجي.
+4. اللغة والأسلوب: صغ الأسئلة والخيارات بالعامية المصرية الميسرة والسهلة كالمحاورة بالقصة لتسهيل الفهم والمتعة على الطالب بدون تقعر كُتب!
+5. اللفظ الفقهي بين قوسين: ضع المصطلح الفقهي الشرعي الدقيق بين قوسين فقط داخل الجملة العامية (مثل: (عوض معلوم)، (بائناً)، (مهر المثل)، (يُصدّق بيمينه)).
+
+التوزيع الخماسي المطلوب لكل فقرة (بالعامية المصرية + المصطلح بين قوسين):
+- سؤال 1: سؤال عن المشكلة الواقعية والحل الشرعي في القصة (ممنوع السؤال عن أسماء الشخصيات!).
+- سؤال 2: سؤال مباشر حول المفهوم والتعريف بالعامية مع (المصطلح الفقهي بين قوسين).
+- سؤال 3: سؤال مباشر حول الدليل الشرعي المذكور في الفقرة.
+- سؤال 4: سؤال مباشر حول حكمة المشروعية والسبب بالعامية.
+- سؤال 5: سؤال مباشر حول تطبيق تنبيه (خد بالك منها) بالعامية مع (المصطلح الفقهي بين قوسين).
+
+الهيكل المطلوب:
+{
+  "quizzes_by_block": [
+    {
+      "block_id": 1,
+      "quizzes": {
+        "mcqs": [
+          {
+            "question": "الخلع لو تم بمبلغ مالي محدد ومعروف (عوض معلوم)، إيه حكمه في الشرع؟",
+            "options": ["حلال ومسموح بيه (جائز شرعاً)", "حرام وممنوع (باطل)", "مكروه تحريماً", "واجب على الجميع"],
+            "answer": "حلال ومسموح بيه (جائز شرعاً)"
+          },
+          {
+            "question": "في قصة الفقرة، لما استحالت العيشة الزوجية، الشرع شرع الخلع ليه؟",
+            "options": ["علشان يرفع الضرر عن الزوجة وتفدي نفسها (دفع الضرر)", "علشان يعاقب الزوج", "علشان يلغي المهر القديم", "بدون أي سبب"],
+            "answer": "علشان يرفع الضرر عن الزوجة وتفدي نفسها (دفع الضرر)"
+          },
+          {
+            "question": "إيه هو الدليل على مشروعيته من القرآن؟",
+            "options": ["قوله تعالى: (فلا جناح عليهما فيما افتدت به)", "قوله تعالى: (وأقيموا الصلاة)", "قوله تعالى: (كتب عليكم الصيام)", "قوله تعالى: (وأشهدوا ذوي عدل)"],
+            "answer": "قوله تعالى: (فلا جناح عليهما فيما افتدت به)"
+          },
+          {
+            "question": "ليه الخلع بيجوز للمرأة في الشرع؟",
+            "options": ["علشان نرفع الضرر عنها لما العيشة تستحيل", "علشان نمنع الزوج من حقوقه", "علشان نزيد الطلاق", "بدون أي سبب"],
+            "answer": "علشان نرفع الضرر عنها لما العيشة تستحيل"
+          },
+          {
+            "question": "خد بالك: لو وقع الخلع على شيء غير محدد (عوض مجهول)، إيه اللي بيجب للزوج؟",
+            "options": ["تاخد حكم الطلاق البائن وبيدفع لها (مهر المثل)", "يبطل الخلع تماماً", "يتحول لطلاق رجعي", "لا شيء له"],
+            "answer": "تاخد حكم الطلاق البائن وبيدفع لها (مهر المثل)"
+          }
+        ]
+      }
+    }
+  ]
+}
+
+أخرج النتيجة في مربع كود JSON الصافي فقط وبدون أي مقدمات.
+---
+[الصق نص الدرس هنا]`;
+                        navigator.clipboard.writeText(promptText);
+                        toast.success("تم نسخ برومبت أسئلة المستوى الأول المحسن بنجاح! 📋");
+                      }}
+                      className="px-5 py-2 bg-emerald-700 text-white rounded-full text-xs font-extrabold hover:bg-emerald-800 transition cursor-pointer shadow-xs flex items-center gap-2"
+                    >
+                      <Copy className="h-4 w-4" />
+                      <span>نسخ البرومبت 4 📋</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-3 text-right">
+                  <label className="text-sm font-extrabold text-[#0b1c30] block">
+                    الصق كود JSON الناتج (JSON 4) الخاص بأسئلة المستوى الأول أدناه:
+                  </label>
+                  <textarea
+                    rows={10}
+                    value={jsonInput4}
+                    onChange={(e) => setJsonInput4(e.target.value)}
+                    placeholder="الصق كود JSON 4 هنا..."
+                    className="w-full bg-[#f8f9ff] border border-[#e0c0b1] rounded-2xl p-4 text-xs font-mono text-[#0b1c30] focus:outline-none focus:ring-2 focus:ring-emerald-600 leading-relaxed"
+                  />
+                  <div className="flex items-center justify-between pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setWizardStep(3)}
+                      className="px-6 py-3 border border-[#e0c0b1] text-[#584237] rounded-full text-sm font-extrabold hover:bg-slate-50 transition cursor-pointer flex items-center gap-2"
+                    >
+                      <ArrowRight className="h-4 w-4" />
+                      <span>العودة للخطوة 3</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const ok = handleImportStepLevel1MCQs(jsonInput4);
+                        if (ok) setWizardStep(5);
+                      }}
+                      className="px-8 py-3 bg-emerald-700 text-white rounded-full text-sm font-extrabold hover:bg-emerald-800 transition cursor-pointer shadow-md flex items-center gap-2"
+                    >
+                      <span>اعتماد وانتقال للخطوة 5 (الفلاش كاردز)</span>
+                      <ArrowLeft className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* SCREEN 5: Single-Concept Flashcards JSON */}
+            {wizardStep === 5 && (
+              <div className="space-y-6 pt-2">
+                <div className="bg-purple-50 border border-purple-200 rounded-3xl p-6 space-y-4 text-right">
+                  <div className="flex items-center justify-between border-b border-purple-200/60 pb-3">
+                    <div className="space-y-1">
+                      <h3 className="text-base font-extrabold text-purple-950 flex items-center gap-2">
+                        <Sparkles className="h-5 w-5 text-purple-700" />
+                        <span>البرومبت المخصص 5: (بطاقات الفلاش كاردز ذات المعلومة الواحدة 🗂️)</span>
+                      </h3>
+                      <p className="text-xs text-purple-800 font-semibold">
+                        انسخ هذا الأمر والصقه في الذكاء الاصطناعي لتوليد بطاقات فلاش كاردز بسيطة ومباشرة تحمل معلومة واحدة صريحة في كل بطاقة
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const promptText = `أنت خبير صياغة بطاقات الاستذكار السريع (Flashcards) لمنصة "نفاذ - Nafath".
+مهمتك تحويل المفاهيم الفقهية للفقرات إلى بطاقات فلاش كاردز ذكية وبسيطة جداً، بحيث تحمل كل بطاقة معلومة واحدة صريحة كحد أقصى (سؤال وجواب دقيق ومختصر).
+
+القواعد:
+- الوجه الأول (word / question): السؤال أو المصطلح المباشر.
+- الوجه الثاني (meaning / answer): الإجابة التبسيطية الصريحة بأسلوب ميسر.
+
+الهيكل المطلوب:
+{
+  "flashcards_by_block": [
+    {
+      "block_id": 1,
+      "flashcards": [
+        {
+          "word": "ما الحكم إذا كان العوض في الخلع مجهولاً؟",
+          "meaning": "يقع الخلع بائناً وتدفع الزوجة مهر المثل."
+        },
+        {
+          "word": "ما الأصل في طلب الخلع؟",
+          "meaning": "الأصل فيه أنه مكروه، ويجوز بلا كراهة عند الخوف من عدم إقامة حدود الله."
+        }
+      ]
+    }
+  ]
+}
+
+أخرج كود JSON الصافي فقط وبدون أي نصوص خارجيّة.
+---
+[الصق نص الدرس هنا]`;
+                        navigator.clipboard.writeText(promptText);
+                        toast.success("تم نسخ برومبت الفلاش كاردز بنجاح! 📋");
+                      }}
+                      className="px-5 py-2 bg-purple-700 text-white rounded-full text-xs font-extrabold hover:bg-purple-800 transition cursor-pointer shadow-xs flex items-center gap-2"
+                    >
+                      <Copy className="h-4 w-4" />
+                      <span>نسخ البرومبت 5 📋</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-3 text-right">
+                  <label className="text-sm font-extrabold text-[#0b1c30] block">
+                    الصق كود JSON الناتج (JSON 5) الخاص ببطاقات الفلاش كاردز أدناه:
+                  </label>
+                  <textarea
+                    rows={10}
+                    value={jsonInput5}
+                    onChange={(e) => setJsonInput5(e.target.value)}
+                    placeholder="الصق كود JSON 5 هنا..."
+                    className="w-full bg-[#f8f9ff] border border-[#e0c0b1] rounded-2xl p-4 text-xs font-mono text-[#0b1c30] focus:outline-none focus:ring-2 focus:ring-purple-600 leading-relaxed"
+                  />
+                  <div className="flex items-center justify-between pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setWizardStep(4)}
+                      className="px-6 py-3 border border-[#e0c0b1] text-[#584237] rounded-full text-sm font-extrabold hover:bg-slate-50 transition cursor-pointer flex items-center gap-2"
+                    >
+                      <ArrowRight className="h-4 w-4" />
+                      <span>العودة للخطوة 4</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const ok = handleImportStepFlashcards(jsonInput5);
+                        if (ok) setWizardStep(6);
+                      }}
+                      className="px-8 py-3 bg-purple-700 text-white rounded-full text-sm font-extrabold hover:bg-purple-800 transition cursor-pointer shadow-md flex items-center gap-2"
+                    >
+                      <span>اعتماد وانتقال للخطوة 6 (أسئلة المستوى 2 و 3)</span>
+                      <ArrowLeft className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* SCREEN 6: Level 2 & 3 Advanced Quizzes JSON */}
+            {wizardStep === 6 && (
+              <div className="space-y-6 pt-2">
+                <div className="bg-[#eff6ff] border border-blue-200 rounded-3xl p-6 space-y-4 text-right">
+                  <div className="flex items-center justify-between border-b border-blue-200/60 pb-3">
+                    <div className="space-y-1">
+                      <h3 className="text-base font-extrabold text-blue-950 flex items-center gap-2">
+                        <Sparkles className="h-5 w-5 text-blue-700" />
+                        <span>البرومبت المخصص 6: (أسئلة المستويين الثاني والثالث - أكمل الفراغ والمقالي 🧠)</span>
+                      </h3>
+                      <p className="text-xs text-[#584237]/70 font-semibold">
+                        انسخ هذا الأمر والصقه في الذكاء الاصطناعي لتوليد أسئلة أكمل الفراغ والأسئلة المقالية الفقهية
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const promptText = `أنت خبير إعداد الاختبارات المتقدمة لمنصة "نفاذ - Nafath".
+صغ كود JSON لأسئلة أكمل الفراغ (fills) والأسئلة المقالية (essays) لكل فقرة.
+
+القواعد:
+1. أسئلة أكمل الفراغ (fills) تكون صريحة على المصطلحات والأدلة.
+2. الأسئلة المقالية (essays) تكون أسئلة علل أو اشرح الفكرة الفقهية بأسلوبك.
+
+الهيكل المطلوب:
+{
+  "quizzes_by_block": [
+    {
+      "block_id": 1,
+      "quizzes": {
+        "fills": [
+          { "question": "الدليل الشرعي من القرآن قوله تعالى: (فلا جناح عليهما فيما ____ به)", "answer": "افتدت" }
+        ],
+        "essays": [
+          { "question": "علل: لماذا يقع الخلع بمهر المثل إذا كان العوض مجهولاً؟", "answer": "لإزالة الجهالة وتصحيح عقد الفداء" }
+        ]
+      }
+    }
+  ]
+}
+
+أخرج النتيجة في مربع كود JSON الصافي فقط وبدون أي مقدمات.
+---
+[الصق نص الدرس هنا]`;
+                        navigator.clipboard.writeText(promptText);
+                        toast.success("تم نسخ برومبت أسئلة المستوى الثاني والثالث بنجاح! 📋");
+                      }}
+                      className="px-5 py-2 bg-blue-700 text-white rounded-full text-xs font-extrabold hover:bg-blue-800 transition cursor-pointer shadow-xs flex items-center gap-2"
+                    >
+                      <Copy className="h-4 w-4" />
+                      <span>نسخ البرومبت 6 📋</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-3 text-right">
+                  <label className="text-sm font-extrabold text-[#0b1c30] block">
+                    الصق كود JSON الناتج (JSON 6) الخاص بأسئلة المستويين الثاني والثالث أدناه:
+                  </label>
+                  <textarea
+                    rows={10}
+                    value={jsonInput6}
+                    onChange={(e) => setJsonInput6(e.target.value)}
+                    placeholder="الصق كود JSON 6 هنا..."
+                    className="w-full bg-[#f8f9ff] border border-[#e0c0b1] rounded-2xl p-4 text-xs font-mono text-[#0b1c30] focus:outline-none focus:ring-2 focus:ring-blue-600 leading-relaxed"
+                  />
+                  <div className="flex items-center justify-between pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setWizardStep(5)}
+                      className="px-6 py-3 border border-[#e0c0b1] text-[#584237] rounded-full text-sm font-extrabold hover:bg-slate-50 transition cursor-pointer flex items-center gap-2"
+                    >
+                      <ArrowRight className="h-4 w-4" />
+                      <span>العودة للخطوة 5</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const ok = handleImportStepAdvancedQuizzes(jsonInput6);
                         if (ok) {
                           handleSaveToLibrary();
                           setShowImportModal(false);
                           handlePreviewStudent();
                         }
                       }}
-                      className="px-8 py-3.5 bg-emerald-700 bg-gradient-to-r from-emerald-700 to-emerald-800 text-white rounded-full text-sm font-extrabold hover:from-emerald-800 hover:to-emerald-900 transition cursor-pointer shadow-lg flex items-center gap-2"
+                      className="px-8 py-3.5 bg-blue-700 bg-gradient-to-r from-blue-700 to-blue-800 text-white rounded-full text-sm font-extrabold hover:from-blue-800 hover:to-blue-900 transition cursor-pointer shadow-lg flex items-center gap-2"
                     >
                       <span>إنهاء وحفظ الدرس ومعاينته كطالب 🎓 ✨</span>
                     </button>
@@ -776,6 +1262,19 @@ function TeacherPage() {
                   />
                 </Field>
 
+                <Field
+                  label="📖 القصة التمهيدية الجامعة للدرس ككل (Master Intro Story)"
+                  hint="قصة تمهيدية سينمائية ممتعة تظهر للطالب قبل البدء بالفقرات لإعطائه السياق الواقعي الشامل."
+                >
+                  <textarea
+                    value={lesson.master_story || ""}
+                    onChange={(e) => updateLesson({ master_story: e.target.value })}
+                    rows={6}
+                    placeholder="اكتب القصة التمهيدية الجامعة للدرس ككل هنا (مثل حوار سارة والمعلمة كاملة)..."
+                    className="w-full rounded-2xl border-none bg-[#eff4ff] p-4 text-xs font-bold text-[#0b1c30] leading-relaxed"
+                  />
+                </Field>
+
                 {/* Level Selection Radio Pills & Modern Inline Stages Editor */}
                 <div className="pt-6 border-t border-[#e0c0b1]/30 space-y-6 text-center">
                   <div className="flex items-center justify-center gap-2 text-xs sm:text-sm font-extrabold text-[#0b1c30]">
@@ -795,7 +1294,7 @@ function TeacherPage() {
                       )}
                     >
                       <CheckCircle2 className="h-4 w-4" />
-                      <span>مراحل المستوى الأول (3 مراحل)</span>
+                      <span>مراحل المستوى الأول ({lesson.levelStageOrders?.[1]?.length || 5} مراحل)</span>
                     </button>
 
                     <button
@@ -808,8 +1307,8 @@ function TeacherPage() {
                           : "bg-[#eff4ff] text-[#584237] border-transparent hover:bg-[#dce9ff]",
                       )}
                     >
-                      <span className="w-3.5 h-3.5 rounded-full border-2 border-current" />
-                      <span>مراحل المستوى الثاني (10 مراحل)</span>
+                      <div className="h-3.5 w-3.5 rounded-full border-2 border-current" />
+                      <span>مراحل المستوى الثاني ({lesson.levelStageOrders?.[2]?.length || 8} مراحل)</span>
                     </button>
 
                     <button
@@ -822,8 +1321,8 @@ function TeacherPage() {
                           : "bg-[#eff4ff] text-[#584237] border-transparent hover:bg-[#dce9ff]",
                       )}
                     >
-                      <span className="w-3.5 h-3.5 rounded-full border-2 border-current" />
-                      <span>مراحل المستوى الثالث (11 مرحلة)</span>
+                      <div className="h-3.5 w-3.5 rounded-full border-2 border-current" />
+                      <span>مراحل المستوى الثالث ({lesson.levelStageOrders?.[3]?.length || 6} مراحل)</span>
                     </button>
                   </div>
 
@@ -917,7 +1416,9 @@ function GlobalLevelSequenceEditor({
   const disabledSet = new Set<Stage>(levelDisabled[activeLevel] || []);
 
   const fullStageList = useMemo(() => {
-    const valid = currentLevelOrder.filter((s) => (DEFAULT_STAGE_ORDER as Stage[]).includes(s as Stage));
+    const valid = currentLevelOrder.filter((s) =>
+      (DEFAULT_STAGE_ORDER as Stage[]).includes(s as Stage),
+    );
     const missing = (DEFAULT_STAGE_ORDER as Stage[]).filter((s) => !valid.includes(s));
     return [...valid, ...missing] as Stage[];
   }, [currentLevelOrder]);
@@ -932,18 +1433,39 @@ function GlobalLevelSequenceEditor({
   };
 
   const toggleStageDisabled = (stage: Stage) => {
-    const nextSet = new Set(disabledSet);
-    if (nextSet.has(stage)) {
-      nextSet.delete(stage);
+    const isCurrentlyActive = currentLevelOrder.includes(stage) && !disabledSet.has(stage);
+
+    if (isCurrentlyActive) {
+      // Disable this stage
+      const nextOrder = currentLevelOrder.filter((s) => s !== stage);
+      const nextDisabled = Array.from(new Set([...(levelDisabled[activeLevel] || []), stage]));
+      onChange({
+        levelStageOrders: {
+          ...levelOrders,
+          [activeLevel]: nextOrder,
+        },
+        levelDisabledStages: {
+          ...levelDisabled,
+          [activeLevel]: nextDisabled,
+        },
+      });
     } else {
-      nextSet.add(stage);
+      // Enable this stage
+      const nextOrder = currentLevelOrder.includes(stage)
+        ? currentLevelOrder
+        : [...currentLevelOrder, stage];
+      const nextDisabled = (levelDisabled[activeLevel] || []).filter((s) => s !== stage);
+      onChange({
+        levelStageOrders: {
+          ...levelOrders,
+          [activeLevel]: nextOrder,
+        },
+        levelDisabledStages: {
+          ...levelDisabled,
+          [activeLevel]: nextDisabled,
+        },
+      });
     }
-    onChange({
-      levelDisabledStages: {
-        ...levelDisabled,
-        [activeLevel]: Array.from(nextSet),
-      },
-    });
   };
 
   const moveStage = (idx: number, dir: -1 | 1) => {
@@ -968,7 +1490,7 @@ function GlobalLevelSequenceEditor({
       {/* Modern Bento Grid of Stages (Matches modern Zen aesthetic) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {fullStageList.map((stage, idx) => {
-          const isDisabled = disabledSet.has(stage);
+          const isDisabled = !currentLevelOrder.includes(stage) || disabledSet.has(stage);
 
           return (
             <div
@@ -1267,7 +1789,7 @@ function TeacherMindMapEditor({
   }, [block]);
 
   const handleUpdate = (updated: MindMapData) => {
-    onChange({ mind_map_nodes: [updated as unknown as string] });
+    onChange({ mind_map_nodes: [updated as unknown as Record<string, unknown>] });
   };
 
   return (
@@ -1413,16 +1935,24 @@ function InlineStageCanvas({
 
   if (stage === "baladi_terms") {
     return (
-      <div className="space-y-4">
-        <Field
-          label="شرح المصطلحات والأحكام بالبلدي"
-          hint="أضف الكلمات والمفاهيم وشرحها البسيط المعاصر لتسهيل الاستيعاب."
-        >
-          <HardWordsEditor
-            words={block.hard_words}
-            onChange={(words) => onChange({ hard_words: words })}
+      <div className="space-y-6">
+        <div className="rounded-3xl bg-amber-50/80 p-6 border border-amber-200 space-y-4 text-right shadow-2xs">
+          <div className="flex items-center gap-2 border-b border-amber-200/80 pb-3">
+            <Sparkles className="h-5 w-5 text-amber-600 shrink-0" />
+            <div>
+              <h4 className="text-sm font-black text-amber-950">💡 نقط خلي بالك منها (التنبيهات والاستبصار الفقهي الدقيق):</h4>
+              <p className="text-xs font-semibold text-amber-800">اكتب هنا القواعد الفقهية والتنبيهات المباشرة للطالب (كل تنبيه في سطر منفصل يبدأ بـ 💡 خد بالك:)</p>
+            </div>
+          </div>
+          <Textarea
+            value={block.mnemonic}
+            onChange={(e) => onChange({ mnemonic: e.target.value })}
+            rows={7}
+            placeholder={`💡 خد بالك: الخلع جائز بلا كراهة إذا خافت الزوجة ألا تقيم حدود الله.
+💡 خد بالك: إذا كان العوض مجهولاً يقع الخلع بائناً وتدفع الزوجة مهر المثل.`}
+            className="rounded-2xl border border-amber-200 bg-white font-bold text-xs text-amber-950 p-4 focus:outline-none focus:ring-2 focus:ring-amber-500 leading-relaxed shadow-2xs"
           />
-        </Field>
+        </div>
       </div>
     );
   }

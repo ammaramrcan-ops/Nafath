@@ -6,110 +6,134 @@ import { autoCategory, type SmartFlashcard } from "./spaced-repetition";
  * AI Auto-Generation: Extracts SmartFlashcards dynamically from a ParagraphBlock.
  */
 export function generateSmartCardsFromBlock(block: ParagraphBlock, blockIdx = 0): SmartFlashcard[] {
-  const cards: SmartFlashcard[] = [];
   const baseId = `fc_block_${block.id || blockIdx + 1}`;
+  const cards: SmartFlashcard[] = [
+    ...buildZaitounaCards(block, baseId),
+    ...buildHardWordCards(block, baseId),
+    ...buildQuizCards(block, baseId),
+  ];
 
-  // 1. Cards from Zaitouna (Definitions, Reasoning, Links)
-  if (block.zaitouna) {
-    const z = block.zaitouna;
-
-    if (z.definitions && z.definitions.trim()) {
-      const keywords = extractKeywordsFromText(z.definitions);
-      cards.push({
-        id: `${baseId}_z_def`,
-        category: "rulings",
-        question: `ما الأحكام الضابطة والمفاهيم الرئيسية لفقرة: "${block.title}"؟`,
-        model_answer: z.definitions,
-        keywords,
-        hint: {
-          mnemonic: block.mnemonic || `تذكر مفاهيم ${block.title}`,
-          keyword_cues: generateKeywordCues(keywords),
-        },
-        explanation_baladi:
-          block.story ||
-          block.short_sentence ||
-          "المفاهيم الأساسية التي يدور حولها الحكم الشرعي في الفقرة.",
-        stats: createDefaultStats(),
-      });
-    }
-
-    if (z.reasoning && z.reasoning.trim()) {
-      const keywords = extractKeywordsFromText(z.reasoning);
-      cards.push({
-        id: `${baseId}_z_reas`,
-        category: "reasoning",
-        question: `علّل: ما التفسير والعلة المنطقية لـ "${block.title}"؟`,
-        model_answer: z.reasoning,
-        keywords,
-        hint: {
-          mnemonic: block.funny_link || `العلة تكمن في رفع الضرر وحفظ الحقوق`,
-          keyword_cues: generateKeywordCues(keywords),
-        },
-        explanation_baladi:
-          block.funny_link ||
-          block.short_sentence ||
-          "السبب والعلة الفقهية التي بني عليها الحكم لرفع الحرج.",
-        stats: createDefaultStats(),
-      });
-    }
-
-    if (z.links && z.links.trim()) {
-      const keywords = extractKeywordsFromText(z.links);
-      cards.push({
-        id: `${baseId}_z_links`,
-        category: "summary",
-        categoryLabel: "💡 رابط تكاملي",
-        question: `كيف ترتبط أحكام فقرة "${block.title}" بغيرها من أبواب الفقه؟`,
-        model_answer: z.links,
-        keywords,
-        hint: {
-          mnemonic: block.short_sentence || "التكامل مع القواعد الفقهية العامة",
-          keyword_cues: generateKeywordCues(keywords),
-        },
-        stats: createDefaultStats(),
-      } as any);
-    }
+  if (cards.length === 0 && block.full_text) {
+    cards.push(buildFallbackCard(block, baseId));
   }
 
-  // 2. Cards from Hard Words (Definitions)
-  if (block.hard_words && Array.isArray(block.hard_words) && block.hard_words.length > 0) {
-    block.hard_words.forEach((hw, idx) => {
-      if (!hw.word || !hw.meaning) return;
-      const keywords = [hw.word, ...extractKeywordsFromText(hw.meaning).slice(0, 2)];
-      cards.push({
-        id: `${baseId}_hw_${idx}`,
-        category: "definition",
-        question: `ما المعنى الدقيق والمقصود بالمصطلح الشرعي: "${hw.word}"؟`,
-        model_answer: hw.meaning,
-        keywords,
-        hint: {
-          mnemonic: `مصطلح ${hw.word}`,
-          keyword_cues: generateKeywordCues(keywords),
-        },
-        explanation_baladi: `معنى "${hw.word}" بالبلدي: ${hw.meaning}`,
-        stats: createDefaultStats(),
-      });
+  return cards;
+}
+
+/**
+ * Auto-Generates SmartFlashcards for an entire Lesson.
+ */
+export function generateSmartCardsFromLesson(lesson: Lesson): SmartFlashcard[] {
+  if (!lesson?.blocks) return [];
+  return lesson.blocks.flatMap((block, idx) => generateSmartCardsFromBlock(block, idx));
+}
+
+// ── Helper builders ──────────────────────────────────────────
+
+function buildZaitounaCards(block: ParagraphBlock, baseId: string): SmartFlashcard[] {
+  const z = block.zaitouna;
+  if (!z) return [];
+
+  const cards: SmartFlashcard[] = [];
+
+  if (z.definitions?.trim()) {
+    const keywords = extractKeywordsFromText(z.definitions);
+    cards.push({
+      id: `${baseId}_z_def`,
+      category: "rulings",
+      question: `ما الأحكام الضابطة والمفاهيم الرئيسية لفقرة: "${block.title}"؟`,
+      model_answer: z.definitions,
+      keywords,
+      hint: {
+        mnemonic: block.mnemonic || `تذكر مفاهيم ${block.title}`,
+        keyword_cues: generateKeywordCues(keywords),
+      },
+      explanation_baladi:
+        block.story ||
+        block.short_sentence ||
+        "المفاهيم الأساسية التي يدور حولها الحكم الشرعي في الفقرة.",
+      stats: createDefaultStats(),
     });
   }
 
-  // 3. Cards from Quizzes (Essays, Fills, MCQs)
-  if (block.quizzes?.essays && Array.isArray(block.quizzes.essays)) {
-    block.quizzes.essays.forEach((essay, idx) => {
+  if (z.reasoning?.trim()) {
+    const keywords = extractKeywordsFromText(z.reasoning);
+    cards.push({
+      id: `${baseId}_z_reas`,
+      category: "reasoning",
+      question: `علّل: ما التفسير والعلة المنطقية لـ "${block.title}"؟`,
+      model_answer: z.reasoning,
+      keywords,
+      hint: {
+        mnemonic: block.funny_link || `العلة تكمن في رفع الضرر وحفظ الحقوق`,
+        keyword_cues: generateKeywordCues(keywords),
+      },
+      explanation_baladi:
+        block.funny_link ||
+        block.short_sentence ||
+        "السبب والعلة الفقهية التي بني عليها الحكم لرفع الحرج.",
+      stats: createDefaultStats(),
+    });
+  }
+
+  if (z.links?.trim()) {
+    const keywords = extractKeywordsFromText(z.links);
+    cards.push({
+      id: `${baseId}_z_links`,
+      category: "summary",
+      question: `كيف ترتبط أحكام فقرة "${block.title}" بغيرها من أبواب الفقه؟`,
+      model_answer: z.links,
+      keywords,
+      hint: {
+        mnemonic: block.short_sentence || "التكامل مع القواعد الفقهية العامة",
+        keyword_cues: generateKeywordCues(keywords),
+      },
+      stats: createDefaultStats(),
+    });
+  }
+
+  return cards;
+}
+
+function buildHardWordCards(block: ParagraphBlock, baseId: string): SmartFlashcard[] {
+  if (!block.hard_words?.length) return [];
+
+  return block.hard_words
+    .filter((hw) => hw.word && hw.meaning)
+    .map((hw, idx) => ({
+      id: `${baseId}_hw_${idx}`,
+      category: "definition" as const,
+      question: `ما المعنى الدقيق والمقصود بالمصطلح الشرعي: "${hw.word}"؟`,
+      model_answer: hw.meaning!,
+      keywords: [hw.word!, ...extractKeywordsFromText(hw.meaning!).slice(0, 2)],
+      hint: {
+        mnemonic: `مصطلح ${hw.word}`,
+        keyword_cues: generateKeywordCues([hw.word!]),
+      },
+      explanation_baladi: `معنى "${hw.word}" بالبلدي: ${hw.meaning}`,
+      stats: createDefaultStats(),
+    }));
+}
+
+function buildQuizCards(block: ParagraphBlock, baseId: string): SmartFlashcard[] {
+  const cards: SmartFlashcard[] = [];
+  const quizzes = block.quizzes;
+
+  if (quizzes?.essays) {
+    quizzes.essays.forEach((essay, idx) => {
       if (!essay.question) return;
-      const cat = autoCategory(essay.question, "essay");
-      const keywords =
-        essay.keywords && essay.keywords.length > 0
-          ? essay.keywords
-          : extractKeywordsFromText(block.full_text).slice(0, 3);
+      const hasKeywords = essay.keywords?.length > 0;
+      const keywords = hasKeywords
+        ? essay.keywords
+        : extractKeywordsFromText(block.full_text).slice(0, 3);
 
       cards.push({
         id: `${baseId}_essay_${idx}`,
-        category: cat,
+        category: autoCategory(essay.question, "essay"),
         question: essay.question,
-        model_answer:
-          essay.keywords && essay.keywords.length > 0
-            ? `الكلمات المفتاحية الواجب ذكرها: ${essay.keywords.join("، ")}`
-            : block.full_text.slice(0, 150),
+        model_answer: hasKeywords
+          ? `الكلمات المفتاحية الواجب ذكرها: ${essay.keywords!.join("، ")}`
+          : block.full_text.slice(0, 150),
         keywords,
         hint: {
           mnemonic: essay.hint || block.mnemonic || undefined,
@@ -122,8 +146,8 @@ export function generateSmartCardsFromBlock(block: ParagraphBlock, blockIdx = 0)
     });
   }
 
-  if (block.quizzes?.fills && Array.isArray(block.quizzes.fills)) {
-    block.quizzes.fills.forEach((fill, idx) => {
+  if (quizzes?.fills) {
+    quizzes.fills.forEach((fill, idx) => {
       if (!fill.question || !fill.answer) return;
       cards.push({
         id: `${baseId}_fill_${idx}`,
@@ -140,13 +164,12 @@ export function generateSmartCardsFromBlock(block: ParagraphBlock, blockIdx = 0)
     });
   }
 
-  if (block.quizzes?.mcqs && Array.isArray(block.quizzes.mcqs)) {
-    block.quizzes.mcqs.forEach((mcq, idx) => {
+  if (quizzes?.mcqs) {
+    quizzes.mcqs.forEach((mcq, idx) => {
       if (!mcq.question || !mcq.answer) return;
-      const cat = autoCategory(mcq.question, "mcq");
       cards.push({
         id: `${baseId}_mcq_${idx}`,
-        category: cat,
+        category: autoCategory(mcq.question, "mcq"),
         question: mcq.question,
         model_answer: mcq.answer,
         keywords: [mcq.answer],
@@ -159,38 +182,26 @@ export function generateSmartCardsFromBlock(block: ParagraphBlock, blockIdx = 0)
     });
   }
 
-  // Fallback card if block has no other details
-  if (cards.length === 0 && block.full_text) {
-    const keywords = extractKeywordsFromText(block.full_text).slice(0, 3);
-    cards.push({
-      id: `${baseId}_fallback`,
-      category: "summary",
-      question: `ما أهم الأحكام والبيانات الواردة في فقرة: "${block.title}"؟`,
-      model_answer: block.full_text,
-      keywords,
-      hint: {
-        mnemonic: block.short_sentence || block.title,
-        keyword_cues: generateKeywordCues(keywords),
-      },
-      stats: createDefaultStats(),
-    });
-  }
-
   return cards;
 }
 
-/**
- * Auto-Generates SmartFlashcards for an entire Lesson.
- */
-export function generateSmartCardsFromLesson(lesson: Lesson): SmartFlashcard[] {
-  if (!lesson || !lesson.blocks) return [];
-  const all: SmartFlashcard[] = [];
-  lesson.blocks.forEach((block, idx) => {
-    const blockCards = generateSmartCardsFromBlock(block, idx);
-    all.push(...blockCards);
-  });
-  return all;
+function buildFallbackCard(block: ParagraphBlock, baseId: string): SmartFlashcard {
+  const keywords = extractKeywordsFromText(block.full_text).slice(0, 3);
+  return {
+    id: `${baseId}_fallback`,
+    category: "summary",
+    question: `ما أهم الأحكام والبيانات الواردة في فقرة: "${block.title}"؟`,
+    model_answer: block.full_text,
+    keywords,
+    hint: {
+      mnemonic: block.short_sentence || block.title,
+      keyword_cues: generateKeywordCues(keywords),
+    },
+    stats: createDefaultStats(),
+  };
 }
+
+// ── Utilities ────────────────────────────────────────────────
 
 function createDefaultStats() {
   return {
