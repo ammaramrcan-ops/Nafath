@@ -570,7 +570,9 @@ export function effectiveStages(
   let orderToUse: Stage[] = [];
 
   // Check if subject has custom level stage orders configured
-  const subject = subjectId ? getSubject(subjectId) : null;
+  const activeSubId =
+    subjectId || (typeof window !== "undefined" ? getCurriculum().subjects[0]?.id : "fiqh");
+  const subject = activeSubId ? getSubject(activeSubId) : undefined;
   const subOrders = subject?.levelStageOrders;
   const subDisabled = subject?.levelDisabledStages;
 
