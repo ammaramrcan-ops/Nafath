@@ -338,14 +338,96 @@ export function SpacedRepetitionView() {
 
           {/* Exam Picker Box */}
           {showExamPicker && (
-            <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 flex items-center gap-3">
-              <span className="text-xs font-bold text-amber-950">ميعاد الامتحان الحقيقي:</span>
-              <input
-                type="date"
-                value={examDate}
-                onChange={(e) => handleSaveExamDate(e.target.value)}
-                className="bg-white border border-amber-300 rounded-xl px-3 py-1.5 text-xs font-bold text-[#0b1c30]"
-              />
+            <div className="p-6 rounded-[2rem] bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200/80 shadow-lg space-y-4 text-right">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-5 w-5 text-[#9d4300]" />
+                  <h3 className="text-sm font-extrabold text-[#0b1c30]">حدد الميعاد المتبقي للامتحان ⏳</h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowExamPicker(false)}
+                  className="text-xs text-[#584237]/60 hover:text-[#0b1c30] p-1 rounded-lg"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <p className="text-xs text-[#584237]/80 font-semibold">اختر عدد الأيام المتبقية حتى الامتحان مباشرة وبسهولة دون تقويم معقد:</p>
+
+              {/* Preset Days Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+                {[
+                  { days: 3, label: "بعد 3 أيام ⚡", sub: "طوارئ قصوى" },
+                  { days: 6, label: "بعد 6 أيام 🎯", sub: "مراجعة مكثفة" },
+                  { days: 10, label: "بعد 10 أيام 📅", sub: "جدول متوازن" },
+                  { days: 15, label: "بعد 15 يوم ⌛", sub: "مراجعة هادئة" },
+                  { days: 30, label: "بعد 30 يوم 🎓", sub: "خطة طويلة" },
+                ].map((item) => (
+                  <button
+                    key={item.days}
+                    type="button"
+                    onClick={() => {
+                      const target = new Date();
+                      target.setDate(target.getDate() + item.days);
+                      const yyyy = target.getFullYear();
+                      const mm = String(target.getMonth() + 1).padStart(2, "0");
+                      const dd = String(target.getDate()).padStart(2, "0");
+                      handleSaveExamDate(`${yyyy}-${mm}-${dd}`);
+                    }}
+                    className="p-3.5 rounded-2xl bg-white border border-amber-200 hover:border-[#9d4300] hover:bg-[#ffdbca]/40 transition-all text-center cursor-pointer shadow-2xs group"
+                  >
+                    <div className="text-xs font-extrabold text-[#0b1c30] group-hover:text-[#9d4300]">
+                      {item.label}
+                    </div>
+                    <div className="text-[10px] text-[#584237]/60 font-semibold mt-0.5">{item.sub}</div>
+                  </button>
+                ))}
+              </div>
+
+              {/* Custom Days Input */}
+              <div className="pt-2 flex items-center gap-3 border-t border-amber-200/60">
+                <span className="text-xs font-bold text-[#0b1c30]">أو أدخل عدد الأيام مباشرة:</span>
+                <input
+                  type="number"
+                  min="1"
+                  max="365"
+                  placeholder="مثال: 7"
+                  id="custom-days-input"
+                  className="w-24 bg-white border border-amber-300 rounded-xl px-3 py-1.5 text-xs font-bold text-[#0b1c30] text-center focus:outline-none focus:border-[#9d4300]"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      const val = parseInt((e.target as HTMLInputElement).value, 10);
+                      if (val && val > 0) {
+                        const target = new Date();
+                        target.setDate(target.getDate() + val);
+                        const yyyy = target.getFullYear();
+                        const mm = String(target.getMonth() + 1).padStart(2, "0");
+                        const dd = String(target.getDate()).padStart(2, "0");
+                        handleSaveExamDate(`${yyyy}-${mm}-${dd}`);
+                      }
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const el = document.getElementById("custom-days-input") as HTMLInputElement;
+                    const val = parseInt(el?.value || "", 10);
+                    if (val && val > 0) {
+                      const target = new Date();
+                      target.setDate(target.getDate() + val);
+                      const yyyy = target.getFullYear();
+                      const mm = String(target.getMonth() + 1).padStart(2, "0");
+                      const dd = String(target.getDate()).padStart(2, "0");
+                      handleSaveExamDate(`${yyyy}-${mm}-${dd}`);
+                    }
+                  }}
+                  className="px-4 py-1.5 rounded-xl bg-[#9d4300] text-white text-xs font-extrabold shadow-xs hover:bg-[#803600] transition cursor-pointer"
+                >
+                  تأكيد الميعاد
+                </button>
+              </div>
             </div>
           )}
 

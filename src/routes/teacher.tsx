@@ -1415,13 +1415,19 @@ function GlobalLevelSequenceEditor({
   const currentLevelOrder = levelOrders[activeLevel] || LEVEL_DEFAULT_STAGES[activeLevel];
   const disabledSet = new Set<Stage>(levelDisabled[activeLevel] || []);
 
+  const [showDisabledStages, setShowDisabledStages] = useState(false);
+
   const fullStageList = useMemo(() => {
     const valid = currentLevelOrder.filter((s) =>
       (DEFAULT_STAGE_ORDER as Stage[]).includes(s as Stage),
     );
     const missing = (DEFAULT_STAGE_ORDER as Stage[]).filter((s) => !valid.includes(s));
-    return [...valid, ...missing] as Stage[];
-  }, [currentLevelOrder]);
+    const all = [...valid, ...missing] as Stage[];
+    if (!showDisabledStages) {
+      return all.filter((s) => currentLevelOrder.includes(s) && !disabledSet.has(s));
+    }
+    return all;
+  }, [currentLevelOrder, disabledSet, showDisabledStages]);
 
   const setLevelOrder = (nextOrder: Stage[]) => {
     onChange({
@@ -1479,12 +1485,23 @@ function GlobalLevelSequenceEditor({
   return (
     <div className="space-y-4 text-right dir-rtl" dir="rtl">
       <div className="flex items-center justify-between border-b border-[#e0c0b1]/30 pb-3">
-        <h3 className="text-base font-extrabold text-[#0b1c30]">
-          إعداد وتنسيق مراحل المستوى {activeLevel}
-        </h3>
-        <span className="text-xs font-semibold text-[#584237]/70">
-          المراحل المفعّلة تظهر بوضوح، والمعطّلة تظهر بشكل شفاف خفيف 👁️
-        </span>
+        <div>
+          <h3 className="text-base font-extrabold text-[#0b1c30]">
+            إعداد وتنسيق مراحل المستوى {activeLevel}
+          </h3>
+          <p className="text-xs font-semibold text-[#584237]/70 mt-0.5">
+            يتم عرض المراحل المفعّلة فقط المتاحة في هذه المادة ({fullStageList.length} مراحل مفعّلة) ✨
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setShowDisabledStages(!showDisabledStages)}
+          className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-extrabold transition cursor-pointer border bg-[#eff4ff] text-[#9d4300] border-[#e0c0b1]/40 hover:bg-[#ffdbca]/40"
+        >
+          {showDisabledStages ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          <span>{showDisabledStages ? "إخفاء غير المفعلة" : "عرض المراحل المعطلة"}</span>
+        </button>
       </div>
 
       {/* Modern Bento Grid of Stages (Matches modern Zen aesthetic) */}
