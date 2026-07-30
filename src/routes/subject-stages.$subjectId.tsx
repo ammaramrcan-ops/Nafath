@@ -161,11 +161,10 @@ function SubjectStagesEditor() {
     setCurrentSubject(getSubject(subjectId) || null);
   };
 
-  const handleToggleStage = (stage: Stage) => {
-    const newDisabled = disabledStages.includes(stage)
-      ? disabledStages.filter((s) => s !== stage)
-      : [...disabledStages, stage];
-
+  const handleRemoveStage = (stage: Stage) => {
+    const newStages = currentStages.filter((s) => s !== stage);
+    updateSubjectStages(subjectId, selectedLevel, newStages);
+    const newDisabled = disabledStages.filter((s) => s !== stage);
     updateSubjectDisabledStages(subjectId, selectedLevel, newDisabled);
     setCurrentSubject(getSubject(subjectId) || null);
   };
@@ -327,16 +326,11 @@ function SubjectStagesEditor() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => handleToggleStage(stage)}
-                          className={
-                            disabledStages.includes(stage) ? "text-green-600" : "text-red-600"
-                          }
+                          onClick={() => handleRemoveStage(stage)}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          title="إرجاع إلى المراحل المتاحة"
                         >
-                          {disabledStages.includes(stage) ? (
-                            <Plus className="h-4 w-4" />
-                          ) : (
-                            <Trash2 className="h-4 w-4" />
-                          )}
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>

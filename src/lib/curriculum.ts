@@ -356,7 +356,15 @@ export function getCurriculum(): Curriculum {
 }
 
 export function getSubject(subjectId: string): Subject | undefined {
-  return getCurriculum().subjects.find((s) => s.id === subjectId);
+  if (!subjectId) return undefined;
+  const subjects = getCurriculum().subjects;
+  return subjects.find(
+    (s) =>
+      s.id === subjectId ||
+      s.name === subjectId ||
+      s.id.includes(subjectId) ||
+      subjectId.includes(s.id),
+  );
 }
 
 export function getUnit(subjectId: string, unitId: string): Unit | undefined {

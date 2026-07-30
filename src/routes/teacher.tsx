@@ -36,6 +36,7 @@ import { cn } from "@/lib/utils";
 import { MindMapCanvas } from "@/components/MindMapCanvas";
 import { parseBlockMindMap, type MindMapData } from "@/lib/mind-map-types";
 import { getSubjectById } from "@/lib/subjects";
+import { getCurriculum, getSubject } from "@/lib/curriculum";
 
 type FillStage = Stage | "quizzes_mcq" | "quizzes_fill" | "quizzes_essay";
 
@@ -1410,7 +1411,14 @@ function GlobalLevelSequenceEditor({
   onChange: (patch: Partial<Lesson>) => void;
 }) {
   const subject = useMemo(() => {
-    return lesson.subjectId ? getSubject(lesson.subjectId) : null;
+    if (typeof window === "undefined") return null;
+    const allSubs = getCurriculum().subjects;
+    const subId = lesson.subjectId;
+    if (subId) {
+      const found = getSubject(subId);
+      if (found) return found;
+    }
+    return allSubs[0];
   }, [lesson.subjectId]);
 
   const levelOrders = lesson.levelStageOrders ?? LEVEL_DEFAULT_STAGES;
