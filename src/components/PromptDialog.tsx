@@ -27,11 +27,14 @@ export function PromptDialog({
 
   return (
     <div
+      role="presentation"
       className="fixed inset-0 z-[60] flex items-center justify-center bg-black/30 px-6 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
         dir="rtl"
+        role="dialog"
+        aria-modal="true"
         className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-[var(--shadow-deep)]"
         onClick={(e) => e.stopPropagation()}
       >
@@ -51,15 +54,17 @@ export function PromptDialog({
         />
         <div className="mt-5 flex justify-end gap-3">
           <button
+            type="button"
             onClick={onClose}
             className="rounded-full px-4 py-2 text-[13px] font-medium text-zen-on-surface-variant transition hover:bg-zen-surface-low"
           >
             إلغاء
           </button>
           <button
+            type="button"
             onClick={() => value.trim() && onConfirm(value.trim())}
             disabled={!value.trim()}
-            className="rounded-full bg-zen-primary px-5 py-2 text-[13px] font-medium text-white transition hover:opacity-90 disabled:opacity-40"
+            className="rounded-full bg-zen-primary px-5 py-2 text-[13px] font-medium text-white transition hover:bg-zen-primary-hover disabled:opacity-50"
           >
             {confirmLabel}
           </button>

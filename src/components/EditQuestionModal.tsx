@@ -3,6 +3,7 @@ import {motion} from "framer-motion";
 import {X, Pencil, Plus, Trash2, Check} from "lucide-react";
 import type { ExamQuestion, ExamQuestionType } from "@/lib/interactive-exams-service";
 import { toast } from "sonner";
+import { generateSecureId } from "@/lib/utils";
 
 export function EditQuestionModal({
   isOpen,
@@ -89,7 +90,7 @@ export function EditQuestionModal({
     }
 
     const newQuestion: ExamQuestion = {
-      id: questionToEdit?.id || "q_" + Date.now() + "_" + crypto.randomUUID().slice(0, 8),
+      id: questionToEdit?.id || generateSecureId("q"),
       type,
       question: questionText.trim(),
       options: filteredOptions,
@@ -143,7 +144,7 @@ export function EditQuestionModal({
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Question Type Selector */}
           <div className="space-y-2">
-            <label className="block text-xs font-bold text-[#0b1c30]">نمط السؤال:</label>
+            <span className="block text-xs font-bold text-[#0b1c30]">نمط السؤال:</span>
             <div className="grid grid-cols-3 gap-3">
               {[
                 { id: "mcq", label: "⚡ اختيار من متعدد" },
@@ -168,8 +169,9 @@ export function EditQuestionModal({
 
           {/* Question Text */}
           <div className="space-y-2">
-            <label className="block text-xs font-bold text-[#0b1c30]">نص السؤال:</label>
+            <label htmlFor="eq-text-input" className="block text-xs font-bold text-[#0b1c30]">نص السؤال:</label>
             <textarea
+              id="eq-text-input"
               rows={3}
               placeholder="اكتب نص السؤال الفقهي أو العلمي هنا..."
               value={questionText}
@@ -182,7 +184,7 @@ export function EditQuestionModal({
           {type === "mcq" && (
             <div className="space-y-3 p-4 rounded-2xl bg-[#eff4ff] border border-[#e0c0b1]/40">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-extrabold text-[#0b1c30]">خيارات السؤال:</label>
+                <span className="text-xs font-extrabold text-[#0b1c30]">خيارات السؤال:</span>
                 <button
                   type="button"
                   onClick={handleAddOption}
@@ -220,10 +222,11 @@ export function EditQuestionModal({
 
           {/* Model Answer */}
           <div className="space-y-2">
-            <label className="block text-xs font-bold text-[#0b1c30]">
+            <label htmlFor="eq-model-answer-input" className="block text-xs font-bold text-[#0b1c30]">
               الإجابة النموذجية الصحيحة:
             </label>
             <textarea
+              id="eq-model-answer-input"
               rows={2}
               placeholder="الإجابة الصحيحة أو الخيار المطابق..."
               value={modelAnswer}
@@ -235,8 +238,9 @@ export function EditQuestionModal({
           {/* Topic & Baladi Explanation Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="block text-xs font-bold text-[#0b1c30]">عنوان الموضوع/الدرس:</label>
+              <label htmlFor="eq-topic-label-input" className="block text-xs font-bold text-[#0b1c30]">عنوان الموضوع/الدرس:</label>
               <input
+                id="eq-topic-label-input"
                 type="text"
                 placeholder="مثال: فقه الخُلع"
                 value={topicLabel}
@@ -246,8 +250,9 @@ export function EditQuestionModal({
             </div>
 
             <div className="space-y-2">
-              <label className="block text-xs font-bold text-[#0b1c30]">التاج التوضيحي:</label>
+              <label htmlFor="eq-topic-tag-input" className="block text-xs font-bold text-[#0b1c30]">التاج التوضيحي:</label>
               <input
+                id="eq-topic-tag-input"
                 type="text"
                 placeholder="مثال: #الخلع"
                 value={topicTag}
@@ -258,10 +263,11 @@ export function EditQuestionModal({
           </div>
 
           <div className="space-y-2">
-            <label className="block text-xs font-bold text-[#0b1c30]">
+            <label htmlFor="eq-explanation-input" className="block text-xs font-bold text-[#0b1c30]">
               الشرح البلدي الميسر (اختياري):
             </label>
             <input
+              id="eq-explanation-input"
               type="text"
               placeholder="شرح بسيط وميسر للإصلاح عند الخطأ..."
               value={explanationBaladi}

@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { Quizzes, MCQ, Fill, Essay } from "@/lib/lesson-data";
-import { cn } from "@/lib/utils";
+import { cn, secureRandomFloat } from "@/lib/utils";
 import { recordMistake } from "@/lib/mistakes";
 import { useSettings } from "@/lib/settings";
 import { SmartNotesModal } from "./SmartNotesModal";
@@ -495,7 +495,7 @@ function McqHybridCard({
     const opts = q.options.filter((o) => o.trim());
     const arr = [...opts];
     for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
+      const j = Math.floor(secureRandomFloat() * (i + 1));
       [arr[i], arr[j]] = [arr[j], arr[i]];
     }
     setShuffledOptions(arr);

@@ -80,7 +80,7 @@ export function CategorizeLessonModal({
 
         {/* Content */}
         <div className="space-y-4">
-          <label className="block text-xs font-bold text-[#0b1c30]">اختر المادة الدراسية:</label>
+          <span className="block text-xs font-bold text-[#0b1c30]">اختر المادة الدراسية:</span>
 
           {subjects.length === 0 ? (
             <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-xs font-bold text-amber-900 text-center">

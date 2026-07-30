@@ -218,6 +218,7 @@ export function ParagraphBlockCard({
           />
         </div>
         <button
+          type="button"
           onClick={() => {
             setStarted(true);
             setIdx(0);
@@ -256,6 +257,7 @@ export function ParagraphBlockCard({
       <div className="mb-12 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <button
+            type="button"
             onClick={() => {
               setStarted(false);
               setIdx(0);
@@ -267,6 +269,7 @@ export function ParagraphBlockCard({
           </button>
           {stageAudio && mode === "student" && (
             <button
+              type="button"
               onClick={() => {
                 const audio = new Audio(stageAudio);
                 audio.play();
@@ -287,6 +290,7 @@ export function ParagraphBlockCard({
 
           {mode === "student" && (
             <button
+              type="button"
               onClick={() => {
                 window.open("https://notebooklm.google.com/", "_blank", "noopener,noreferrer");
               }}
@@ -826,6 +830,7 @@ export function ParagraphBlockCard({
       {!isQuiz && (
         <div className="mt-16 flex items-center justify-between">
           <button
+            type="button"
             onClick={() => setIdx((i) => Math.max(0, i - 1))}
             disabled={idx === 0}
             className="rounded-full px-5 py-2.5 text-[13px] font-medium text-zen-on-surface-variant transition hover:bg-zen-surface-low disabled:opacity-30 cursor-pointer"
@@ -835,6 +840,7 @@ export function ParagraphBlockCard({
 
           {isLast ? (
             <button
+              type="button"
               onClick={onComplete}
               disabled={enforceTimeGate && !timeGatePassed}
               className="rounded-full bg-zen-primary px-8 py-3 text-[14px] font-bold text-white shadow-[var(--shadow-fab)] transition hover:opacity-90 disabled:opacity-30 cursor-pointer"
@@ -843,6 +849,7 @@ export function ParagraphBlockCard({
             </button>
           ) : (
             <button
+              type="button"
               onClick={handleNextClick}
               disabled={enforceTimeGate && !timeGatePassed}
               className="rounded-full bg-zen-primary px-8 py-3 text-[14px] font-bold text-white shadow-[var(--shadow-fab)] transition hover:opacity-90 disabled:opacity-30 cursor-pointer"

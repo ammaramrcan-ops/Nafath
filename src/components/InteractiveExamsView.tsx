@@ -430,7 +430,7 @@ export function InteractiveExamsView({
 
         <div className="flex flex-wrap items-center gap-2">
           <button
-            type="button"
+           type="button"
             onClick={() => {
               setIsExamActive(false);
               setIsExamCompleted(false);
@@ -447,7 +447,7 @@ export function InteractiveExamsView({
           </button>
 
           <button
-            type="button"
+           type="button"
             onClick={() => {
               setIsExamActive(false);
               setIsExamCompleted(false);
@@ -464,7 +464,7 @@ export function InteractiveExamsView({
           </button>
 
           <button
-            type="button"
+           type="button"
             onClick={() => {
               setIsExamActive(false);
               setIsExamCompleted(false);
@@ -481,7 +481,7 @@ export function InteractiveExamsView({
           </button>
 
           <button
-            type="button"
+           type="button"
             onClick={() => {
               setIsExamActive(false);
               setIsExamCompleted(false);
@@ -498,7 +498,7 @@ export function InteractiveExamsView({
           </button>
 
           <button
-            type="button"
+           type="button"
             onClick={() => {
               setIsExamActive(false);
               setIsExamCompleted(false);
@@ -611,7 +611,7 @@ export function InteractiveExamsView({
             <div className="flex items-center justify-between">
               <h3 className="text-2xl font-extrabold text-[#0b1c30]">تقدم الدروس الحالية 📚</h3>
               <button
-                type="button"
+               type="button"
                 onClick={() => navigate({ to: "/subjects" })}
                 className="text-[#9d4300] font-extrabold text-xs flex items-center gap-1.5 hover:opacity-80 transition cursor-pointer"
               >
@@ -661,7 +661,7 @@ export function InteractiveExamsView({
                       تقريباً انتهى ✅
                     </span>
                     <button
-                      type="button"
+                     type="button"
                       onClick={() => navigate({ to: "/" })}
                       className="w-12 h-12 rounded-full bg-[#9d4300] text-white flex items-center justify-center hover:scale-105 transition-transform cursor-pointer shadow-md"
                       title="متابعة الدراسة"
@@ -712,7 +712,7 @@ export function InteractiveExamsView({
                       قيد المراجعة ⏳
                     </span>
                     <button
-                      type="button"
+                     type="button"
                       onClick={() => navigate({ to: "/" })}
                       className="w-12 h-12 rounded-full bg-[#8127cf] text-white flex items-center justify-center hover:scale-105 transition-transform cursor-pointer shadow-md"
                       title="متابعة الدراسة"
@@ -771,7 +771,7 @@ export function InteractiveExamsView({
               </div>
 
               <button
-                type="button"
+               type="button"
                 onClick={handleStartMistakesChallenge}
                 className="h-14 px-8 bg-[#9d4300] text-white rounded-full font-extrabold text-sm flex items-center justify-center gap-2.5 hover:bg-[#833800] shadow-lg shadow-[#9d4300]/20 transition-all cursor-pointer shrink-0"
               >
@@ -839,7 +839,7 @@ export function InteractiveExamsView({
                     </div>
 
                     <button
-                      type="button"
+                     type="button"
                       onClick={() => handleDeleteMistake(m.id)}
                       className="text-rose-600 hover:bg-rose-50 px-3 py-1.5 rounded-xl font-extrabold text-xs transition cursor-pointer flex items-center gap-1 border border-transparent hover:border-rose-200"
                     >
@@ -892,7 +892,7 @@ export function InteractiveExamsView({
           {mistakes.length > 0 && (
             <div className="text-center pt-6">
               <button
-                type="button"
+               type="button"
                 onClick={handleStartMistakesChallenge}
                 className="px-12 py-5 bg-[#0b1c30] text-white rounded-full font-extrabold text-base hover:bg-[#9d4300] transition-all shadow-xl hover:scale-105 cursor-pointer"
               >
@@ -912,7 +912,7 @@ export function InteractiveExamsView({
               <div className="flex items-center justify-between border-b border-[#e0c0b1]/30 pb-4">
                 <h3 className="text-lg font-extrabold text-[#0b1c30]">ملاحظاتي ودروسي 📚</h3>
                 <button
-                  type="button"
+                 type="button"
                   onClick={handleCreateNewNote}
                   className="px-3.5 py-1.5 rounded-full bg-[#9d4300] text-white font-extrabold text-xs hover:bg-[#833800] transition cursor-pointer flex items-center gap-1.5 shadow-xs"
                 >
@@ -928,7 +928,7 @@ export function InteractiveExamsView({
                       لا توجد ملاحظات مسجلة حالياً
                     </p>
                     <button
-                      type="button"
+                     type="button"
                       onClick={handleCreateNewNote}
                       className="px-4 py-2 bg-[#9d4300] text-white rounded-full text-xs font-extrabold hover:bg-[#833800] transition cursor-pointer shadow-xs inline-block"
                     >
@@ -961,7 +961,7 @@ export function InteractiveExamsView({
                           </span>
                         </div>
                         <button
-                          type="button"
+                         type="button"
                           onClick={(e) => handleDeleteNotebookNote(item.id, e)}
                           className="p-1.5 text-rose-600 hover:bg-rose-100/80 rounded-full transition cursor-pointer flex-shrink-0"
                           title="حذف الملاحظة"
@@ -1008,21 +1008,21 @@ export function InteractiveExamsView({
                 {/* Formatting Controls Bar */}
                 <div className="flex items-center bg-[#f8f9ff] rounded-full px-4 py-2 gap-2 border border-[#e0c0b1]/40 text-xs font-bold text-[#584237]">
                   <button
-                    type="button"
+                   type="button"
                     className="p-1 hover:text-[#9d4300] transition"
                     title="Bold"
                   >
                     <b>B</b>
                   </button>
                   <button
-                    type="button"
+                   type="button"
                     className="p-1 hover:text-[#9d4300] transition"
                     title="Italic"
                   >
                     <i>I</i>
                   </button>
                   <button
-                    type="button"
+                   type="button"
                     className="p-1 hover:text-[#9d4300] transition"
                     title="List"
                   >
@@ -1030,7 +1030,7 @@ export function InteractiveExamsView({
                   </button>
                   <div className="w-px h-4 bg-[#e0c0b1]" />
                   <button
-                    type="button"
+                   type="button"
                     onClick={() => setIsZenActive(!isZenActive)}
                     className={`p-1 transition ${isZenActive ? "text-[#8127cf] font-extrabold" : "hover:text-[#8127cf]"}`}
                     title="وضع التركيز Zen Mode"
@@ -1041,7 +1041,7 @@ export function InteractiveExamsView({
 
                 <div className="flex items-center gap-3">
                   <button
-                    type="button"
+                   type="button"
                     onClick={handleCreateNewNote}
                     className="px-4 py-2.5 rounded-full bg-[#eff4ff] text-[#9d4300] font-extrabold text-xs hover:bg-[#dce9ff] transition cursor-pointer border border-[#e0c0b1]/40 flex items-center gap-1.5"
                   >
@@ -1049,7 +1049,7 @@ export function InteractiveExamsView({
                     <span>ملاحظة جديدة</span>
                   </button>
                   <button
-                    type="button"
+                   type="button"
                     onClick={handleSaveNote}
                     className="px-6 py-2.5 rounded-full bg-[#9d4300] text-white font-extrabold text-xs shadow-md hover:bg-[#833800] transition cursor-pointer"
                   >
@@ -1123,6 +1123,7 @@ export function InteractiveExamsView({
               </div>
 
               <button
+                type="button"
                 onClick={() => setShowTypeModal(true)}
                 className="group relative flex items-center gap-4 bg-[#f97316] text-white px-10 py-5 rounded-full text-lg font-extrabold hover:scale-105 transition-all duration-300 shadow-xl shadow-[#f97316]/30 cursor-pointer"
               >
@@ -1168,6 +1169,7 @@ export function InteractiveExamsView({
                   </div>
                   <div className="h-6 w-px bg-[#e0c0b1]" />
                   <button
+                    type="button"
                     onClick={() => setIsPaused(!isPaused)}
                     className="flex items-center gap-2 text-xs font-bold text-[#584237] hover:text-rose-600 transition cursor-pointer"
                   >
@@ -1196,6 +1198,7 @@ export function InteractiveExamsView({
                               const isSelected = selectedMcqOption === opt;
                               return (
                                 <button
+                                  type="button"
                                   key={i}
                                   onClick={() => handleSelectMcq(opt)}
                                   className={`group w-full p-5 text-right rounded-2xl border transition-all duration-300 flex items-center gap-5 cursor-pointer ${
@@ -1237,10 +1240,11 @@ export function InteractiveExamsView({
                         </div>
 
                         <div className="space-y-3">
-                          <label className="block text-xs font-bold text-[#584237]">
+                          <label htmlFor="fill-input" className="block text-xs font-bold text-[#584237]">
                             اكتب الكلمة أو المصطلح المناسب في الفراغ:
                           </label>
                           <input
+                            id="fill-input"
                             type="text"
                             placeholder="اكتب الإجابة هنا..."
                             value={userAnswerInput}
@@ -1264,10 +1268,11 @@ export function InteractiveExamsView({
                         </div>
 
                         <div className="space-y-3">
-                          <label className="block text-xs font-bold text-[#584237]">
+                          <label htmlFor="essay-input" className="block text-xs font-bold text-[#584237]">
                             اكتب صياغتك الفقهية الشاملة للجواب والتعليل:
                           </label>
                           <textarea
+                            id="essay-input"
                             rows={4}
                             placeholder="اكتب إجابتك بالتفصيل هنا..."
                             value={userAnswerInput}
@@ -1283,6 +1288,7 @@ export function InteractiveExamsView({
 
               <div className="flex justify-between items-center w-full pt-4">
                 <button
+                  type="button"
                   onClick={handlePrevQuestion}
                   disabled={currentIndex === 0}
                   className="px-8 py-4 rounded-xl border border-[#e0c0b1] font-bold text-sm text-[#584237] hover:bg-[#eff4ff] disabled:opacity-40 transition-colors flex items-center gap-2 cursor-pointer"
@@ -1292,6 +1298,7 @@ export function InteractiveExamsView({
                 </button>
 
                 <button
+                  type="button"
                   onClick={handleAnswerSubmit}
                   disabled={!userAnswerInput.trim() && !selectedMcqOption}
                   className="px-10 py-4 rounded-xl bg-[#f97316] text-white font-bold text-base shadow-lg shadow-[#f97316]/20 hover:scale-105 active:scale-95 disabled:opacity-50 transition-all flex items-center gap-3 cursor-pointer"
@@ -1352,6 +1359,7 @@ export function InteractiveExamsView({
 
               <div className="pt-4 flex justify-center">
                 <button
+                  type="button"
                   onClick={() => setIsExamCompleted(false)}
                   className="inline-flex items-center gap-2 rounded-xl bg-[#f97316] px-8 py-4 text-base font-bold text-white shadow-lg hover:bg-[#833800] transition cursor-pointer"
                 >
@@ -1386,7 +1394,7 @@ export function InteractiveExamsView({
               </div>
 
               <button
-                type="button"
+               type="button"
                 onClick={() => {
                   setEditingQuestion(null);
                   setShowEditQModal(true);
@@ -1400,7 +1408,7 @@ export function InteractiveExamsView({
 
             <div className="flex flex-wrap items-center gap-3 pt-2">
               <button
-                type="button"
+               type="button"
                 onClick={() => setIngestSubMode("list")}
                 className={`flex items-center gap-2 px-5 py-3 rounded-2xl font-extrabold text-xs transition cursor-pointer border ${
                   ingestSubMode === "list"
@@ -1413,7 +1421,7 @@ export function InteractiveExamsView({
               </button>
 
               <button
-                type="button"
+               type="button"
                 onClick={() => setIngestSubMode("json")}
                 className={`flex items-center gap-2 px-5 py-3 rounded-2xl font-extrabold text-xs transition cursor-pointer border ${
                   ingestSubMode === "json"
@@ -1426,7 +1434,7 @@ export function InteractiveExamsView({
               </button>
 
               <button
-                type="button"
+               type="button"
                 onClick={() => setIngestSubMode("ai")}
                 className={`flex items-center gap-2 px-5 py-3 rounded-2xl font-extrabold text-xs transition cursor-pointer border ${
                   ingestSubMode === "ai"
@@ -1486,7 +1494,7 @@ export function InteractiveExamsView({
 
                       <div className="flex items-center gap-1.5 shrink-0">
                         <button
-                          type="button"
+                         type="button"
                           onClick={() => {
                             setEditingQuestion(q);
                             setShowEditQModal(true);
@@ -1499,7 +1507,7 @@ export function InteractiveExamsView({
                         </button>
 
                         <button
-                          type="button"
+                         type="button"
                           onClick={() => {
                             handleDeleteBankQuestion(q.id);
                             toast.success("تم حذف السؤال من البنك.");
@@ -1533,7 +1541,7 @@ export function InteractiveExamsView({
                 </div>
 
                 <button
-                  type="button"
+                 type="button"
                   onClick={() => {
                     navigator.clipboard.writeText(sampleJsonTemplate);
                     toast.success("تم نسخ كود الـ JSON القالبي للحافظة! 📋");
@@ -1557,7 +1565,7 @@ export function InteractiveExamsView({
 
                 <div className="flex justify-end pt-2">
                   <button
-                    type="button"
+                   type="button"
                     onClick={handleImportJson}
                     className="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-7 py-3 text-xs font-extrabold text-white shadow-md hover:bg-emerald-700 transition cursor-pointer"
                   >
@@ -1588,7 +1596,7 @@ export function InteractiveExamsView({
                 />
 
                 <button
-                  type="button"
+                 type="button"
                   onClick={handleProcessRawText}
                   className="inline-flex items-center gap-2 rounded-2xl bg-purple-700 px-6 py-3 text-xs font-extrabold text-white shadow-md hover:bg-purple-800 transition cursor-pointer"
                 >
@@ -1604,7 +1612,7 @@ export function InteractiveExamsView({
                       معاينة الأسئلة المستخرجة ({parsedPreviewQs.length}):
                     </h4>
                     <button
-                      type="button"
+                     type="button"
                       onClick={handleSaveParsedToBank}
                       className="inline-flex items-center gap-1.5 rounded-xl bg-purple-700 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-purple-800 transition cursor-pointer"
                     >
@@ -1660,6 +1668,7 @@ export function InteractiveExamsView({
                   </div>
                 </div>
                 <button
+                  type="button"
                   onClick={() => setShowTypeModal(false)}
                   className="text-[#584237]/60 hover:text-[#0b1c30] p-1.5 rounded-full hover:bg-slate-100 transition"
                 >
@@ -1669,6 +1678,7 @@ export function InteractiveExamsView({
 
               <div className="space-y-3">
                 <button
+                  type="button"
                   onClick={() => {
                     setShowTypeModal(false);
                     handleStartExam("mcq");
@@ -1690,6 +1700,7 @@ export function InteractiveExamsView({
                 </button>
 
                 <button
+                  type="button"
                   onClick={() => {
                     setShowTypeModal(false);
                     handleStartExam("fill");
@@ -1711,6 +1722,7 @@ export function InteractiveExamsView({
                 </button>
 
                 <button
+                  type="button"
                   onClick={() => {
                     setShowTypeModal(false);
                     handleStartExam("essay");
@@ -1730,6 +1742,7 @@ export function InteractiveExamsView({
                 </button>
 
                 <button
+                  type="button"
                   onClick={() => {
                     setShowTypeModal(false);
                     handleStartExam("all");

@@ -32,7 +32,7 @@ type Phase = "welcome" | "pre-test" | "lesson" | "break" | "done";
 function parseEstimatedMinutes(estStr?: string): number {
   if (!estStr) return 20;
   const match = estStr.match(/(\d+)/);
-  return match ? parseInt(match[1], 10) : 20;
+  return match ? Number.parseInt(match[1], 10) : 20;
 }
 
 function formatMinSec(totalSeconds: number): string {
@@ -228,6 +228,7 @@ export function LessonFlow({
           {/* Right Exit Button */}
           <div className="flex items-center gap-3">
             <button
+              type="button"
               onClick={onExit}
               className="inline-flex items-center gap-1.5 rounded-full border border-zen-surface-container bg-zen-surface-low px-4 py-2 text-xs font-bold text-zen-on-surface hover:bg-zen-surface-container transition cursor-pointer"
             >
@@ -321,6 +322,7 @@ export function LessonFlow({
           {/* Left Controls: Mistakes Log & Edit Button (Default Templates Only) */}
           <div className="flex items-center gap-3">
             <button
+              type="button"
               onClick={() => setShowMistakesModal(true)}
               className="flex items-center gap-1.5 rounded-full bg-amber-50 px-3.5 py-2 text-xs font-bold text-amber-900 border border-amber-200 hover:bg-amber-100 transition cursor-pointer shadow-xs"
               title="سجل الأخطاء"
@@ -331,6 +333,7 @@ export function LessonFlow({
 
             {(lesson.title === defaultLesson.title || lesson.title === khulLesson.title) && (
               <button
+                type="button"
                 onClick={handleEdit}
                 className="rounded-full bg-zen-surface-low p-2 text-zen-on-surface-variant hover:bg-white hover:text-zen-primary transition border border-zen-surface-container cursor-pointer shadow-xs"
                 title="تعديل الدرس الافتراضي"

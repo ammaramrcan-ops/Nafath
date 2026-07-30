@@ -48,6 +48,7 @@ export function MistakesLogModal({
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
             className="flex h-9 w-9 items-center justify-center rounded-full bg-zen-surface-low text-zen-on-surface-variant hover:bg-zen-surface-container transition"
           >
@@ -76,6 +77,7 @@ export function MistakesLogModal({
                 className="group relative rounded-2xl border border-white bg-white p-5 shadow-sm transition hover:shadow-md"
               >
                 <button
+                  type="button"
                   onClick={() => handleRemoveOne(item.id)}
                   className="absolute left-4 top-4 text-zen-on-surface-variant/40 hover:text-red-500 transition"
                   title="حذف هذا الخطأ"
@@ -119,6 +121,7 @@ export function MistakesLogModal({
               إجمالي الأخطاء: <strong className="text-zen-on-surface">{list.length}</strong>
             </span>
             <button
+              type="button"
               onClick={handleClearAll}
               className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-4 py-2 text-xs font-medium text-red-600 hover:bg-red-100 transition"
             >

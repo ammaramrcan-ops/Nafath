@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { HardWordText } from "./HardWordText";
 import { type HardWord } from "@/lib/lesson-data";
 import { Sparkles } from "lucide-react";
+import { generateSecureId } from "@/lib/utils";
 
 interface HighlightSpan {
   id: string;
@@ -27,7 +28,7 @@ export function TextHighlightWithButtons({
     if (!selectedText || selectedText.length < 2) return;
 
     const newItem: HighlightSpan = {
-      id: crypto.randomUUID(),
+      id: generateSecureId(),
       text: selectedText,
       color,
     };

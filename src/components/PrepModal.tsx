@@ -91,7 +91,7 @@ export function PrepModal({ isOpen, onConfirm, onCancel }: PrepModalProps) {
           </div>
           {devModeActive ? (
             <button
-              type="button"
+             type="button"
               onClick={() => setStep(4)}
               className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full bg-amber-100 text-amber-950 text-xs font-extrabold border border-amber-300 hover:bg-amber-200 transition cursor-pointer shadow-2xs"
               title="تخطي خطوات الاستعداد الثلاث الأولى (المشتتات والماء والتنفس) والانتقال مباشرة لصفحة اختيار المستوى"
@@ -130,10 +130,11 @@ export function PrepModal({ isOpen, onConfirm, onCancel }: PrepModalProps) {
               </div>
 
               <div className="space-y-3 text-right">
-                <label className="block text-xs sm:text-sm font-bold text-slate-600">
+                <label htmlFor="prep-distraction-input" className="block text-xs sm:text-sm font-bold text-slate-600">
                   اكتب ما يشتت ذهنك هنا (أفكار، مهام، أو مشغلات خارجية):
                 </label>
                 <textarea
+                  id="prep-distraction-input"
                   rows={5}
                   value={distraction}
                   onChange={(e) => setDistraction(e.target.value)}
@@ -143,7 +144,7 @@ export function PrepModal({ isOpen, onConfirm, onCancel }: PrepModalProps) {
               </div>
 
               <button
-                type="button"
+               type="button"
                 onClick={() => setStep(2)}
                 className="w-full py-5 rounded-2xl bg-[#213145] hover:bg-[#0b1c30] text-white font-black text-base sm:text-lg flex items-center justify-center gap-3 transition cursor-pointer shadow-xl hover:scale-[1.01] active:scale-95"
               >
@@ -176,6 +177,7 @@ export function PrepModal({ isOpen, onConfirm, onCancel }: PrepModalProps) {
 
               <div className="grid grid-cols-2 gap-4 pt-2">
                 <button
+                  type="button"
                   onClick={() => {
                     setHasWater(true);
                     setStep(3);
@@ -189,6 +191,7 @@ export function PrepModal({ isOpen, onConfirm, onCancel }: PrepModalProps) {
                 </button>
 
                 <button
+                  type="button"
                   onClick={() => {
                     setHasWater(false);
                     setStep(3);
@@ -204,7 +207,7 @@ export function PrepModal({ isOpen, onConfirm, onCancel }: PrepModalProps) {
 
               <div className="pt-2 text-center">
                 <button
-                  type="button"
+                 type="button"
                   onClick={() =>
                     alert("شرب الماء يزيد من نشاط خلايا الدماغ ويعزز التذكر بنسبة 15%.")
                   }
@@ -270,7 +273,7 @@ export function PrepModal({ isOpen, onConfirm, onCancel }: PrepModalProps) {
               {/* Primary Action Button */}
               <div className="space-y-3 pt-2">
                 <button
-                  type="button"
+                 type="button"
                   onClick={() => setStep(4)}
                   className={`w-full py-4 rounded-2xl font-bold text-sm text-center shadow-xs transition cursor-pointer ${
                     isBreathingDone || devModeActive
@@ -287,7 +290,7 @@ export function PrepModal({ isOpen, onConfirm, onCancel }: PrepModalProps) {
                 </button>
 
                 <button
-                  type="button"
+                 type="button"
                   onClick={() => setStep(4)}
                   className="inline-flex items-center gap-1 text-xs text-[#c05621] hover:underline font-bold cursor-pointer"
                 >
@@ -327,7 +330,7 @@ export function PrepModal({ isOpen, onConfirm, onCancel }: PrepModalProps) {
               <div className="space-y-3">
                 {/* Level 1 */}
                 <button
-                  type="button"
+                 type="button"
                   onClick={() => setSelectedLevel(1)}
                   className={`w-full text-right rounded-2xl border p-4 transition text-xs cursor-pointer ${
                     selectedLevel === 1
@@ -346,7 +349,7 @@ export function PrepModal({ isOpen, onConfirm, onCancel }: PrepModalProps) {
 
                 {/* Level 2 */}
                 <button
-                  type="button"
+                 type="button"
                   onClick={() => setSelectedLevel(2)}
                   className={`w-full text-right rounded-2xl border p-4 transition text-xs cursor-pointer ${
                     selectedLevel === 2
@@ -365,7 +368,7 @@ export function PrepModal({ isOpen, onConfirm, onCancel }: PrepModalProps) {
 
                 {/* Level 3 */}
                 <button
-                  type="button"
+                 type="button"
                   onClick={() => setSelectedLevel(3)}
                   className={`w-full text-right rounded-2xl border p-4 transition text-xs cursor-pointer ${
                     selectedLevel === 3
@@ -384,6 +387,7 @@ export function PrepModal({ isOpen, onConfirm, onCancel }: PrepModalProps) {
               </div>
 
               <button
+                type="button"
                 onClick={handleFinish}
                 className="w-full py-4 rounded-2xl bg-[#9d4300] hover:bg-[#833800] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-md transition cursor-pointer"
               >
@@ -397,6 +401,7 @@ export function PrepModal({ isOpen, onConfirm, onCancel }: PrepModalProps) {
 
       {onCancel && (
         <button
+          type="button"
           onClick={onCancel}
           className="mt-4 text-xs font-medium text-slate-400 hover:text-[#9d4300] cursor-pointer"
         >
