@@ -34,7 +34,11 @@ export function StatisticsView({ subjectId }: { subjectId?: string }) {
     }
   }, []);
 
-  const library = useMemo(() => getLibrary(), []);
+  const library = useMemo(() => {
+    const all = getLibrary();
+    if (!subjectId) return all;
+    return all.filter((l) => l.subjectId === subjectId);
+  }, [subjectId]);
 
   return (
     <div
@@ -197,16 +201,15 @@ export function StatisticsView({ subjectId }: { subjectId?: string }) {
               <BookOpen className="h-12 w-12 text-[#9d4300]/30 mx-auto mb-3" />
               <p className="text-base font-bold text-[#0b1c30]">لا توجد دروس محفوظة بعد</p>
               <p className="text-xs text-[#584237]/60 mt-1">
-                استرد درساً من الصفحة الرئيسية لعرض تقدمك هنا
+                استرد درساً وصنّفه ليتحدد تقدمك هنا
               </p>
             </div>
           ) : (
-            library.slice(0, 3).map((saved, idx) => {
+            library.slice(0, 5).map((saved, idx) => {
               const colors = ["#9d4300", "#8127cf", "#0b6e4f"];
               const color = colors[idx % colors.length];
-              const percent = idx === 0 ? 96 : idx === 1 ? 45 : 70;
-              const status =
-                idx === 0 ? "تقريباً انتهى ✅" : idx === 1 ? "قيد المراجعة ⏳" : "جاري التعلم 📖";
+              const percent = 100;
+              const status = "جاري التعلم 📖";
               return (
                 <div
                   key={saved.id}
