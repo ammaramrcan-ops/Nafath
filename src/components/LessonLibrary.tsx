@@ -70,6 +70,7 @@ export function LessonLibrary({ onOpen }: { onOpen: (lesson: Lesson) => void }) 
         </p>
         <div className="mt-4 flex justify-center gap-2">
           <button
+            type="button"
             onClick={() => fileRef.current?.click()}
             className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-4 py-2 text-xs font-semibold text-foreground/70 hover:border-brand/50"
           >
@@ -103,6 +104,7 @@ export function LessonLibrary({ onOpen }: { onOpen: (lesson: Lesson) => void }) 
           </span>
         </h2>
         <button
+          type="button"
           onClick={() => fileRef.current?.click()}
           className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground/70 hover:border-brand/50"
         >
@@ -137,6 +139,7 @@ export function LessonLibrary({ onOpen }: { onOpen: (lesson: Lesson) => void }) 
             </div>
             <div className="flex border-t border-border/60">
               <button
+                type="button"
                 onClick={() => onOpen(saved.data)}
                 className={cn(
                   "flex flex-1 items-center justify-center gap-1.5 py-2.5 text-xs font-semibold",
@@ -147,6 +150,7 @@ export function LessonLibrary({ onOpen }: { onOpen: (lesson: Lesson) => void }) 
               </button>
               <div className="w-px bg-border/60" />
               <button
+                type="button"
                 onClick={() => handleEdit(saved.data)}
                 className="flex items-center justify-center gap-1 px-4 py-2.5 text-xs font-semibold text-foreground/70 transition hover:bg-muted hover:text-foreground"
                 title="تعديل في واجهة المعلم"
@@ -155,6 +159,7 @@ export function LessonLibrary({ onOpen }: { onOpen: (lesson: Lesson) => void }) 
               </button>
               <div className="w-px bg-border/60" />
               <button
+                type="button"
                 onClick={() => handleDelete(saved.id)}
                 className="flex items-center justify-center gap-1 px-4 py-2.5 text-xs font-semibold text-destructive transition hover:bg-destructive/5"
                 title="حذف"

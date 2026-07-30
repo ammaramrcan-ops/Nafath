@@ -43,6 +43,7 @@ export function HomeUpload({ onLoad }: { onLoad: (lesson: Lesson) => void }) {
 
       <div className="mt-6 flex flex-col items-stretch gap-3 sm:flex-row sm:justify-center">
         <button
+          type="button"
           onClick={() => text.trim() && tryLoad(text)}
           disabled={!text.trim()}
           className="inline-flex items-center justify-center gap-2 rounded-full bg-brand px-8 py-3 text-base font-semibold text-brand-foreground shadow-[var(--shadow-soft)] transition hover:bg-brand/90 disabled:opacity-40"
@@ -52,6 +53,7 @@ export function HomeUpload({ onLoad }: { onLoad: (lesson: Lesson) => void }) {
         </button>
 
         <button
+          type="button"
           onClick={() => fileRef.current?.click()}
           className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-border bg-background px-8 py-3 text-base font-semibold text-foreground transition hover:border-brand/50"
         >
@@ -77,6 +79,7 @@ export function HomeUpload({ onLoad }: { onLoad: (lesson: Lesson) => void }) {
       </div>
 
       <button
+        type="button"
         onClick={() => onLoad(defaultLesson)}
         className="inline-flex items-center justify-center gap-2 self-center rounded-full bg-brand-soft px-8 py-3 text-base font-semibold text-foreground transition hover:bg-brand-soft/70"
       >

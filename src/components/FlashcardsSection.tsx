@@ -194,6 +194,7 @@ export function FlashcardsSection({ block }: { block: Block }) {
 
             return (
               <button
+                type="button"
                 key={catKey}
                 onClick={() => {
                   setActiveCategory(catKey);

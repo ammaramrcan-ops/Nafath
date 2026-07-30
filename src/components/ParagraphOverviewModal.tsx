@@ -50,6 +50,7 @@ export function ParagraphOverviewModal({
         >
           {onClose && (
             <button
+              type="button"
               onClick={onClose}
               className="absolute top-6 left-6 p-2.5 rounded-full bg-white text-[#584237] hover:bg-[#eff4ff] transition cursor-pointer border border-[#e0c0b1]/40"
             >
@@ -154,6 +155,7 @@ export function ParagraphOverviewModal({
 
           {/* Main Start CTA */}
           <button
+            type="button"
             onClick={onStartParagraph}
             className="w-full h-16 bg-[#9d4300] hover:bg-[#833800] text-white rounded-2xl font-extrabold text-lg transition-all shadow-lg shadow-[#9d4300]/20 flex items-center justify-center gap-3 cursor-pointer"
           >

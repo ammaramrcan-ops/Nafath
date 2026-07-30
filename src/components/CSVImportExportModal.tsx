@@ -185,10 +185,11 @@ export function CSVImportExportModal({
 
             {/* Manual Paste Textarea */}
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-800">
+              <label htmlFor="csv-paste-textarea" className="text-xs font-bold text-slate-800">
                 أو قم بلصق نص الـ CSV مباشرة هنا:
               </label>
               <textarea
+                id="csv-paste-textarea"
                 value={rawCsvInput}
                 onChange={(e) => setRawCsvInput(e.target.value)}
                 rows={4}

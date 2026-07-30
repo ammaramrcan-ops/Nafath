@@ -1,4 +1,5 @@
 import { autoCategory, type FlashcardCategory, type SmartFlashcard } from "./spaced-repetition";
+import { generateSecureId } from "@/lib/utils";
 
 /**
  * Parses CSV file text into SmartFlashcard objects.
@@ -55,7 +56,7 @@ function buildSmartCardFromCSVRow(row: string[]): SmartFlashcard | null {
   const cues = keywordCues ? keywordCues.replace(/\|/g, " / ") : generateKeywordCues(keywords);
 
   return {
-    id: `csv_${crypto.randomUUID()}`,
+    id: generateSecureId("csv"),
     category,
     question,
     model_answer: modelAnswer,

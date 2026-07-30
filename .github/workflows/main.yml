@@ -15,5 +15,5 @@ jobs:
         with:
           bun-version: 1.2.5
       - run: bun install --frozen-lockfile --ignore-scripts
-      - run: bunx tsc --noEmit
+      - run: bunx typescript@5.8.2 tsc --noEmit
       - run: bun run build

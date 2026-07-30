@@ -285,9 +285,7 @@ export function AiAssistantSidebar() {
                   key={msg.id}
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className={`flex flex-col ${
-                    msg.sender === "user" ? "items-start" : "items-start"
-                  }`}
+                  className="flex flex-col items-start"
                 >
                   <div
                     className={`max-w-[90%] rounded-2xl p-4 text-xs font-semibold leading-relaxed shadow-2xs border ${

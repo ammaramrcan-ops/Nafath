@@ -6,6 +6,7 @@ function FlipCard({ front, back }: { front: string; back: string }) {
   const [flipped, setFlipped] = useState(false);
   return (
     <button
+      type="button"
       onClick={() => setFlipped((v) => !v)}
       className="relative h-48 w-full [perspective:1000px]"
       aria-label="بطاقة"
@@ -66,6 +67,7 @@ export function Flashcards({
       {onRestart && (
         <div className="mt-14 text-center">
           <button
+            type="button"
             onClick={onRestart}
             className="rounded-full bg-zen-primary px-12 py-4 text-[15px] font-medium text-white shadow-[var(--shadow-fab)] transition hover:opacity-90"
           >

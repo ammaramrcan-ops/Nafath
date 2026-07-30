@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { HighlightingToolbar, type HighlightColor } from "./HighlightingToolbar";
 import { HardWordText } from "./HardWordText";
 import { type HardWord } from "@/lib/lesson-data";
+import { generateSecureId } from "@/lib/utils";
 
 interface HighlightItem {
   id: string;
@@ -70,7 +71,7 @@ export function HighlightableText({
   const addHighlight = (color: HighlightColor) => {
     if (!selectionRange) return;
     const newItem: HighlightItem = {
-      id: crypto.randomUUID(),
+      id: generateSecureId(),
       text: selectionRange.text,
       type: "highlight",
       color,
@@ -83,7 +84,7 @@ export function HighlightableText({
   const addBold = () => {
     if (!selectionRange) return;
     const newItem: HighlightItem = {
-      id: crypto.randomUUID(),
+      id: generateSecureId(),
       text: selectionRange.text,
       type: "bold",
     };

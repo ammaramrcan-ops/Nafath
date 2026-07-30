@@ -157,7 +157,7 @@ export function AppSidebarShell() {
           {collapsed ? (
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="flex items-center justify-center h-8 w-8 rounded-md hover:bg-accent transition-colors cursor-pointer">
+                <button type="button" className="flex items-center justify-center h-8 w-8 rounded-md hover:bg-accent transition-colors cursor-pointer">
                   <Avatar
                     className="h-6 w-6 shrink-0"
                     placeholder=""
@@ -185,7 +185,7 @@ export function AppSidebarShell() {
               </TooltipContent>
             </Tooltip>
           ) : (
-            <button className="flex items-center gap-2 rounded-md hover:bg-accent transition-colors cursor-pointer w-full px-2 py-1.5">
+            <button type="button" className="flex items-center gap-2 rounded-md hover:bg-accent transition-colors cursor-pointer w-full px-2 py-1.5">
               <Avatar
                 className="h-6 w-6 shrink-0"
                 placeholder=""

@@ -109,6 +109,7 @@ export function MindMapView({
           <div className="flex flex-wrap gap-1 border-l border-[#e0c0b1]/40 pl-2 ml-1">
             {maps.map((m) => (
               <button
+                type="button"
                 key={m.id}
                 onClick={() => setSelectedMapId(m.id)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer border ${

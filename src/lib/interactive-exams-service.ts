@@ -4,6 +4,7 @@ import {
   autoCategory,
   type SmartFlashcard,
 } from "./spaced-repetition";
+import { generateSecureId } from "@/lib/utils";
 
 export type ExamQuestionType = "mcq" | "fill" | "essay";
 
@@ -365,7 +366,7 @@ function finalizeQuestion(raw: Partial<ExamQuestion>, index: number): ExamQuesti
   const tagMatch = extractTopicTag(qText);
 
   return {
-    id: `ingest_q_${Date.now()}_${index}_${crypto.randomUUID().slice(0, 8)}`,
+    id: generateSecureId("ingest_q"),
     type,
     question: qText,
     options:

@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { Sparkles, X, Type } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import type { TextHighlight, HighlightColor } from "@/lib/lesson-data";
+import { generateSecureId } from "@/lib/utils";
 
 export function VisualHighlightArea({
   value,
@@ -38,7 +39,7 @@ export function VisualHighlightArea({
 
     // Add visual highlight with exact character position range so line 1 is highlighted without line 10!
     const newHighlight: TextHighlight = {
-      id: crypto.randomUUID(),
+      id: generateSecureId(),
       text: selectedText,
       color,
       fontSize: isLargeSize ? "large" : "normal",

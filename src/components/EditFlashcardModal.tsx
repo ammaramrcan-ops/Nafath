@@ -6,6 +6,7 @@ import {
   type SmartFlashcard,
 } from "@/lib/spaced-repetition";
 import { toast } from "sonner";
+import { generateSecureId } from "@/lib/utils";
 
 export function EditFlashcardModal({
   isOpen,
@@ -64,7 +65,7 @@ export function EditFlashcardModal({
       .filter(Boolean);
 
     const updatedCard: SmartFlashcard = {
-      id: cardToEdit?.id || "custom_fc_" + crypto.randomUUID().slice(0, 8),
+      id: cardToEdit?.id || generateSecureId("custom_fc"),
       category,
       question: question.trim(),
       model_answer: modelAnswer.trim(),
@@ -126,8 +127,9 @@ export function EditFlashcardModal({
         <div className="space-y-4">
           {/* Category Selector */}
           <div className="space-y-1.5">
-            <label className="text-xs font-black text-slate-800">تصنيف نوع الكارت:</label>
+            <label htmlFor="fc-category-select" className="text-xs font-black text-slate-800">تصنيف نوع الكارت:</label>
             <select
+              id="fc-category-select"
               value={category}
               onChange={(e) => setCategory(e.target.value as FlashcardCategory)}
               className="w-full h-11 rounded-2xl bg-slate-50 px-4 text-xs font-bold text-slate-900 border border-slate-300 outline-none focus:ring-2 focus:ring-amber-500"
@@ -143,8 +145,9 @@ export function EditFlashcardModal({
 
           {/* Question Textarea */}
           <div className="space-y-1.5">
-            <label className="text-xs font-black text-slate-800">نص السؤال الاسترجاعي 📌:</label>
+            <label htmlFor="fc-question-input" className="text-xs font-black text-slate-800">نص السؤال الاسترجاعي 📌:</label>
             <textarea
+              id="fc-question-input"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               rows={2}
@@ -155,10 +158,11 @@ export function EditFlashcardModal({
 
           {/* Model Answer Textarea */}
           <div className="space-y-1.5">
-            <label className="text-xs font-black text-slate-800">
+            <label htmlFor="fc-model-answer-input" className="text-xs font-black text-slate-800">
               الإجابة النموذجية الصحيحة 💡:
             </label>
             <textarea
+              id="fc-model-answer-input"
               value={modelAnswer}
               onChange={(e) => setModelAnswer(e.target.value)}
               rows={3}
@@ -169,10 +173,11 @@ export function EditFlashcardModal({
 
           {/* Keywords (separated by |) */}
           <div className="space-y-1.5">
-            <label className="text-xs font-black text-slate-800">
+            <label htmlFor="fc-keywords-input" className="text-xs font-black text-slate-800">
               الكلمات المفتاحية للتدقيق (مفصولة بـ |):
             </label>
             <input
+              id="fc-keywords-input"
               type="text"
               value={keywordsText}
               onChange={(e) => setKeywordsText(e.target.value)}
@@ -184,10 +189,11 @@ export function EditFlashcardModal({
           {/* Mnemonic & Keyword Cues */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-700">
+              <label htmlFor="fc-mnemonic-input" className="text-xs font-bold text-slate-700">
                 🧠 الرابط الذهني للتلميح (Mnemonic):
               </label>
               <input
+                id="fc-mnemonic-input"
                 type="text"
                 value={mnemonic}
                 onChange={(e) => setMnemonic(e.target.value)}
@@ -197,10 +203,11 @@ export function EditFlashcardModal({
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-700">
+              <label htmlFor="fc-cues-input" className="text-xs font-bold text-slate-700">
                 🔑 إشارات الكلمات (Keyword Cues):
               </label>
               <input
+                id="fc-cues-input"
                 type="text"
                 value={keywordCues}
                 onChange={(e) => setKeywordCues(e.target.value)}
@@ -212,10 +219,11 @@ export function EditFlashcardModal({
 
           {/* Baladi Explanation for Problem Solving */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700">
+            <label htmlFor="fc-explanation-input" className="text-xs font-bold text-slate-700">
               💡 تفكيك اللخبطة بالبلدي (لحالات المغالطة):
             </label>
             <input
+              id="fc-explanation-input"
               type="text"
               value={explanationBaladi}
               onChange={(e) => setExplanationBaladi(e.target.value)}
