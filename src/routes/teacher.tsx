@@ -26,6 +26,10 @@ import {
   type HardWord,
   type Lesson,
   type ParagraphBlock,
+  type MCQ,
+  type Fill,
+  type Essay,
+  type Quizzes,
 } from "@/lib/lesson-data";
 import { STAGE_LABELS, DEFAULT_STAGE_ORDER, type Stage } from "@/lib/settings";
 import { saveToLibrary } from "@/lib/lesson-library";
@@ -115,11 +119,11 @@ function TeacherPage() {
         const parsed = JSON.parse(raw);
         return {
           ...parsed,
-          blocks: (parsed.blocks ?? []).map((b: any, i: number) => normalizeBlock(b, i)),
+          blocks: (parsed.blocks ?? []).map((b: unknown, i: number) => normalizeBlock(b, i)),
         };
       }
     } catch {
-      /* ignore */
+      // ignore
     }
     return khulLesson;
   });
@@ -177,7 +181,7 @@ function TeacherPage() {
         return [data];
       })();
 
-      const newBlocks = rawBlocks.map((b: any, i: number) => {
+      const newBlocks = rawBlocks.map((b: MCQ, i: number) => {
         const existing = lesson.blocks[i] || emptyBlock(i + 1);
         const norm = normalizeBlock(b, i);
         return {
@@ -219,7 +223,7 @@ function TeacherPage() {
       const updatedBlocks = lesson.blocks.map((b, i) => {
         const item =
           mneumonicList[i] ||
-          mneumonicList.find((m: any) => m.block_id === b.id) ||
+          mneumonicList.find((m: MCQ) => m.block_id === b.id) ||
           mneumonicList[0];
         if (!item) return b;
         const norm = normalizeBlock(item, i);
@@ -253,7 +257,7 @@ function TeacherPage() {
       })();
 
       const updatedBlocks = lesson.blocks.map((b, i) => {
-        const item = list[i] || list.find((z: any) => z.block_id === b.id) || list[0];
+        const item = list[i] || list.find((z: MCQ) => z.block_id === b.id) || list[0];
         if (!item) return b;
         const zObj = item.zaitouna || item;
         return {
@@ -292,7 +296,7 @@ function TeacherPage() {
       })();
 
       const updatedBlocks = lesson.blocks.map((b, i) => {
-        const item = quizList[i] || quizList.find((q: any) => q.block_id === b.id) || quizList[0];
+        const item = quizList[i] || quizList.find((q: MCQ) => q.block_id === b.id) || quizList[0];
         if (!item) return b;
         const norm = normalizeBlock(item, i);
         return {
@@ -328,14 +332,14 @@ function TeacherPage() {
       })();
 
       const updatedBlocks = lesson.blocks.map((b, i) => {
-        const item = list[i] || list.find((f: any) => f.block_id === b.id) || list[0];
+        const item = list[i] || list.find((f: MCQ) => f.block_id === b.id) || list[0];
         if (!item) return b;
         const rawWords = (() => {
           if (Array.isArray(item.flashcards)) return item.flashcards;
           if (Array.isArray(item.hard_words)) return item.hard_words;
           return [];
         })();
-        const words = rawWords.map((w: any) => ({
+        const words = rawWords.map((w: MCQ) => ({
           word: String(w.word || w.term || w.question || ""),
           meaning: String(w.meaning || w.definition || w.answer || ""),
         }));
@@ -370,7 +374,7 @@ function TeacherPage() {
       })();
 
       const updatedBlocks = lesson.blocks.map((b, i) => {
-        const item = quizList[i] || quizList.find((q: any) => q.block_id === b.id) || quizList[0];
+        const item = quizList[i] || quizList.find((q: MCQ) => q.block_id === b.id) || quizList[0];
         if (!item) return b;
         const norm = normalizeBlock(item, i);
         return {
@@ -400,7 +404,9 @@ function TeacherPage() {
       saveToLibrary(next);
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitizeJsonInput(next)));
-      } catch {}
+      } catch {
+        // ignore localStorage errors
+      }
       return next;
     });
 
@@ -413,7 +419,9 @@ function TeacherPage() {
       saveToLibrary(next);
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitizeJsonInput(next)));
-      } catch {}
+      } catch {
+        // ignore localStorage errors
+      }
       return next;
     });
 
@@ -426,7 +434,9 @@ function TeacherPage() {
       saveToLibrary(next);
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitizeJsonInput(next)));
-      } catch {}
+      } catch {
+        // ignore localStorage errors
+      }
       return next;
     });
     setStep(lesson.blocks.length + 1);
@@ -441,7 +451,9 @@ function TeacherPage() {
       saveToLibrary(next);
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitizeJsonInput(next)));
-      } catch {}
+      } catch {
+        // ignore localStorage errors
+      }
       return next;
     });
     setStep((s) => Math.min(s, lesson.blocks.length - 1));
@@ -455,7 +467,7 @@ function TeacherPage() {
       setLibSaved(true);
       setTimeout(() => setLibSaved(false), 2000);
     } catch {
-      /* ignore */
+      // ignore save errors
     }
   };
 
@@ -471,7 +483,7 @@ function TeacherPage() {
         window.location.href = "/";
       }, 300);
     } catch {
-      /* ignore */
+      // ignore preview errors
     }
   };
 
@@ -2219,7 +2231,7 @@ function QuizzesEditor({
         </p>
       ) : (
         <div className="space-y-4">
-          {items.map((item: any, i: number) => (
+          {items.map((item: MCQ, i: number) => (
             <div
               key={item.id || i}
               className="p-4 rounded-2xl bg-[#eff4ff]/60 border border-[#e0c0b1]/40 space-y-3"
@@ -2229,7 +2241,7 @@ function QuizzesEditor({
                 <button
                   type="button"
                   onClick={() => {
-                    const filtered = items.filter((_: any, idx: number) => idx !== i);
+                    const filtered = items.filter((_: MCQ, idx: number) => idx !== i);
                     onChange({
                       quizzes: {
                         ...quizzes,
@@ -2246,7 +2258,7 @@ function QuizzesEditor({
               <Input
                 value={item.question}
                 onChange={(e) => {
-                  const updated = items.map((q: any, idx: number) =>
+                  const updated = items.map((q: MCQ, idx: number) =>
                     idx === i ? { ...q, question: e.target.value } : q,
                   );
                   onChange({
@@ -2287,7 +2299,7 @@ function QuizzesEditor({
                             name={`correct-ans-${i}`}
                             checked={isCorrect}
                             onChange={() => {
-                              const updated = items.map((q: any, idx: number) =>
+                              const updated = items.map((q: MCQ, idx: number) =>
                                 idx === i ? { ...q, answer: opt } : q,
                               );
                               onChange({ quizzes: { ...quizzes, mcqs: updated } });
@@ -2300,7 +2312,7 @@ function QuizzesEditor({
                             onChange={(e) => {
                               const newOpts = [...(item.options || ["", "", "", ""])];
                               newOpts[optIdx] = e.target.value;
-                              const updated = items.map((q: any, idx: number) =>
+                              const updated = items.map((q: MCQ, idx: number) =>
                                 idx === i
                                   ? {
                                       ...q,
