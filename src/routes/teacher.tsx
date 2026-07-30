@@ -254,9 +254,9 @@ function TeacherPage() {
         return {
           ...b,
           zaitouna: {
-            definitions: zObj.definitions || b.zaitouna?.definitions || "",
-            reasoning: zObj.reasoning || b.zaitouna?.reasoning || "",
-            links: zObj.links || b.zaitouna?.links || "",
+            definitions: sanitizeJsonInput(String(zObj.definitions || b.zaitouna?.definitions || "")),
+            reasoning: sanitizeJsonInput(String(zObj.reasoning || b.zaitouna?.reasoning || "")),
+            links: sanitizeJsonInput(String(zObj.links || b.zaitouna?.links || "")),
           },
         };
       });
@@ -1399,6 +1399,88 @@ function Field({
   );
 }
 
+function LevelStageCardItem({
+  stage,
+  idx,
+  isDisabled,
+  isFirst,
+  isLast,
+  onToggleDisabled,
+  onMoveStage,
+}: {
+  stage: Stage;
+  idx: number;
+  isDisabled: boolean;
+  isFirst: boolean;
+  isLast: boolean;
+  onToggleDisabled: (stage: Stage) => void;
+  onMoveStage: (idx: number, dir: -1 | 1) => void;
+}) {
+  return (
+    <div
+      className={cn(
+        "flex items-center justify-between gap-3 rounded-2xl border p-4 transition-all",
+        isDisabled
+          ? "bg-slate-50 border-dashed border-slate-300 text-slate-400 opacity-55 hover:opacity-85"
+          : "bg-white text-[#0b1c30] border-[#e0c0b1]/40 shadow-2xs hover:border-[#9d4300]/40",
+      )}
+    >
+      <div className="flex items-center gap-3 min-w-0">
+        <span
+          className={cn(
+            "flex h-7 w-7 items-center justify-center rounded-full text-xs font-extrabold shrink-0",
+            isDisabled ? "bg-slate-200 text-slate-500" : "bg-[#ffdbca]/40 text-[#9d4300]",
+          )}
+        >
+          {idx + 1}
+        </span>
+        <span className="text-xs font-extrabold truncate">{STAGE_LABELS[stage]}</span>
+      </div>
+
+      <div className="flex items-center gap-2 shrink-0">
+        <button
+          type="button"
+          onClick={() => onToggleDisabled(stage)}
+          className={cn(
+            "inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[11px] font-extrabold transition cursor-pointer border",
+            isDisabled
+              ? "bg-slate-200 text-slate-600 border-slate-300 hover:bg-emerald-100 hover:text-emerald-900"
+              : "bg-emerald-100 text-emerald-900 border-emerald-300 hover:bg-emerald-200",
+          )}
+        >
+          {isDisabled ? (
+            <EyeOff className="h-3.5 w-3.5" />
+          ) : (
+            <Eye className="h-3.5 w-3.5" />
+          )}
+          <span>{isDisabled ? "معطّلة" : "مفعّلة"}</span>
+        </button>
+
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => onMoveStage(idx, -1)}
+            disabled={isFirst}
+            className="rounded-lg p-1.5 text-[#584237] hover:bg-[#eff4ff] disabled:opacity-20 cursor-pointer"
+            title="تقديم المرحلة للأعلى"
+          >
+            <ArrowUp className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => onMoveStage(idx, 1)}
+            disabled={isLast}
+            className="rounded-lg p-1.5 text-[#584237] hover:bg-[#eff4ff] disabled:opacity-20 cursor-pointer"
+            title="تأخير المرحلة لأسفل"
+          >
+            <ArrowDown className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ---------------- Modern Seamless Global Level Sequence Editor ---------------- */
 
 function GlobalLevelSequenceEditor({
@@ -1505,68 +1587,16 @@ function GlobalLevelSequenceEditor({
           const isDisabled = !currentLevelOrder.includes(stage) || disabledSet.has(stage);
 
           return (
-            <div
+            <LevelStageCardItem
               key={stage}
-              className={cn(
-                "flex items-center justify-between gap-3 rounded-2xl border p-4 transition-all",
-                isDisabled
-                  ? "bg-slate-50 border-dashed border-slate-300 text-slate-400 opacity-55 hover:opacity-85"
-                  : "bg-white text-[#0b1c30] border-[#e0c0b1]/40 shadow-2xs hover:border-[#9d4300]/40",
-              )}
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <span
-                  className={cn(
-                    "flex h-7 w-7 items-center justify-center rounded-full text-xs font-extrabold shrink-0",
-                    isDisabled ? "bg-slate-200 text-slate-500" : "bg-[#ffdbca]/40 text-[#9d4300]",
-                  )}
-                >
-                  {idx + 1}
-                </span>
-                <span className="text-xs font-extrabold truncate">{STAGE_LABELS[stage]}</span>
-              </div>
-
-              <div className="flex items-center gap-2 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => toggleStageDisabled(stage)}
-                  className={cn(
-                    "inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[11px] font-extrabold transition cursor-pointer border",
-                    isDisabled
-                      ? "bg-slate-200 text-slate-600 border-slate-300 hover:bg-emerald-100 hover:text-emerald-900"
-                      : "bg-emerald-100 text-emerald-900 border-emerald-300 hover:bg-emerald-200",
-                  )}
-                >
-                  {isDisabled ? (
-                    <EyeOff className="h-3.5 w-3.5" />
-                  ) : (
-                    <Eye className="h-3.5 w-3.5" />
-                  )}
-                  <span>{isDisabled ? "معطّلة" : "مفعّلة"}</span>
-                </button>
-
-                <div className="flex items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={() => moveStage(idx, -1)}
-                    disabled={idx === 0}
-                    className="rounded-lg p-1.5 text-[#584237] hover:bg-[#eff4ff] disabled:opacity-20 cursor-pointer"
-                    title="تقديم المرحلة للأعلى"
-                  >
-                    <ArrowUp className="h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => moveStage(idx, 1)}
-                    disabled={idx === fullStageList.length - 1}
-                    className="rounded-lg p-1.5 text-[#584237] hover:bg-[#eff4ff] disabled:opacity-20 cursor-pointer"
-                    title="تأخير المرحلة لأسفل"
-                  >
-                    <ArrowDown className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
+              stage={stage}
+              idx={idx}
+              isDisabled={isDisabled}
+              isFirst={idx === 0}
+              isLast={idx === fullStageList.length - 1}
+              onToggleDisabled={toggleStageDisabled}
+              onMoveStage={moveStage}
+            />
           );
         })}
       </div>

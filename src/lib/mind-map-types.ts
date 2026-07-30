@@ -117,6 +117,96 @@ export function createEmptySubjectMindMap(subjectName: string): MindMapData {
   };
 }
 
+type RawNode = Record<string, unknown>;
+
+function parseRawObjectNodes(
+  rawNodes: Array<Record<string, unknown>>,
+  blockTitle: string,
+  blockId: string | number,
+): MindMapData {
+  const palette = [
+    { bg: "#FEF3C7", text: "#78350F", border: "#F59E0B" },
+    { bg: "#E0E7FF", text: "#1E1B4B", border: "#6366F1" },
+    { bg: "#DCFCE7", text: "#064E3B", border: "#10B981" },
+    { bg: "#F3E8FF", text: "#581C87", border: "#A855F7" },
+    { bg: "#FFE4E6", text: "#881337", border: "#F43F5E" },
+  ];
+
+  const nodesMap = new Map<string, RawNode>();
+  rawNodes.forEach((rn) => {
+    nodesMap.set(String(rn.id), rn);
+  });
+
+  const getDepth = (id: string, visited = new Set<string>()): number => {
+    if (visited.has(id)) return 0;
+    visited.add(id);
+    const node = nodesMap.get(id);
+    if (!node) return 0;
+    const pid = node.parentId;
+    if (!pid || pid === "null" || pid === "root") return 0;
+    return 1 + getDepth(String(pid), visited);
+  };
+
+  const depthGroups: Record<number, RawNode[]> = {};
+  rawNodes.forEach((rn) => {
+    const d = getDepth(String(rn.id));
+    if (!depthGroups[d]) depthGroups[d] = [];
+    depthGroups[d].push(rn);
+  });
+
+  const asNum = (v: unknown): number | undefined => (typeof v === "number" ? v : undefined);
+
+  const formattedNodes: MindMapNode[] = rawNodes
+    .map((rn, i) => {
+      const d = getDepth(String(rn.id));
+      const group = depthGroups[d] || [];
+      const idxInGroup = group.findIndex((gn) => String(gn.id) === String(rn.id));
+
+      const x = Math.max(60, 720 - d * 280);
+      const totalInGroup = group.length;
+      const startY = 70;
+      const gapY = totalInGroup > 1 ? Math.min(130, Math.max(75, 550 / totalInGroup)) : 130;
+      const y = startY + idxInGroup * gapY;
+
+      const color = palette[i % palette.length];
+
+      const textVal =
+        (typeof rn.text === "string" && rn.text) ||
+        (typeof rn.title === "string" && rn.title) ||
+        "عقدة";
+
+      return {
+        id: String(rn.id),
+        parentId: rn.parentId ? String(rn.parentId) : null,
+        text: textVal,
+        shape: d === 0 ? "rectangle" : d === 1 ? "rounded-square" : "pill",
+        x: asNum(rn.x) ?? x,
+        y: asNum(rn.y) ?? y,
+        width: (typeof rn.width === "number"
+          ? rn.width
+          : d === 0
+            ? 210
+            : d === 1
+              ? 190
+              : 230) as number,
+        height: (typeof rn.height === "number" ? rn.height : d === 0 ? 75 : 65) as number,
+        backgroundColor: (rn.backgroundColor as string) || color.bg,
+        textColor: (rn.textColor as string) || color.text,
+        borderColor: (rn.borderColor as string) || color.border,
+        lineColor: (rn.lineColor as string) || color.border,
+        lineThickness: (rn.lineThickness as number) || (d === 0 ? 5 : 4),
+        lineStyle: (typeof rn.lineStyle === "string" ? rn.lineStyle : "solid") as LineStyle,
+      };
+    });
+
+  return {
+    id: `map_${blockId}`,
+    title: blockTitle,
+    rootId: formattedNodes[0]?.id || `root_${blockId}`,
+    nodes: formattedNodes,
+  };
+}
+
 export function parseBlockMindMap(block: {
   id?: string | number;
   title?: string;
@@ -145,97 +235,7 @@ export function parseBlockMindMap(block: {
       "id" in first &&
       ("text" in first || "title" in first)
     ) {
-      const palette = [
-        { bg: "#FEF3C7", text: "#78350F", border: "#F59E0B" },
-        { bg: "#E0E7FF", text: "#1E1B4B", border: "#6366F1" },
-        { bg: "#DCFCE7", text: "#064E3B", border: "#10B981" },
-        { bg: "#F3E8FF", text: "#581C87", border: "#A855F7" },
-        { bg: "#FFE4E6", text: "#881337", border: "#F43F5E" },
-      ];
-
-      type RawNode = Record<string, unknown>;
-      const nodesMap = new Map<string, RawNode>();
-      rawNodes.forEach((n) => {
-        if (typeof n === "object" && n !== null) {
-          const rn = n as RawNode;
-          nodesMap.set(String(rn.id), rn);
-        }
-      });
-
-      const getDepth = (id: string, visited = new Set<string>()): number => {
-        if (visited.has(id)) return 0;
-        visited.add(id);
-        const node = nodesMap.get(id);
-        if (!node) return 0;
-        const pid = node.parentId;
-        if (!pid || pid === "null" || pid === "root") return 0;
-        return 1 + getDepth(String(pid), visited);
-      };
-
-      const depthGroups: Record<number, RawNode[]> = {};
-      rawNodes.forEach((n) => {
-        if (typeof n !== "object" || n === null) return;
-        const rn = n as RawNode;
-        const d = getDepth(String(rn.id));
-        if (!depthGroups[d]) depthGroups[d] = [];
-        depthGroups[d].push(rn);
-      });
-
-      const asNum = (v: unknown): number | undefined => (typeof v === "number" ? v : undefined);
-
-      const formattedNodes: MindMapNode[] = rawNodes
-        .map((n, i) => {
-          if (typeof n !== "object" || n === null) return null;
-          const rn = n as RawNode;
-          const d = getDepth(String(rn.id));
-          const group = depthGroups[d] || [];
-          const idxInGroup = group.findIndex((gn) => String(gn.id) === String(rn.id));
-
-          const x = Math.max(60, 720 - d * 280);
-          const totalInGroup = group.length;
-          const startY = 70;
-          const gapY = totalInGroup > 1 ? Math.min(130, Math.max(75, 550 / totalInGroup)) : 130;
-          const y = startY + idxInGroup * gapY;
-
-          const color = palette[i % palette.length];
-
-          const textVal =
-            (typeof rn.text === "string" && rn.text) ||
-            (typeof rn.title === "string" && rn.title) ||
-            "عقدة";
-
-          const node: MindMapNode = {
-            id: String(rn.id),
-            parentId: rn.parentId ? String(rn.parentId) : null,
-            text: textVal,
-            shape: d === 0 ? "rectangle" : d === 1 ? "rounded-square" : "pill",
-            x: asNum(rn.x) ?? x,
-            y: asNum(rn.y) ?? y,
-            width: (typeof rn.width === "number"
-              ? rn.width
-              : d === 0
-                ? 210
-                : d === 1
-                  ? 190
-                  : 230) as number,
-            height: (typeof rn.height === "number" ? rn.height : d === 0 ? 75 : 65) as number,
-            backgroundColor: (rn.backgroundColor as string) || color.bg,
-            textColor: (rn.textColor as string) || color.text,
-            borderColor: (rn.borderColor as string) || color.border,
-            lineColor: (rn.lineColor as string) || color.border,
-            lineThickness: (rn.lineThickness as number) || (d === 0 ? 5 : 4),
-            lineStyle: (typeof rn.lineStyle === "string" ? rn.lineStyle : "solid") as LineStyle,
-          };
-          return node;
-        })
-        .filter((n): n is MindMapNode => n !== null);
-
-      return {
-        id: `map_${blockId}`,
-        title: blockTitle,
-        rootId: formattedNodes[0]?.id || `root_${blockId}`,
-        nodes: formattedNodes,
-      };
+      return parseRawObjectNodes(rawNodes as Array<Record<string, unknown>>, blockTitle, blockId);
     }
   }
 

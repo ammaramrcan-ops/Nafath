@@ -37,6 +37,90 @@ export async function testAiConnection(aiSettings: AiSettings): Promise<{
   );
 }
 
+interface ProviderRequestConfig {
+  targetUrl: string;
+  headers: Record<string, string>;
+  requestBody: unknown;
+  modelName: string;
+}
+
+function buildProviderRequestConfig(
+  userPrompt: string,
+  history: ChatMessage[],
+  aiSettings: AiSettings,
+): ProviderRequestConfig {
+  const apiKey = (aiSettings.apiKey || "").trim();
+  const provider = aiSettings.provider || "nvidia_nim";
+  let modelName = (aiSettings.modelName || "").trim();
+  let baseUrl = (aiSettings.baseUrl || "").trim().replace(/\/+$/, "");
+
+  if (provider === "google_gemini" || baseUrl.includes("generativelanguage.googleapis.com")) {
+    if (!modelName) modelName = "gemini-1.5-flash";
+    return {
+      modelName,
+      targetUrl: `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`,
+      headers: { "Content-Type": "application/json" },
+      requestBody: {
+        contents: [
+          {
+            parts: [
+              {
+                text: `أنت المساعد الذكي 'سهم' 🏹 في منصة نفاذ للتعلم التكيفي. أجب بدقة ولطف على التالي: ${userPrompt}`,
+              },
+            ],
+          },
+        ],
+      },
+    };
+  }
+
+  const isNvidia = provider === "nvidia_nim" || baseUrl.includes("nvidia.com");
+  const defaultUrl = isNvidia ? "https://integrate.api.nvidia.com/v1" : "https://api.openai.com/v1";
+  const defaultModel = isNvidia ? "meta/llama-3.1-70b-instruct" : "gpt-4o-mini";
+  const resolvedBaseUrl = baseUrl || defaultUrl;
+  const resolvedModel = modelName || defaultModel;
+
+  const targetUrl = resolvedBaseUrl.endsWith("/chat/completions")
+    ? resolvedBaseUrl
+    : `${resolvedBaseUrl}/chat/completions`;
+
+  const systemPrompt = isNvidia
+    ? "أنت المساعد الذكي 'سهم' 🏹 في منصة نفاذ للتعلم التكيفي. تجيب بدقة باللغة العربية."
+    : "أنت المساعد الذكي 'سهم' 🏹 في منصة نفاذ.";
+
+  return {
+    modelName: resolvedModel,
+    targetUrl,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+      ...(isNvidia ? { Accept: "application/json" } : {}),
+    },
+    requestBody: {
+      model: resolvedModel,
+      messages: [
+        { role: "system", content: systemPrompt },
+        ...history
+          .filter((m) => !m.text.includes("فشل الاتصال"))
+          .map((m) => ({
+            role: m.sender === "user" ? "user" : "assistant",
+            content: m.text,
+          })),
+        { role: "user", content: userPrompt },
+      ],
+      temperature: isNvidia ? 0.6 : 0.7,
+      max_tokens: 800,
+    },
+  };
+}
+
+function extractResponseText(data: any, provider: string, baseUrl: string): string {
+  if (provider === "google_gemini" || baseUrl.includes("generativelanguage.googleapis.com")) {
+    return data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+  }
+  return data?.choices?.[0]?.message?.content || "";
+}
+
 /**
  * Universal Provider Fetcher with Exact Detailed Error Capture
  */
@@ -47,8 +131,7 @@ async function callAiProviderApi(
 ): Promise<{ ok: boolean; text: string; error?: string }> {
   const apiKey = (aiSettings.apiKey || "").trim();
   const provider = aiSettings.provider || "nvidia_nim";
-  let modelName = (aiSettings.modelName || "").trim();
-  let baseUrl = (aiSettings.baseUrl || "").trim().replace(/\/+$/, "");
+  const baseUrl = (aiSettings.baseUrl || "").trim().replace(/\/+$/, "");
 
   if (!apiKey) {
     return {
@@ -58,78 +141,11 @@ async function callAiProviderApi(
     };
   }
 
-  // Determine Target URL
-  let targetUrl = "";
-  let headers: Record<string, string> = {};
-  let requestBody: any = {};
-
-  if (provider === "google_gemini" || baseUrl.includes("generativelanguage.googleapis.com")) {
-    if (!modelName) modelName = "gemini-1.5-flash";
-    targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
-    headers = { "Content-Type": "application/json" };
-    requestBody = {
-      contents: [
-        {
-          parts: [
-            {
-              text: `أنت المساعد الذكي 'سهم' 🏹 في منصة نفاذ للتعلم التكيفي. أجب بدقة ولطف على التالي: ${userPrompt}`,
-            },
-          ],
-        },
-      ],
-    };
-  } else if (provider === "nvidia_nim" || baseUrl.includes("nvidia.com")) {
-    if (!baseUrl) baseUrl = "https://integrate.api.nvidia.com/v1";
-    if (!modelName) modelName = "meta/llama-3.1-70b-instruct";
-    targetUrl = baseUrl.endsWith("/chat/completions") ? baseUrl : `${baseUrl}/chat/completions`;
-    headers = {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-      Accept: "application/json",
-    };
-    requestBody = {
-      model: modelName,
-      messages: [
-        {
-          role: "system",
-          content:
-            "أنت المساعد الذكي 'سهم' 🏹 في منصة نفاذ للتعلم التكيفي. تجيب بدقة باللغة العربية.",
-        },
-        ...history
-          .filter((m) => !m.text.includes("فشل الاتصال"))
-          .map((m) => ({
-            role: m.sender === "user" ? "user" : "assistant",
-            content: m.text,
-          })),
-        { role: "user", content: userPrompt },
-      ],
-      temperature: 0.6,
-      max_tokens: 800,
-    };
-  } else {
-    // OpenAI / Groq / OpenRouter / Custom
-    if (!baseUrl) baseUrl = "https://api.openai.com/v1";
-    targetUrl = baseUrl.endsWith("/chat/completions") ? baseUrl : `${baseUrl}/chat/completions`;
-    headers = {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    };
-    requestBody = {
-      model: modelName || "gpt-4o-mini",
-      messages: [
-        { role: "system", content: "أنت المساعد الذكي 'سهم' 🏹 في منصة نفاذ." },
-        ...history
-          .filter((m) => !m.text.includes("فشل الاتصال"))
-          .map((m) => ({
-            role: m.sender === "user" ? "user" : "assistant",
-            content: m.text,
-          })),
-        { role: "user", content: userPrompt },
-      ],
-      temperature: 0.7,
-      max_tokens: 800,
-    };
-  }
+  const { targetUrl, headers, requestBody, modelName } = buildProviderRequestConfig(
+    userPrompt,
+    history,
+    aiSettings,
+  );
 
   try {
     const res = await fetch(targetUrl, {
@@ -156,13 +172,7 @@ async function callAiProviderApi(
     }
 
     const data = await res.json();
-    let text = "";
-
-    if (provider === "google_gemini" || baseUrl.includes("generativelanguage.googleapis.com")) {
-      text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-    } else {
-      text = data?.choices?.[0]?.message?.content || "";
-    }
+    const text = extractResponseText(data, provider, baseUrl);
 
     if (!text || !text.trim()) {
       return {

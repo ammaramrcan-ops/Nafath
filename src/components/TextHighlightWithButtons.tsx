@@ -36,6 +36,35 @@ export function TextHighlightWithButtons({
     sel.removeAllRanges();
   };
 
+  const splitHighlightNode = (
+    node: string,
+    h: HighlightItem,
+    nIdx: number,
+  ): React.ReactNode => {
+    const parts = node.split(h.text);
+    if (parts.length <= 1) return node;
+
+    const elements: React.ReactNode[] = [];
+    parts.forEach((part, pIdx) => {
+      elements.push(part);
+      if (pIdx < parts.length - 1) {
+        elements.push(
+          <span
+            key={`${h.id}-${nIdx}-${pIdx}`}
+            className={
+              h.color === "yellow"
+                ? "bg-amber-300 text-amber-950 font-bold px-1.5 py-0.5 rounded-md shadow-sm"
+                : "bg-emerald-300 text-emerald-950 font-bold px-1.5 py-0.5 rounded-md shadow-sm"
+            }
+          >
+            {h.text}
+          </span>,
+        );
+      }
+    });
+    return elements;
+  };
+
   const renderContent = () => {
     if (highlights.length === 0) {
       return <HardWordText text={text} words={words} />;
@@ -45,35 +74,18 @@ export function TextHighlightWithButtons({
       <HardWordText key="original" text={text} words={words} />,
     ];
 
-    highlights.forEach((h) => {
-      processedNodes = processedNodes.map((node, nIdx) => {
+    for (const h of highlights) {
+      const nextNodes: React.ReactNode[] = [];
+      for (let nIdx = 0; nIdx < processedNodes.length; nIdx++) {
+        const node = processedNodes[nIdx];
         if (typeof node === "string") {
-          const parts = node.split(h.text);
-          if (parts.length <= 1) return node;
-
-          const elements: React.ReactNode[] = [];
-          parts.forEach((part, pIdx) => {
-            elements.push(part);
-            if (pIdx < parts.length - 1) {
-              elements.push(
-                <span
-                  key={`${h.id}-${nIdx}-${pIdx}`}
-                  className={
-                    h.color === "yellow"
-                      ? "bg-amber-300 text-amber-950 font-bold px-1.5 py-0.5 rounded-md shadow-sm"
-                      : "bg-emerald-300 text-emerald-950 font-bold px-1.5 py-0.5 rounded-md shadow-sm"
-                  }
-                >
-                  {h.text}
-                </span>,
-              );
-            }
-          });
-          return elements;
+          nextNodes.push(splitHighlightNode(node, h, nIdx));
+        } else {
+          nextNodes.push(node);
         }
-        return node;
-      });
-    });
+      }
+      processedNodes = nextNodes;
+    }
 
     return <>{processedNodes}</>;
   };

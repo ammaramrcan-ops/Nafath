@@ -27,6 +27,84 @@ import {
 } from "@/lib/mind-map-types";
 import { toast } from "sonner";
 
+function calculateConnectionPath(
+  parent: MindMapNode,
+  child: MindMapNode,
+  visibleNodes: MindMapNode[],
+): { pathD: string; lineColor: string; lineThickness: number; isDashed: boolean } {
+  const pW = parent.width || 200;
+  const pH = parent.height || 70;
+  const cW = child.width || 200;
+  const cH = child.height || 70;
+
+  const parentCenterX = parent.x + pW / 2;
+  const parentCenterY = parent.y + pH / 2;
+  const childCenterX = child.x + cW / 2;
+  const childCenterY = child.y + cH / 2;
+
+  const deltaX = childCenterX - parentCenterX;
+  const deltaY = childCenterY - parentCenterY;
+
+  let startX: number;
+  let startY: number;
+  let endX: number;
+  let endY: number;
+  let pathD: string;
+
+  const siblings = visibleNodes.filter(
+    (n) => n.parentId === parent.id || (n.parentIds && n.parentIds.includes(parent.id)),
+  );
+  const siblingIdx = siblings.findIndex((s) => s.id === child.id);
+  const siblingCount = Math.max(1, siblings.length);
+  const yPortion = siblingCount > 1 ? (siblingIdx + 0.5) / siblingCount : 0.5;
+  const distributedStartY = parent.y + pH * 0.15 + pH * 0.7 * yPortion + 2000;
+
+  if (Math.abs(deltaY) > Math.abs(deltaX) * 0.8) {
+    if (deltaY > 0) {
+      startX = parentCenterX + 2000;
+      startY = parent.y + pH + 2000;
+      endX = childCenterX + 2000;
+      endY = child.y + 2000;
+      const dy = Math.abs(endY - startY) * 0.5;
+      pathD = `M ${startX} ${startY} C ${startX} ${startY + dy}, ${endX} ${endY - dy}, ${endX} ${endY}`;
+    } else {
+      startX = parentCenterX + 2000;
+      startY = parent.y + 2000;
+      endX = childCenterX + 2000;
+      endY = child.y + cH + 2000;
+      const dy = Math.abs(endY - startY) * 0.5;
+      pathD = `M ${startX} ${startY} C ${startX} ${startY - dy}, ${endX} ${endY + dy}, ${endX} ${endY}`;
+    }
+  } else {
+    if (deltaX < 0) {
+      startX = parent.x + 2000;
+      startY = distributedStartY;
+      endX = child.x + cW + 2000;
+      endY = childCenterY + 2000;
+      const dx = Math.abs(endX - startX) * 0.5;
+      pathD = `M ${startX} ${startY} C ${startX - dx} ${startY}, ${endX + dx} ${endY}, ${endX} ${endY}`;
+    } else {
+      startX = parent.x + pW + 2000;
+      startY = distributedStartY;
+      endX = child.x + 2000;
+      endY = childCenterY + 2000;
+      const dx = Math.abs(endX - startX) * 0.5;
+      pathD = `M ${startX} ${startY} C ${startX + dx} ${startY}, ${endX - dx} ${endY}, ${endX} ${endY}`;
+    }
+  }
+
+  return {
+    pathD,
+    lineColor: parent.lineColor || "#F59E0B",
+    lineThickness: parent.lineThickness || 4,
+    isDashed: parent.lineStyle === "dashed",
+    startX,
+    startY,
+    endX,
+    endY,
+  };
+}
+
 export function MindMapCanvas({
   mapData,
   onUpdateMap,
@@ -388,81 +466,8 @@ export function MindMapCanvas({
               const child = visibleNodes.find((n) => n.id === childId);
               if (!parent || !child) return null;
 
-              const pW = parent.width || 200;
-              const pH = parent.height || 70;
-              const cW = child.width || 200;
-              const cH = child.height || 70;
-
-              const parentCenterX = parent.x + pW / 2;
-              const parentCenterY = parent.y + pH / 2;
-              const childCenterX = child.x + cW / 2;
-              const childCenterY = child.y + cH / 2;
-
-              const deltaX = childCenterX - parentCenterX;
-              const deltaY = childCenterY - parentCenterY;
-
-              let startX: number;
-              let startY: number;
-              let endX: number;
-              let endY: number;
-              let pathD: string;
-
-              // Distribute handle connection Y offset evenly along parent edge to prevent overlapping line bundles
-              const siblings = visibleNodes.filter(
-                (n) => n.parentId === parentId || (n.parentIds && n.parentIds.includes(parentId)),
-              );
-              const siblingIdx = siblings.findIndex((s) => s.id === childId);
-              const siblingCount = Math.max(1, siblings.length);
-              const yPortion = siblingCount > 1 ? (siblingIdx + 0.5) / siblingCount : 0.5;
-              const distributedStartY = parent.y + pH * 0.15 + pH * 0.7 * yPortion + 2000;
-
-              // Smart 4-Way Handle Connection (Vertical vs Horizontal)
-              if (Math.abs(deltaY) > Math.abs(deltaX) * 0.8) {
-                if (deltaY > 0) {
-                  // Child is BELOW parent (Bottom handle -> Top handle)
-                  startX = parentCenterX + 2000;
-                  startY = parent.y + pH + 2000;
-                  endX = childCenterX + 2000;
-                  endY = child.y + 2000;
-
-                  const dy = Math.abs(endY - startY) * 0.5;
-                  pathD = `M ${startX} ${startY} C ${startX} ${startY + dy}, ${endX} ${endY - dy}, ${endX} ${endY}`;
-                } else {
-                  // Child is ABOVE parent (Top handle -> Bottom handle)
-                  startX = parentCenterX + 2000;
-                  startY = parent.y + 2000;
-                  endX = childCenterX + 2000;
-                  endY = child.y + cH + 2000;
-
-                  const dy = Math.abs(endY - startY) * 0.5;
-                  pathD = `M ${startX} ${startY} C ${startX} ${startY - dy}, ${endX} ${endY + dy}, ${endX} ${endY}`;
-                }
-              } else {
-                // Primary HORIZONTAL relationship
-                if (deltaX < 0) {
-                  // Child is to the LEFT of parent
-                  startX = parent.x + 2000;
-                  startY = distributedStartY;
-                  endX = child.x + cW + 2000;
-                  endY = childCenterY + 2000;
-
-                  const dx = Math.abs(endX - startX) * 0.5;
-                  pathD = `M ${startX} ${startY} C ${startX - dx} ${startY}, ${endX + dx} ${endY}, ${endX} ${endY}`;
-                } else {
-                  // Child is to the RIGHT of parent
-                  startX = parent.x + pW + 2000;
-                  startY = distributedStartY;
-                  endX = child.x + 2000;
-                  endY = childCenterY + 2000;
-
-                  const dx = Math.abs(endX - startX) * 0.5;
-                  pathD = `M ${startX} ${startY} C ${startX + dx} ${startY}, ${endX - dx} ${endY}, ${endX} ${endY}`;
-                }
-              }
-
-              const lineColor = parent.lineColor || "#F59E0B";
-              const lineThickness = parent.lineThickness || 4;
-              const isDashed = parent.lineStyle === "dashed";
+              const { pathD, lineColor, lineThickness, isDashed, startX, startY, endX, endY } =
+                calculateConnectionPath(parent, child, visibleNodes);
 
               return (
                 <g key={`conn_${parentId}_${childId}_${idx}`}>
