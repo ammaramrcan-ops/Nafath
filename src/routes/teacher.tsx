@@ -168,12 +168,14 @@ function TeacherPage() {
     try {
       const data = JSON.parse(jsonStr);
       const title = data.title || data.lesson_title || lesson.title;
-      const masterStory = String(data.master_story ?? data.masterStory ?? data.intro_story ?? lesson.master_story ?? "");
-      const rawBlocks = Array.isArray(data.blocks)
-        ? data.blocks
-        : Array.isArray(data.sections)
-          ? data.sections
-          : [data];
+      const masterStory = String(
+        data.master_story ?? data.masterStory ?? data.intro_story ?? lesson.master_story ?? "",
+      );
+      const rawBlocks = (() => {
+        if (Array.isArray(data.blocks)) return data.blocks;
+        if (Array.isArray(data.sections)) return data.sections;
+        return [data];
+      })();
 
       const newBlocks = rawBlocks.map((b: any, i: number) => {
         const existing = lesson.blocks[i] || emptyBlock(i + 1);
@@ -208,14 +210,17 @@ function TeacherPage() {
     }
     try {
       const data = sanitizeJsonInput(JSON.parse(jsonStr));
-      const mneumonicList = Array.isArray(data.takeaways_by_block)
-        ? data.takeaways_by_block
-        : Array.isArray(data.blocks)
-          ? data.blocks
-          : [data];
+      const mneumonicList = (() => {
+        if (Array.isArray(data.takeaways_by_block)) return data.takeaways_by_block;
+        if (Array.isArray(data.blocks)) return data.blocks;
+        return [data];
+      })();
 
       const updatedBlocks = lesson.blocks.map((b, i) => {
-        const item = mneumonicList[i] || mneumonicList.find((m: any) => m.block_id === b.id) || mneumonicList[0];
+        const item =
+          mneumonicList[i] ||
+          mneumonicList.find((m: any) => m.block_id === b.id) ||
+          mneumonicList[0];
         if (!item) return b;
         const norm = normalizeBlock(item, i);
         return {
@@ -241,11 +246,11 @@ function TeacherPage() {
     }
     try {
       const data = sanitizeJsonInput(JSON.parse(jsonStr));
-      const list = Array.isArray(data.zaitouna_by_block)
-        ? data.zaitouna_by_block
-        : Array.isArray(data.blocks)
-          ? data.blocks
-          : [data];
+      const list = (() => {
+        if (Array.isArray(data.zaitouna_by_block)) return data.zaitouna_by_block;
+        if (Array.isArray(data.blocks)) return data.blocks;
+        return [data];
+      })();
 
       const updatedBlocks = lesson.blocks.map((b, i) => {
         const item = list[i] || list.find((z: any) => z.block_id === b.id) || list[0];
@@ -254,7 +259,9 @@ function TeacherPage() {
         return {
           ...b,
           zaitouna: {
-            definitions: sanitizeJsonInput(String(zObj.definitions || b.zaitouna?.definitions || "")),
+            definitions: sanitizeJsonInput(
+              String(zObj.definitions || b.zaitouna?.definitions || ""),
+            ),
             reasoning: sanitizeJsonInput(String(zObj.reasoning || b.zaitouna?.reasoning || "")),
             links: sanitizeJsonInput(String(zObj.links || b.zaitouna?.links || "")),
           },
@@ -278,11 +285,11 @@ function TeacherPage() {
     }
     try {
       const data = sanitizeJsonInput(JSON.parse(jsonStr));
-      const quizList = Array.isArray(data.quizzes_by_block)
-        ? data.quizzes_by_block
-        : Array.isArray(data.blocks)
-          ? data.blocks
-          : [data];
+      const quizList = (() => {
+        if (Array.isArray(data.quizzes_by_block)) return data.quizzes_by_block;
+        if (Array.isArray(data.blocks)) return data.blocks;
+        return [data];
+      })();
 
       const updatedBlocks = lesson.blocks.map((b, i) => {
         const item = quizList[i] || quizList.find((q: any) => q.block_id === b.id) || quizList[0];
@@ -314,20 +321,20 @@ function TeacherPage() {
     }
     try {
       const data = sanitizeJsonInput(JSON.parse(jsonStr));
-      const list = Array.isArray(data.flashcards_by_block)
-        ? data.flashcards_by_block
-        : Array.isArray(data.blocks)
-          ? data.blocks
-          : [data];
+      const list = (() => {
+        if (Array.isArray(data.flashcards_by_block)) return data.flashcards_by_block;
+        if (Array.isArray(data.blocks)) return data.blocks;
+        return [data];
+      })();
 
       const updatedBlocks = lesson.blocks.map((b, i) => {
         const item = list[i] || list.find((f: any) => f.block_id === b.id) || list[0];
         if (!item) return b;
-        const rawWords = Array.isArray(item.flashcards)
-          ? item.flashcards
-          : Array.isArray(item.hard_words)
-            ? item.hard_words
-            : [];
+        const rawWords = (() => {
+          if (Array.isArray(item.flashcards)) return item.flashcards;
+          if (Array.isArray(item.hard_words)) return item.hard_words;
+          return [];
+        })();
         const words = rawWords.map((w: any) => ({
           word: String(w.word || w.term || w.question || ""),
           meaning: String(w.meaning || w.definition || w.answer || ""),
@@ -356,11 +363,11 @@ function TeacherPage() {
     }
     try {
       const data = sanitizeJsonInput(JSON.parse(jsonStr));
-      const quizList = Array.isArray(data.quizzes_by_block)
-        ? data.quizzes_by_block
-        : Array.isArray(data.blocks)
-          ? data.blocks
-          : [data];
+      const quizList = (() => {
+        if (Array.isArray(data.quizzes_by_block)) return data.quizzes_by_block;
+        if (Array.isArray(data.blocks)) return data.blocks;
+        return [data];
+      })();
 
       const updatedBlocks = lesson.blocks.map((b, i) => {
         const item = quizList[i] || quizList.find((q: any) => q.block_id === b.id) || quizList[0];
@@ -617,10 +624,13 @@ function TeacherPage() {
                     <div className="space-y-1">
                       <h3 className="text-base font-extrabold text-[#9d4300] flex items-center gap-2">
                         <BookOpen className="h-5 w-5" />
-                        <span>البرومبت المخصص 1: (القصة التمهيدية الجامعة والمواقف الحوارية 📖)</span>
+                        <span>
+                          البرومبت المخصص 1: (القصة التمهيدية الجامعة والمواقف الحوارية 📖)
+                        </span>
                       </h3>
                       <p className="text-xs text-[#584237]/70 font-semibold">
-                        انسخ هذا الأمر والصقه في الذكاء الاصطناعي لتوليد القصة الشاملة للدرس ككل والمواقف الحوارية لكل فقرة
+                        انسخ هذا الأمر والصقه في الذكاء الاصطناعي لتوليد القصة الشاملة للدرس ككل
+                        والمواقف الحوارية لكل فقرة
                       </p>
                     </div>
                     <button
@@ -664,10 +674,14 @@ function TeacherPage() {
                 </div>
 
                 <div className="space-y-3 text-right">
-                  <label className="text-sm font-extrabold text-[#0b1c30] block">
+                  <label
+                    htmlFor="json-input-1"
+                    className="text-sm font-extrabold text-[#0b1c30] block"
+                  >
                     الصق كود JSON الناتج (JSON 1) الخاص بالقصة والدراما أدناه:
                   </label>
                   <textarea
+                    id="json-input-1"
                     rows={10}
                     value={jsonInput1}
                     onChange={(e) => setJsonInput1(e.target.value)}
@@ -702,7 +716,8 @@ function TeacherPage() {
                         <span>البرومبت المخصص 2: (تنبيهات واستبصارات "💡 خد بالك منها" 💡)</span>
                       </h3>
                       <p className="text-xs text-[#584237]/70 font-semibold">
-                        انسخ هذا الأمر والصقه في الذكاء الاصطناعي لاستنباط التنبيهات الفقهية الدقيقة لكل فقرة
+                        انسخ هذا الأمر والصقه في الذكاء الاصطناعي لاستنباط التنبيهات الفقهية الدقيقة
+                        لكل فقرة
                       </p>
                     </div>
                     <button
@@ -740,10 +755,14 @@ function TeacherPage() {
                 </div>
 
                 <div className="space-y-3 text-right">
-                  <label className="text-sm font-extrabold text-[#0b1c30] block">
+                  <label
+                    htmlFor="json-input-2"
+                    className="text-sm font-extrabold text-[#0b1c30] block"
+                  >
                     الصق كود JSON الناتج (JSON 2) الخاص بتنبيهات "خد بالك منها" أدناه:
                   </label>
                   <textarea
+                    id="json-input-2"
                     rows={10}
                     value={jsonInput2}
                     onChange={(e) => setJsonInput2(e.target.value)}
@@ -786,7 +805,8 @@ function TeacherPage() {
                         <span>البرومبت المخصص 3: (بطاقات الزيتونة والخلاصة المركزة 🫒)</span>
                       </h3>
                       <p className="text-xs text-amber-800 font-semibold">
-                        انسخ هذا الأمر والصقه في الذكاء الاصطناعي لاستخلاص خلاصة الزيتونة (التعريفات المركزة، التوجيهات الشرعية، والروابط)
+                        انسخ هذا الأمر والصقه في الذكاء الاصطناعي لاستخلاص خلاصة الزيتونة (التعريفات
+                        المركزة، التوجيهات الشرعية، والروابط)
                       </p>
                     </div>
                     <button
@@ -827,10 +847,14 @@ function TeacherPage() {
                 </div>
 
                 <div className="space-y-3 text-right">
-                  <label className="text-sm font-extrabold text-[#0b1c30] block">
+                  <label
+                    htmlFor="json-input-3"
+                    className="text-sm font-extrabold text-[#0b1c30] block"
+                  >
                     الصق كود JSON الناتج (JSON 3) الخاص بكروت الزيتونة أدناه:
                   </label>
                   <textarea
+                    id="json-input-3"
                     rows={10}
                     value={jsonInput3}
                     onChange={(e) => setJsonInput3(e.target.value)}
@@ -873,7 +897,8 @@ function TeacherPage() {
                         <span>البرومبت المخصص 4: (أسئلة المستوى الأول القصصية 🎯)</span>
                       </h3>
                       <p className="text-xs text-[#584237]/70 font-semibold">
-                        انسخ هذا الأمر والصقه في الذكاء الاصطناعي لتوليد 5 أسئلة خيار من متعدد بالعامية المصرية الميسرة
+                        انسخ هذا الأمر والصقه في الذكاء الاصطناعي لتوليد 5 أسئلة خيار من متعدد
+                        بالعامية المصرية الميسرة
                       </p>
                     </div>
                     <button
@@ -948,10 +973,14 @@ function TeacherPage() {
                 </div>
 
                 <div className="space-y-3 text-right">
-                  <label className="text-sm font-extrabold text-[#0b1c30] block">
+                  <label
+                    htmlFor="json-input-4"
+                    className="text-sm font-extrabold text-[#0b1c30] block"
+                  >
                     الصق كود JSON الناتج (JSON 4) الخاص بأسئلة المستوى الأول أدناه:
                   </label>
                   <textarea
+                    id="json-input-4"
                     rows={10}
                     value={jsonInput4}
                     onChange={(e) => setJsonInput4(e.target.value)}
@@ -991,10 +1020,13 @@ function TeacherPage() {
                     <div className="space-y-1">
                       <h3 className="text-base font-extrabold text-purple-950 flex items-center gap-2">
                         <Sparkles className="h-5 w-5 text-purple-700" />
-                        <span>البرومبت المخصص 5: (بطاقات الفلاش كاردز ذات المعلومة الواحدة 🗂️)</span>
+                        <span>
+                          البرومبت المخصص 5: (بطاقات الفلاش كاردز ذات المعلومة الواحدة 🗂️)
+                        </span>
                       </h3>
                       <p className="text-xs text-purple-800 font-semibold">
-                        انسخ هذا الأمر والصقه في الذكاء الاصطناعي لتوليد بطاقات فلاش كاردز بسيطة ومباشرة تحمل معلومة واحدة صريحة في كل بطاقة
+                        انسخ هذا الأمر والصقه في الذكاء الاصطناعي لتوليد بطاقات فلاش كاردز بسيطة
+                        ومباشرة تحمل معلومة واحدة صريحة في كل بطاقة
                       </p>
                     </div>
                     <button
@@ -1041,10 +1073,14 @@ function TeacherPage() {
                 </div>
 
                 <div className="space-y-3 text-right">
-                  <label className="text-sm font-extrabold text-[#0b1c30] block">
+                  <label
+                    htmlFor="json-input-5"
+                    className="text-sm font-extrabold text-[#0b1c30] block"
+                  >
                     الصق كود JSON الناتج (JSON 5) الخاص ببطاقات الفلاش كاردز أدناه:
                   </label>
                   <textarea
+                    id="json-input-5"
                     rows={10}
                     value={jsonInput5}
                     onChange={(e) => setJsonInput5(e.target.value)}
@@ -1084,10 +1120,14 @@ function TeacherPage() {
                     <div className="space-y-1">
                       <h3 className="text-base font-extrabold text-blue-950 flex items-center gap-2">
                         <Sparkles className="h-5 w-5 text-blue-700" />
-                        <span>البرومبت المخصص 6: (أسئلة المستويين الثاني والثالث - أكمل الفراغ والمقالي 🧠)</span>
+                        <span>
+                          البرومبت المخصص 6: (أسئلة المستويين الثاني والثالث - أكمل الفراغ والمقالي
+                          🧠)
+                        </span>
                       </h3>
                       <p className="text-xs text-[#584237]/70 font-semibold">
-                        انسخ هذا الأمر والصقه في الذكاء الاصطناعي لتوليد أسئلة أكمل الفراغ والأسئلة المقالية الفقهية
+                        انسخ هذا الأمر والصقه في الذكاء الاصطناعي لتوليد أسئلة أكمل الفراغ والأسئلة
+                        المقالية الفقهية
                       </p>
                     </div>
                     <button
@@ -1132,10 +1172,14 @@ function TeacherPage() {
                 </div>
 
                 <div className="space-y-3 text-right">
-                  <label className="text-sm font-extrabold text-[#0b1c30] block">
+                  <label
+                    htmlFor="json-input-6"
+                    className="text-sm font-extrabold text-[#0b1c30] block"
+                  >
                     الصق كود JSON الناتج (JSON 6) الخاص بأسئلة المستويين الثاني والثالث أدناه:
                   </label>
                   <textarea
+                    id="json-input-6"
                     rows={10}
                     value={jsonInput6}
                     onChange={(e) => setJsonInput6(e.target.value)}
@@ -1223,8 +1267,9 @@ function TeacherPage() {
               </h2>
 
               <div className="space-y-6 text-right">
-                <Field label="عنوان الدرس الرئيسي">
+                <Field id="lesson-title" label="عنوان الدرس الرئيسي">
                   <Input
+                    id="lesson-title-input"
                     value={lesson.title || "أحكام الخُلع في الفقه الإسلامي"}
                     onChange={(e) => updateLesson({ title: e.target.value })}
                     placeholder="مثال: أحكام الخلع في الفقه الإسلامي..."
@@ -1233,16 +1278,18 @@ function TeacherPage() {
                 </Field>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <Field label="الزمن التقديري">
+                  <Field id="estimated-time" label="الزمن التقديري">
                     <Input
+                      id="estimated-time-input"
                       value={lesson.estimatedTime || "35 دقيقة"}
                       onChange={(e) => updateLesson({ estimatedTime: e.target.value })}
                       placeholder="مثال: 35 دقيقة"
                       className="h-14 rounded-2xl border-none bg-[#eff4ff] text-center font-bold text-sm text-[#0b1c30]"
                     />
                   </Field>
-                  <Field label="حجم المحتوى والمصطلحات">
+                  <Field id="content-size" label="حجم المحتوى والمصطلحات">
                     <Input
+                      id="content-size-input"
                       value={lesson.size || "4 كتل فقهية - 10 مصطلحات شرعية"}
                       onChange={(e) => updateLesson({ size: e.target.value })}
                       placeholder="مثال: 4 كتل فقهية - 10 مصطلحات شرعية"
@@ -1252,10 +1299,12 @@ function TeacherPage() {
                 </div>
 
                 <Field
+                  id="notebooklm-url"
                   label="رابط NotebookLM المساعد للدرس (NotebookLM URL)"
                   hint="ضع رابط كشكول NotebookLM الخاص بالدرس لتمكين خيار 'لدي سؤال' للطالب لتوجيهه للأداة عند الاستفسار."
                 >
                   <Input
+                    id="notebooklm-url-input"
                     value={lesson.notebookLmUrl || "https://notebooklm.google.com/..."}
                     onChange={(e) => updateLesson({ notebookLmUrl: e.target.value })}
                     placeholder="https://notebooklm.google.com/notebook/..."
@@ -1264,10 +1313,12 @@ function TeacherPage() {
                 </Field>
 
                 <Field
+                  id="master-story"
                   label="📖 القصة التمهيدية الجامعة للدرس ككل (Master Intro Story)"
                   hint="قصة تمهيدية سينمائية ممتعة تظهر للطالب قبل البدء بالفقرات لإعطائه السياق الواقعي الشامل."
                 >
                   <textarea
+                    id="master-story-textarea"
                     value={lesson.master_story || ""}
                     onChange={(e) => updateLesson({ master_story: e.target.value })}
                     rows={6}
@@ -1295,7 +1346,9 @@ function TeacherPage() {
                       )}
                     >
                       <CheckCircle2 className="h-4 w-4" />
-                      <span>مراحل المستوى الأول ({lesson.levelStageOrders?.[1]?.length || 5} مراحل)</span>
+                      <span>
+                        مراحل المستوى الأول ({lesson.levelStageOrders?.[1]?.length || 5} مراحل)
+                      </span>
                     </button>
 
                     <button
@@ -1309,7 +1362,9 @@ function TeacherPage() {
                       )}
                     >
                       <div className="h-3.5 w-3.5 rounded-full border-2 border-current" />
-                      <span>مراحل المستوى الثاني ({lesson.levelStageOrders?.[2]?.length || 8} مراحل)</span>
+                      <span>
+                        مراحل المستوى الثاني ({lesson.levelStageOrders?.[2]?.length || 8} مراحل)
+                      </span>
                     </button>
 
                     <button
@@ -1323,7 +1378,9 @@ function TeacherPage() {
                       )}
                     >
                       <div className="h-3.5 w-3.5 rounded-full border-2 border-current" />
-                      <span>مراحل المستوى الثالث ({lesson.levelStageOrders?.[3]?.length || 6} مراحل)</span>
+                      <span>
+                        مراحل المستوى الثالث ({lesson.levelStageOrders?.[3]?.length || 6} مراحل)
+                      </span>
                     </button>
                   </div>
 
@@ -1385,14 +1442,18 @@ function Field({
   label,
   hint,
   children,
+  id,
 }: {
   label: string;
   hint?: string;
+  id?: string;
   children: React.ReactNode;
 }) {
   return (
     <div className="space-y-1.5">
-      <label className="block text-xs font-extrabold text-[#0b1c30]">{label}</label>
+      <label htmlFor={id} className="block text-xs font-extrabold text-[#0b1c30]">
+        {label}
+      </label>
       {hint && <p className="text-[11px] font-semibold text-[#584237]/70">{hint}</p>}
       {children}
     </div>
@@ -1448,11 +1509,7 @@ function LevelStageCardItem({
               : "bg-emerald-100 text-emerald-900 border-emerald-300 hover:bg-emerald-200",
           )}
         >
-          {isDisabled ? (
-            <EyeOff className="h-3.5 w-3.5" />
-          ) : (
-            <Eye className="h-3.5 w-3.5" />
-          )}
+          {isDisabled ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
           <span>{isDisabled ? "معطّلة" : "مفعّلة"}</span>
         </button>
 
@@ -1576,7 +1633,8 @@ function GlobalLevelSequenceEditor({
             إعداد وتنسيق مراحل المستوى {activeLevel}
           </h3>
           <p className="text-xs font-semibold text-[#584237]/70 mt-0.5">
-            المراحل المفعّلة تظهر باللون الأخضر، والمعطّلة تظهر بـ (معطّلة) ويمكنك تفعيلها بأي وقت 👁️
+            المراحل المفعّلة تظهر باللون الأخضر، والمعطّلة تظهر بـ (معطّلة) ويمكنك تفعيلها بأي وقت
+            👁️
           </p>
         </div>
       </div>
@@ -1671,7 +1729,7 @@ function BlockEditor({
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
-          <Field label="المدى الزمني المتوقع">
+          <Field id="meta-time" label="المدى الزمني المتوقع">
             <Input
               value={block.meta_card?.estimated_time_range || "2 - 5 دقائق"}
               onChange={(e) =>
@@ -1684,10 +1742,11 @@ function BlockEditor({
               }
               placeholder="مثال: 2 - 5 دقائق"
               className="h-11 rounded-xl bg-[#eff4ff] border-none text-xs font-bold"
+              id="meta-time-input"
             />
           </Field>
 
-          <Field label="عدد المفاهيم والمعلومات">
+          <Field id="meta-info-count" label="عدد المفاهيم والمعلومات">
             <Input
               type="number"
               value={block.meta_card?.info_count ?? 3}
@@ -1701,11 +1760,13 @@ function BlockEditor({
               }
               placeholder="مثال: 3"
               className="h-11 rounded-xl bg-[#eff4ff] border-none text-xs font-bold"
+              id="meta-info-count-input"
             />
           </Field>
 
-          <Field label="مستوى الفهم المطلوب">
+          <Field id="meta-understanding" label="مستوى الفهم المطلوب">
             <select
+              id="meta-understanding-select"
               value={block.meta_card?.understanding_level || "سهل"}
               onChange={(e) =>
                 onChange({
@@ -1723,8 +1784,9 @@ function BlockEditor({
             </select>
           </Field>
 
-          <Field label="مستوى الحفظ المطلوب">
+          <Field id="meta-memorization" label="مستوى الحفظ المطلوب">
             <select
+              id="meta-memorization-select"
               value={block.meta_card?.memorization_level || "متوسط"}
               onChange={(e) =>
                 onChange({
@@ -1922,10 +1984,12 @@ function InlineStageCanvas({
     return (
       <div className="space-y-4">
         <Field
+          id="block-story"
           label="القصة التفاعلية لتثبيت الفهم"
           hint="حدد أي جزء من النص بالماوس واضغط على زر التظليل الأصفر أو الأخضر أسفل صندوق النص."
         >
           <VisualHighlightArea
+            id="block-story-text"
             value={block.story}
             onChangeText={(val) => onChange({ story: val })}
             highlights={block.highlights}
@@ -1941,8 +2005,13 @@ function InlineStageCanvas({
   if (stage === "examples") {
     return (
       <div className="space-y-4">
-        <Field label="الأمثلة التوضيحية" hint="تظليل بصري حي بدون أي وسوم نصية.">
+        <Field
+          id="block-examples"
+          label="الأمثلة التوضيحية"
+          hint="تظليل بصري حي بدون أي وسوم نصية."
+        >
           <VisualHighlightArea
+            id="block-examples-text"
             value={block.examples}
             onChangeText={(val) => onChange({ examples: val })}
             highlights={block.highlights}
@@ -1959,11 +2028,12 @@ function InlineStageCanvas({
     return (
       <div className="space-y-4">
         <Field
+          id="block-original"
           label="النص الأصلي بالهندسة البصرية"
           hint="حدد أي كلمة بالماوس لتلوينها وتظليلها بصرياً."
         >
           <VisualHighlightArea
-            value={block.full_text}
+            id="block-original-text"
             onChangeText={(val) => onChange({ full_text: val })}
             highlights={block.highlights}
             onChangeHighlights={(hl) => onChange({ highlights: hl })}
@@ -1982,8 +2052,13 @@ function InlineStageCanvas({
           <div className="flex items-center gap-2 border-b border-amber-200/80 pb-3">
             <Sparkles className="h-5 w-5 text-amber-600 shrink-0" />
             <div>
-              <h4 className="text-sm font-black text-amber-950">💡 نقط خلي بالك منها (التنبيهات والاستبصار الفقهي الدقيق):</h4>
-              <p className="text-xs font-semibold text-amber-800">اكتب هنا القواعد الفقهية والتنبيهات المباشرة للطالب (كل تنبيه في سطر منفصل يبدأ بـ 💡 خد بالك:)</p>
+              <h4 className="text-sm font-black text-amber-950">
+                💡 نقط خلي بالك منها (التنبيهات والاستبصار الفقهي الدقيق):
+              </h4>
+              <p className="text-xs font-semibold text-amber-800">
+                اكتب هنا القواعد الفقهية والتنبيهات المباشرة للطالب (كل تنبيه في سطر منفصل يبدأ بـ
+                💡 خد بالك:)
+              </p>
             </div>
           </div>
           <Textarea
@@ -2003,10 +2078,12 @@ function InlineStageCanvas({
     return (
       <div className="space-y-4">
         <Field
+          id="block-mental"
           label="الروابط والخدع الذهنية لحفظ المعلومة (Mnemonic)"
           hint="اكتب جملة تذكرية أو رابطاً ذهنياً طريفاً يسهل الحفظ."
         >
           <Textarea
+            id="block-mental-text"
             value={block.mnemonic}
             onChange={(e) => onChange({ mnemonic: e.target.value })}
             rows={4}
@@ -2022,10 +2099,12 @@ function InlineStageCanvas({
     return (
       <div className="space-y-4">
         <Field
+          id="block-funny"
           label="الرابط العاطفي والقصة الواقعية"
           hint="قصة واقعية قصيرة تعبر عن التطبيق العملي."
         >
           <Textarea
+            id="block-funny-text"
             value={block.funny_link}
             onChange={(e) => onChange({ funny_link: e.target.value })}
             rows={4}
@@ -2041,10 +2120,12 @@ function InlineStageCanvas({
     return (
       <div className="space-y-4">
         <Field
+          id="block-zaitouna"
           label="الزيتونة ملخص الجملة الواحدة (Zaitouna)"
           hint="جملة ختامية جامعة تختصر الفقرة بالكامل."
         >
           <Input
+            id="block-zaitouna-input"
             value={block.short_sentence}
             onChange={(e) => onChange({ short_sentence: e.target.value })}
             placeholder="مثال: الخُلع فسخ للعقد بعوض معلوم..."
