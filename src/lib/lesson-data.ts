@@ -561,6 +561,7 @@ export function effectiveStages(
   level?: 1 | 2 | 3 | "all",
   levelStageOrders?: Lesson["levelStageOrders"],
   levelDisabledStages?: Lesson["levelDisabledStages"],
+  subjectId?: string,
 ): Stage[] {
   if (!block) {
     return globalOrder && globalOrder.length > 0 ? globalOrder : (DEFAULT_STAGE_ORDER as Stage[]);
@@ -568,37 +569,34 @@ export function effectiveStages(
 
   let orderToUse: Stage[] = [];
 
+  // Check if subject has custom level stage orders configured
+  const subject = subjectId ? getSubject(subjectId) : null;
+  const subOrders = subject?.levelStageOrders;
+  const subDisabled = subject?.levelDisabledStages;
+
   if (level === "all") {
     orderToUse =
       globalOrder && globalOrder.length > 0 ? globalOrder : (DEFAULT_STAGE_ORDER as Stage[]);
-  } else if (level === 1) {
-    orderToUse = levelStageOrders?.[1] ?? [
-      "story",
-      "baladi_terms",
-      "paper_summary",
-      "mindmap",
-      "quizzes_mcq",
-    ];
-  } else if (level === 2) {
-    orderToUse = levelStageOrders?.[2] ?? [
-      "examples",
-      "original",
-      "mental",
-      "mindmap",
-      "quizzes_fill",
-      "quizzes_essay",
-      "flashcards",
-      "zaitouna",
-    ];
-  } else if (level === 3) {
-    orderToUse = levelStageOrders?.[3] ?? [
-      "original",
-      "mental",
-      "funny",
-      "mindmap",
-      "quizzes_essay",
-      "zaitouna",
-    ];
+  } else if (level === 1 || level === 2 || level === 3) {
+    orderToUse =
+      subOrders?.[level] && subOrders[level].length > 0
+        ? subOrders[level]
+        : levelStageOrders?.[level] && levelStageOrders[level].length > 0
+          ? levelStageOrders[level]
+          : level === 1
+            ? ["story", "baladi_terms", "paper_summary", "mindmap", "quizzes_mcq"]
+            : level === 2
+              ? [
+                  "examples",
+                  "original",
+                  "mental",
+                  "mindmap",
+                  "quizzes_fill",
+                  "quizzes_essay",
+                  "flashcards",
+                  "zaitouna",
+                ]
+              : ["original", "mental", "funny", "mindmap", "quizzes_essay", "zaitouna"];
   } else {
     orderToUse =
       block.stage_order && block.stage_order.length > 0
@@ -609,8 +607,11 @@ export function effectiveStages(
     orderToUse = [...valid, ...missing];
   }
 
-  const disabledForLevel =
-    typeof level === "number" && levelDisabledStages?.[level] ? levelDisabledStages[level] : [];
+  const disabledForLevel = [
+    ...(typeof level === "number" && levelDisabledStages?.[level] ? levelDisabledStages[level] : []),
+    ...(typeof level === "number" && subDisabled?.[level] ? subDisabled[level] : []),
+  ];
+
   const blockDisabled =
     block?.enabled_stages && block.enabled_stages.length > 0
       ? DEFAULT_STAGE_ORDER.filter((s) => !block.enabled_stages?.includes(s))

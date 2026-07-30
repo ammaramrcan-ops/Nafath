@@ -1409,11 +1409,26 @@ function GlobalLevelSequenceEditor({
   activeLevel: 1 | 2 | 3;
   onChange: (patch: Partial<Lesson>) => void;
 }) {
+  const subject = useMemo(() => {
+    return lesson.subjectId ? getSubject(lesson.subjectId) : null;
+  }, [lesson.subjectId]);
+
   const levelOrders = lesson.levelStageOrders ?? LEVEL_DEFAULT_STAGES;
   const levelDisabled = lesson.levelDisabledStages ?? { 1: [], 2: [], 3: [] };
 
-  const currentLevelOrder = levelOrders[activeLevel] || LEVEL_DEFAULT_STAGES[activeLevel];
-  const disabledSet = new Set<Stage>(levelDisabled[activeLevel] || []);
+  const currentLevelOrder = useMemo(() => {
+    const subOrder = subject?.levelStageOrders?.[activeLevel];
+    if (subOrder && subOrder.length > 0) {
+      return subOrder as Stage[];
+    }
+    return (levelOrders[activeLevel] || LEVEL_DEFAULT_STAGES[activeLevel]) as Stage[];
+  }, [subject, levelOrders, activeLevel]);
+
+  const disabledSet = useMemo(() => {
+    const subDisabled = subject?.levelDisabledStages?.[activeLevel] || [];
+    const lesDisabled = levelDisabled[activeLevel] || [];
+    return new Set<Stage>([...subDisabled, ...lesDisabled]);
+  }, [subject, levelDisabled, activeLevel]);
 
   const [showDisabledStages, setShowDisabledStages] = useState(false);
 
