@@ -11,6 +11,7 @@ export function VisualHighlightArea({
   onChangeHighlights,
   rows = 4,
   placeholder = "",
+  id,
 }: {
   value: string;
   onChangeText: (val: string) => void;
@@ -18,6 +19,7 @@ export function VisualHighlightArea({
   onChangeHighlights: (h: TextHighlight[]) => void;
   rows?: number;
   placeholder?: string;
+  id?: string;
 }) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isLargeSize, setIsLargeSize] = useState(false);
@@ -83,6 +85,7 @@ export function VisualHighlightArea({
         value={value}
         onChange={(e) => onChangeText(e.target.value)}
         placeholder={placeholder}
+        id={id}
         className="font-sans text-sm leading-relaxed rounded-2xl border-zen-surface-container bg-white shadow-none focus-visible:ring-zen-primary"
       />
 
