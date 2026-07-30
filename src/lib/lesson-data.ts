@@ -1,4 +1,5 @@
 import { DEFAULT_STAGE_ORDER, type Stage } from "@/lib/settings";
+import { getCurriculum, getSubject } from "@/lib/curriculum";
 
 export type HighlightColor = "yellow" | "green" | "blue" | "pink" | "purple";
 
