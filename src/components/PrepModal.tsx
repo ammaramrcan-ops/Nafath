@@ -92,12 +92,12 @@ export function PrepModal({ isOpen, onConfirm, onCancel }: PrepModalProps) {
           {devModeActive ? (
             <button
               type="button"
-              onClick={handleFinish}
-              className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-100 text-amber-950 text-[11px] font-extrabold border border-amber-300 hover:bg-amber-200 transition cursor-pointer shadow-2xs"
-              title="تخطي كافة مراحل الاستعداد الأربعة فوراً ودخول الدرس"
+              onClick={() => setStep(4)}
+              className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full bg-amber-100 text-amber-950 text-xs font-extrabold border border-amber-300 hover:bg-amber-200 transition cursor-pointer shadow-2xs"
+              title="تخطي خطوات الاستعداد الثلاث الأولى (المشتتات والماء والتنفس) والانتقال مباشرة لصفحة اختيار المستوى"
             >
               <Zap className="h-3.5 w-3.5 text-amber-600" />
-              <span>تخطي الـ 4 خطوات ⚡</span>
+              <span>تخطي الـ 3 خطوات لصفحة المستوى ⚡</span>
             </button>
           ) : (
             <span className="text-xs font-semibold text-slate-400">الخطوة {step} من 4</span>

@@ -1,7 +1,6 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { Toaster } from "@/components/ui/sonner";
 import { AiAssistantSidebar } from "@/components/AiAssistantSidebar";
-import { PasswordGate } from "@/components/PasswordGate";
 import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
@@ -90,10 +89,10 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   return (
-    <PasswordGate>
+    <>
       <Outlet />
       <Toaster position="bottom-left" dir="rtl" />
       <AiAssistantSidebar />
-    </PasswordGate>
+    </>
   );
 }

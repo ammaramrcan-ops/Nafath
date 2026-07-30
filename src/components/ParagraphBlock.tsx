@@ -14,7 +14,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-import type { ParagraphBlock as Block } from "@/lib/lesson-data";
+import type { ParagraphBlock as Block, HardWord } from "@/lib/lesson-data";
 import { HardWordText } from "./HardWordText";
 import { cn } from "@/lib/utils";
 import { DEFAULT_STAGE_ORDER, STAGE_LABELS, type Stage } from "@/lib/settings";
@@ -287,8 +287,7 @@ export function ParagraphBlockCard({
           {mode === "student" && (
             <button
               onClick={() => {
-                const targetUrl = (block as any).notebookLmUrl || "https://notebooklm.google.com/";
-                window.open(targetUrl, "_blank", "noopener,noreferrer");
+                window.open("https://notebooklm.google.com/", "_blank", "noopener,noreferrer");
               }}
               className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1.5 text-[12px] font-bold text-amber-900 border border-amber-200 hover:bg-amber-100 transition cursor-pointer shadow-sm"
               title="انتقل إلى NotebookLM لترفع تساؤلاتك وتكمل الدرس بسهولة"
@@ -358,45 +357,78 @@ export function ParagraphBlockCard({
           )}
 
           {stage === "baladi_terms" && (
-            <div className="rounded-[28px] bg-white p-8 shadow-[var(--shadow-soft)] space-y-6 border border-amber-200/80">
-              <div className="flex items-center gap-2 border-b border-amber-200/60 pb-4">
-                <Sparkles className="h-5 w-5 text-amber-600" />
-                <div>
-                  <h3 className="text-base font-black text-amber-950">نقط خلي بالك منها 💡</h3>
-                  <p className="text-xs font-bold text-amber-800">تأهيل واستبصار فقهي ذكي</p>
+            <div className="rounded-[2.5rem] bg-white p-8 sm:p-12 shadow-[0_20px_60px_-15px_rgba(11,28,48,0.08)] space-y-8 border border-amber-200/80 min-h-[420px] text-right dir-rtl" dir="rtl">
+              {/* Top Banner Header */}
+              <div className="flex items-center justify-between border-b border-amber-200/60 pb-6">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 border border-amber-300 shadow-xs">
+                    <Sparkles className="h-6 w-6 text-amber-700" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl sm:text-2xl font-black text-amber-950">💡 نقط خلي بالك منها (القواعد والتنبيهات الفقهية الاستبصارية)</h3>
+                    <p className="text-xs sm:text-sm font-bold text-amber-800/90 pt-1">ملاحظات وقواعد جوهرية لترسيخ استيعاب هذه الفقرة بأسلوب ذكي وميسر</p>
+                  </div>
                 </div>
+                <span className="text-xs font-black text-amber-900 bg-amber-100 px-5 py-2 rounded-full border border-amber-300 shadow-2xs">
+                  صفحة التنبيهات الفقهية 📜
+                </span>
               </div>
 
+              {/* Takeaway Items List */}
               <div className="space-y-4">
-                {block.hard_words && block.hard_words.length > 0 ? (
-                  block.hard_words.map((hw: any, i) => {
-                    const term = hw.word || hw.term || "";
-                    const meaning = hw.meaning || hw.definition || hw.explanation || "";
+                {(() => {
+                  const rawMnemonic = block.mnemonic || "";
+                  const mnemonicItems = rawMnemonic
+                    .split("\n")
+                    .map((item) => item.trim())
+                    .filter((item) => item.length > 0);
+
+                  if (mnemonicItems.length > 0) {
                     return (
-                      <div
-                        key={i}
-                        className="rounded-2xl bg-amber-50/70 p-5 border border-amber-200/80 space-y-2 text-right"
-                      >
-                        <span className="inline-block font-black text-amber-950 text-sm bg-amber-200 px-3.5 py-1 rounded-full border border-amber-300 shadow-xs">
-                          ({term})
-                        </span>
-                        <p className="text-xs font-bold text-amber-950 leading-relaxed pt-1">
-                          👈 المعنى الشارح بالبلدي: {meaning}
-                        </p>
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2 font-black text-amber-950 text-base sm:text-lg pb-1 border-b border-amber-200/60">
+                          <Sparkles className="h-5 w-5 text-amber-600 shrink-0" />
+                          <span>💡 القواعد والتنبيهات الفقهية الاستبصارية:</span>
+                        </div>
+                        {mnemonicItems.map((item, i) => {
+                          const cleanText = item.replace(/^💡\s*خد بالك:\s*/, "").replace(/^💡\s*/, "");
+                          return (
+                            <div
+                              key={i}
+                              className="rounded-3xl bg-gradient-to-r from-amber-50/90 via-amber-50/50 to-orange-50/40 p-6 sm:p-7 border-2 border-amber-200/90 shadow-sm space-y-2 text-right transition-all hover:border-amber-400 hover:shadow-md"
+                            >
+                              <div className="flex items-start gap-3.5">
+                                <span className="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-amber-200 text-amber-900 font-black text-base shrink-0 border border-amber-300 shadow-2xs mt-0.5">
+                                  💡
+                                </span>
+                                <div className="space-y-1">
+                                  <span className="text-xs sm:text-sm font-black text-amber-800 block">
+                                    خد بالك:
+                                  </span>
+                                  <p className="text-base sm:text-xl font-bold text-amber-950 leading-relaxed sm:leading-loose">
+                                    {cleanText}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     );
-                  })
-                ) : (
-                  <div className="rounded-2xl bg-amber-50/70 p-5 border border-amber-200/80 text-right space-y-2">
-                    <span className="inline-block font-black text-amber-950 text-sm bg-amber-200 px-3.5 py-1 rounded-full border border-amber-300">
-                      ({block.title})
-                    </span>
-                    <p className="text-xs font-bold text-amber-950 leading-relaxed pt-1">
-                      👈 المعنى الشارح بالبلدي:{" "}
-                      {block.short_sentence || "المفهوم الرئيسي مقصود به التبسيط والتيسير الصريح."}
-                    </p>
-                  </div>
-                )}
+                  }
+
+                  return (
+                    <div className="rounded-3xl bg-amber-50/80 p-8 border border-amber-200 text-right space-y-3 shadow-2xs">
+                      <span className="inline-block font-black text-amber-950 text-base bg-amber-200/90 px-5 py-1.5 rounded-2xl border border-amber-300">
+                        ({block.title})
+                      </span>
+                      <p className="text-base sm:text-lg font-bold text-amber-950 leading-relaxed pt-2">
+                        👈 <span className="text-amber-900 font-extrabold">التوضيح والاستبصار الفقهي:</span>{" "}
+                        {block.short_sentence || "المفهوم الرئيسي مقصود به التبسيط والتيسير الصريح."}
+                      </p>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
           )}
@@ -450,9 +482,11 @@ export function ParagraphBlockCard({
                   text={
                     typeof block.mnemonic === "string" && block.mnemonic.trim().length > 0
                       ? block.mnemonic
-                      : (block.mnemonic as any)?.text ||
-                        (block.mnemonic as any)?.title ||
-                        "الرابط الذهني والاختصار التوضيحي للحفظ"
+                      : block.mnemonic && typeof block.mnemonic === "object"
+                        ? (block.mnemonic as { text?: string; title?: string }).text ||
+                          (block.mnemonic as { text?: string; title?: string }).title ||
+                          "الرابط الذهني والاختصار التوضيحي للحفظ"
+                        : "الرابط الذهني والاختصار التوضيحي للحفظ"
                   }
                   words={block.hard_words}
                   highlights={block.highlights}
@@ -473,9 +507,11 @@ export function ParagraphBlockCard({
                   text={
                     typeof block.funny_link === "string" && block.funny_link.trim().length > 0
                       ? block.funny_link
-                      : (block.funny_link as any)?.text ||
-                        (block.funny_link as any)?.title ||
-                        "الرابط الفكاهي الطريف لترسيخ المعلومة بالذاكرة"
+                      : block.funny_link && typeof block.funny_link === "object"
+                        ? (block.funny_link as { text?: string; title?: string }).text ||
+                          (block.funny_link as { text?: string; title?: string }).title ||
+                          "الرابط الفكاهي الطريف لترسيخ المعلومة بالذاكرة"
+                        : "الرابط الفكاهي الطريف لترسيخ المعلومة بالذاكرة"
                   }
                   words={block.hard_words}
                   highlights={block.highlights}

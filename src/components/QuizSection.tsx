@@ -603,32 +603,7 @@ function McqHybridCard({
         })}
       </div>
 
-      {metric.status === "correct" && (
-        <div className="pt-2 flex items-center justify-between rounded-2xl bg-emerald-50 border border-emerald-200 p-4">
-          <div className="space-y-0.5">
-            <p className="text-xs font-extrabold text-emerald-700 flex items-center gap-1.5">
-              <CheckCircle2 className="h-4 w-4" />
-              <span>إجابة صحيحة ممتازة! 🎉</span>
-            </p>
-            {metric.responseTimeMs && (
-              <p className="text-[10px] font-semibold text-slate-400 flex items-center gap-1">
-                <Clock className="h-3 w-3 text-slate-400" />
-                <span>تمت الإجابة في {(metric.responseTimeMs / 1000).toFixed(1)} ثانية</span>
-              </p>
-            )}
-          </div>
-          <button
-            type="button"
-            onClick={onNext}
-            className="px-6 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold transition cursor-pointer flex items-center gap-1.5 shadow-sm"
-          >
-            <span>
-              {isLastQuestion ? "إكمال الاختبار والانتقال للمرحلة التالية ✨" : "السؤال التالي"}
-            </span>
-            <ArrowLeft className="h-4 w-4" />
-          </button>
-        </div>
-      )}
+
 
       {metric.status === "wrong" && (
         <div className="pt-2 rounded-2xl bg-rose-50 border border-rose-200 p-5 space-y-4 text-right">

@@ -120,7 +120,7 @@ export function createEmptySubjectMindMap(subjectName: string): MindMapData {
 export function parseBlockMindMap(block: {
   id?: string | number;
   title?: string;
-  mind_map_nodes?: any[];
+  mind_map_nodes?: Array<string | Record<string, unknown>>;
 }): MindMapData {
   const blockTitle = block.title || "الموضوع الرئيسي";
   const blockId = block.id ?? "default";
@@ -130,9 +130,10 @@ export function parseBlockMindMap(block: {
     const first = rawNodes[0];
 
     // Check if first element is a MindMapData object with valid nodes
-    if (first && typeof first === "object") {
-      if (Array.isArray((first as any).nodes) && (first as any).nodes.length > 0) {
-        return first as unknown as MindMapData;
+    if (first && typeof first === "object" && !Array.isArray(first)) {
+      const candidate = first as Record<string, unknown>;
+      if (Array.isArray(candidate.nodes) && (candidate.nodes as unknown[]).length > 0) {
+        return candidate as unknown as MindMapData;
       }
     }
 
@@ -140,8 +141,9 @@ export function parseBlockMindMap(block: {
     if (
       Array.isArray(rawNodes) &&
       typeof first === "object" &&
-      first.id &&
-      (first.text || first.title)
+      first !== null &&
+      "id" in first &&
+      ("text" in first || "title" in first)
     ) {
       const palette = [
         { bg: "#FEF3C7", text: "#78350F", border: "#F59E0B" },
@@ -151,55 +153,82 @@ export function parseBlockMindMap(block: {
         { bg: "#FFE4E6", text: "#881337", border: "#F43F5E" },
       ];
 
-      const nodesMap = new Map<string, any>();
-      rawNodes.forEach((n) => nodesMap.set(String(n.id), n));
+      type RawNode = Record<string, unknown>;
+      const nodesMap = new Map<string, RawNode>();
+      rawNodes.forEach((n) => {
+        if (typeof n === "object" && n !== null) {
+          const rn = n as RawNode;
+          nodesMap.set(String(rn.id), rn);
+        }
+      });
 
       const getDepth = (id: string, visited = new Set<string>()): number => {
         if (visited.has(id)) return 0;
         visited.add(id);
         const node = nodesMap.get(id);
-        if (!node || !node.parentId || node.parentId === "null" || node.parentId === "root")
-          return 0;
-        return 1 + getDepth(String(node.parentId), visited);
+        if (!node) return 0;
+        const pid = node.parentId;
+        if (!pid || pid === "null" || pid === "root") return 0;
+        return 1 + getDepth(String(pid), visited);
       };
 
-      const depthGroups: Record<number, any[]> = {};
+      const depthGroups: Record<number, RawNode[]> = {};
       rawNodes.forEach((n) => {
-        const d = getDepth(String(n.id));
+        if (typeof n !== "object" || n === null) return;
+        const rn = n as RawNode;
+        const d = getDepth(String(rn.id));
         if (!depthGroups[d]) depthGroups[d] = [];
-        depthGroups[d].push(n);
+        depthGroups[d].push(rn);
       });
 
-      const formattedNodes: MindMapNode[] = rawNodes.map((n, i) => {
-        const d = getDepth(String(n.id));
-        const group = depthGroups[d] || [];
-        const idxInGroup = group.findIndex((gn) => String(gn.id) === String(n.id));
+      const asNum = (v: unknown): number | undefined => (typeof v === "number" ? v : undefined);
 
-        const x = Math.max(60, 720 - d * 280);
-        const totalInGroup = group.length;
-        const startY = 70;
-        const gapY = totalInGroup > 1 ? Math.min(130, Math.max(75, 550 / totalInGroup)) : 130;
-        const y = startY + idxInGroup * gapY;
+      const formattedNodes: MindMapNode[] = rawNodes
+        .map((n, i) => {
+          if (typeof n !== "object" || n === null) return null;
+          const rn = n as RawNode;
+          const d = getDepth(String(rn.id));
+          const group = depthGroups[d] || [];
+          const idxInGroup = group.findIndex((gn) => String(gn.id) === String(rn.id));
 
-        const color = palette[i % palette.length];
+          const x = Math.max(60, 720 - d * 280);
+          const totalInGroup = group.length;
+          const startY = 70;
+          const gapY = totalInGroup > 1 ? Math.min(130, Math.max(75, 550 / totalInGroup)) : 130;
+          const y = startY + idxInGroup * gapY;
 
-        return {
-          id: String(n.id),
-          parentId: n.parentId ? String(n.parentId) : null,
-          text: n.text || n.title || "عقدة",
-          shape: d === 0 ? "rectangle" : d === 1 ? "rounded-square" : "pill",
-          x: typeof n.x === "number" ? n.x : x,
-          y: typeof n.y === "number" ? n.y : y,
-          width: n.width || (d === 0 ? 210 : d === 1 ? 190 : 230),
-          height: n.height || (d === 0 ? 75 : 65),
-          backgroundColor: n.backgroundColor || color.bg,
-          textColor: n.textColor || color.text,
-          borderColor: n.borderColor || color.border,
-          lineColor: n.lineColor || color.border,
-          lineThickness: n.lineThickness || (d === 0 ? 5 : 4),
-          lineStyle: n.lineStyle || "solid",
-        };
-      });
+          const color = palette[i % palette.length];
+
+          const textVal =
+            (typeof rn.text === "string" && rn.text) ||
+            (typeof rn.title === "string" && rn.title) ||
+            "عقدة";
+
+          const node: MindMapNode = {
+            id: String(rn.id),
+            parentId: rn.parentId ? String(rn.parentId) : null,
+            text: textVal,
+            shape: d === 0 ? "rectangle" : d === 1 ? "rounded-square" : "pill",
+            x: asNum(rn.x) ?? x,
+            y: asNum(rn.y) ?? y,
+            width: (typeof rn.width === "number"
+              ? rn.width
+              : d === 0
+                ? 210
+                : d === 1
+                  ? 190
+                  : 230) as number,
+            height: (typeof rn.height === "number" ? rn.height : d === 0 ? 75 : 65) as number,
+            backgroundColor: (rn.backgroundColor as string) || color.bg,
+            textColor: (rn.textColor as string) || color.text,
+            borderColor: (rn.borderColor as string) || color.border,
+            lineColor: (rn.lineColor as string) || color.border,
+            lineThickness: (rn.lineThickness as number) || (d === 0 ? 5 : 4),
+            lineStyle: (typeof rn.lineStyle === "string" ? rn.lineStyle : "solid") as LineStyle,
+          };
+          return node;
+        })
+        .filter((n): n is MindMapNode => n !== null);
 
       return {
         id: `map_${blockId}`,
@@ -216,13 +245,26 @@ export function parseBlockMindMap(block: {
       if (typeof n === "string") {
         if (n.trim().startsWith("{")) {
           try {
-            const parsed = JSON.parse(n);
-            if (parsed && (parsed.text || parsed.title)) return parsed.text || parsed.title;
+            const parsed = JSON.parse(n) as Record<string, unknown>;
+            if (
+              parsed &&
+              ((typeof parsed.text === "string" && parsed.text) ||
+                (typeof parsed.title === "string" && parsed.title))
+            ) {
+              return (parsed.text as string) || (parsed.title as string);
+            }
           } catch {}
         }
         return n;
       }
-      if (n && typeof n === "object") return (n as any).text || (n as any).title || null;
+      if (n && typeof n === "object") {
+        const obj = n as Record<string, unknown>;
+        return (
+          (typeof obj.text === "string" && obj.text) ||
+          (typeof obj.title === "string" && obj.title) ||
+          null
+        );
+      }
       return String(n);
     })
     .filter((n): n is string => typeof n === "string" && n.trim().length > 0);
@@ -258,25 +300,43 @@ export function parseBlockMindMap(block: {
     { bg: "#FFE4E6", text: "#881337", border: "#F43F5E" },
   ];
 
-  const total = nodeStrings.length;
-  const startY = 80;
-  const gapY = total > 1 ? Math.min(140, Math.max(80, 500 / total)) : 140;
+  let currentY = 100;
+  let lastCatId = rootId;
 
-  nodeStrings.forEach((label, i) => {
-    const y = startY + i * gapY;
-    const isSub = label.includes(":") || label.includes("-") || label.includes("•");
-    const parentId = isSub && i > 0 ? `node_${i - 1}_${blockId}` : rootId;
-    const x = parentId === rootId ? 360 : 60;
+  nodeStrings.forEach((rawLabel, i) => {
+    const isSub =
+      rawLabel.trim().startsWith("-") ||
+      rawLabel.trim().startsWith("•") ||
+      rawLabel.trim().startsWith(">") ||
+      rawLabel.includes("👈");
+
+    const cleanLabel = rawLabel.replace(/^[-•>]\s*/, "").trim();
+    const nodeId = `node_${i}_${blockId}`;
+
+    let parentId = rootId;
+    let x = 380;
+    let shape: NodeShape = "rounded-square";
+
+    if (isSub && lastCatId !== rootId) {
+      parentId = lastCatId;
+      x = 80;
+      shape = "pill";
+    } else {
+      lastCatId = nodeId;
+      x = 380;
+      shape = "rounded-square";
+    }
+
     const color = colors[i % colors.length];
 
     nodes.push({
-      id: `node_${i}_${blockId}`,
+      id: nodeId,
       parentId,
-      text: label,
-      shape: isSub ? "pill" : "rounded-square",
+      text: cleanLabel,
+      shape,
       x,
-      y,
-      width: isSub ? 230 : 190,
+      y: currentY,
+      width: isSub ? 250 : 210,
       height: 65,
       backgroundColor: color.bg,
       textColor: color.text,
@@ -285,6 +345,8 @@ export function parseBlockMindMap(block: {
       lineThickness: 4,
       lineStyle: "solid",
     });
+
+    currentY += isSub ? 90 : 120;
   });
 
   return {

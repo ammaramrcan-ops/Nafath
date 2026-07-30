@@ -50,10 +50,11 @@ const DEFAULT_SUBJECTS: Subject[] = [
 const STORAGE_KEY = "nafath.subjects";
 
 function loadSubjectsFromStorage(): Subject[] {
+  if (typeof window === "undefined") return DEFAULT_SUBJECTS;
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
-      return JSON.parse(stored);
+      return JSON.parse(stored) as Subject[];
     }
   } catch (e) {
     console.error("Failed to load subjects from storage:", e);
@@ -64,6 +65,7 @@ function loadSubjectsFromStorage(): Subject[] {
 export const SUBJECTS: Subject[] = loadSubjectsFromStorage();
 
 export function saveSubjectsToStorage() {
+  if (typeof window === "undefined") return;
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(SUBJECTS));
   } catch (e) {

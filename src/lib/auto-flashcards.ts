@@ -81,7 +81,6 @@ function buildZaitounaCards(block: ParagraphBlock, baseId: string): SmartFlashca
     cards.push({
       id: `${baseId}_z_links`,
       category: "summary",
-      categoryLabel: "💡 رابط تكاملي",
       question: `كيف ترتبط أحكام فقرة "${block.title}" بغيرها من أبواب الفقه؟`,
       model_answer: z.links,
       keywords,
@@ -90,7 +89,7 @@ function buildZaitounaCards(block: ParagraphBlock, baseId: string): SmartFlashca
         keyword_cues: generateKeywordCues(keywords),
       },
       stats: createDefaultStats(),
-    } as any);
+    });
   }
 
   return cards;

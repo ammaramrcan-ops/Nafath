@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import {motion} from "framer-motion";
 import {X, Tag, Check} from "lucide-react";
 import { getCurriculum, type Subject } from "@/lib/curriculum";
-import { updateLessonSubject, type SavedLesson } from "@/lib/lesson-library";
+import { updateLessonSubject, getLibrary, type SavedLesson } from "@/lib/lesson-library";
 import { toast } from "sonner";
 
 export function CategorizeLessonModal({
@@ -18,12 +18,14 @@ export function CategorizeLessonModal({
 }) {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [selectedSubjectId, setSelectedSubjectId] = useState<string>("");
+  const [library, setLibrary] = useState<SavedLesson[]>([]);
 
   useEffect(() => {
     if (isOpen) {
       const c = getCurriculum();
       setSubjects(c.subjects || []);
       setSelectedSubjectId(lesson?.subjectId || "");
+      setLibrary(getLibrary());
     }
   }, [isOpen, lesson]);
 
@@ -88,6 +90,7 @@ export function CategorizeLessonModal({
             <div className="space-y-2.5">
               {subjects.map((sub) => {
                 const isSelected = selectedSubjectId === sub.id;
+                const lessonCount = library.filter((l) => l.subjectId === sub.id).length;
                 return (
                   <button
                     key={sub.id}
@@ -104,7 +107,7 @@ export function CategorizeLessonModal({
                       <div>
                         <h4 className="font-extrabold text-sm text-[#0b1c30]">{sub.name}</h4>
                         <p className="text-[11px] font-semibold text-[#584237]/70">
-                          {sub.units?.length || 0} وحدات دراسية
+                          {lessonCount} {lessonCount === 1 ? "درس" : "دروس"}
                         </p>
                       </div>
                     </div>

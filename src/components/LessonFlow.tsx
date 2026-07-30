@@ -4,11 +4,13 @@ import {
   Pencil,
   AlertCircle,
   ArrowRight,
+  ArrowLeft,
   Clock,
   Hourglass,
   BarChart2,
   Home,
   ChevronDown,
+  Sparkles,
 } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
@@ -52,6 +54,7 @@ export function LessonFlow({
   const [learningLevel, setLearningLevel] = useState<LearningLevel>(1);
   const [blockIdx, setBlockIdx] = useState(0);
   const [showMistakesModal, setShowMistakesModal] = useState(false);
+  const [showMasterStory, setShowMasterStory] = useState(Boolean(lesson.master_story));
 
   // Stopwatches and per-stage adaptive speed tracking
   const [studyElapsedSeconds, setStudyElapsedSeconds] = useState(0);
@@ -388,21 +391,54 @@ export function LessonFlow({
           )}
 
           {phase === "lesson" && (
-            <ParagraphBlockCard
-              key={lesson.blocks[blockIdx].id}
-              block={lesson.blocks[blockIdx]}
-              stageOrder={effectiveStages(
-                lesson.blocks[blockIdx],
-                settings.stageOrder,
-                learningLevel,
-                lesson.levelStageOrders,
-                lesson.levelDisabledStages,
-              )}
-              mode="student"
-              subjectId={lesson.subjectId}
-              onStageChange={handleStageChange}
-              onComplete={handleBlockCompletion}
-            />
+            blockIdx === 0 && showMasterStory && lesson.master_story ? (
+              <div className="mx-auto max-w-4xl px-4 py-10 dir-rtl text-right" dir="rtl">
+                <div className="rounded-[2.5rem] bg-white p-8 sm:p-12 shadow-[0_20px_60px_-15px_rgba(11,28,48,0.08)] space-y-6 border border-amber-200/80">
+                  <div className="flex items-center justify-between border-b border-amber-200/60 pb-5">
+                    <div className="flex items-center gap-3">
+                      <Sparkles className="h-7 w-7 text-amber-600 shrink-0" />
+                      <div>
+                        <h2 className="text-xl sm:text-2xl font-black text-amber-950">📖 القصة التمهيدية الجامعة للدرس ككل</h2>
+                        <p className="text-xs sm:text-sm font-bold text-amber-800 pt-1">مدخل سينمائي درامي يعطيك السياق الحياتي والواقعي الشامل لموضوع الدرس</p>
+                      </div>
+                    </div>
+                    <span className="text-xs font-bold text-amber-900 bg-amber-100 px-4 py-1.5 rounded-full border border-amber-300 shadow-2xs">
+                      التمهيد العام للدرس 📜
+                    </span>
+                  </div>
+
+                  <div className="rounded-3xl bg-amber-50/70 p-6 sm:p-8 border border-amber-200 text-amber-950 font-bold text-sm sm:text-base leading-relaxed whitespace-pre-line space-y-4 shadow-2xs">
+                    {lesson.master_story}
+                  </div>
+
+                  <div className="pt-4 flex justify-end">
+                    <button
+                      onClick={() => setShowMasterStory(false)}
+                      className="bg-[#9d4300] hover:bg-[#833800] text-white font-black text-sm px-8 py-4 rounded-full shadow-lg transition cursor-pointer flex items-center gap-3"
+                    >
+                      <span>ابدأ دراسة الفقرات التفاعلية 🚀</span>
+                      <ArrowLeft className="h-5 w-5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <ParagraphBlockCard
+                key={lesson.blocks[blockIdx].id}
+                block={lesson.blocks[blockIdx]}
+                stageOrder={effectiveStages(
+                  lesson.blocks[blockIdx],
+                  settings.stageOrder,
+                  learningLevel,
+                  lesson.levelStageOrders,
+                  lesson.levelDisabledStages,
+                )}
+                mode="student"
+                subjectId={lesson.subjectId}
+                onStageChange={handleStageChange}
+                onComplete={handleBlockCompletion}
+              />
+            )
           )}
 
           {phase === "break" && (

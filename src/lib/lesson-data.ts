@@ -78,7 +78,7 @@ export type ParagraphBlock = {
   highlights?: TextHighlight[];
   mnemonic: string;
   funny_link: string;
-  mind_map_nodes: string[];
+  mind_map_nodes: Array<string | Record<string, unknown>>;
   meta_card?: BlockMetaCard;
   visual_url?: string;
   stage_visuals?: Partial<
@@ -106,6 +106,7 @@ export type Lesson = {
   size: string;
   topics: string[];
   notebookLmUrl?: string;
+  master_story?: string;
   subjectId?: string;
   blocks: ParagraphBlock[];
   levelStageOrders?: {
@@ -213,33 +214,35 @@ function padMcqsToFive(rawMcqs: MCQ[]): MCQ[] {
   return padded;
 }
 
-export function normalizeBlock(raw: any, idx: number): ParagraphBlock {
-  const s = raw?.stages ?? {};
+export function normalizeBlock(raw: unknown, idx: number): ParagraphBlock {
+  const rawObj = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
+  const s = (rawObj.stages && typeof rawObj.stages === "object" ? rawObj.stages : {}) as Record<string, unknown>;
 
-  let highlights: TextHighlight[] = Array.isArray(raw?.highlights) ? raw.highlights : [];
+  let highlights: TextHighlight[] = Array.isArray(rawObj.highlights) ? (rawObj.highlights as TextHighlight[]) : [];
 
-  let short_sentence = raw?.short_sentence ?? raw?.summary ?? "";
-  let story = raw?.story ?? "";
-  let examples = raw?.examples ?? "";
-  let full_text = raw?.full_text ?? "";
-  let mnemonic = raw?.mnemonic ?? "";
-  let funny_link = raw?.funny_link ?? "";
+  let short_sentence = String(rawObj.short_sentence ?? rawObj.summary ?? "");
+  let story = String(rawObj.story ?? "");
+  let examples = String(rawObj.examples ?? "");
+  let full_text = String(rawObj.full_text ?? "");
+  let mnemonic = String(rawObj.mnemonic ?? "");
+  let funny_link = String(rawObj.funny_link ?? "");
 
-  const zDefsRaw = raw?.zaitouna?.definitions;
+  const zaitounaObj = (rawObj.zaitouna && typeof rawObj.zaitouna === "object" ? rawObj.zaitouna : {}) as Record<string, unknown>;
+  const zDefsRaw = zaitounaObj.definitions;
   let zaitounaDefs = Array.isArray(zDefsRaw)
     ? zDefsRaw.join("\n")
     : typeof zDefsRaw === "string"
       ? zDefsRaw
       : "";
 
-  const zReasRaw = raw?.zaitouna?.reasoning;
+  const zReasRaw = zaitounaObj.reasoning;
   let zaitounaReas = Array.isArray(zReasRaw)
     ? zReasRaw.join("\n")
     : typeof zReasRaw === "string"
       ? zReasRaw
       : "";
 
-  const zLinksRaw = raw?.zaitouna?.links;
+  const zLinksRaw = zaitounaObj.links;
   let zaitounaLinks = Array.isArray(zLinksRaw)
     ? zLinksRaw.join("\n")
     : typeof zLinksRaw === "string"
@@ -274,128 +277,151 @@ export function normalizeBlock(raw: any, idx: number): ParagraphBlock {
   zaitounaLinks = res9.cleanText;
   highlights = res9.highlights;
 
-  const rawHardWords = Array.isArray(raw?.hard_words) ? raw.hard_words : [];
-  const hard_words = rawHardWords.map((hw: any) => ({
-    term: hw?.term ?? hw?.word ?? "",
-    definition: hw?.definition ?? hw?.explanation ?? hw?.meaning ?? "",
-  }));
+  const rawHardWords = Array.isArray(rawObj.hard_words) ? rawObj.hard_words : [];
+  const hard_words = rawHardWords.map((hwItem: unknown) => {
+    const hw = (hwItem && typeof hwItem === "object" ? hwItem : {}) as Record<string, unknown>;
+    return {
+      term: String(hw.term ?? hw.word ?? ""),
+      definition: String(hw.definition ?? hw.explanation ?? hw.meaning ?? ""),
+    };
+  });
 
-  let mmRaw = raw?.mind_map_nodes;
+  const mmRaw = rawObj.mind_map_nodes;
   let mind_map_nodes: string[] = [];
   if (Array.isArray(mmRaw)) {
-    mind_map_nodes = mmRaw.map((n: any) => (typeof n === "string" ? n : n?.text || n?.title || ""));
+    mind_map_nodes = mmRaw.map((n: unknown) =>
+      typeof n === "string" ? n : typeof n === "object" && n !== null ? String((n as Record<string, unknown>).text || (n as Record<string, unknown>).title || "") : ""
+    );
   } else if (mmRaw && typeof mmRaw === "object") {
-    if (Array.isArray(mmRaw.nodes)) {
-      mind_map_nodes = mmRaw.nodes.map((n: any) =>
-        typeof n === "string" ? n : n?.text || n?.title || "",
+    const nodes = (mmRaw as Record<string, unknown>).nodes;
+    if (Array.isArray(nodes)) {
+      mind_map_nodes = nodes.map((n: unknown) =>
+        typeof n === "string" ? n : typeof n === "object" && n !== null ? String((n as Record<string, unknown>).text || (n as Record<string, unknown>).title || "") : ""
       );
     }
   }
 
+  const quizzesMcq = (s.quizzes_mcq && typeof s.quizzes_mcq === "object" ? s.quizzes_mcq : {}) as Record<string, unknown>;
+  const quizzesFill = (s.quizzes_fill && typeof s.quizzes_fill === "object" ? s.quizzes_fill : {}) as Record<string, unknown>;
+  const quizzesEssay = (s.quizzes_essay && typeof s.quizzes_essay === "object" ? s.quizzes_essay : {}) as Record<string, unknown>;
+  const quizzesObj = (s.quizzes && typeof s.quizzes === "object" ? s.quizzes : {}) as Record<string, unknown>;
+  const quizzesContent = (quizzesObj.content && typeof quizzesObj.content === "object" ? quizzesObj.content : {}) as Record<string, unknown>;
+  const rawQuizzesObj = (rawObj.quizzes && typeof rawObj.quizzes === "object" ? rawObj.quizzes : {}) as Record<string, unknown>;
+
   const mcqSrc =
-    s.quizzes_mcq?.content ?? s.quizzes?.content?.mcq ?? raw?.quizzes?.mcqs ?? raw?.quizzes?.mcq;
+    quizzesMcq.content ?? quizzesContent.mcq ?? rawQuizzesObj.mcqs ?? rawQuizzesObj.mcq;
   const rawMcqs: MCQ[] = Array.isArray(mcqSrc)
-    ? mcqSrc.map((m: any) => ({
-        question: m?.question ?? "",
-        options: Array.isArray(m?.options) ? m.options : [],
-        answer: m?.answer ?? m?.correct_answer ?? "",
-        difficulty: m?.difficulty || "medium",
-        estimated_time: m?.estimated_time || 30,
-      }))
-    : mcqSrc && (mcqSrc.question || mcqSrc.answer || mcqSrc.correct_answer)
+    ? mcqSrc.map((mItem: unknown) => {
+        const m = (mItem && typeof mItem === "object" ? mItem : {}) as Record<string, unknown>;
+        return {
+          question: String(m.question ?? ""),
+          options: Array.isArray(m.options) ? (m.options as string[]) : [],
+          answer: String(m.answer ?? m.correct_answer ?? ""),
+          difficulty: (m.difficulty as MCQ["difficulty"]) || "medium",
+          estimated_time: typeof m.estimated_time === "number" ? m.estimated_time : 30,
+        };
+      })
+    : mcqSrc && typeof mcqSrc === "object" && ((mcqSrc as Record<string, unknown>).question || (mcqSrc as Record<string, unknown>).answer || (mcqSrc as Record<string, unknown>).correct_answer)
       ? [
           {
-            question: mcqSrc.question ?? "",
-            options: Array.isArray(mcqSrc.options) ? mcqSrc.options : [],
-            answer: mcqSrc.answer ?? mcqSrc.correct_answer ?? "",
-            difficulty: mcqSrc.difficulty || "medium",
-            estimated_time: mcqSrc.estimated_time || 30,
+            question: String((mcqSrc as Record<string, unknown>).question ?? ""),
+            options: Array.isArray((mcqSrc as Record<string, unknown>).options) ? ((mcqSrc as Record<string, unknown>).options as string[]) : [],
+            answer: String((mcqSrc as Record<string, unknown>).answer ?? (mcqSrc as Record<string, unknown>).correct_answer ?? ""),
+            difficulty: ((mcqSrc as Record<string, unknown>).difficulty as MCQ["difficulty"]) || "medium",
+            estimated_time: typeof (mcqSrc as Record<string, unknown>).estimated_time === "number" ? ((mcqSrc as Record<string, unknown>).estimated_time as number) : 30,
           },
         ]
       : [];
   const mcqs = padMcqsToFive(rawMcqs);
 
   const fillSrc =
-    s.quizzes_fill?.content ??
-    s.quizzes?.content?.fill_in_blank ??
-    raw?.quizzes?.fills ??
-    raw?.quizzes?.fill;
+    quizzesFill.content ??
+    quizzesContent.fill_in_blank ??
+    rawQuizzesObj.fills ??
+    rawQuizzesObj.fill;
   const fills: Fill[] = Array.isArray(fillSrc)
-    ? fillSrc.map((f: any) => ({
-        question: f?.question ?? f?.sentence ?? "",
-        answer: f?.answer ?? "",
-        difficulty: f?.difficulty || "medium",
-        estimated_time: f?.estimated_time || 30,
-      }))
-    : fillSrc && (fillSrc.question || fillSrc.sentence || fillSrc.answer)
+    ? fillSrc.map((fItem: unknown) => {
+        const f = (fItem && typeof fItem === "object" ? fItem : {}) as Record<string, unknown>;
+        return {
+          question: String(f.question ?? f.sentence ?? ""),
+          answer: String(f.answer ?? ""),
+          difficulty: (f.difficulty as Fill["difficulty"]) || "medium",
+          estimated_time: typeof f.estimated_time === "number" ? f.estimated_time : 30,
+        };
+      })
+    : fillSrc && typeof fillSrc === "object" && ((fillSrc as Record<string, unknown>).question || (fillSrc as Record<string, unknown>).sentence || (fillSrc as Record<string, unknown>).answer)
       ? [
           {
-            question: fillSrc.question ?? fillSrc.sentence ?? "",
-            answer: fillSrc.answer ?? "",
-            difficulty: fillSrc.difficulty || "medium",
-            estimated_time: fillSrc.estimated_time || 30,
+            question: String((fillSrc as Record<string, unknown>).question ?? (fillSrc as Record<string, unknown>).sentence ?? ""),
+            answer: String((fillSrc as Record<string, unknown>).answer ?? ""),
+            difficulty: ((fillSrc as Record<string, unknown>).difficulty as Fill["difficulty"]) || "medium",
+            estimated_time: typeof (fillSrc as Record<string, unknown>).estimated_time === "number" ? ((fillSrc as Record<string, unknown>).estimated_time as number) : 30,
           },
         ]
       : [];
 
   const essaySrc =
-    s.quizzes_essay?.content ??
-    s.quizzes?.content?.essay ??
-    raw?.quizzes?.essays ??
-    raw?.quizzes?.essay;
+    quizzesEssay.content ??
+    quizzesContent.essay ??
+    rawQuizzesObj.essays ??
+    rawQuizzesObj.essay;
   const essays: Essay[] = Array.isArray(essaySrc)
-    ? essaySrc.map((e: any) => ({
-        question: e?.question ?? "",
-        keywords: Array.isArray(e?.keywords) ? e.keywords : e?.answer ? [e.answer] : [],
-        answer: e?.answer ?? "",
-        hint: e?.hint || "",
-        difficulty: e?.difficulty || "medium",
-        estimated_time: e?.estimated_time || 60,
-      }))
-    : essaySrc && essaySrc.question
+    ? essaySrc.map((eItem: unknown) => {
+        const e = (eItem && typeof eItem === "object" ? eItem : {}) as Record<string, unknown>;
+        return {
+          question: String(e.question ?? ""),
+          keywords: Array.isArray(e.keywords) ? (e.keywords as string[]) : e.answer ? [String(e.answer)] : [],
+          answer: String(e.answer ?? ""),
+          hint: String(e.hint || ""),
+          difficulty: (e.difficulty as Essay["difficulty"]) || "medium",
+          estimated_time: typeof e.estimated_time === "number" ? e.estimated_time : 60,
+        };
+      })
+    : essaySrc && typeof essaySrc === "object" && (essaySrc as Record<string, unknown>).question
       ? [
           {
-            question: essaySrc.question ?? "",
-            keywords: Array.isArray(essaySrc.keywords)
-              ? essaySrc.keywords
-              : essaySrc.answer
-                ? [essaySrc.answer]
+            question: String((essaySrc as Record<string, unknown>).question ?? ""),
+            keywords: Array.isArray((essaySrc as Record<string, unknown>).keywords)
+              ? ((essaySrc as Record<string, unknown>).keywords as string[])
+              : (essaySrc as Record<string, unknown>).answer
+                ? [String((essaySrc as Record<string, unknown>).answer)]
                 : [],
-            answer: essaySrc.answer ?? "",
-            hint: essaySrc.hint || "",
-            difficulty: essaySrc.difficulty || "medium",
-            estimated_time: essaySrc.estimated_time || 60,
+            answer: String((essaySrc as Record<string, unknown>).answer ?? ""),
+            hint: String((essaySrc as Record<string, unknown>).hint || ""),
+            difficulty: ((essaySrc as Record<string, unknown>).difficulty as Essay["difficulty"]) || "medium",
+            estimated_time: typeof (essaySrc as Record<string, unknown>).estimated_time === "number" ? ((essaySrc as Record<string, unknown>).estimated_time as number) : 60,
           },
         ]
       : [];
 
-  let quiz_enabled = raw?.quiz_enabled ?? true;
+  let quiz_enabled = Boolean(rawObj.quiz_enabled ?? true);
   if (s.quizzes_mcq || s.quizzes_fill || s.quizzes_essay) {
     const anyActive =
-      s.quizzes_mcq?.isActive !== false ||
-      s.quizzes_fill?.isActive !== false ||
-      s.quizzes_essay?.isActive !== false;
+      quizzesMcq.isActive !== false ||
+      quizzesFill.isActive !== false ||
+      quizzesEssay.isActive !== false;
     quiz_enabled = anyActive;
-  } else if (s.quizzes && typeof s.quizzes.isActive === "boolean") {
-    quiz_enabled = s.quizzes.isActive;
+  } else if (quizzesObj && typeof quizzesObj.isActive === "boolean") {
+    quiz_enabled = quizzesObj.isActive;
   }
 
-  let enabled_stages = Array.isArray(raw?.enabled_stages)
-    ? (raw.enabled_stages as Stage[])
+  let enabled_stages = Array.isArray(rawObj.enabled_stages)
+    ? (rawObj.enabled_stages as Stage[])
     : undefined;
-  const stage_intervals: Partial<Record<Stage, number>> = { ...(raw?.stage_intervals ?? {}) };
+  const stage_intervals: Partial<Record<Stage, number>> = { ...((rawObj.stage_intervals as Partial<Record<Stage, number>>) ?? {}) };
   const enable_stage_intervals: Partial<Record<Stage, boolean>> = {
-    ...(raw?.enable_stage_intervals ?? {}),
+    ...((rawObj.enable_stage_intervals as Partial<Record<Stage, boolean>>) ?? {}),
   };
 
-  if (raw?.stages) {
+  if (rawObj.stages && typeof rawObj.stages === "object") {
     enabled_stages = [];
-    const order = Array.isArray(raw?.stage_order)
-      ? (raw.stage_order as Stage[])
+    const order = Array.isArray(rawObj.stage_order)
+      ? (rawObj.stage_order as Stage[])
       : DEFAULT_STAGE_ORDER;
 
+    const stagesObj = rawObj.stages as Record<string, Record<string, unknown>>;
     for (const stage of order) {
-      const sData = raw.stages[stage as Stage];
+      const sData = stagesObj[stage as Stage];
       if (sData) {
         if (sData.isActive !== false) enabled_stages.push(stage);
         if (typeof sData.intervalDuration === "number") {
@@ -408,9 +434,11 @@ export function normalizeBlock(raw: any, idx: number): ParagraphBlock {
     }
   }
 
+  const metaCard = (rawObj.meta_card && typeof rawObj.meta_card === "object" ? rawObj.meta_card : {}) as Record<string, unknown>;
+
   return {
-    id: typeof raw?.id === "number" ? raw.id : idx + 1,
-    title: raw?.title ?? raw?.section_title ?? raw?.name ?? `فقرة ${idx + 1}`,
+    id: typeof rawObj.id === "number" ? rawObj.id : idx + 1,
+    title: String(rawObj.title ?? rawObj.section_title ?? rawObj.name ?? `فقرة ${idx + 1}`),
     short_sentence,
     story,
     examples,
@@ -421,29 +449,29 @@ export function normalizeBlock(raw: any, idx: number): ParagraphBlock {
     funny_link,
     mind_map_nodes,
     meta_card: {
-      understanding_level: raw?.meta_card?.understanding_level ?? "سهل",
-      memorization_level: raw?.meta_card?.memorization_level ?? "متوسط",
-      estimated_time_range: raw?.meta_card?.estimated_time_range ?? "2 - 5 دقائق",
+      understanding_level: (metaCard.understanding_level as BlockMetaCard["understanding_level"]) ?? "سهل",
+      memorization_level: (metaCard.memorization_level as BlockMetaCard["memorization_level"]) ?? "متوسط",
+      estimated_time_range: String(metaCard.estimated_time_range ?? "2 - 5 دقائق"),
       info_count:
-        typeof raw?.meta_card?.info_count === "number"
-          ? raw.meta_card.info_count
+        typeof metaCard.info_count === "number"
+          ? metaCard.info_count
           : mind_map_nodes.length > 0
             ? Math.max(mind_map_nodes.length, 3)
             : 3,
     },
-    visual_url: raw?.visual_url ?? "",
-    stage_visuals: raw?.stage_visuals ?? {},
-    stage_audio: raw?.stage_audio ?? {},
+    visual_url: String(rawObj.visual_url ?? ""),
+    stage_visuals: (rawObj.stage_visuals as ParagraphBlock["stage_visuals"]) ?? {},
+    stage_audio: (rawObj.stage_audio as ParagraphBlock["stage_audio"]) ?? {},
     enabled_stages,
-    stage_order: Array.isArray(raw?.stage_order) ? (raw.stage_order as Stage[]) : undefined,
+    stage_order: Array.isArray(rawObj.stage_order) ? (rawObj.stage_order as Stage[]) : undefined,
     quizzes: { mcqs, fills, essays },
     quiz_enabled,
-    quiz_mcq_enabled: raw?.quiz_mcq_enabled ?? true,
-    quiz_fill_enabled: raw?.quiz_fill_enabled ?? true,
-    quiz_essay_enabled: raw?.quiz_essay_enabled ?? true,
-    enable_break: raw?.enable_break ?? false,
-    break_duration: raw?.break_duration ?? 0,
-    stage_interval: raw?.stage_interval ?? 0,
+    quiz_mcq_enabled: Boolean(rawObj.quiz_mcq_enabled ?? true),
+    quiz_fill_enabled: Boolean(rawObj.quiz_fill_enabled ?? true),
+    quiz_essay_enabled: Boolean(rawObj.quiz_essay_enabled ?? true),
+    enable_break: Boolean(rawObj.enable_break ?? false),
+    break_duration: Number(rawObj.break_duration ?? 0),
+    stage_interval: Number(rawObj.stage_interval ?? 0),
     stage_intervals,
     enable_stage_intervals,
     zaitouna: {
@@ -454,28 +482,39 @@ export function normalizeBlock(raw: any, idx: number): ParagraphBlock {
   };
 }
 
-export function normalizeLesson(raw: any): Lesson {
-  const rawBlocks = Array.isArray(raw?.blocks)
-    ? raw.blocks
-    : Array.isArray(raw?.sections)
-      ? raw.sections
-      : Array.isArray(raw?.units)
-        ? raw.units
+export const DEFAULT_MASTER_STORY = `جاءت سارة إلى المعلمة وقالت ونبرة الحزن تتملكها: "زوجي رجل طيب، لكنني أصبحت لا أطيق العيش معه وأخشى ألا أقيم حدود الله معه وأظلمه، فكيف أفارقه بالحلال دون أن يقع عليّ إثم؟"
+
+ابتسمت المعلمة وقالت لها: "الشريعة الإسلامية جعلت لكِ مخرجاً راقياً يسمى الخلع! وهو أن تتفقي مع زوجكِ على الفراق مقابل مبلغ مالي (عوض) تدفعينه له ليطلقكِ لإنهاء عقد الزواج.
+
+والأصل في طلب الخلع أنه مكروه، لكنه يجوز بلا كراهة في حالتكِ هذه لأنكِ تخافين ألا تقيمي حدود الله معه، والأصل فيه قصة امرأة ثابت بن قيس لما راحت للنبي ﷺ فقال لزوجها: (اقبل الحديقة وطلقها تطليقة).
+
+وبمجرد أن يقع الخلع، تملكين نفسكِ فوراً وتصبحين أجنبية عنه، فلا يحق له إرجاعكِ في العدة بكلمة، وإن أراد العودة مستقبلاً فلا بد من عقد ومهر جديدين ورضاكِ."
+
+خرجت سارة وهي مطمئنة ومستوعبة للحل الشرعي الحكيم.`;
+
+export function normalizeLesson(raw: unknown): Lesson {
+  const rawObj = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
+  const rawBlocks = Array.isArray(rawObj.blocks)
+    ? rawObj.blocks
+    : Array.isArray(rawObj.sections)
+      ? rawObj.sections
+      : Array.isArray(rawObj.units)
+        ? rawObj.units
         : [];
 
-  const blocks: ParagraphBlock[] = rawBlocks.map((b: any, i: number) => normalizeBlock(b, i));
+  const blocks: ParagraphBlock[] = rawBlocks.map((b: unknown, i: number) => normalizeBlock(b, i));
+
+  const levelStageOrdersRaw = (rawObj.levelStageOrders && typeof rawObj.levelStageOrders === "object" ? rawObj.levelStageOrders : {}) as Record<number, string[]>;
 
   const levelStageOrders = {
-    1:
-      Array.isArray(raw?.levelStageOrders?.[1]) && raw.levelStageOrders[1].length > 0
-        ? (Array.from(
-            new Set([
-              ...raw.levelStageOrders[1].filter((s: string) => s !== "short" && s !== "zaitouna"),
-              "paper_summary",
-            ]),
-          ) as Stage[])
-        : (["story", "baladi_terms", "paper_summary", "mindmap", "quizzes_mcq"] as Stage[]),
-    2: raw?.levelStageOrders?.[2] ?? [
+    1: (levelStageOrdersRaw[1] as Stage[]) ?? [
+      "story",
+      "baladi_terms",
+      "paper_summary",
+      "mindmap",
+      "quizzes_mcq",
+    ],
+    2: (levelStageOrdersRaw[2] as Stage[]) ?? [
       "examples",
       "original",
       "mental",
@@ -485,7 +524,7 @@ export function normalizeLesson(raw: any): Lesson {
       "flashcards",
       "zaitouna",
     ],
-    3: raw?.levelStageOrders?.[3] ?? [
+    3: (levelStageOrdersRaw[3] as Stage[]) ?? [
       "original",
       "mental",
       "funny",
@@ -495,22 +534,23 @@ export function normalizeLesson(raw: any): Lesson {
     ],
   };
 
-  const levelDisabledStages = raw?.levelDisabledStages ?? {
+  const levelDisabledStages = (rawObj.levelDisabledStages as Lesson["levelDisabledStages"]) ?? {
     1: [],
     2: [],
     3: [],
   };
 
   return {
-    title: raw?.title ?? raw?.lesson_title ?? raw?.name ?? "درس بدون عنوان",
-    estimatedTime: raw?.estimatedTime ?? "",
-    size: raw?.size ?? "",
-    topics: Array.isArray(raw?.topics) ? raw.topics : [],
-    notebookLmUrl: raw?.notebookLmUrl ?? "https://notebooklm.google.com/",
+    title: String(rawObj.title ?? rawObj.lesson_title ?? rawObj.name ?? "درس بدون عنوان"),
+    estimatedTime: String(rawObj.estimatedTime ?? ""),
+    size: String(rawObj.size ?? ""),
+    topics: Array.isArray(rawObj.topics) ? (rawObj.topics as string[]) : [],
+    notebookLmUrl: String(rawObj.notebookLmUrl ?? "https://notebooklm.google.com/"),
+    master_story: String(rawObj.master_story ?? rawObj.masterStory ?? rawObj.intro_story ?? DEFAULT_MASTER_STORY),
     levelStageOrders,
     levelDisabledStages,
-    enableBreaks: raw?.enableBreaks ?? false,
-    breakDuration: raw?.breakDuration ?? 0,
+    enableBreaks: Boolean(rawObj.enableBreaks ?? false),
+    breakDuration: Number(rawObj.breakDuration ?? 0),
     blocks,
   };
 }
@@ -532,14 +572,15 @@ export function effectiveStages(
     orderToUse =
       globalOrder && globalOrder.length > 0 ? globalOrder : (DEFAULT_STAGE_ORDER as Stage[]);
   } else if (level === 1) {
-    const raw1 =
-      levelStageOrders?.[1] && levelStageOrders[1].length > 0
-        ? levelStageOrders[1]
-        : ["story", "baladi_terms", "paper_summary", "mindmap", "quizzes_mcq"];
-    const sanitized1 = raw1.filter((s) => s !== "short" && s !== "zaitouna");
-    orderToUse = Array.from(new Set([...sanitized1, "paper_summary"])) as Stage[];
+    orderToUse = levelStageOrders?.[1] ?? [
+      "story",
+      "baladi_terms",
+      "paper_summary",
+      "mindmap",
+      "quizzes_mcq",
+    ];
   } else if (level === 2) {
-    orderToUse = [
+    orderToUse = levelStageOrders?.[2] ?? [
       "examples",
       "original",
       "mental",
@@ -550,7 +591,14 @@ export function effectiveStages(
       "zaitouna",
     ];
   } else if (level === 3) {
-    orderToUse = ["original", "mental", "funny", "mindmap", "quizzes_essay", "zaitouna"];
+    orderToUse = levelStageOrders?.[3] ?? [
+      "original",
+      "mental",
+      "funny",
+      "mindmap",
+      "quizzes_essay",
+      "zaitouna",
+    ];
   } else {
     orderToUse =
       block.stage_order && block.stage_order.length > 0
@@ -758,6 +806,15 @@ export const khulLesson: Lesson = normalizeLesson({
     "الخلع في الحيض وعدة المختلعة",
   ],
   notebookLmUrl: "https://notebooklm.google.com/",
+  master_story: `جاءت سارة إلى المعلمة وقالت ونبرة الحزن تتملكها: "زوجي رجل طيب، لكنني أصبحت لا أطيق العيش معه وأخشى ألا أقيم حدود الله معه وأظلمه، فكيف أفارقه بالحلال دون أن يقع عليّ إثم؟"
+
+ابتسمت المعلمة وقالت لها: "الشريعة الإسلامية جعلت لكِ مخرجاً راقياً يسمى الخلع! وهو أن تتفقي مع زوجكِ على الفراق مقابل مبلغ مالي (عوض) تدفعينه له ليطلقكِ لإنهاء عقد الزواج.
+
+والأصل في طلب الخلع أنه مكروه، لكنه يجوز بلا كراهة في حالتكِ هذه لأنكِ تخافين ألا تقيمي حدود الله معه، والأصل فيه قصة امرأة ثابت بن قيس لما راحت للنبي ﷺ فقال لزوجها: (اقبل الحديقة وطلقها تطليقة).
+
+وبمجرد أن يقع الخلع، تملكين نفسكِ فوراً وتصبحين أجنبية عنه، فلا يحق له إرجاعكِ في العدة بكلمة، وإن أراد العودة مستقبلاً فلا بد من عقد ومهر جديدين ورضاكِ."
+
+خرجت سارة وهي مطمئنة ومستوعبة للحل الشرعي الحكيم.`,
   levelStageOrders: {
     1: ["story", "baladi_terms", "paper_summary", "mindmap", "quizzes_mcq"],
     2: [
@@ -816,12 +873,52 @@ export const khulLesson: Lesson = normalizeLesson({
       quizzes: {
         mcqs: [
           {
-            question:
-              "ماذا يحدث إذا خالعت الزوجة زوجها على 'سيارة' دون تحديد نوعها وموديلها (عوض مجهول)؟",
+            question: "ما المشكلة التي كانت تعاني منها سارة في الحوار التمهيدي مع المعلمة؟",
             options: [
-              "لا يقع الخلع ويبطل العقد",
+              "استعصاء العشرة والخوف ألا تقيم حدود الله مع زوجها",
+              "رغبتها في زيادة المهر",
+              "الخلاف على اسم مولودها",
+              "السفر الخارجي بدون موافقة",
+            ],
+            answer: "استعصاء العشرة والخوف ألا تقيم حدود الله مع زوجها",
+          },
+          {
+            question: "ما المعنى الشرعي الدقيق للخلع؟",
+            options: [
+              "فرقة بين الزوجين بعوض مقصود راجع لجهة الزوج",
+              "فسخ العقد بسبب عيب في الزوجة",
+              "طلاق بغير مقابل مالي",
+              "إلغاء المهر المتفق عليه قبل العقد",
+            ],
+            answer: "فرقة بين الزوجين بعوض مقصود راجع لجهة الزوج",
+          },
+          {
+            question: "ما الدليل من السنة النبوية الشريفة على مشروعية الخلع؟",
+            options: [
+              "حديث امرأة ثابت بن قيس (اقبل الحديقة وطلقها تطليقة)",
+              "حديث (خيركم خيركم لأهله)",
+              "حديث (المسلمون عند شروطهم)",
+              "حديث (لا ضرر ولا ضرار)",
+            ],
+            answer: "حديث امرأة ثابت بن قيس (اقبل الحديقة وطلقها تطليقة)",
+          },
+          {
+            question: "ما حكمة مشروعية الخلع في الشريعة الإسلامية؟",
+            options: [
+              "دفع الضرر عن المرأة وافتداء نفسها بعوض عند استحالة العشرة",
+              "إجبار الزوج على التنازل عن حقوقه",
+              "التضييق على الأبناء",
+              "منع الزوج من الزواج بأخرى",
+            ],
+            answer: "دفع الضرر عن المرأة وافتداء نفسها بعوض عند استحالة العشرة",
+          },
+          {
+            question: "إذا خالعت الزوجة زوجها على عوض مجهول (كثوب غير معين)، فما الحكم الشرعي؟",
+            options: [
               "يقع الخلع بائناً وتلزم الزوجة بدفع (مهر المثل)",
-              "يقع الخلع رجعياً وتدفع أي سيارة",
+              "يبطل الخلع تماماً",
+              "يقع طلاقاً رجعياً",
+              "يلزم الزوجة دفع ضعف المهر",
             ],
             answer: "يقع الخلع بائناً وتلزم الزوجة بدفع (مهر المثل)",
           },
@@ -1034,7 +1131,7 @@ export function parseLessonJson(input: string): Lesson {
       title: "درس مخصص",
       estimatedTime: `${Math.max(5, data.length * 5)} دقيقة`,
       size: `${data.length} فقرات`,
-      topics: data.map((b: any) => b?.title ?? ""),
+      topics: data.map((b: unknown) => (b && typeof b === "object" ? String((b as Record<string, unknown>).title ?? "") : "")),
       blocks: data,
     });
   }
