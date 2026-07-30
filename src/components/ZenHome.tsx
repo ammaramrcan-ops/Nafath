@@ -385,158 +385,150 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
         </section>
 
         {/* Section 3: Performance Stats (Scaled Up) */}
+        {/* Section 3: Performance Stats (Curriculum Progress) */}
         <section className="mb-14 w-full">
           <div className="flex justify-between items-center mb-6 border-b border-[#e0c0b1]/30 pb-4">
             <div className="flex items-center gap-3">
               <BarChart2 className="w-6 h-6 text-[#9d4300]" />
-              <h2 className="text-2xl font-bold text-[#0b1c30]">إحصائيات الأداء</h2>
+              <h2 className="text-2xl font-bold text-[#0b1c30]">إحصائيات الأداء وتتبع المنهج</h2>
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
             {/* Curriculum Progress — reads real data from curriculumTracker */}
             <button
               onClick={() => navigate({ to: "/curriculum-tracker" })}
-              className="bg-[#eff4ff] rounded-2xl p-7 flex flex-col items-center text-center hover:bg-[#dce9ff] transition-colors cursor-pointer group relative"
+              className="w-full bg-[#eff4ff] rounded-3xl p-8 flex flex-col sm:flex-row items-center justify-between gap-6 hover:bg-[#dce9ff] transition-all cursor-pointer group relative border border-[#e0c0b1]/40 shadow-xs"
             >
-              <div className="w-full flex items-center justify-between mb-4">
-                <span className="text-sm font-bold text-[#584237] group-hover:text-[#9d4300] transition-colors">
-                  التقدم والمهام 📚
-                </span>
-                <span
-                  title="إعدادات المهام والدروس"
-                  className="p-1.5 rounded-lg bg-white/70 hover:bg-white text-[#9d4300] shadow-2xs transition"
-                >
-                  <Settings className="w-4 h-4 text-[#9d4300]" />
-                </span>
+              <div className="flex items-center gap-6">
+                <div className="relative w-24 h-24 flex items-center justify-center shrink-0">
+                  <svg className="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
+                    <circle
+                      cx="60"
+                      cy="60"
+                      r="46"
+                      stroke="currentColor"
+                      strokeWidth="9"
+                      fill="transparent"
+                      className="text-[#e0c0b1]/30"
+                    />
+                    <circle
+                      cx="60"
+                      cy="60"
+                      r="46"
+                      stroke="currentColor"
+                      strokeWidth="9"
+                      fill="transparent"
+                      strokeDasharray={`${circumference}`}
+                      strokeDashoffset={`${curriculumOffset}`}
+                      className="text-[#9d4300] transition-all duration-700"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  <span className="absolute text-2xl font-extrabold text-[#0b1c30]">
+                    {curriculumStats.percent}%
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className="text-xs font-extrabold text-[#9d4300] bg-[#ffdbca]/50 px-3 py-1 rounded-full inline-block mb-1">
+                    تقدم الدراسة الكلي
+                  </span>
+                  <h3 className="text-2xl font-extrabold text-[#0b1c30]">
+                    إنجاز المنهج والدروس 📚
+                  </h3>
+                  {curriculumStats.total > 0 ? (
+                    <p className="text-sm font-bold text-[#584237]/80 mt-1">
+                      تم إنجاز {curriculumStats.done} من أصل {curriculumStats.total} درس مسجل في خطتك
+                    </p>
+                  ) : (
+                    <p className="text-sm font-semibold text-[#584237]/70 mt-1">
+                      أضف دروسك وموادك لتحديد وتتبع نسبة إنجازك الأكاديمي
+                    </p>
+                  )}
+                </div>
               </div>
-              <div className="relative w-28 h-28 flex items-center justify-center">
-                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
-                  <circle
-                    cx="60"
-                    cy="60"
-                    r="46"
-                    stroke="currentColor"
-                    strokeWidth="9"
-                    fill="transparent"
-                    className="text-[#e0c0b1]/30"
-                  />
-                  <circle
-                    cx="60"
-                    cy="60"
-                    r="46"
-                    stroke="currentColor"
-                    strokeWidth="9"
-                    fill="transparent"
-                    strokeDasharray={`${circumference}`}
-                    strokeDashoffset={`${curriculumOffset}`}
-                    className="text-[#9d4300] transition-all duration-700"
-                    strokeLinecap="round"
-                  />
-                </svg>
-                <span className="absolute text-2xl font-extrabold text-[#0b1c30]">
-                  {curriculumStats.percent}%
-                </span>
-              </div>
-              {curriculumStats.total > 0 && (
-                <span className="mt-2 text-xs font-semibold text-[#584237]/70">
-                  {curriculumStats.done} / {curriculumStats.total} درس
-                </span>
-              )}
-              {curriculumStats.total === 0 && (
-                <span className="mt-2 text-xs font-semibold text-[#584237]/60">
-                  أضف دروسك لتتبع تقدمك
-                </span>
-              )}
-              <span className="mt-2 text-xs font-bold text-[#9d4300] opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
-                <ChevronLeft className="h-3 w-3" />
-                فتح متتبع المنهج
+
+              <span className="text-xs font-bold text-[#9d4300] bg-white px-5 py-2.5 rounded-full shadow-2xs group-hover:bg-[#9d4300] group-hover:text-white transition-all flex items-center gap-1.5 shrink-0">
+                <span>فتح متتبع المنهج التفصيلي</span>
+                <ChevronLeft className="h-4 w-4" />
               </span>
             </button>
-
-            {/* Flashcard Stats — reads real data from spaced repetition */}
-            <div
-              onClick={() => {
-                sessionStorage.removeItem("nafath.spacedRepetition.filterSubjectId");
-                sessionStorage.removeItem("nafath.spacedRepetition.filterSubjectName");
-                navigate({ to: "/spaced-repetition" });
-              }}
-              className="bg-[#eff4ff] rounded-2xl p-7 flex flex-col justify-between cursor-pointer hover:bg-[#dce9ff] transition-colors"
-            >
-              <span className="text-sm font-bold text-[#584237] mb-2">إحصائيات الفلاش كارد</span>
-              <div className="flex items-end gap-2 my-3">
-                <span className="text-4xl font-extrabold text-[#9d4300]">
-                  {flashcardStats.reviewed}
-                </span>
-                <span className="text-sm font-semibold text-[#584237] mb-1">
-                  / {flashcardStats.total} بطاقة تمت مراجعتها
-                </span>
-              </div>
-              <div className="w-full bg-[#e0c0b1]/30 h-2.5 rounded-full mt-3">
-                <div
-                  className="bg-[#9d4300] h-full rounded-full transition-all duration-500"
-                  style={{ width: `${flashcardStats.percent}%` }}
-                />
-              </div>
-              {flashcardStats.total === 0 && (
-                <p className="text-xs text-[#584237]/60 mt-2">لم تبدأ مراجعة الفلاش كارد بعد</p>
-              )}
-            </div>
           </div>
         </section>
 
-        {/* Section 4: Tasks and Study Tools (Scaled Up) */}
+        {/* Section 4: Tasks and Study Tools (Expanded Tasks Layout) */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-          {/* Tasks Section (Left) - Synced with Real Curriculum Tracker Tasks */}
-          <section className="md:col-span-5 bg-[#eff4ff] rounded-2xl p-7 flex flex-col justify-between">
+          {/* Tasks Section (Expanded to col-span-8) - Synced with Real Curriculum Tracker Tasks */}
+          <section className="md:col-span-8 bg-[#eff4ff] rounded-3xl p-8 flex flex-col justify-between border border-[#e0c0b1]/30 shadow-xs">
             <div>
-              <div className="flex items-center justify-between mb-5 border-b border-[#e0c0b1]/30 pb-3">
-                <h3 className="text-xl font-bold text-[#0b1c30] flex items-center gap-2.5">
-                  <CheckSquare className="w-6 h-6 text-[#9d4300]" />
-                  مهمات ودروس اليوم 📋
-                </h3>
-                <button
-                  onClick={() => navigate({ to: "/curriculum-tracker" })}
-                  className="text-xs font-bold text-[#9d4300] hover:underline cursor-pointer flex items-center gap-1"
-                >
-                  <span>إدارة ⚙️</span>
-                </button>
+              <div className="flex items-center justify-between mb-6 border-b border-[#e0c0b1]/30 pb-4">
+                <div className="flex items-center gap-3">
+                  <CheckSquare className="w-7 h-7 text-[#9d4300]" />
+                  <div>
+                    <h3 className="text-2xl font-extrabold text-[#0b1c30]">
+                      مهمات ودروس اليوم 📋
+                    </h3>
+                    <p className="text-xs font-semibold text-[#584237]/70 mt-0.5">
+                      تابع دروسك اليومية وقم بإنهاء المهام لرفع نسبتك الدراسية
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  {realTasks.length > 0 && (
+                    <span className="text-xs font-extrabold text-[#9d4300] bg-[#ffdbca]/60 px-3 py-1 rounded-full">
+                      {realTasks.filter((t) => t.completed).length} / {realTasks.length} مكتملة
+                    </span>
+                  )}
+                  <button
+                    onClick={() => navigate({ to: "/curriculum-tracker" })}
+                    className="text-xs font-extrabold text-[#9d4300] bg-white hover:bg-[#9d4300] hover:text-white px-4 py-2 rounded-full transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
+                  >
+                    <span>إدارة المنهج ⚙️</span>
+                  </button>
+                </div>
               </div>
 
               {realTasks.length === 0 ? (
-                <div className="text-center py-6 space-y-3">
-                  <p className="text-sm font-bold text-[#584237]/80">لا توجد مهام مضافة حالياً</p>
+                <div className="text-center py-10 space-y-4">
+                  <p className="text-base font-extrabold text-[#0b1c30]">لا توجد مهام دراسية مضافة حالياً</p>
+                  <p className="text-xs text-[#584237]/70">يمكنك إضافة مواد ودروس في متتبع المنهج لتظهر هنا كمهام يومية</p>
                   <button
                     onClick={() => navigate({ to: "/curriculum-tracker" })}
-                    className="px-4 py-2 bg-[#9d4300] text-white rounded-full text-xs font-extrabold hover:bg-[#833800] transition cursor-pointer shadow-xs"
+                    className="px-6 py-2.5 bg-[#9d4300] text-white rounded-full text-xs font-extrabold hover:bg-[#833800] transition cursor-pointer shadow-md inline-flex items-center gap-2"
                   >
-                    ➕ أضف مهامك ودروسك الأولى
+                    <Plus className="w-4 h-4" />
+                    <span>أضف مهامك ودروسك الأولى</span>
                   </button>
                 </div>
               ) : (
-                <ul className="flex flex-col gap-3 max-h-64 overflow-y-auto pr-1">
+                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-80 overflow-y-auto pr-1">
                   {realTasks.map((task) => (
                     <li
                       key={task.id}
                       onClick={() => handleToggleTask(task.subjectId, task.id)}
-                      className="flex items-center justify-between gap-3.5 cursor-pointer select-none p-3 rounded-2xl bg-white border border-[#e0c0b1]/30 hover:bg-[#dce9ff] transition-all shadow-2xs"
+                      className={`flex items-center justify-between gap-3.5 cursor-pointer select-none p-4 rounded-2xl border transition-all shadow-2xs ${
+                        task.completed
+                          ? "bg-emerald-50/70 border-emerald-200 opacity-80"
+                          : "bg-white border-[#e0c0b1]/40 hover:border-[#9d4300]/50 hover:bg-[#fffaf7]"
+                      }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <button className="text-[#9d4300] cursor-pointer">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <button className="text-[#9d4300] cursor-pointer shrink-0">
                           {task.completed ? (
-                            <CheckSquare className="w-5 h-5 text-emerald-600" />
+                            <CheckSquare className="w-6 h-6 text-emerald-600 fill-emerald-100" />
                           ) : (
-                            <Square className="w-5 h-5 text-[#584237]/60" />
+                            <Square className="w-6 h-6 text-[#584237]/40" />
                           )}
                         </button>
-                        <div className="text-right">
+                        <div className="text-right min-w-0">
                           <span
-                            className={`text-sm font-bold text-[#0b1c30] block ${
+                            className={`text-sm font-extrabold text-[#0b1c30] truncate block ${
                               task.completed ? "line-through opacity-50" : ""
                             }`}
                           >
                             {task.title}
                           </span>
-                          <span className="text-[10px] font-semibold text-[#9d4300] bg-[#ffdbca]/40 px-2 py-0.5 rounded-md">
+                          <span className="text-[10px] font-extrabold text-[#9d4300] bg-[#ffdbca]/40 px-2 py-0.5 rounded-md inline-block mt-1">
                             {task.subjectName}
                           </span>
                         </div>
@@ -548,25 +540,27 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
             </div>
           </section>
 
-          {/* Study Tools Banner (Right) */}
-          <section className="md:col-span-7 flex flex-col">
-            <div className="bg-[#9d4300] text-white rounded-2xl p-8 flex flex-col justify-between h-full min-h-[200px] relative overflow-hidden shadow-sm">
+          {/* Study Tools Banner (Right - col-span-4) */}
+          <section className="md:col-span-4 flex flex-col">
+            <div className="bg-[#9d4300] text-white rounded-3xl p-8 flex flex-col justify-between h-full min-h-[220px] relative overflow-hidden shadow-sm">
               <div className="relative z-10">
-                <h3 className="text-3xl font-extrabold mb-3 flex items-center gap-3">
-                  <Brain className="w-8 h-8" />
-                  فلاش كارد
+                <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center mb-4">
+                  <Brain className="w-7 h-7 text-white" />
+                </div>
+                <h3 className="text-2xl font-extrabold mb-2">
+                  فلاش كارد المراجعة 🧠
                 </h3>
-                <p className="text-base opacity-95 leading-relaxed">
-                  اختبر معلوماتك السريعة الآن وحسّن مستوى استرجاعك للدروس
+                <p className="text-xs opacity-90 leading-relaxed">
+                  اختبر معلوماتك السريعة الآن وحسّن مستوى استرجاعك للدروس بالتكرار المتباعد
                 </p>
               </div>
               <button
                 onClick={() => setShowFlashcardPicker(true)}
-                className="bg-white text-[#9d4300] w-max px-7 py-2.5 rounded-full text-sm font-extrabold mt-6 relative z-10 hover:bg-slate-100 transition-all cursor-pointer shadow-md"
+                className="bg-white text-[#9d4300] w-full py-3 rounded-2xl text-xs font-extrabold mt-6 relative z-10 hover:bg-slate-100 transition-all cursor-pointer shadow-md text-center"
               >
-                ابدأ المراجعة
+                ابدأ المراجعة الآن ←
               </button>
-              <Brain className="absolute -bottom-8 -left-8 w-44 h-44 opacity-10 text-white pointer-events-none" />
+              <Brain className="absolute -bottom-10 -left-10 w-48 h-48 opacity-10 text-white pointer-events-none" />
             </div>
           </section>
         </div>
