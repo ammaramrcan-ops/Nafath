@@ -215,6 +215,71 @@ function padMcqsToFive(rawMcqs: MCQ[]): MCQ[] {
   return padded;
 }
 
+function extractZaitounaRawFields(zaitounaObj: Record<string, unknown>): {
+  zaitounaDefs: string;
+  zaitounaReas: string;
+  zaitounaLinks: string;
+} {
+  const zDefsRaw = zaitounaObj.definitions;
+  const zaitounaDefs = Array.isArray(zDefsRaw)
+    ? zDefsRaw.join("\n")
+    : typeof zDefsRaw === "string"
+      ? zDefsRaw
+      : "";
+
+  const zReasRaw = zaitounaObj.reasoning;
+  const zaitounaReas = Array.isArray(zReasRaw)
+    ? zReasRaw.join("\n")
+    : typeof zReasRaw === "string"
+      ? zReasRaw
+      : "";
+
+  const zLinksRaw = zaitounaObj.links;
+  const zaitounaLinks = Array.isArray(zLinksRaw)
+    ? zLinksRaw.join("\n")
+    : typeof zLinksRaw === "string"
+      ? zLinksRaw
+      : "";
+
+  return { zaitounaDefs, zaitounaReas, zaitounaLinks };
+}
+
+function extractMindMapNodesFromRaw(mmRaw: unknown): string[] {
+  if (Array.isArray(mmRaw)) {
+    return mmRaw.map((n: unknown) =>
+      typeof n === "string"
+        ? n
+        : typeof n === "object" && n !== null
+          ? String((n as Record<string, unknown>).text || (n as Record<string, unknown>).title || "")
+          : "",
+    );
+  }
+  if (mmRaw && typeof mmRaw === "object") {
+    const nodes = (mmRaw as Record<string, unknown>).nodes;
+    if (Array.isArray(nodes)) {
+      return nodes.map((n: unknown) =>
+        typeof n === "string"
+          ? n
+          : typeof n === "object" && n !== null
+            ? String((n as Record<string, unknown>).text || (n as Record<string, unknown>).title || "")
+            : "",
+      );
+    }
+  }
+  return [];
+}
+
+function extractHardWordsFromRaw(rawHardWords: unknown): HardWord[] {
+  if (!Array.isArray(rawHardWords)) return [];
+  return rawHardWords.map((hwItem: unknown) => {
+    const hw = (hwItem && typeof hwItem === "object" ? hwItem : {}) as Record<string, unknown>;
+    return {
+      word: String(hw.term ?? hw.word ?? ""),
+      meaning: String(hw.definition ?? hw.explanation ?? hw.meaning ?? ""),
+    };
+  });
+}
+
 export function normalizeBlock(raw: unknown, idx: number): ParagraphBlock {
   const rawObj = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
   const s = (rawObj.stages && typeof rawObj.stages === "object" ? rawObj.stages : {}) as Record<string, unknown>;
@@ -229,26 +294,7 @@ export function normalizeBlock(raw: unknown, idx: number): ParagraphBlock {
   let funny_link = String(rawObj.funny_link ?? "");
 
   const zaitounaObj = (rawObj.zaitouna && typeof rawObj.zaitouna === "object" ? rawObj.zaitouna : {}) as Record<string, unknown>;
-  const zDefsRaw = zaitounaObj.definitions;
-  let zaitounaDefs = Array.isArray(zDefsRaw)
-    ? zDefsRaw.join("\n")
-    : typeof zDefsRaw === "string"
-      ? zDefsRaw
-      : "";
-
-  const zReasRaw = zaitounaObj.reasoning;
-  let zaitounaReas = Array.isArray(zReasRaw)
-    ? zReasRaw.join("\n")
-    : typeof zReasRaw === "string"
-      ? zReasRaw
-      : "";
-
-  const zLinksRaw = zaitounaObj.links;
-  let zaitounaLinks = Array.isArray(zLinksRaw)
-    ? zLinksRaw.join("\n")
-    : typeof zLinksRaw === "string"
-      ? zLinksRaw
-      : "";
+  let { zaitounaDefs, zaitounaReas, zaitounaLinks } = extractZaitounaRawFields(zaitounaObj);
 
   const res1 = cleanRawTags(short_sentence, highlights);
   short_sentence = res1.cleanText;
@@ -278,29 +324,8 @@ export function normalizeBlock(raw: unknown, idx: number): ParagraphBlock {
   zaitounaLinks = res9.cleanText;
   highlights = res9.highlights;
 
-  const rawHardWords = Array.isArray(rawObj.hard_words) ? rawObj.hard_words : [];
-  const hard_words = rawHardWords.map((hwItem: unknown) => {
-    const hw = (hwItem && typeof hwItem === "object" ? hwItem : {}) as Record<string, unknown>;
-    return {
-      term: String(hw.term ?? hw.word ?? ""),
-      definition: String(hw.definition ?? hw.explanation ?? hw.meaning ?? ""),
-    };
-  });
-
-  const mmRaw = rawObj.mind_map_nodes;
-  let mind_map_nodes: string[] = [];
-  if (Array.isArray(mmRaw)) {
-    mind_map_nodes = mmRaw.map((n: unknown) =>
-      typeof n === "string" ? n : typeof n === "object" && n !== null ? String((n as Record<string, unknown>).text || (n as Record<string, unknown>).title || "") : ""
-    );
-  } else if (mmRaw && typeof mmRaw === "object") {
-    const nodes = (mmRaw as Record<string, unknown>).nodes;
-    if (Array.isArray(nodes)) {
-      mind_map_nodes = nodes.map((n: unknown) =>
-        typeof n === "string" ? n : typeof n === "object" && n !== null ? String((n as Record<string, unknown>).text || (n as Record<string, unknown>).title || "") : ""
-      );
-    }
-  }
+  const hard_words = extractHardWordsFromRaw(rawObj.hard_words);
+  const mind_map_nodes = extractMindMapNodesFromRaw(rawObj.mind_map_nodes);
 
   const quizzesMcq = (s.quizzes_mcq && typeof s.quizzes_mcq === "object" ? s.quizzes_mcq : {}) as Record<string, unknown>;
   const quizzesFill = (s.quizzes_fill && typeof s.quizzes_fill === "object" ? s.quizzes_fill : {}) as Record<string, unknown>;

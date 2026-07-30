@@ -44,6 +44,21 @@ export function saveSmartNote(note: Omit<SmartNote, "id" | "createdAt">): SmartN
   return newNote;
 }
 
+function cleanNoteFromStorageKey(k: string, targetId: string) {
+  if (!k.startsWith("nafath_smart_notes_")) return;
+  const raw = localStorage.getItem(k);
+  if (!raw) return;
+  try {
+    const arr: SmartNote[] = JSON.parse(raw);
+    if (Array.isArray(arr) && arr.some((n) => String(n.id).trim() === targetId)) {
+      const cleaned = arr.filter((n) => String(n.id).trim() !== targetId);
+      localStorage.setItem(k, JSON.stringify(cleaned));
+    }
+  } catch {
+    /* ignore */
+  }
+}
+
 export function deleteSmartNote(lessonTitle: string, noteId: string): SmartNote[] {
   const targetId = String(noteId).trim();
   const key = `nafath_smart_notes_${lessonTitle.trim()}`;
@@ -56,24 +71,16 @@ export function deleteSmartNote(lessonTitle: string, noteId: string): SmartNote[
     /* ignore */
   }
 
-  try {
-    if (typeof window !== "undefined") {
-      for (let i = 0; i < localStorage.length; i++) {
+  if (typeof window !== "undefined") {
+    try {
+      const len = localStorage.length;
+      for (let i = 0; i < len; i++) {
         const k = localStorage.key(i);
-        if (k && k.startsWith("nafath_smart_notes_")) {
-          const raw = localStorage.getItem(k);
-          if (raw) {
-            const arr: SmartNote[] = JSON.parse(raw);
-            if (Array.isArray(arr) && arr.some((n) => String(n.id).trim() === targetId)) {
-              const cleaned = arr.filter((n) => String(n.id).trim() !== targetId);
-              localStorage.setItem(k, JSON.stringify(cleaned));
-            }
-          }
-        }
+        if (k) cleanNoteFromStorageKey(k, targetId);
       }
+    } catch {
+      /* ignore */
     }
-  } catch {
-    /* ignore */
   }
 
   return updated;

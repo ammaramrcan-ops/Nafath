@@ -106,6 +106,35 @@ export function HighlightableText({
     }
   };
 
+  const splitStringNodeByHighlight = (
+    node: string,
+    h: TextHighlight,
+    nIdx: number,
+  ): React.ReactNode => {
+    const parts = node.split(h.text);
+    if (parts.length <= 1) return node;
+
+    const elements: React.ReactNode[] = [];
+    parts.forEach((part, pIdx) => {
+      elements.push(part);
+      if (pIdx < parts.length - 1) {
+        elements.push(
+          <span
+            key={`${h.id}-${nIdx}-${pIdx}`}
+            className={
+              h.type === "highlight"
+                ? getColorClass(h.color)
+                : "font-black text-zen-primary text-lg underline decoration-zen-primary/50"
+            }
+          >
+            {h.text}
+          </span>,
+        );
+      }
+    });
+    return elements;
+  };
+
   const renderHighlightedContent = () => {
     if (highlights.length === 0) {
       return <HardWordText text={text} words={words} />;
@@ -115,35 +144,18 @@ export function HighlightableText({
       <HardWordText key="original" text={text} words={words} />,
     ];
 
-    highlights.forEach((h) => {
-      processedNodes = processedNodes.map((node, nIdx) => {
+    for (const h of highlights) {
+      const nextNodes: React.ReactNode[] = [];
+      for (let nIdx = 0; nIdx < processedNodes.length; nIdx++) {
+        const node = processedNodes[nIdx];
         if (typeof node === "string") {
-          const parts = node.split(h.text);
-          if (parts.length <= 1) return node;
-
-          const elements: React.ReactNode[] = [];
-          parts.forEach((part, pIdx) => {
-            elements.push(part);
-            if (pIdx < parts.length - 1) {
-              elements.push(
-                <span
-                  key={`${h.id}-${nIdx}-${pIdx}`}
-                  className={
-                    h.type === "highlight"
-                      ? getColorClass(h.color)
-                      : "font-black text-zen-primary text-lg underline decoration-zen-primary/50"
-                  }
-                >
-                  {h.text}
-                </span>,
-              );
-            }
-          });
-          return elements;
+          nextNodes.push(splitStringNodeByHighlight(node, h, nIdx));
+        } else {
+          nextNodes.push(node);
         }
-        return node;
-      });
-    });
+      }
+      processedNodes = nextNodes;
+    }
 
     return <>{processedNodes}</>;
   };

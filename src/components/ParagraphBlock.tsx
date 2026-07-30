@@ -23,6 +23,125 @@ import { SmartNotesModal } from "./SmartNotesModal";
 import { FlashcardsSection } from "./FlashcardsSection";
 import { StudentMindMapSection } from "./StudentMindMapSection";
 
+function ParagraphBlockIntroCard({
+  block,
+  onStart,
+}: {
+  block: Block;
+  onStart: () => void;
+}) {
+  const quizCount =
+    (block.quizzes?.mcqs?.length || 0) +
+    (block.quizzes?.fills?.length || 0) +
+    (block.quizzes?.essays?.length || 0);
+  const infoCount = block.meta_card?.info_count ?? (block.mind_map_nodes?.length || 3);
+  const estTime = block.meta_card?.estimated_time_range || "2 - 5 دقائق";
+  const undLevel = block.meta_card?.understanding_level || "سهل";
+  const memLevel = block.meta_card?.memorization_level || "متوسط";
+
+  return (
+    <div
+      className="mx-auto flex min-h-[85vh] w-full max-w-[85vw] flex-col items-center justify-center p-4 sm:p-6 text-center dir-rtl relative font-body-md"
+      dir="rtl"
+    >
+      <div className="w-full rounded-[2.5rem] bg-white p-8 sm:p-14 shadow-[0_20px_60px_-15px_rgba(11,28,48,0.08)] border border-slate-100 space-y-8 text-center relative">
+        <div className="inline-flex items-center gap-2.5 px-6 py-2.5 rounded-full bg-[#f0dbff] text-[#8127cf] text-xs sm:text-sm font-black mx-auto">
+          <BookOpen className="h-4.5 w-4.5" />
+          <span>معلومات وتفاصيل الفقرة قبل البدء</span>
+        </div>
+
+        <div className="space-y-3">
+          <h2 className="text-3xl sm:text-5xl font-black text-[#0b1c30] leading-tight">
+            {block.title || "تعريف الخلع وحكمه ودليله"}
+          </h2>
+          <p className="text-xs sm:text-base text-slate-500 font-semibold leading-relaxed max-w-2xl mx-auto">
+            نظرة شاملة على أحكام الخلع في الفقه الإسلامي ومبادئه الأساسية.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-right">
+          <div className="bg-[#eaf1ff] p-5 sm:p-6 rounded-3xl flex items-center justify-between shadow-2xs">
+            <div>
+              <span className="text-xs font-bold text-slate-400 block mb-1">الزمن المتوقع:</span>
+              <span className="text-sm sm:text-base font-black text-[#0b1c30]">{estTime}</span>
+            </div>
+            <div className="w-10 h-10 rounded-2xl bg-[#f0dbff] text-[#8127cf] flex items-center justify-center shrink-0">
+              <Clock className="h-5 w-5" />
+            </div>
+          </div>
+
+          <div className="bg-[#eaf1ff] p-5 sm:p-6 rounded-3xl flex items-center justify-between shadow-2xs">
+            <div>
+              <span className="text-xs font-bold text-slate-400 block mb-1">عدد المعلومات:</span>
+              <span className="text-sm sm:text-base font-black text-[#0b1c30]">
+                {infoCount} مفاهيم
+              </span>
+            </div>
+            <div className="w-10 h-10 rounded-2xl bg-[#ffdbca] text-[#9d4300] flex items-center justify-center shrink-0">
+              <Lightbulb className="h-5 w-5" />
+            </div>
+          </div>
+
+          <div className="bg-[#eaf1ff] p-5 sm:p-6 rounded-3xl flex items-center justify-between shadow-2xs">
+            <div>
+              <span className="text-xs font-bold text-slate-400 block mb-1">
+                الأسئلة التقييمية:
+              </span>
+              <span className="text-sm sm:text-base font-black text-[#0b1c30]">
+                {quizCount} أسئلة في الفقرة
+              </span>
+            </div>
+            <div className="w-10 h-10 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+              <HelpCircle className="h-5 w-5" />
+            </div>
+          </div>
+
+          <div className="bg-[#eaf1ff] p-5 sm:p-6 rounded-3xl flex items-center justify-between shadow-2xs">
+            <div>
+              <span className="text-xs font-bold text-slate-400 block mb-1">صعوبة الفقرة:</span>
+              <div className="flex gap-1.5 mt-1 text-xs font-black">
+                <span className="bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full">
+                  فهم: {undLevel}
+                </span>
+                <span className="bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded-full">
+                  حفظ: {memLevel}
+                </span>
+              </div>
+            </div>
+            <div className="w-10 h-10 rounded-2xl bg-slate-200 text-slate-600 flex items-center justify-center shrink-0">
+              <BarChart2 className="h-5 w-5" />
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-3xl border-2 border-dashed border-[#ffdbca] bg-[#fffbf9] p-6 sm:p-8 text-right space-y-3 shadow-2xs">
+          <div className="flex items-center gap-2 text-[#9d4300] text-sm sm:text-base font-black">
+            <Sparkles className="h-5 w-5 fill-current text-[#9d4300]" />
+            <span>الزيتونة بالبلدي (الفكرة ببساطة شديدة):</span>
+          </div>
+          <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-100 shadow-2xs">
+            <p className="text-sm sm:text-base font-bold text-[#0b1c30] leading-relaxed">
+              {block.short_sentence ||
+                (block.story
+                  ? block.story.split("!")[0] + "!"
+                  : "الخلع يعني الست بتدفع عوض مالي للزوج عشان تفك الجوازة بالتراضي وتشتري راحتها.")}
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={onStart}
+          className="w-full bg-[#9d4300] hover:bg-[#813600] text-white py-4 font-black rounded-2xl transition shadow-lg flex items-center justify-center gap-2 text-base cursor-pointer hover:scale-[1.01] active:scale-[0.99]"
+        >
+          <span>ابدأ مذاكرة الفقرة الآن</span>
+          <ArrowLeft className="h-5 w-5" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function ParagraphBlockCard({
   block,
   onComplete,
@@ -82,125 +201,7 @@ export function ParagraphBlockCard({
   }, [stage, timeGateSeconds]);
 
   if (showBlockIntro && mode === "student") {
-    const quizCount =
-      (block.quizzes?.mcqs?.length || 0) +
-      (block.quizzes?.fills?.length || 0) +
-      (block.quizzes?.essays?.length || 0);
-    const infoCount = block.meta_card?.info_count ?? (block.mind_map_nodes?.length || 3);
-    const estTime = block.meta_card?.estimated_time_range || "2 - 5 دقائق";
-    const undLevel = block.meta_card?.understanding_level || "سهل";
-    const memLevel = block.meta_card?.memorization_level || "متوسط";
-
-    return (
-      <div
-        className="mx-auto flex min-h-[85vh] w-full max-w-[85vw] flex-col items-center justify-center p-4 sm:p-6 text-center dir-rtl relative font-body-md"
-        dir="rtl"
-      >
-        <div className="w-full rounded-[2.5rem] bg-white p-8 sm:p-14 shadow-[0_20px_60px_-15px_rgba(11,28,48,0.08)] border border-slate-100 space-y-8 text-center relative">
-          {/* Top Badge Chip */}
-          <div className="inline-flex items-center gap-2.5 px-6 py-2.5 rounded-full bg-[#f0dbff] text-[#8127cf] text-xs sm:text-sm font-black mx-auto">
-            <BookOpen className="h-4.5 w-4.5" />
-            <span>معلومات وتفاصيل الفقرة قبل البدء</span>
-          </div>
-
-          {/* Title & Subtitle */}
-          <div className="space-y-3">
-            <h2 className="text-3xl sm:text-5xl font-black text-[#0b1c30] leading-tight">
-              {block.title || "تعريف الخلع وحكمه ودليله"}
-            </h2>
-            <p className="text-xs sm:text-base text-slate-500 font-semibold leading-relaxed max-w-2xl mx-auto">
-              نظرة شاملة على أحكام الخلع في الفقه الإسلامي ومبادئه الأساسية.
-            </p>
-          </div>
-
-          {/* Bento Metadata Grid (2x2 or 4x1 for 85vw width) */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-right">
-            {/* Box 1: Time */}
-            <div className="bg-[#eaf1ff] p-5 sm:p-6 rounded-3xl flex items-center justify-between shadow-2xs">
-              <div>
-                <span className="text-xs font-bold text-slate-400 block mb-1">الزمن المتوقع:</span>
-                <span className="text-sm sm:text-base font-black text-[#0b1c30]">{estTime}</span>
-              </div>
-              <div className="w-10 h-10 rounded-2xl bg-[#f0dbff] text-[#8127cf] flex items-center justify-center shrink-0">
-                <Clock className="h-5 w-5" />
-              </div>
-            </div>
-
-            {/* Box 2: Info Count */}
-            <div className="bg-[#eaf1ff] p-5 sm:p-6 rounded-3xl flex items-center justify-between shadow-2xs">
-              <div>
-                <span className="text-xs font-bold text-slate-400 block mb-1">عدد المعلومات:</span>
-                <span className="text-sm sm:text-base font-black text-[#0b1c30]">
-                  {infoCount} مفاهيم
-                </span>
-              </div>
-              <div className="w-10 h-10 rounded-2xl bg-[#ffdbca] text-[#9d4300] flex items-center justify-center shrink-0">
-                <Lightbulb className="h-5 w-5" />
-              </div>
-            </div>
-
-            {/* Box 3: Questions */}
-            <div className="bg-[#eaf1ff] p-5 sm:p-6 rounded-3xl flex items-center justify-between shadow-2xs">
-              <div>
-                <span className="text-xs font-bold text-slate-400 block mb-1">
-                  الأسئلة التقييمية:
-                </span>
-                <span className="text-sm sm:text-base font-black text-[#0b1c30]">
-                  {quizCount} أسئلة في الفقرة
-                </span>
-              </div>
-              <div className="w-10 h-10 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
-                <HelpCircle className="h-5 w-5" />
-              </div>
-            </div>
-
-            {/* Box 4: Difficulty */}
-            <div className="bg-[#eaf1ff] p-5 sm:p-6 rounded-3xl flex items-center justify-between shadow-2xs">
-              <div>
-                <span className="text-xs font-bold text-slate-400 block mb-1">صعوبة الفقرة:</span>
-                <div className="flex gap-1.5 mt-1 text-xs font-black">
-                  <span className="bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full">
-                    فهم: {undLevel}
-                  </span>
-                  <span className="bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded-full">
-                    حفظ: {memLevel}
-                  </span>
-                </div>
-              </div>
-              <div className="w-10 h-10 rounded-2xl bg-slate-200 text-slate-600 flex items-center justify-center shrink-0">
-                <BarChart2 className="h-5 w-5" />
-              </div>
-            </div>
-          </div>
-
-          {/* "Zaytuna" Essence Section (Dashed Orange Border Card) */}
-          <div className="rounded-3xl border-2 border-dashed border-[#ffdbca] bg-[#fffbf9] p-6 sm:p-8 text-right space-y-3 shadow-2xs">
-            <div className="flex items-center gap-2 text-[#9d4300] text-sm sm:text-base font-black">
-              <Sparkles className="h-5 w-5 fill-current text-[#9d4300]" />
-              <span>الزيتونة بالبلدي (الفكرة ببساطة شديدة):</span>
-            </div>
-            <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-100 shadow-2xs">
-              <p className="text-sm sm:text-base font-bold text-[#0b1c30] leading-relaxed">
-                {block.short_sentence ||
-                  (block.story
-                    ? block.story.split("!")[0] + "!"
-                    : "الخلع يعني الست بتدفع عوض مالي للزوج عشان تفك الجوازة بالتراضي وتشتري راحتها.")}
-              </p>
-            </div>
-          </div>
-
-          {/* Primary CTA Button */}
-          <button
-            type="button"
-            onClick={() => setShowBlockIntro(false)}
-            className="w-full py-5 rounded-2xl bg-[#213145] hover:bg-[#0b1c30] text-white font-black text-base sm:text-lg flex items-center justify-center gap-3 shadow-xl hover:scale-[1.01] active:scale-95 transition cursor-pointer"
-          >
-            <span>ابدأ دراسة هذه الفقرة الآن</span>
-            <ArrowLeft className="h-5 w-5" />
-          </button>
-        </div>
-      </div>
-    );
+    return <ParagraphBlockIntroCard block={block} onStart={() => setShowBlockIntro(false)} />;
   }
 
   if (!started && showIntro) {

@@ -115,74 +115,90 @@ function buildHardWordCards(block: ParagraphBlock, baseId: string): SmartFlashca
     }));
 }
 
-function buildQuizCards(block: ParagraphBlock, baseId: string): SmartFlashcard[] {
+function buildEssayCards(block: ParagraphBlock, baseId: string): SmartFlashcard[] {
+  const essays = block.quizzes?.essays;
+  if (!essays) return [];
+
   const cards: SmartFlashcard[] = [];
-  const quizzes = block.quizzes;
+  essays.forEach((essay, idx) => {
+    if (!essay.question) return;
+    const hasKeywords = essay.keywords?.length > 0;
+    const keywords = hasKeywords
+      ? essay.keywords
+      : extractKeywordsFromText(block.full_text).slice(0, 3);
 
-  if (quizzes?.essays) {
-    quizzes.essays.forEach((essay, idx) => {
-      if (!essay.question) return;
-      const hasKeywords = essay.keywords?.length > 0;
-      const keywords = hasKeywords
-        ? essay.keywords
-        : extractKeywordsFromText(block.full_text).slice(0, 3);
-
-      cards.push({
-        id: `${baseId}_essay_${idx}`,
-        category: autoCategory(essay.question, "essay"),
-        question: essay.question,
-        model_answer: hasKeywords
-          ? `الكلمات المفتاحية الواجب ذكرها: ${essay.keywords!.join("، ")}`
-          : block.full_text.slice(0, 150),
-        keywords,
-        hint: {
-          mnemonic: essay.hint || block.mnemonic || undefined,
-          keyword_cues: generateKeywordCues(keywords),
-        },
-        explanation_baladi:
-          block.short_sentence || "إجابة مقالية استرجاعية تضمن الإلمام الشامل بالشروط والأسباب.",
-        stats: createDefaultStats(),
-      });
+    cards.push({
+      id: `${baseId}_essay_${idx}`,
+      category: autoCategory(essay.question, "essay"),
+      question: essay.question,
+      model_answer: hasKeywords
+        ? `الكلمات المفتاحية الواجب ذكرها: ${essay.keywords!.join("، ")}`
+        : block.full_text.slice(0, 150),
+      keywords,
+      hint: {
+        mnemonic: essay.hint || block.mnemonic || undefined,
+        keyword_cues: generateKeywordCues(keywords),
+      },
+      explanation_baladi:
+        block.short_sentence || "إجابة مقالية استرجاعية تضمن الإلمام الشامل بالشروط والأسباب.",
+      stats: createDefaultStats(),
     });
-  }
-
-  if (quizzes?.fills) {
-    quizzes.fills.forEach((fill, idx) => {
-      if (!fill.question || !fill.answer) return;
-      cards.push({
-        id: `${baseId}_fill_${idx}`,
-        category: "rulings",
-        question: fill.question,
-        model_answer: fill.answer,
-        keywords: [fill.answer],
-        hint: {
-          mnemonic: `الإجابة هي: ${fill.answer.slice(0, 1)}...`,
-          keyword_cues: `${fill.answer.slice(0, 1)}ـ...`,
-        },
-        stats: createDefaultStats(),
-      });
-    });
-  }
-
-  if (quizzes?.mcqs) {
-    quizzes.mcqs.forEach((mcq, idx) => {
-      if (!mcq.question || !mcq.answer) return;
-      cards.push({
-        id: `${baseId}_mcq_${idx}`,
-        category: autoCategory(mcq.question, "mcq"),
-        question: mcq.question,
-        model_answer: mcq.answer,
-        keywords: [mcq.answer],
-        hint: {
-          mnemonic: `اختر الإجابة الضابطة: ${mcq.answer.slice(0, 4)}...`,
-          keyword_cues: generateKeywordCues([mcq.answer]),
-        },
-        stats: createDefaultStats(),
-      });
-    });
-  }
-
+  });
   return cards;
+}
+
+function buildFillCards(block: ParagraphBlock, baseId: string): SmartFlashcard[] {
+  const fills = block.quizzes?.fills;
+  if (!fills) return [];
+
+  const cards: SmartFlashcard[] = [];
+  fills.forEach((fill, idx) => {
+    if (!fill.question || !fill.answer) return;
+    cards.push({
+      id: `${baseId}_fill_${idx}`,
+      category: "rulings",
+      question: fill.question,
+      model_answer: fill.answer,
+      keywords: [fill.answer],
+      hint: {
+        mnemonic: `الإجابة هي: ${fill.answer.slice(0, 1)}...`,
+        keyword_cues: `${fill.answer.slice(0, 1)}ـ...`,
+      },
+      stats: createDefaultStats(),
+    });
+  });
+  return cards;
+}
+
+function buildMcqCards(block: ParagraphBlock, baseId: string): SmartFlashcard[] {
+  const mcqs = block.quizzes?.mcqs;
+  if (!mcqs) return [];
+
+  const cards: SmartFlashcard[] = [];
+  mcqs.forEach((mcq, idx) => {
+    if (!mcq.question || !mcq.answer) return;
+    cards.push({
+      id: `${baseId}_mcq_${idx}`,
+      category: autoCategory(mcq.question, "mcq"),
+      question: mcq.question,
+      model_answer: mcq.answer,
+      keywords: [mcq.answer],
+      hint: {
+        mnemonic: `اختر الإجابة الضابطة: ${mcq.answer.slice(0, 4)}...`,
+        keyword_cues: generateKeywordCues([mcq.answer]),
+      },
+      stats: createDefaultStats(),
+    });
+  });
+  return cards;
+}
+
+function buildQuizCards(block: ParagraphBlock, baseId: string): SmartFlashcard[] {
+  return [
+    ...buildEssayCards(block, baseId),
+    ...buildFillCards(block, baseId),
+    ...buildMcqCards(block, baseId),
+  ];
 }
 
 function buildFallbackCard(block: ParagraphBlock, baseId: string): SmartFlashcard {

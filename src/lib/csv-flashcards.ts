@@ -5,6 +5,78 @@ import { autoCategory, type FlashcardCategory, type SmartFlashcard } from "./spa
  * CSV Format Schema:
  * Header: Category,Question,ModelAnswer,Keywords,Mnemonic,KeywordCues
  */
+function buildSmartCardFromCSVRow(row: string[]): SmartFlashcard | null {
+  if (row.length < 2) return null;
+
+  let categoryRaw = "";
+  let question = "";
+  let modelAnswer = "";
+  let keywordsRaw = "";
+  let mnemonic = "";
+  let keywordCues = "";
+
+  if (row.length >= 6) {
+    categoryRaw = row[0];
+    question = row[1];
+    modelAnswer = row[2];
+    keywordsRaw = row[3];
+    mnemonic = row[4];
+    keywordCues = row[5];
+  } else if (row.length === 5) {
+    categoryRaw = row[0];
+    question = row[1];
+    modelAnswer = row[2];
+    keywordsRaw = row[3];
+    mnemonic = row[4];
+  } else if (row.length === 4) {
+    categoryRaw = row[0];
+    question = row[1];
+    modelAnswer = row[2];
+    keywordsRaw = row[3];
+  } else if (row.length === 3) {
+    categoryRaw = row[0];
+    question = row[1];
+    modelAnswer = row[2];
+  } else {
+    question = row[0];
+    modelAnswer = row[1];
+  }
+
+  if (!question || !modelAnswer) return null;
+
+  const category = sanitizeCategory(categoryRaw, question);
+  const keywords = keywordsRaw
+    ? keywordsRaw
+        .split(/[|،,]/)
+        .map((k) => k.trim())
+        .filter(Boolean)
+    : autoExtractKeywords(modelAnswer);
+
+  const cues = keywordCues ? keywordCues.replace(/\|/g, " / ") : generateKeywordCues(keywords);
+
+  return {
+    id: `csv_${crypto.randomUUID()}`,
+    category,
+    question,
+    model_answer: modelAnswer,
+    keywords,
+    hint: {
+      mnemonic: mnemonic || undefined,
+      keyword_cues: cues || undefined,
+    },
+    stats: {
+      interval_days: 0,
+      ease_factor: 2.5,
+      repetitions: 0,
+      due_timestamp: Date.now(),
+      consecutive_correct: 0,
+      total_reviews: 0,
+      total_correct: 0,
+      last_confidence_score: 0,
+    },
+  };
+}
+
 export function parseCSVToSmartCards(csvText: string): SmartFlashcard[] {
   if (!csvText || !csvText.trim()) return [];
 
@@ -27,75 +99,10 @@ export function parseCSVToSmartCards(csvText: string): SmartFlashcard[] {
   }
 
   for (let i = startIdx; i < lines.length; i++) {
-    const line = lines[i];
-    const row = parseCSVRow(line);
-
-    if (row.length < 2) continue;
-
-    let categoryRaw = "";
-    let question = "";
-    let modelAnswer = "";
-    let keywordsRaw = "";
-    let mnemonic = "";
-    let keywordCues = "";
-
-    if (row.length >= 6) {
-      // Full Schema: Category,Question,ModelAnswer,Keywords,Mnemonic,KeywordCues
-      categoryRaw = row[0];
-      question = row[1];
-      modelAnswer = row[2];
-      keywordsRaw = row[3];
-      mnemonic = row[4];
-      keywordCues = row[5];
-    } else if (row.length === 5) {
-      categoryRaw = row[0];
-      question = row[1];
-      modelAnswer = row[2];
-      keywordsRaw = row[3];
-      mnemonic = row[4];
-    } else if (row.length === 4) {
-      categoryRaw = row[0];
-      question = row[1];
-      modelAnswer = row[2];
-      keywordsRaw = row[3];
-    } else if (row.length === 3) {
-      categoryRaw = row[0];
-      question = row[1];
-      modelAnswer = row[2];
-    } else {
-      question = row[0];
-      modelAnswer = row[1];
+    const card = buildSmartCardFromCSVRow(parseCSVRow(lines[i]));
+    if (card) {
+      cards.push(card);
     }
-
-    if (!question || !modelAnswer) continue;
-
-    const category = sanitizeCategory(categoryRaw, question);
-    const keywords = keywordsRaw
-      ? keywordsRaw
-          .split(/[|،,]/)
-          .map((k) => k.trim())
-          .filter(Boolean)
-      : autoExtractKeywords(modelAnswer);
-
-    const cues = keywordCues ? keywordCues.replace(/\|/g, " / ") : generateKeywordCues(keywords);
-
-    cards.push({
-      id: `csv_${crypto.randomUUID()}`,
-      category,
-      question,
-      model_answer: modelAnswer,
-      keywords,
-      hint: {
-        mnemonic: mnemonic || undefined,
-        keyword_cues: cues || undefined,
-      },
-      stats: {
-        interval: 1,
-        repetition: 0,
-        easeFactor: 2.5,
-        nextReviewDate: Date.now(),
-      },
-    });
   }
 
   return cards;
