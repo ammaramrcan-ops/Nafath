@@ -130,7 +130,7 @@ function cleanRawTags(
 ): { cleanText: string; highlights: TextHighlight[] } {
   if (!str) return { cleanText: "", highlights: existingHighlights };
 
-  let currentHighlights = [...existingHighlights];
+  const currentHighlights = [...existingHighlights];
   const regex = /<(yellow|green|blue|pink|purple)>(.*?)<\/\1>/gi;
   let match;
 
@@ -250,7 +250,9 @@ function extractMindMapNodesFromRaw(mmRaw: unknown): string[] {
       typeof n === "string"
         ? n
         : typeof n === "object" && n !== null
-          ? String((n as Record<string, unknown>).text || (n as Record<string, unknown>).title || "")
+          ? String(
+              (n as Record<string, unknown>).text || (n as Record<string, unknown>).title || "",
+            )
           : "",
     );
   }
@@ -261,7 +263,9 @@ function extractMindMapNodesFromRaw(mmRaw: unknown): string[] {
         typeof n === "string"
           ? n
           : typeof n === "object" && n !== null
-            ? String((n as Record<string, unknown>).text || (n as Record<string, unknown>).title || "")
+            ? String(
+                (n as Record<string, unknown>).text || (n as Record<string, unknown>).title || "",
+              )
             : "",
       );
     }
@@ -282,9 +286,14 @@ function extractHardWordsFromRaw(rawHardWords: unknown): HardWord[] {
 
 export function normalizeBlock(raw: unknown, idx: number): ParagraphBlock {
   const rawObj = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
-  const s = (rawObj.stages && typeof rawObj.stages === "object" ? rawObj.stages : {}) as Record<string, unknown>;
+  const s = (rawObj.stages && typeof rawObj.stages === "object" ? rawObj.stages : {}) as Record<
+    string,
+    unknown
+  >;
 
-  let highlights: TextHighlight[] = Array.isArray(rawObj.highlights) ? (rawObj.highlights as TextHighlight[]) : [];
+  let highlights: TextHighlight[] = Array.isArray(rawObj.highlights)
+    ? (rawObj.highlights as TextHighlight[])
+    : [];
 
   let short_sentence = String(rawObj.short_sentence ?? rawObj.summary ?? "");
   let story = String(rawObj.story ?? "");
@@ -293,7 +302,9 @@ export function normalizeBlock(raw: unknown, idx: number): ParagraphBlock {
   let mnemonic = String(rawObj.mnemonic ?? "");
   let funny_link = String(rawObj.funny_link ?? "");
 
-  const zaitounaObj = (rawObj.zaitouna && typeof rawObj.zaitouna === "object" ? rawObj.zaitouna : {}) as Record<string, unknown>;
+  const zaitounaObj = (
+    rawObj.zaitouna && typeof rawObj.zaitouna === "object" ? rawObj.zaitouna : {}
+  ) as Record<string, unknown>;
   let { zaitounaDefs, zaitounaReas, zaitounaLinks } = extractZaitounaRawFields(zaitounaObj);
 
   const res1 = cleanRawTags(short_sentence, highlights);
@@ -325,14 +336,35 @@ export function normalizeBlock(raw: unknown, idx: number): ParagraphBlock {
   highlights = res9.highlights;
 
   const hard_words = extractHardWordsFromRaw(rawObj.hard_words);
-  const mind_map_nodes = extractMindMapNodesFromRaw(rawObj.mind_map_nodes);
+  const rawMindMap =
+    rawObj.mind_map_nodes ??
+    rawObj.mindmap ??
+    rawObj.mind_map ??
+    rawObj.mindMap ??
+    rawObj.mind_map_branches ??
+    rawObj.branches ??
+    rawObj.nodes;
+  const mind_map_nodes = extractMindMapNodesFromRaw(rawMindMap);
 
-  const quizzesMcq = (s.quizzes_mcq && typeof s.quizzes_mcq === "object" ? s.quizzes_mcq : {}) as Record<string, unknown>;
-  const quizzesFill = (s.quizzes_fill && typeof s.quizzes_fill === "object" ? s.quizzes_fill : {}) as Record<string, unknown>;
-  const quizzesEssay = (s.quizzes_essay && typeof s.quizzes_essay === "object" ? s.quizzes_essay : {}) as Record<string, unknown>;
-  const quizzesObj = (s.quizzes && typeof s.quizzes === "object" ? s.quizzes : {}) as Record<string, unknown>;
-  const quizzesContent = (quizzesObj.content && typeof quizzesObj.content === "object" ? quizzesObj.content : {}) as Record<string, unknown>;
-  const rawQuizzesObj = (rawObj.quizzes && typeof rawObj.quizzes === "object" ? rawObj.quizzes : {}) as Record<string, unknown>;
+  const quizzesMcq = (
+    s.quizzes_mcq && typeof s.quizzes_mcq === "object" ? s.quizzes_mcq : {}
+  ) as Record<string, unknown>;
+  const quizzesFill = (
+    s.quizzes_fill && typeof s.quizzes_fill === "object" ? s.quizzes_fill : {}
+  ) as Record<string, unknown>;
+  const quizzesEssay = (
+    s.quizzes_essay && typeof s.quizzes_essay === "object" ? s.quizzes_essay : {}
+  ) as Record<string, unknown>;
+  const quizzesObj = (s.quizzes && typeof s.quizzes === "object" ? s.quizzes : {}) as Record<
+    string,
+    unknown
+  >;
+  const quizzesContent = (
+    quizzesObj.content && typeof quizzesObj.content === "object" ? quizzesObj.content : {}
+  ) as Record<string, unknown>;
+  const rawQuizzesObj = (
+    rawObj.quizzes && typeof rawObj.quizzes === "object" ? rawObj.quizzes : {}
+  ) as Record<string, unknown>;
 
   const mcqSrc =
     quizzesMcq.content ?? quizzesContent.mcq ?? rawQuizzesObj.mcqs ?? rawQuizzesObj.mcq;
@@ -347,14 +379,28 @@ export function normalizeBlock(raw: unknown, idx: number): ParagraphBlock {
           estimated_time: typeof m.estimated_time === "number" ? m.estimated_time : 30,
         };
       })
-    : mcqSrc && typeof mcqSrc === "object" && ((mcqSrc as Record<string, unknown>).question || (mcqSrc as Record<string, unknown>).answer || (mcqSrc as Record<string, unknown>).correct_answer)
+    : mcqSrc &&
+        typeof mcqSrc === "object" &&
+        ((mcqSrc as Record<string, unknown>).question ||
+          (mcqSrc as Record<string, unknown>).answer ||
+          (mcqSrc as Record<string, unknown>).correct_answer)
       ? [
           {
             question: String((mcqSrc as Record<string, unknown>).question ?? ""),
-            options: Array.isArray((mcqSrc as Record<string, unknown>).options) ? ((mcqSrc as Record<string, unknown>).options as string[]) : [],
-            answer: String((mcqSrc as Record<string, unknown>).answer ?? (mcqSrc as Record<string, unknown>).correct_answer ?? ""),
-            difficulty: ((mcqSrc as Record<string, unknown>).difficulty as MCQ["difficulty"]) || "medium",
-            estimated_time: typeof (mcqSrc as Record<string, unknown>).estimated_time === "number" ? ((mcqSrc as Record<string, unknown>).estimated_time as number) : 30,
+            options: Array.isArray((mcqSrc as Record<string, unknown>).options)
+              ? ((mcqSrc as Record<string, unknown>).options as string[])
+              : [],
+            answer: String(
+              (mcqSrc as Record<string, unknown>).answer ??
+                (mcqSrc as Record<string, unknown>).correct_answer ??
+                "",
+            ),
+            difficulty:
+              ((mcqSrc as Record<string, unknown>).difficulty as MCQ["difficulty"]) || "medium",
+            estimated_time:
+              typeof (mcqSrc as Record<string, unknown>).estimated_time === "number"
+                ? ((mcqSrc as Record<string, unknown>).estimated_time as number)
+                : 30,
           },
         ]
       : [];
@@ -375,28 +421,41 @@ export function normalizeBlock(raw: unknown, idx: number): ParagraphBlock {
           estimated_time: typeof f.estimated_time === "number" ? f.estimated_time : 30,
         };
       })
-    : fillSrc && typeof fillSrc === "object" && ((fillSrc as Record<string, unknown>).question || (fillSrc as Record<string, unknown>).sentence || (fillSrc as Record<string, unknown>).answer)
+    : fillSrc &&
+        typeof fillSrc === "object" &&
+        ((fillSrc as Record<string, unknown>).question ||
+          (fillSrc as Record<string, unknown>).sentence ||
+          (fillSrc as Record<string, unknown>).answer)
       ? [
           {
-            question: String((fillSrc as Record<string, unknown>).question ?? (fillSrc as Record<string, unknown>).sentence ?? ""),
+            question: String(
+              (fillSrc as Record<string, unknown>).question ??
+                (fillSrc as Record<string, unknown>).sentence ??
+                "",
+            ),
             answer: String((fillSrc as Record<string, unknown>).answer ?? ""),
-            difficulty: ((fillSrc as Record<string, unknown>).difficulty as Fill["difficulty"]) || "medium",
-            estimated_time: typeof (fillSrc as Record<string, unknown>).estimated_time === "number" ? ((fillSrc as Record<string, unknown>).estimated_time as number) : 30,
+            difficulty:
+              ((fillSrc as Record<string, unknown>).difficulty as Fill["difficulty"]) || "medium",
+            estimated_time:
+              typeof (fillSrc as Record<string, unknown>).estimated_time === "number"
+                ? ((fillSrc as Record<string, unknown>).estimated_time as number)
+                : 30,
           },
         ]
       : [];
 
   const essaySrc =
-    quizzesEssay.content ??
-    quizzesContent.essay ??
-    rawQuizzesObj.essays ??
-    rawQuizzesObj.essay;
+    quizzesEssay.content ?? quizzesContent.essay ?? rawQuizzesObj.essays ?? rawQuizzesObj.essay;
   const essays: Essay[] = Array.isArray(essaySrc)
     ? essaySrc.map((eItem: unknown) => {
         const e = (eItem && typeof eItem === "object" ? eItem : {}) as Record<string, unknown>;
         return {
           question: String(e.question ?? ""),
-          keywords: Array.isArray(e.keywords) ? (e.keywords as string[]) : e.answer ? [String(e.answer)] : [],
+          keywords: Array.isArray(e.keywords)
+            ? (e.keywords as string[])
+            : e.answer
+              ? [String(e.answer)]
+              : [],
           answer: String(e.answer ?? ""),
           hint: String(e.hint || ""),
           difficulty: (e.difficulty as Essay["difficulty"]) || "medium",
@@ -414,8 +473,12 @@ export function normalizeBlock(raw: unknown, idx: number): ParagraphBlock {
                 : [],
             answer: String((essaySrc as Record<string, unknown>).answer ?? ""),
             hint: String((essaySrc as Record<string, unknown>).hint || ""),
-            difficulty: ((essaySrc as Record<string, unknown>).difficulty as Essay["difficulty"]) || "medium",
-            estimated_time: typeof (essaySrc as Record<string, unknown>).estimated_time === "number" ? ((essaySrc as Record<string, unknown>).estimated_time as number) : 60,
+            difficulty:
+              ((essaySrc as Record<string, unknown>).difficulty as Essay["difficulty"]) || "medium",
+            estimated_time:
+              typeof (essaySrc as Record<string, unknown>).estimated_time === "number"
+                ? ((essaySrc as Record<string, unknown>).estimated_time as number)
+                : 60,
           },
         ]
       : [];
@@ -434,7 +497,9 @@ export function normalizeBlock(raw: unknown, idx: number): ParagraphBlock {
   let enabled_stages = Array.isArray(rawObj.enabled_stages)
     ? (rawObj.enabled_stages as Stage[])
     : undefined;
-  const stage_intervals: Partial<Record<Stage, number>> = { ...((rawObj.stage_intervals as Partial<Record<Stage, number>>) ?? {}) };
+  const stage_intervals: Partial<Record<Stage, number>> = {
+    ...((rawObj.stage_intervals as Partial<Record<Stage, number>>) ?? {}),
+  };
   const enable_stage_intervals: Partial<Record<Stage, boolean>> = {
     ...((rawObj.enable_stage_intervals as Partial<Record<Stage, boolean>>) ?? {}),
   };
@@ -460,7 +525,9 @@ export function normalizeBlock(raw: unknown, idx: number): ParagraphBlock {
     }
   }
 
-  const metaCard = (rawObj.meta_card && typeof rawObj.meta_card === "object" ? rawObj.meta_card : {}) as Record<string, unknown>;
+  const metaCard = (
+    rawObj.meta_card && typeof rawObj.meta_card === "object" ? rawObj.meta_card : {}
+  ) as Record<string, unknown>;
 
   return {
     id: typeof rawObj.id === "number" ? rawObj.id : idx + 1,
@@ -475,8 +542,10 @@ export function normalizeBlock(raw: unknown, idx: number): ParagraphBlock {
     funny_link,
     mind_map_nodes,
     meta_card: {
-      understanding_level: (metaCard.understanding_level as BlockMetaCard["understanding_level"]) ?? "سهل",
-      memorization_level: (metaCard.memorization_level as BlockMetaCard["memorization_level"]) ?? "متوسط",
+      understanding_level:
+        (metaCard.understanding_level as BlockMetaCard["understanding_level"]) ?? "سهل",
+      memorization_level:
+        (metaCard.memorization_level as BlockMetaCard["memorization_level"]) ?? "متوسط",
       estimated_time_range: String(metaCard.estimated_time_range ?? "2 - 5 دقائق"),
       info_count:
         typeof metaCard.info_count === "number"
@@ -530,7 +599,11 @@ export function normalizeLesson(raw: unknown): Lesson {
 
   const blocks: ParagraphBlock[] = rawBlocks.map((b: unknown, i: number) => normalizeBlock(b, i));
 
-  const levelStageOrdersRaw = (rawObj.levelStageOrders && typeof rawObj.levelStageOrders === "object" ? rawObj.levelStageOrders : {}) as Record<number, string[]>;
+  const levelStageOrdersRaw = (
+    rawObj.levelStageOrders && typeof rawObj.levelStageOrders === "object"
+      ? rawObj.levelStageOrders
+      : {}
+  ) as Record<number, string[]>;
 
   const levelStageOrders = {
     1: (levelStageOrdersRaw[1] as Stage[]) ?? [
@@ -572,7 +645,9 @@ export function normalizeLesson(raw: unknown): Lesson {
     size: String(rawObj.size ?? ""),
     topics: Array.isArray(rawObj.topics) ? (rawObj.topics as string[]) : [],
     notebookLmUrl: String(rawObj.notebookLmUrl ?? "https://notebooklm.google.com/"),
-    master_story: String(rawObj.master_story ?? rawObj.masterStory ?? rawObj.intro_story ?? DEFAULT_MASTER_STORY),
+    master_story: String(
+      rawObj.master_story ?? rawObj.masterStory ?? rawObj.intro_story ?? DEFAULT_MASTER_STORY,
+    ),
     levelStageOrders,
     levelDisabledStages,
     enableBreaks: Boolean(rawObj.enableBreaks ?? false),
@@ -636,7 +711,9 @@ export function effectiveStages(
   }
 
   const disabledForLevel = [
-    ...(typeof level === "number" && levelDisabledStages?.[level] ? levelDisabledStages[level] : []),
+    ...(typeof level === "number" && levelDisabledStages?.[level]
+      ? levelDisabledStages[level]
+      : []),
     ...(typeof level === "number" && subDisabled?.[level] ? subDisabled[level] : []),
   ];
 
@@ -1160,7 +1237,9 @@ export function parseLessonJson(input: string): Lesson {
       title: "درس مخصص",
       estimatedTime: `${Math.max(5, data.length * 5)} دقيقة`,
       size: `${data.length} فقرات`,
-      topics: data.map((b: unknown) => (b && typeof b === "object" ? String((b as Record<string, unknown>).title ?? "") : "")),
+      topics: data.map((b: unknown) =>
+        b && typeof b === "object" ? String((b as Record<string, unknown>).title ?? "") : "",
+      ),
       blocks: data,
     });
   }

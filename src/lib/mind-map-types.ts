@@ -156,48 +156,47 @@ function parseRawObjectNodes(
 
   const asNum = (v: unknown): number | undefined => (typeof v === "number" ? v : undefined);
 
-  const formattedNodes: MindMapNode[] = rawNodes
-    .map((rn, i) => {
-      const d = getDepth(String(rn.id));
-      const group = depthGroups[d] || [];
-      const idxInGroup = group.findIndex((gn) => String(gn.id) === String(rn.id));
+  const formattedNodes: MindMapNode[] = rawNodes.map((rn, i) => {
+    const d = getDepth(String(rn.id));
+    const group = depthGroups[d] || [];
+    const idxInGroup = group.findIndex((gn) => String(gn.id) === String(rn.id));
 
-      const x = Math.max(60, 720 - d * 280);
-      const totalInGroup = group.length;
-      const startY = 70;
-      const gapY = totalInGroup > 1 ? Math.min(130, Math.max(75, 550 / totalInGroup)) : 130;
-      const y = startY + idxInGroup * gapY;
+    const x = Math.max(60, 720 - d * 280);
+    const totalInGroup = group.length;
+    const startY = 70;
+    const gapY = totalInGroup > 1 ? Math.min(130, Math.max(75, 550 / totalInGroup)) : 130;
+    const y = startY + idxInGroup * gapY;
 
-      const color = palette[i % palette.length];
+    const color = palette[i % palette.length];
 
-      const textVal =
-        (typeof rn.text === "string" && rn.text) ||
-        (typeof rn.title === "string" && rn.title) ||
-        "عقدة";
+    const textVal =
+      (typeof rn.text === "string" && rn.text) ||
+      (typeof rn.title === "string" && rn.title) ||
+      "عقدة";
 
-      return {
-        id: String(rn.id),
-        parentId: rn.parentId ? String(rn.parentId) : null,
-        text: textVal,
-        shape: d === 0 ? "rectangle" : d === 1 ? "rounded-square" : "pill",
-        x: asNum(rn.x) ?? x,
-        y: asNum(rn.y) ?? y,
-        width: (typeof rn.width === "number"
-          ? rn.width
-          : d === 0
-            ? 210
-            : d === 1
-              ? 190
-              : 230) as number,
-        height: (typeof rn.height === "number" ? rn.height : d === 0 ? 75 : 65) as number,
-        backgroundColor: (rn.backgroundColor as string) || color.bg,
-        textColor: (rn.textColor as string) || color.text,
-        borderColor: (rn.borderColor as string) || color.border,
-        lineColor: (rn.lineColor as string) || color.border,
-        lineThickness: (rn.lineThickness as number) || (d === 0 ? 5 : 4),
-        lineStyle: (typeof rn.lineStyle === "string" ? rn.lineStyle : "solid") as LineStyle,
-      };
-    });
+    return {
+      id: String(rn.id),
+      parentId: rn.parentId ? String(rn.parentId) : null,
+      text: textVal,
+      shape: d === 0 ? "rectangle" : d === 1 ? "rounded-square" : "pill",
+      x: asNum(rn.x) ?? x,
+      y: asNum(rn.y) ?? y,
+      width: (typeof rn.width === "number"
+        ? rn.width
+        : d === 0
+          ? 210
+          : d === 1
+            ? 190
+            : 230) as number,
+      height: (typeof rn.height === "number" ? rn.height : d === 0 ? 75 : 65) as number,
+      backgroundColor: (rn.backgroundColor as string) || color.bg,
+      textColor: (rn.textColor as string) || color.text,
+      borderColor: (rn.borderColor as string) || color.border,
+      lineColor: (rn.lineColor as string) || color.border,
+      lineThickness: (rn.lineThickness as number) || (d === 0 ? 5 : 4),
+      lineStyle: (typeof rn.lineStyle === "string" ? rn.lineStyle : "solid") as LineStyle,
+    };
+  });
 
   return {
     id: `map_${blockId}`,
@@ -269,11 +268,17 @@ export function parseBlockMindMap(block: {
     })
     .filter((n): n is string => typeof n === "string" && n.trim().length > 0);
 
-  const rootId = `root_${blockId}`;
+  const effectiveNodeStrings =
+    nodeStrings.length > 0
+      ? nodeStrings
+      : [
+          "الفكرة الرئيسية والتعريف 💡",
+          "الأحكام والضوابط الشرعية ⚖️",
+          "التطبيقات والتنبيهات الميدانية 📌",
+          "الخلاصة وزيتونة الدرس 🫒",
+        ];
 
-  if (nodeStrings.length === 0) {
-    return createEmptySubjectMindMap(blockTitle);
-  }
+  const rootId = `root_${blockId}`;
 
   const nodes: MindMapNode[] = [
     {
@@ -303,7 +308,7 @@ export function parseBlockMindMap(block: {
   let currentY = 100;
   let lastCatId = rootId;
 
-  nodeStrings.forEach((rawLabel, i) => {
+  effectiveNodeStrings.forEach((rawLabel, i) => {
     const isSub =
       rawLabel.trim().startsWith("-") ||
       rawLabel.trim().startsWith("•") ||

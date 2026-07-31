@@ -194,6 +194,8 @@ function TeacherPage() {
           hard_words: norm.hard_words.length > 0 ? norm.hard_words : existing.hard_words,
           mnemonic: norm.mnemonic || existing.mnemonic,
           funny_link: norm.funny_link || existing.funny_link,
+          mind_map_nodes:
+            norm.mind_map_nodes.length > 0 ? norm.mind_map_nodes : existing.mind_map_nodes,
         };
       });
 
