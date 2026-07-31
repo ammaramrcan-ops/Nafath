@@ -70,6 +70,64 @@ function sanitizeJsonInput<T>(data: T): T {
   return data;
 }
 
+function parseFlexibleJson(rawStr: string): any {
+  if (!rawStr || !rawStr.trim()) throw new Error("نص JSON فارغ");
+
+  let cleaned = rawStr.trim();
+
+  // 1. Strip markdown code block wrappers (e.g. ```json ... ```)
+  cleaned = cleaned.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
+
+  // 2. Handle outer double-quotes or single-quotes wrapper if present: e.g. "{ ... }" or '{ ... }'
+  if (
+    (cleaned.startsWith('"') && cleaned.endsWith('"')) ||
+    (cleaned.startsWith("'") && cleaned.endsWith("'"))
+  ) {
+    const unquoted = cleaned.slice(1, -1).trim();
+    if (unquoted.startsWith("{") || unquoted.startsWith("[")) {
+      cleaned = unquoted;
+    }
+  }
+
+  // 3. Extract JSON object/array boundaries if there is surrounding text
+  const firstBrace = cleaned.indexOf("{");
+  const firstBracket = cleaned.indexOf("[");
+  let startIdx = -1;
+
+  if (firstBrace !== -1 && firstBracket !== -1) {
+    startIdx = Math.min(firstBrace, firstBracket);
+  } else if (firstBrace !== -1) {
+    startIdx = firstBrace;
+  } else if (firstBracket !== -1) {
+    startIdx = firstBracket;
+  }
+
+  if (startIdx !== -1) {
+    const isObject = cleaned[startIdx] === "{";
+    const lastIdx = isObject ? cleaned.lastIndexOf("}") : cleaned.lastIndexOf("]");
+    if (lastIdx > startIdx) {
+      cleaned = cleaned.substring(startIdx, lastIdx + 1);
+    }
+  }
+
+  // 4. Remove trailing commas before } or ]
+  cleaned = cleaned.replace(/,\s*([\}\]])/g, "$1");
+
+  try {
+    const firstParse = JSON.parse(cleaned);
+    if (typeof firstParse === "string") {
+      return JSON.parse(firstParse);
+    }
+    return firstParse;
+  } catch {
+    // Fallback: unescape internal string newlines if any
+    const sanitized = cleaned.replace(/(?<=:\s*"[^"]*)\n(?=[^"]*")/g, "\\n");
+    const res = JSON.parse(sanitized);
+    if (typeof res === "string") return JSON.parse(res);
+    return res;
+  }
+}
+
 function emptyBlock(id: number): ParagraphBlock {
   return normalizeBlock(
     {
@@ -171,7 +229,7 @@ function TeacherPage() {
       return false;
     }
     try {
-      const data = JSON.parse(jsonStr);
+      const data = sanitizeJsonInput(parseFlexibleJson(jsonStr));
       const title = data.title || data.lesson_title || lesson.title;
       const masterStory = String(
         data.master_story ?? data.masterStory ?? data.intro_story ?? lesson.master_story ?? "",
@@ -216,7 +274,7 @@ function TeacherPage() {
       return false;
     }
     try {
-      const data = sanitizeJsonInput(JSON.parse(jsonStr));
+      const data = sanitizeJsonInput(parseFlexibleJson(jsonStr));
       const list = (() => {
         if (Array.isArray(data.mind_maps_by_block)) return data.mind_maps_by_block;
         if (Array.isArray(data.blocks)) return data.blocks;
@@ -258,7 +316,7 @@ function TeacherPage() {
       return false;
     }
     try {
-      const data = sanitizeJsonInput(JSON.parse(jsonStr));
+      const data = sanitizeJsonInput(parseFlexibleJson(jsonStr));
       const mneumonicList = (() => {
         if (Array.isArray(data.takeaways_by_block)) return data.takeaways_by_block;
         if (Array.isArray(data.blocks)) return data.blocks;
@@ -294,7 +352,7 @@ function TeacherPage() {
       return false;
     }
     try {
-      const data = sanitizeJsonInput(JSON.parse(jsonStr));
+      const data = sanitizeJsonInput(parseFlexibleJson(jsonStr));
       const list = (() => {
         if (Array.isArray(data.zaitouna_by_block)) return data.zaitouna_by_block;
         if (Array.isArray(data.blocks)) return data.blocks;
@@ -333,7 +391,7 @@ function TeacherPage() {
       return false;
     }
     try {
-      const data = sanitizeJsonInput(JSON.parse(jsonStr));
+      const data = sanitizeJsonInput(parseFlexibleJson(jsonStr));
       const quizList = (() => {
         if (Array.isArray(data.quizzes_by_block)) return data.quizzes_by_block;
         if (Array.isArray(data.blocks)) return data.blocks;
@@ -369,7 +427,7 @@ function TeacherPage() {
       return false;
     }
     try {
-      const data = sanitizeJsonInput(JSON.parse(jsonStr));
+      const data = sanitizeJsonInput(parseFlexibleJson(jsonStr));
       const list = (() => {
         if (Array.isArray(data.flashcards_by_block)) return data.flashcards_by_block;
         if (Array.isArray(data.blocks)) return data.blocks;
@@ -411,7 +469,7 @@ function TeacherPage() {
       return false;
     }
     try {
-      const data = sanitizeJsonInput(JSON.parse(jsonStr));
+      const data = sanitizeJsonInput(parseFlexibleJson(jsonStr));
       const quizList = (() => {
         if (Array.isArray(data.quizzes_by_block)) return data.quizzes_by_block;
         if (Array.isArray(data.blocks)) return data.blocks;
