@@ -23,6 +23,7 @@ import {
   khulLesson,
   effectiveStages,
   normalizeBlock,
+  extractMindMapNodesFromRaw,
   type HardWord,
   type Lesson,
   type ParagraphBlock,

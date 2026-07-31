@@ -244,7 +244,7 @@ function extractZaitounaRawFields(zaitounaObj: Record<string, unknown>): {
   return { zaitounaDefs, zaitounaReas, zaitounaLinks };
 }
 
-function extractMindMapNodesFromRaw(mmRaw: unknown): string[] {
+export function extractMindMapNodesFromRaw(mmRaw: unknown): string[] {
   if (Array.isArray(mmRaw)) {
     return mmRaw.map((n: unknown) =>
       typeof n === "string"
