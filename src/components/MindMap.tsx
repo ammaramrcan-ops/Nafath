@@ -18,7 +18,8 @@ export function MindMap({ title, nodes }: { title: string; nodes: unknown[] }) {
                 return parsed.nodes
                   .map((item: unknown) =>
                     item && typeof item === "object"
-                      ? (item as Record<string, unknown>).text || (item as Record<string, unknown>).title
+                      ? (item as Record<string, unknown>).text ||
+                        (item as Record<string, unknown>).title
                       : null,
                   )
                   .filter(Boolean);
@@ -34,7 +35,8 @@ export function MindMap({ title, nodes }: { title: string; nodes: unknown[] }) {
             return nObj.nodes
               .map((item: unknown) =>
                 item && typeof item === "object"
-                  ? (item as Record<string, unknown>).text || (item as Record<string, unknown>).title
+                  ? (item as Record<string, unknown>).text ||
+                    (item as Record<string, unknown>).title
                   : null,
               )
               .filter(Boolean);

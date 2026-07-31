@@ -35,7 +35,7 @@ export function SettingsDialog({
   const [tab, setTab] = useState<"ai" | "dev">("ai");
   const [showApiKey, setShowApiKey] = useState(false);
   const { aiSettings, updateAiSettings } = useAiSettings();
-  const {isLocalhost, settings, updateDevMode} = useSettings();
+  const { isLocalhost, settings, updateDevMode } = useSettings();
 
   // API Live Testing State
   const [isTesting, setIsTesting] = useState(false);

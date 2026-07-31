@@ -200,9 +200,7 @@ export function StatisticsView({ subjectId }: { subjectId?: string }) {
             <div className="text-center py-16 bg-white rounded-[2.5rem] border border-[#e0c0b1]/40">
               <BookOpen className="h-12 w-12 text-[#9d4300]/30 mx-auto mb-3" />
               <p className="text-base font-bold text-[#0b1c30]">لا توجد دروس محفوظة بعد</p>
-              <p className="text-xs text-[#584237]/60 mt-1">
-                استرد درساً وصنّفه ليتحدد تقدمك هنا
-              </p>
+              <p className="text-xs text-[#584237]/60 mt-1">استرد درساً وصنّفه ليتحدد تقدمك هنا</p>
             </div>
           ) : (
             library.slice(0, 5).map((saved, idx) => {

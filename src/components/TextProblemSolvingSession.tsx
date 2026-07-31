@@ -1,10 +1,6 @@
 import { useState } from "react";
-import {motion} from "framer-motion";
-import {
-  Sparkles,
-  AlertCircle,
-  CheckCircle2,
-} from "lucide-react";
+import { motion } from "framer-motion";
+import { Sparkles, AlertCircle, CheckCircle2 } from "lucide-react";
 import type { SmartFlashcard } from "@/lib/spaced-repetition";
 
 export function TextProblemSolvingSession({

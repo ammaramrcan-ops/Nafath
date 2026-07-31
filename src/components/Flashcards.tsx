@@ -44,7 +44,11 @@ export function Flashcards({
     ) : (
       <div className="grid gap-5 sm:grid-cols-2">
         {words.map((w, i) => (
-          <FlipCard key={`${w.word}-${i}`} front={w.word || w.term || ""} back={w.meaning || w.definition || ""} />
+          <FlipCard
+            key={`${w.word}-${i}`}
+            front={w.word || w.term || ""}
+            back={w.meaning || w.definition || ""}
+          />
         ))}
       </div>
     );

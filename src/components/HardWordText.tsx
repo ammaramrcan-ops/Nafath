@@ -44,11 +44,7 @@ export function HardWordText({
   } else if (text && typeof text === "object") {
     const textObj = text as Record<string, unknown>;
     safeText = String(
-      textObj.text ||
-      textObj.title ||
-      textObj.content ||
-      textObj.value ||
-      JSON.stringify(text)
+      textObj.text || textObj.title || textObj.content || textObj.value || JSON.stringify(text),
     );
   } else if (text != null) {
     safeText = String(text);

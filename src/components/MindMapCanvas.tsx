@@ -375,7 +375,7 @@ export function MindMapCanvas({
       {/* Floating Canvas Zoom & Pan Controls (Bottom Left Stitch UI) */}
       <div className="fixed bottom-8 left-8 z-40 flex flex-col gap-2 bg-white/95 backdrop-blur-md p-2 rounded-2xl border border-[#e0c0b1]/50 shadow-2xl">
         <button
-         type="button"
+          type="button"
           onClick={() => handleZoom(0.15)}
           className="w-10 h-10 rounded-xl bg-[#eff4ff] hover:bg-[#dce9ff] text-[#9d4300] flex items-center justify-center transition cursor-pointer shadow-xs"
           title="تكبير (+)"
@@ -384,7 +384,7 @@ export function MindMapCanvas({
         </button>
 
         <button
-         type="button"
+          type="button"
           onClick={() => handleZoom(-0.15)}
           className="w-10 h-10 rounded-xl bg-[#eff4ff] hover:bg-[#dce9ff] text-[#9d4300] flex items-center justify-center transition cursor-pointer shadow-xs"
           title="تصغير (-)"
@@ -393,7 +393,7 @@ export function MindMapCanvas({
         </button>
 
         <button
-         type="button"
+          type="button"
           onClick={handleResetCanvas}
           className="w-10 h-10 rounded-xl bg-[#9d4300] text-white flex items-center justify-center hover:bg-[#833800] transition cursor-pointer shadow-xs"
           title="إعادة ضبط الشاشة (100%)"
@@ -573,7 +573,7 @@ export function MindMapCanvas({
               >
                 {/* Connection Handle Dots on Edges */}
                 <button
-                 type="button"
+                  type="button"
                   onClick={(e) => handleToggleHandleCollapse(e, node.id)}
                   className={`absolute -right-2 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-white border-2 border-amber-500 shadow-md flex items-center justify-center text-[9px] font-black hover:scale-125 transition cursor-pointer z-20 ${
                     isCollapsed
@@ -586,7 +586,7 @@ export function MindMapCanvas({
                 </button>
 
                 <button
-                 type="button"
+                  type="button"
                   onClick={(e) => handleToggleHandleCollapse(e, node.id)}
                   className={`absolute -left-2 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-white border-2 border-amber-500 shadow-md flex items-center justify-center text-[9px] font-black hover:scale-125 transition cursor-pointer z-20 ${
                     isCollapsed
@@ -630,7 +630,7 @@ export function MindMapCanvas({
                       autoFocus
                     />
                     <button
-                     type="button"
+                      type="button"
                       onClick={() => handleSaveTextEdit(node.id)}
                       className="p-1 bg-emerald-600 text-white rounded hover:bg-emerald-700"
                     >
@@ -680,7 +680,7 @@ export function MindMapCanvas({
                   </div>
                 </div>
                 <button
-                 type="button"
+                  type="button"
                   onClick={() => setSelectedNodeId(null)}
                   className="p-1.5 rounded-full text-[#584237]/60 hover:bg-black/5 transition cursor-pointer"
                   title="إغلاق"
@@ -754,7 +754,7 @@ export function MindMapCanvas({
               <div className="grid grid-cols-2 gap-2.5">
                 {/* Add Child Node */}
                 <button
-                 type="button"
+                  type="button"
                   onClick={() => handleAddChildNode(selectedNode.id)}
                   className="flex flex-col items-center justify-center p-3.5 bg-[#ffdbca]/60 text-[#9d4300] rounded-2xl hover:bg-[#ffdbca] transition active:scale-95 cursor-pointer font-bold border border-[#9d4300]/20"
                 >
@@ -764,7 +764,7 @@ export function MindMapCanvas({
 
                 {/* Cycle Shape */}
                 <button
-                 type="button"
+                  type="button"
                   onClick={() => {
                     const shapes: NodeShape[] = [
                       "rectangle",
@@ -788,7 +788,7 @@ export function MindMapCanvas({
 
                 {/* Cycle Line Style */}
                 <button
-                 type="button"
+                  type="button"
                   onClick={() => {
                     const nextStyle: LineStyle =
                       selectedNode.lineStyle === "dashed" ? "solid" : "dashed";
@@ -807,7 +807,7 @@ export function MindMapCanvas({
 
                 {/* Delete Node */}
                 <button
-                 type="button"
+                  type="button"
                   onClick={() => handleDeleteNode(selectedNode.id)}
                   className="flex flex-col items-center justify-center p-3.5 bg-red-50 text-red-600 rounded-2xl hover:bg-red-100 transition active:scale-95 cursor-pointer font-bold border border-red-200"
                 >
@@ -899,7 +899,10 @@ export function MindMapCanvas({
                     ))}
                   </div>
 
-                  <label htmlFor="node-line-color-picker" className="flex items-center gap-1 text-xs font-bold text-[#584237] cursor-pointer bg-[#eff4ff] px-2 py-1 rounded-xl border border-[#e0c0b1]/30">
+                  <label
+                    htmlFor="node-line-color-picker"
+                    className="flex items-center gap-1 text-xs font-bold text-[#584237] cursor-pointer bg-[#eff4ff] px-2 py-1 rounded-xl border border-[#e0c0b1]/30"
+                  >
                     <span>لون السهم:</span>
                     <input
                       id="node-line-color-picker"
@@ -919,7 +922,7 @@ export function MindMapCanvas({
 
               {/* Close Button */}
               <button
-               type="button"
+                type="button"
                 onClick={() => setSelectedNodeId(null)}
                 className="w-full py-3 bg-[#9d4300] text-white font-bold text-sm rounded-2xl hover:bg-[#833800] transition-colors shadow-md mt-1 cursor-pointer"
               >

@@ -1,18 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Lightbulb,
-  Clock,
-  Flame,
-  Eye,
-  Send,
-  Pencil,
-} from "lucide-react";
-import {
-  CATEGORY_INFO,
-  evaluateSmartSR,
-  type SmartFlashcard,
-} from "@/lib/spaced-repetition";
+import { Lightbulb, Clock, Flame, Eye, Send, Pencil } from "lucide-react";
+import { CATEGORY_INFO, evaluateSmartSR, type SmartFlashcard } from "@/lib/spaced-repetition";
 
 export function SmartFlashcardCard({
   card,

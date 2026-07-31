@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import {motion} from "framer-motion";
-import {X, Tag, Check} from "lucide-react";
+import { motion } from "framer-motion";
+import { X, Tag, Check } from "lucide-react";
 import { getCurriculum, type Subject } from "@/lib/curriculum";
 import { updateLessonSubject, getLibrary, type SavedLesson } from "@/lib/lesson-library";
 import { toast } from "sonner";

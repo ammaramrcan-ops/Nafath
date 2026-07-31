@@ -1,4 +1,4 @@
-import {useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 import {
   RotateCcw,
   Brain,
@@ -23,13 +23,7 @@ import { SmartNotesModal } from "./SmartNotesModal";
 import { FlashcardsSection } from "./FlashcardsSection";
 import { StudentMindMapSection } from "./StudentMindMapSection";
 
-function ParagraphBlockIntroCard({
-  block,
-  onStart,
-}: {
-  block: Block;
-  onStart: () => void;
-}) {
+function ParagraphBlockIntroCard({ block, onStart }: { block: Block; onStart: () => void }) {
   const quizCount =
     (block.quizzes?.mcqs?.length || 0) +
     (block.quizzes?.fills?.length || 0) +
@@ -341,7 +335,6 @@ export function ParagraphBlockCard({
           exit={{ opacity: 0, x: -16 }}
           transition={{ duration: 0.35, ease: "easeOut" }}
         >
-
           {stage === "story" && (
             <div className="rounded-[2.5rem] bg-white p-8 sm:p-12 shadow-[0_20px_60px_-15px_rgba(11,28,48,0.08)] border border-amber-200/80 space-y-6 min-h-[380px] sm:min-h-[440px] flex flex-col justify-between">
               <div className="flex items-center gap-3 text-sm sm:text-lg font-black tracking-wide text-amber-950 bg-amber-50 px-5 py-3 rounded-2xl border border-amber-200/60 w-fit">
@@ -362,7 +355,10 @@ export function ParagraphBlockCard({
           )}
 
           {stage === "baladi_terms" && (
-            <div className="rounded-[2.5rem] bg-white p-8 sm:p-12 shadow-[0_20px_60px_-15px_rgba(11,28,48,0.08)] space-y-8 border border-amber-200/80 min-h-[420px] text-right dir-rtl" dir="rtl">
+            <div
+              className="rounded-[2.5rem] bg-white p-8 sm:p-12 shadow-[0_20px_60px_-15px_rgba(11,28,48,0.08)] space-y-8 border border-amber-200/80 min-h-[420px] text-right dir-rtl"
+              dir="rtl"
+            >
               {/* Top Banner Header */}
               <div className="flex items-center justify-between border-b border-amber-200/60 pb-6">
                 <div className="flex items-center gap-3.5">
@@ -370,8 +366,12 @@ export function ParagraphBlockCard({
                     <Sparkles className="h-6 w-6 text-amber-700" />
                   </div>
                   <div>
-                    <h3 className="text-xl sm:text-2xl font-black text-amber-950">💡 نقط خلي بالك منها (القواعد والتنبيهات الفقهية الاستبصارية)</h3>
-                    <p className="text-xs sm:text-sm font-bold text-amber-800/90 pt-1">ملاحظات وقواعد جوهرية لترسيخ استيعاب هذه الفقرة بأسلوب ذكي وميسر</p>
+                    <h3 className="text-xl sm:text-2xl font-black text-amber-950">
+                      💡 نقط خلي بالك منها (القواعد والتنبيهات الفقهية الاستبصارية)
+                    </h3>
+                    <p className="text-xs sm:text-sm font-bold text-amber-800/90 pt-1">
+                      ملاحظات وقواعد جوهرية لترسيخ استيعاب هذه الفقرة بأسلوب ذكي وميسر
+                    </p>
                   </div>
                 </div>
                 <span className="text-xs font-black text-amber-900 bg-amber-100 px-5 py-2 rounded-full border border-amber-300 shadow-2xs">
@@ -396,7 +396,9 @@ export function ParagraphBlockCard({
                           <span>💡 القواعد والتنبيهات الفقهية الاستبصارية:</span>
                         </div>
                         {mnemonicItems.map((item, i) => {
-                          const cleanText = item.replace(/^💡\s*خد بالك:\s*/, "").replace(/^💡\s*/, "");
+                          const cleanText = item
+                            .replace(/^💡\s*خد بالك:\s*/, "")
+                            .replace(/^💡\s*/, "");
                           return (
                             <div
                               key={i}
@@ -428,8 +430,12 @@ export function ParagraphBlockCard({
                         ({block.title})
                       </span>
                       <p className="text-base sm:text-lg font-bold text-amber-950 leading-relaxed pt-2">
-                        👈 <span className="text-amber-900 font-extrabold">التوضيح والاستبصار الفقهي:</span>{" "}
-                        {block.short_sentence || "المفهوم الرئيسي مقصود به التبسيط والتيسير الصريح."}
+                        👈{" "}
+                        <span className="text-amber-900 font-extrabold">
+                          التوضيح والاستبصار الفقهي:
+                        </span>{" "}
+                        {block.short_sentence ||
+                          "المفهوم الرئيسي مقصود به التبسيط والتيسير الصريح."}
                       </p>
                     </div>
                   );
@@ -776,50 +782,66 @@ export function ParagraphBlockCard({
           {/* Stage: Standalone Paper Summary Page for Level 1 */}
           {stage === "paper_summary" && (
             <div
-              className="rounded-[28px] bg-amber-50/95 p-8 shadow-[var(--shadow-soft)] border-2 border-amber-300 space-y-6 text-right dir-rtl"
+              className="rounded-[2.5rem] bg-white p-8 sm:p-12 shadow-2xl border-2 border-[#e0c0b1]/50 space-y-8 text-right dir-rtl relative overflow-hidden"
               dir="rtl"
             >
-              <div className="flex items-center justify-between border-b border-amber-200/90 pb-4">
-                <div className="flex items-center gap-2.5 text-amber-950 font-black text-lg">
-                  <Sparkles className="h-6 w-6 text-amber-600" />
-                  <span>تمرين التلخيص اليدوي في الكراسة 📝✨</span>
+              {/* Top Card Header */}
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-[#e0c0b1]/40 pb-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-2xl bg-[#ffdbca] text-[#9d4300] flex items-center justify-center font-black shadow-xs shrink-0">
+                    <Sparkles className="h-7 w-7" />
+                  </div>
+                  <div>
+                    <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-purple-100 text-purple-800 text-xs font-black mb-1 border border-purple-200">
+                      <span>المستوى الأول — صفحة خاصة لتعزيز الذاكرة 🧠</span>
+                    </div>
+                    <h2 className="text-2xl font-extrabold text-[#0b1c30]">
+                      تمرين التلخيص اليدوي في الكراسة 📝
+                    </h2>
+                  </div>
                 </div>
-                <span className="text-xs font-bold text-amber-950 bg-amber-200 px-3.5 py-1 rounded-full border border-amber-300 shadow-xs">
-                  المستوى الأول — صفحة خاصة لتعزيز الذاكرة
-                </span>
               </div>
 
-              <div className="space-y-3">
-                <p className="text-sm font-bold text-amber-950 leading-relaxed">
-                  🎉 أحسنت بطل! الآن احضر كراستك الخارجية وقلمك..
+              {/* Instructions Banner */}
+              <div className="space-y-3 bg-[#fffaf7] p-6 rounded-2xl border border-[#ffdbca]">
+                <p className="text-base font-extrabold text-[#9d4300] leading-relaxed">
+                  🎉 أحسنت بطلاً! الآن احضر كراستك الخارجية وقلمك..
                 </p>
-                <p className="text-xs font-semibold text-amber-900 leading-relaxed">
-                  أمامك النص الأصلي للفقرة كاملاً بدون أي ضغط أو إجبار على الحفظ صم.. اكتب ملخصك
-                  الخاص بأسلوبك أو ارسم خريطتك الذهنية بيديك لترسيخ المعلومة في ذاكرتك الأعمق!
+                <p className="text-sm font-semibold text-[#584237]/90 leading-relaxed">
+                  أمامك النص الأصلي للفقرة كاملاً بدون أي ضغط أو إجبار على الحفظ صم.. اكتب ملخصك الخاص بأسلوبك أو ارسم خريطتك الذهنية بيديك لترسيخ المعلومة في ذاكرتك الأعمق!
                 </p>
               </div>
 
-              <div className="rounded-2xl bg-white p-6 border border-amber-200 text-sm font-light leading-loose text-zen-on-surface shadow-xs">
-                <HardWordText
-                  text={block.full_text}
-                  words={block.hard_words}
-                  highlights={block.highlights}
-                />
+              {/* Reference Text Block */}
+              <div className="relative group">
+                <div className="absolute -top-3.5 right-6 bg-white px-3.5 py-0.5 text-xs font-black text-[#9d4300] border border-[#e0c0b1] rounded-full z-10 shadow-2xs">
+                  نص المرجع الأصلي 📖
+                </div>
+                <div className="bg-[#f8f9ff] border-2 border-[#e0c0b1]/30 rounded-[2rem] p-8 md:p-10 relative overflow-hidden group-hover:border-[#9d4300]/40 transition-colors shadow-inner">
+                  <div className="text-base sm:text-lg font-normal leading-loose text-[#0b1c30] text-justify md:text-right">
+                    <HardWordText
+                      text={block.full_text}
+                      words={block.hard_words}
+                      highlights={block.highlights}
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div className="flex items-center justify-between pt-2 border-t border-amber-200/80">
+              {/* Card Footer Action Bar */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-[#e0c0b1]/30">
+                <div className="flex items-center gap-2 text-xs font-semibold text-[#584237]/80">
+                  <span>💡 عند الانتهاء من التلخيص في كراستك اليدوية، اضغط (التالي) للمتابعة</span>
+                </div>
+
                 <button
                   type="button"
                   onClick={() => setShowBlockNotesModal(true)}
-                  className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-bold text-amber-950 border border-amber-300 hover:bg-amber-100 transition cursor-pointer shadow-xs"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-full bg-white px-6 py-3 text-xs font-extrabold text-[#0b1c30] border-2 border-[#e0c0b1] hover:border-[#9d4300] hover:bg-slate-50 transition cursor-pointer shadow-xs"
                 >
-                  <BookMarked className="h-4 w-4 text-amber-600" />
+                  <BookMarked className="h-4 w-4 text-[#9d4300]" />
                   <span>تدوين ملاحظة في كراسة الدرس الرقمية 📓</span>
                 </button>
-
-                <span className="text-xs font-bold text-amber-800">
-                  عند الانتهاء من التلخيص في كراستك اليدوية، اضغط (التالي / إنهاء) للمتابعة ✨
-                </span>
               </div>
             </div>
           )}
