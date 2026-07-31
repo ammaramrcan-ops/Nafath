@@ -81,11 +81,14 @@ export function GoogleAuthModal({
     const left = window.screen.width / 2 - width / 2;
     const top = window.screen.height / 2 - height / 2;
 
-    window.open(
+    const popup = window.open(
       "https://accounts.google.com/o/oauth2/v2/auth?client_id=1037568584824-nafath.apps.googleusercontent.com&response_type=token&scope=email%20profile&redirect_uri=https://oauth.pstmn.io/v1/browser-callback",
-      "GoogleSignInPopup",
-      `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,noopener,noreferrer`,
+      "_blank",
+      `noopener,noreferrer,width=${width},height=${height},top=${top},left=${left},scrollbars=yes`,
     );
+    if (popup) {
+      popup.opener = null;
+    }
 
     toast.info("جاري فتح نافذة تسجيل دخول Google الرسمية...");
 
