@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react";
-import {Upload, X, FileJson, ScrollText, Leaf, BookOpen} from "lucide-react";
+import { Upload, X, FileJson, ScrollText, Leaf, BookOpen } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { defaultLesson, khulLesson, parseLessonJson, type Lesson } from "@/lib/lesson-data";
 import { saveToLibrary } from "@/lib/lesson-library";
@@ -99,7 +99,7 @@ export function RestoreDialog({
               </div>
               <div className="flex-1">
                 <p className="text-[16px] font-extrabold text-zen-on-surface">
-                  استيراد كود JSON عبر 3 خطوات 🚀
+                  استيراد كود JSON عبر 7 خطوات 🚀
                 </p>
                 <p className="mt-0.5 text-[12px] leading-relaxed text-zen-on-surface-variant font-medium">
                   انتقل لوصول سريع لنظام استيراد الشرح والخريطة والـ MCQs
