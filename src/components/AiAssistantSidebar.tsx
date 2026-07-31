@@ -141,22 +141,16 @@ export function AiAssistantSidebar() {
 
   return (
     <>
-      {/* Floating Side Button anchored on the RIGHT side */}
+      {/* Floating Side Button anchored on the RIGHT side - Compact Arrow Tab */}
       <div className="fixed right-0 top-1/2 z-50 -translate-y-1/2">
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="group flex items-center gap-2 rounded-l-2xl bg-[#f97316] hover:bg-[#e06305] px-4 py-3.5 text-white shadow-xl transition-all cursor-pointer border-y border-l border-[#ffdbca]"
-          title="افتح المساعد الشخصي سهم 🎯"
+          className="group flex items-center justify-center rounded-l-2xl bg-[#f97316] hover:bg-[#e06305] w-10 h-14 text-white shadow-xl transition-all cursor-pointer border-y border-l border-[#ffdbca] hover:w-12"
+          title="افتح المساعد سهم 🎯"
         >
-          <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center text-white shadow-xs rotate-3">
-            <Bot className="h-5 w-5 text-white" />
-          </div>
-          <div className="flex items-center gap-1.5 font-extrabold text-xs">
-            <span>سهم 🎯</span>
-          </div>
           <ChevronLeft
-            className={`h-4 w-4 text-orange-100 transition-transform ${isOpen ? "" : "rotate-180"}`}
+            className={`h-6 w-6 text-white transition-transform ${isOpen ? "" : "rotate-180"}`}
           />
         </button>
       </div>

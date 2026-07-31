@@ -23,6 +23,7 @@ import {
   khulLesson,
   effectiveStages,
   normalizeBlock,
+  extractMindMapNodesFromRaw,
   type HardWord,
   type Lesson,
   type ParagraphBlock,
@@ -68,6 +69,69 @@ function sanitizeJsonInput<T>(data: T): T {
     return Object.fromEntries(Object.entries(data).map(([k, v]) => [k, sanitizeJsonInput(v)])) as T;
   }
   return data;
+}
+
+function parseFlexibleJson(rawStr: string): any {
+  if (!rawStr || typeof rawStr !== "string" || !rawStr.trim()) {
+    throw new Error("نص JSON فارغ أو غير متاح.");
+  }
+
+  let cleaned = rawStr.trim();
+
+  // Replace smart quotes/curly quotes/guillemets with single quotes
+  cleaned = cleaned.replace(/[“”«»]/g, "'");
+
+  // Remove markdown code fences: ```json ... ``` or ``` ... ```
+  cleaned = cleaned.replace(/```(?:json)?/gi, "").replace(/```/g, "").trim();
+
+  // Find actual start index of object '{' or array '['
+  const firstBrace = cleaned.indexOf("{");
+  const firstBracket = cleaned.indexOf("[");
+
+  let startIdx = -1;
+  if (firstBrace !== -1 && firstBracket !== -1) {
+    startIdx = Math.min(firstBrace, firstBracket);
+  } else if (firstBrace !== -1) {
+    startIdx = firstBrace;
+  } else if (firstBracket !== -1) {
+    startIdx = firstBracket;
+  }
+
+  if (startIdx !== -1) {
+    const isObject = cleaned[startIdx] === "{";
+    const lastIdx = isObject ? cleaned.lastIndexOf("}") : cleaned.lastIndexOf("]");
+    if (lastIdx > startIdx) {
+      cleaned = cleaned.substring(startIdx, lastIdx + 1);
+    }
+  }
+
+  // Strip trailing commas before } or ]
+  cleaned = cleaned.replace(/,\s*([\}\]])/g, "$1");
+
+  try {
+    const parsed = JSON.parse(cleaned);
+    if (typeof parsed === "string") {
+      try {
+        return JSON.parse(parsed);
+      } catch {
+        return parsed;
+      }
+    }
+    return parsed;
+  } catch (firstErr: any) {
+    try {
+      // Auto-repair unescaped inner quotes inside string array elements
+      const repaired = cleaned
+        .replace(/(?<=:\s*"[^"]*)\n(?=[^"]*")/g, "\\n")
+        .replace(/([آ-يa-zA-Z0-9\s])"([آ-يa-zA-Z0-9\s])/g, "$1'$2");
+
+      const secondParse = JSON.parse(repaired);
+      if (typeof secondParse === "string") return JSON.parse(secondParse);
+      return secondParse;
+    } catch {
+      throw new Error(`صيغة JSON غير صحيحة: ${firstErr?.message || "يرجى التأكد من الأقواس"}`);
+    }
+  }
 }
 
 function emptyBlock(id: number): ParagraphBlock {
@@ -132,10 +196,11 @@ function TeacherPage() {
   const [selectedLevelFilter, setSelectedLevelFilter] = useState<1 | 2 | 3 | "all">(1);
   const [libSaved, setLibSaved] = useState(false);
 
-  // 6-Step Dedicated Modular AI Wizard Modal State
+  // 7-Step Dedicated Modular AI Wizard Modal State
   const [showImportModal, setShowImportModal] = useState(false);
-  const [wizardStep, setWizardStep] = useState<1 | 2 | 3 | 4 | 5 | 6>(1);
+  const [wizardStep, setWizardStep] = useState<1 | 2 | 3 | 4 | 5 | 6 | 7>(1);
   const [jsonInput1, setJsonInput1] = useState("");
+  const [jsonInputMindMap, setJsonInputMindMap] = useState("");
   const [jsonInput2, setJsonInput2] = useState("");
   const [jsonInput3, setJsonInput3] = useState("");
   const [jsonInput4, setJsonInput4] = useState("");
@@ -170,7 +235,7 @@ function TeacherPage() {
       return false;
     }
     try {
-      const data = JSON.parse(jsonStr);
+      const data = sanitizeJsonInput(parseFlexibleJson(jsonStr));
       const title = data.title || data.lesson_title || lesson.title;
       const masterStory = String(
         data.master_story ?? data.masterStory ?? data.intro_story ?? lesson.master_story ?? "",
@@ -194,6 +259,8 @@ function TeacherPage() {
           hard_words: norm.hard_words.length > 0 ? norm.hard_words : existing.hard_words,
           mnemonic: norm.mnemonic || existing.mnemonic,
           funny_link: norm.funny_link || existing.funny_link,
+          mind_map_nodes:
+            norm.mind_map_nodes.length > 0 ? norm.mind_map_nodes : existing.mind_map_nodes,
         };
       });
 
@@ -206,6 +273,55 @@ function TeacherPage() {
     }
   };
 
+  // STEP: Mind Maps Handler
+  const handleImportStepMindMaps = (jsonStr: string) => {
+    if (!jsonStr.trim()) {
+      toast.error("يرجى لصق كود JSON الخاص بالخرائط الذهنية أولاً للمتابعة.");
+      return false;
+    }
+    try {
+      const parsed = parseFlexibleJson(jsonStr);
+      const data = sanitizeJsonInput(parsed);
+      const list = (() => {
+        if (Array.isArray(data.mind_maps_by_block)) return data.mind_maps_by_block;
+        if (Array.isArray(data.blocks)) return data.blocks;
+        if (Array.isArray(data)) return data;
+        return [data];
+      })();
+
+      if (!list || list.length === 0) {
+        toast.error("لم يتم العثور على مصفوفة الخرائط الذهنية داخل كود JSON.");
+        return false;
+      }
+
+      const updatedBlocks = lesson.blocks.map((b, i) => {
+        const item = list[i] || list.find((m: MCQ) => m.block_id === b.id || m.id === b.id) || list[0];
+        if (!item) return b;
+        const rawMindMap =
+          item.mind_map_nodes ??
+          item.mindmap ??
+          item.mind_map ??
+          item.mindMap ??
+          item.mind_map_branches ??
+          item.branches ??
+          item.nodes;
+
+        const extracted = extractMindMapNodesFromRaw(rawMindMap);
+        return {
+          ...b,
+          mind_map_nodes: extracted.length > 0 ? extracted : b.mind_map_nodes,
+        };
+      });
+
+      updateLesson({ blocks: updatedBlocks });
+      toast.success("تم استيراد الخرائط الذهنية لكل فقرة بنجاح! 🗺️✨");
+      return true;
+    } catch (err: any) {
+      toast.error(err?.message || "كود JSON غير صالح للخرائط الذهنية.");
+      return false;
+    }
+  };
+
   // STEP 2: Mnemonic Takeaways Handler
   const handleImportStepMnemonics = (jsonStr: string) => {
     if (!jsonStr.trim()) {
@@ -213,7 +329,7 @@ function TeacherPage() {
       return false;
     }
     try {
-      const data = sanitizeJsonInput(JSON.parse(jsonStr));
+      const data = sanitizeJsonInput(parseFlexibleJson(jsonStr));
       const mneumonicList = (() => {
         if (Array.isArray(data.takeaways_by_block)) return data.takeaways_by_block;
         if (Array.isArray(data.blocks)) return data.blocks;
@@ -249,7 +365,7 @@ function TeacherPage() {
       return false;
     }
     try {
-      const data = sanitizeJsonInput(JSON.parse(jsonStr));
+      const data = sanitizeJsonInput(parseFlexibleJson(jsonStr));
       const list = (() => {
         if (Array.isArray(data.zaitouna_by_block)) return data.zaitouna_by_block;
         if (Array.isArray(data.blocks)) return data.blocks;
@@ -288,7 +404,7 @@ function TeacherPage() {
       return false;
     }
     try {
-      const data = sanitizeJsonInput(JSON.parse(jsonStr));
+      const data = sanitizeJsonInput(parseFlexibleJson(jsonStr));
       const quizList = (() => {
         if (Array.isArray(data.quizzes_by_block)) return data.quizzes_by_block;
         if (Array.isArray(data.blocks)) return data.blocks;
@@ -324,7 +440,7 @@ function TeacherPage() {
       return false;
     }
     try {
-      const data = sanitizeJsonInput(JSON.parse(jsonStr));
+      const data = sanitizeJsonInput(parseFlexibleJson(jsonStr));
       const list = (() => {
         if (Array.isArray(data.flashcards_by_block)) return data.flashcards_by_block;
         if (Array.isArray(data.blocks)) return data.blocks;
@@ -366,7 +482,7 @@ function TeacherPage() {
       return false;
     }
     try {
-      const data = sanitizeJsonInput(JSON.parse(jsonStr));
+      const data = sanitizeJsonInput(parseFlexibleJson(jsonStr));
       const quizList = (() => {
         if (Array.isArray(data.quizzes_by_block)) return data.quizzes_by_block;
         if (Array.isArray(data.blocks)) return data.blocks;
@@ -542,7 +658,7 @@ function TeacherPage() {
             </div>
 
             {/* Stepper Tabs (Grid 6) */}
-            <div className="grid grid-cols-2 sm:grid-cols-6 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-7 gap-2">
               <button
                 type="button"
                 onClick={() => setWizardStep(1)}
@@ -553,7 +669,7 @@ function TeacherPage() {
                     : "bg-[#fffaf7] text-[#584237] border-[#ffdbca] hover:bg-[#ffeddf]",
                 )}
               >
-                <span className="text-[10px] font-black opacity-80">1. القصة والدراما</span>
+                <span className="text-[10px] font-black opacity-80">1. القصة</span>
                 <span className="text-xs font-black truncate">التمهيد والدراما 📖</span>
               </button>
 
@@ -563,12 +679,12 @@ function TeacherPage() {
                 className={cn(
                   "p-3 rounded-2xl border text-right transition cursor-pointer flex flex-col gap-1",
                   wizardStep === 2
-                    ? "bg-[#8127cf] text-white border-[#8127cf] shadow-md"
-                    : "bg-[#eff4ff] text-[#584237] border-[#e0c0b1]/60 hover:bg-[#dce9ff]",
+                    ? "bg-teal-700 text-white border-teal-700 shadow-md"
+                    : "bg-teal-50 text-[#584237] border-teal-200 hover:bg-teal-100/70",
                 )}
               >
-                <span className="text-[10px] font-black opacity-80">2. التنبيهات</span>
-                <span className="text-xs font-black truncate">خد بالك منها 💡</span>
+                <span className="text-[10px] font-black opacity-80">2. البصرية</span>
+                <span className="text-xs font-black truncate">الخرائط الذهنية 🗺️</span>
               </button>
 
               <button
@@ -577,12 +693,12 @@ function TeacherPage() {
                 className={cn(
                   "p-3 rounded-2xl border text-right transition cursor-pointer flex flex-col gap-1",
                   wizardStep === 3
-                    ? "bg-amber-700 text-white border-amber-700 shadow-md"
-                    : "bg-amber-50 text-[#584237] border-amber-200 hover:bg-amber-100/80",
+                    ? "bg-[#8127cf] text-white border-[#8127cf] shadow-md"
+                    : "bg-[#eff4ff] text-[#584237] border-[#e0c0b1]/60 hover:bg-[#dce9ff]",
                 )}
               >
-                <span className="text-[10px] font-black opacity-80">3. الخلاصة</span>
-                <span className="text-xs font-black truncate">كروت الزيتونة 🫒</span>
+                <span className="text-[10px] font-black opacity-80">3. التنبيهات</span>
+                <span className="text-xs font-black truncate">خد بالك منها 💡</span>
               </button>
 
               <button
@@ -591,12 +707,12 @@ function TeacherPage() {
                 className={cn(
                   "p-3 rounded-2xl border text-right transition cursor-pointer flex flex-col gap-1",
                   wizardStep === 4
-                    ? "bg-emerald-700 text-white border-emerald-700 shadow-md"
-                    : "bg-[#f0fdf4] text-[#584237] border-emerald-200 hover:bg-emerald-100/70",
+                    ? "bg-amber-700 text-white border-amber-700 shadow-md"
+                    : "bg-amber-50 text-[#584237] border-amber-200 hover:bg-amber-100/80",
                 )}
               >
-                <span className="text-[10px] font-black opacity-80">4. المستوى 1</span>
-                <span className="text-xs font-black truncate">أسئلة الـ MCQs 🎯</span>
+                <span className="text-[10px] font-black opacity-80">4. الخلاصة</span>
+                <span className="text-xs font-black truncate">كروت الزيتونة 🫒</span>
               </button>
 
               <button
@@ -605,12 +721,12 @@ function TeacherPage() {
                 className={cn(
                   "p-3 rounded-2xl border text-right transition cursor-pointer flex flex-col gap-1",
                   wizardStep === 5
-                    ? "bg-purple-700 text-white border-purple-700 shadow-md"
-                    : "bg-purple-50 text-[#584237] border-purple-200 hover:bg-purple-100/70",
+                    ? "bg-emerald-700 text-white border-emerald-700 shadow-md"
+                    : "bg-[#f0fdf4] text-[#584237] border-emerald-200 hover:bg-emerald-100/70",
                 )}
               >
-                <span className="text-[10px] font-black opacity-80">5. الاستذكار</span>
-                <span className="text-xs font-black truncate">الفلاش كاردز 🗂️</span>
+                <span className="text-[10px] font-black opacity-80">5. المستوى 1</span>
+                <span className="text-xs font-black truncate">أسئلة MCQs 🎯</span>
               </button>
 
               <button
@@ -619,11 +735,25 @@ function TeacherPage() {
                 className={cn(
                   "p-3 rounded-2xl border text-right transition cursor-pointer flex flex-col gap-1",
                   wizardStep === 6
+                    ? "bg-purple-700 text-white border-purple-700 shadow-md"
+                    : "bg-purple-50 text-[#584237] border-purple-200 hover:bg-purple-100/70",
+                )}
+              >
+                <span className="text-[10px] font-black opacity-80">6. الاستذكار</span>
+                <span className="text-xs font-black truncate">الفلاش كاردز 🗂️</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setWizardStep(7)}
+                className={cn(
+                  "p-3 rounded-2xl border text-right transition cursor-pointer flex flex-col gap-1",
+                  wizardStep === 7
                     ? "bg-blue-700 text-white border-blue-700 shadow-md"
                     : "bg-[#eff6ff] text-[#584237] border-blue-200 hover:bg-blue-100/70",
                 )}
               >
-                <span className="text-[10px] font-black opacity-80">6. المستويات 2 و 3</span>
+                <span className="text-[10px] font-black opacity-80">7. المستويات 2و3</span>
                 <span className="text-xs font-black truncate">أكمل ومقالي 🧠</span>
               </button>
             </div>
@@ -709,7 +839,7 @@ function TeacherPage() {
                       }}
                       className="px-8 py-3 bg-[#9d4300] text-white rounded-full text-sm font-extrabold hover:bg-[#833800] transition cursor-pointer shadow-md flex items-center gap-2"
                     >
-                      <span>اعتماد وانتقال للخطوة 2 (تنبيهات خد بالك منها)</span>
+                      <span>اعتماد وانتقال للخطوة 2 (الخرائط الذهنية 🗺️)</span>
                       <ArrowLeft className="h-4 w-4" />
                     </button>
                   </div>
@@ -717,8 +847,103 @@ function TeacherPage() {
               </div>
             )}
 
-            {/* SCREEN 2: Mnemonic JSON */}
+            {/* SCREEN 2: Mind Maps JSON */}
             {wizardStep === 2 && (
+              <div className="space-y-6 pt-2">
+                <div className="bg-teal-50 border border-teal-200 rounded-3xl p-6 space-y-4 text-right">
+                  <div className="flex items-center justify-between border-b border-teal-200/60 pb-3">
+                    <div className="space-y-1">
+                      <h3 className="text-base font-extrabold text-teal-950 flex items-center gap-2">
+                        <Sparkles className="h-5 w-5 text-teal-700" />
+                        <span>
+                          البرومبت المخصص 2: (الخرائط الذهنية الهيكلية لكل فقرة 🗺️)
+                        </span>
+                      </h3>
+                      <p className="text-xs text-teal-800 font-semibold">
+                        انسخ هذا الأمر والصقه في الذكاء الاصطناعي لاستخراج فروع الخريطة الذهنية البصرية لكل فقرة
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const promptText = `أنت خبير تصاميم الخرائط الذهنية البصرية لمنصة "نفاذ - Nafath".
+مهمتك استخراج فروع الخريطة الذهنية البصرية لكل فقرة ليتم رسمها حركياً للطالب.
+
+القواعد:
+- لكل فقرة قم باستخراج 3 إلى 5 فروع رئيسية وفرعية تختصر أركان وشروط وتطبيقات الفقرة.
+- يمكن أن تكون العناصر مصفوفة من الجمل النصية الفرعية (تبدأ بـ - أو • للترتيب الفرعي).
+
+الهيكل المطلوب:
+{
+  "mind_maps_by_block": [
+    {
+      "block_id": 1,
+      "mind_map_nodes": [
+        "الفكرة الرئيسية والتعريف 💡",
+        "- الشروط والأحكام الشرعية",
+        "- التطبيقات الميدانية",
+        "- الخلاصة وزيتونة الفقرة 🫒"
+      ]
+    }
+  ]
+}
+
+أخرج كود JSON الصافي فقط وبدون أي مقدمات أو نصوص خارجيّة.
+---
+[الصق نص الدرس هنا]`;
+                        navigator.clipboard.writeText(promptText);
+                        toast.success("تم نسخ برومبت الخرائط الذهنية بنجاح! 📋");
+                      }}
+                      className="px-5 py-2 bg-teal-700 text-white rounded-full text-xs font-extrabold hover:bg-teal-800 transition cursor-pointer shadow-xs flex items-center gap-2"
+                    >
+                      <Copy className="h-4 w-4" />
+                      <span>نسخ البرومبت 2 📋</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-3 text-right">
+                  <label
+                    htmlFor="json-input-mindmap"
+                    className="text-sm font-extrabold text-[#0b1c30] block"
+                  >
+                    الصق كود JSON الناتج (JSON 2) الخاص بالخرائط الذهنية أدناه:
+                  </label>
+                  <textarea
+                    id="json-input-mindmap"
+                    rows={10}
+                    value={jsonInputMindMap}
+                    onChange={(e) => setJsonInputMindMap(e.target.value)}
+                    placeholder="الصق كود JSON الخرائط الذهنية هنا..."
+                    className="w-full bg-[#f8f9ff] border border-[#e0c0b1] rounded-2xl p-4 text-xs font-mono text-[#0b1c30] focus:outline-none focus:ring-2 focus:ring-teal-600 leading-relaxed"
+                  />
+                  <div className="flex items-center justify-between pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setWizardStep(1)}
+                      className="px-6 py-3 border border-[#e0c0b1] text-[#584237] rounded-full text-sm font-extrabold hover:bg-slate-50 transition cursor-pointer flex items-center gap-2"
+                    >
+                      <ArrowRight className="h-4 w-4" />
+                      <span>العودة للخطوة 1</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const ok = handleImportStepMindMaps(jsonInputMindMap);
+                        if (ok) setWizardStep(3);
+                      }}
+                      className="px-8 py-3 bg-teal-700 text-white rounded-full text-sm font-extrabold hover:bg-teal-800 transition cursor-pointer shadow-md flex items-center gap-2"
+                    >
+                      <span>اعتماد وانتقال للخطوة 3 (تنبيهات خد بالك)</span>
+                      <ArrowLeft className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* SCREEN 3: Mnemonic JSON */}
+            {wizardStep === 3 && (
               <div className="space-y-6 pt-2">
                 <div className="bg-[#eff4ff] border border-[#e0c0b1]/60 rounded-3xl p-6 space-y-4 text-right">
                   <div className="flex items-center justify-between border-b border-[#e0c0b1]/40 pb-3">
@@ -784,21 +1009,21 @@ function TeacherPage() {
                   <div className="flex items-center justify-between pt-2">
                     <button
                       type="button"
-                      onClick={() => setWizardStep(1)}
+                      onClick={() => setWizardStep(2)}
                       className="px-6 py-3 border border-[#e0c0b1] text-[#584237] rounded-full text-sm font-extrabold hover:bg-slate-50 transition cursor-pointer flex items-center gap-2"
                     >
                       <ArrowRight className="h-4 w-4" />
-                      <span>العودة للخطوة 1</span>
+                      <span>العودة للخطوة 2</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => {
                         const ok = handleImportStepMnemonics(jsonInput2);
-                        if (ok) setWizardStep(3);
+                        if (ok) setWizardStep(4);
                       }}
                       className="px-8 py-3 bg-[#8127cf] text-white rounded-full text-sm font-extrabold hover:bg-[#6b1fb0] transition cursor-pointer shadow-md flex items-center gap-2"
                     >
-                      <span>اعتماد وانتقال للخطوة 3 (كروت الزيتونة)</span>
+                      <span>اعتماد وانتقال للخطوة 4 (كروت الزيتونة)</span>
                       <ArrowLeft className="h-4 w-4" />
                     </button>
                   </div>
@@ -806,15 +1031,15 @@ function TeacherPage() {
               </div>
             )}
 
-            {/* SCREEN 3: Zaitouna Summary JSON */}
-            {wizardStep === 3 && (
+            {/* SCREEN 4: Zaitouna Summary JSON */}
+            {wizardStep === 4 && (
               <div className="space-y-6 pt-2">
                 <div className="bg-amber-50 border border-amber-200 rounded-3xl p-6 space-y-4 text-right">
                   <div className="flex items-center justify-between border-b border-amber-200/60 pb-3">
                     <div className="space-y-1">
                       <h3 className="text-base font-extrabold text-amber-950 flex items-center gap-2">
                         <Sparkles className="h-5 w-5 text-amber-700" />
-                        <span>البرومبت المخصص 3: (بطاقات الزيتونة والخلاصة المركزة 🫒)</span>
+                        <span>البرومبت المخصص 4: (بطاقات الزيتونة والخلاصة المركزة 🫒)</span>
                       </h3>
                       <p className="text-xs text-amber-800 font-semibold">
                         انسخ هذا الأمر والصقه في الذكاء الاصطناعي لاستخلاص خلاصة الزيتونة (التعريفات
@@ -853,7 +1078,7 @@ function TeacherPage() {
                       className="px-5 py-2 bg-amber-700 text-white rounded-full text-xs font-extrabold hover:bg-amber-800 transition cursor-pointer shadow-xs flex items-center gap-2"
                     >
                       <Copy className="h-4 w-4" />
-                      <span>نسخ البرومبت 3 📋</span>
+                      <span>نسخ البرومبت 4 📋</span>
                     </button>
                   </div>
                 </div>
@@ -863,7 +1088,7 @@ function TeacherPage() {
                     htmlFor="json-input-3"
                     className="text-sm font-extrabold text-[#0b1c30] block"
                   >
-                    الصق كود JSON الناتج (JSON 3) الخاص بكروت الزيتونة أدناه:
+                    الصق كود JSON الناتج الخاص بكروت الزيتونة أدناه:
                   </label>
                   <textarea
                     id="json-input-3"
@@ -876,21 +1101,21 @@ function TeacherPage() {
                   <div className="flex items-center justify-between pt-2">
                     <button
                       type="button"
-                      onClick={() => setWizardStep(2)}
+                      onClick={() => setWizardStep(3)}
                       className="px-6 py-3 border border-[#e0c0b1] text-[#584237] rounded-full text-sm font-extrabold hover:bg-slate-50 transition cursor-pointer flex items-center gap-2"
                     >
                       <ArrowRight className="h-4 w-4" />
-                      <span>العودة للخطوة 2</span>
+                      <span>العودة للخطوة 3</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => {
                         const ok = handleImportStepZaitouna(jsonInput3);
-                        if (ok) setWizardStep(4);
+                        if (ok) setWizardStep(5);
                       }}
                       className="px-8 py-3 bg-amber-700 text-white rounded-full text-sm font-extrabold hover:bg-amber-800 transition cursor-pointer shadow-md flex items-center gap-2"
                     >
-                      <span>اعتماد وانتقال للخطوة 4 (أسئلة المستوى 1)</span>
+                      <span>اعتماد وانتقال للخطوة 5 (أسئلة المستوى 1)</span>
                       <ArrowLeft className="h-4 w-4" />
                     </button>
                   </div>
@@ -898,18 +1123,18 @@ function TeacherPage() {
               </div>
             )}
 
-            {/* SCREEN 4: Level 1 MCQs JSON */}
-            {wizardStep === 4 && (
+            {/* SCREEN 5: Level 1 MCQs JSON */}
+            {wizardStep === 5 && (
               <div className="space-y-6 pt-2">
                 <div className="bg-[#f0fdf4] border border-emerald-200 rounded-3xl p-6 space-y-4 text-right">
                   <div className="flex items-center justify-between border-b border-emerald-200/60 pb-3">
                     <div className="space-y-1">
                       <h3 className="text-base font-extrabold text-emerald-950 flex items-center gap-2">
                         <CheckCircle2 className="h-5 w-5 text-emerald-700" />
-                        <span>البرومبت المخصص 4: (أسئلة المستوى الأول القصصية 🎯)</span>
+                        <span>البرومبت المخصص 5: (أسئلة المستوى الأول القصصية 🎯)</span>
                       </h3>
                       <p className="text-xs text-[#584237]/70 font-semibold">
-                        انسخ هذا الأمر والصقه في الذكاء الاصطناعي لتوليد 5 أسئلة خيار من متعدد
+                        انسخ هذا الأمر والصقه في الذكاء الاصطناعي لتوليد 3 أسئلة خيار من متعدد
                         بالعامية المصرية الميسرة
                       </p>
                     </div>
@@ -917,7 +1142,7 @@ function TeacherPage() {
                       type="button"
                       onClick={() => {
                         const promptText = `أنت خبير إعداد أسئلة المستوى الأول لمنصة "نفاذ - Nafath".
-بناءً على فقرات الدرس والقصة، صغ كود JSON لأسئلة اختيار من متعدد (MCQ) ميسرة ومباشرة بالعامية المصرية (5 أسئلة لكل فقرة)، وفق الشروط الحازمة التالية:
+بناءً على فقرات الدرس والقصة، صغ كود JSON لأسئلة اختيار من متعدد (MCQ) ميسرة ومباشرة بالعامية المصرية (3 أسئلة لكل فقرة)، وفق الشروط الحازمة التالية:
 
 1. قياس الفهم لا الحفظ الحرفي (شرط جوهري): هدف المستوى الأول هو قياس الفهم العام والفكرة الجوهرية للفقرة والحل الشرعي، وليس الحفظ الميكانيكي أو البصم!
 2. حظر الأسئلة السطحية والغبية: يمنع منعاً باتاً السؤال عن أسماء الشخصيات الجانبية في القصة (مثل: ما اسم خالة سارة؟ ما اسم صديقة سلمى؟)! الأسئلة يجب أن تسأل عن الفهم الشرعي والمشكلة الواقعية والحل الشرعي في القصة.
@@ -925,12 +1150,10 @@ function TeacherPage() {
 4. اللغة والأسلوب: صغ الأسئلة والخيارات بالعامية المصرية الميسرة والسهلة كالمحاورة بالقصة لتسهيل الفهم والمتعة على الطالب بدون تقعر كُتب!
 5. اللفظ الفقهي بين قوسين: ضع المصطلح الفقهي الشرعي الدقيق بين قوسين فقط داخل الجملة العامية (مثل: (عوض معلوم)، (بائناً)، (مهر المثل)، (يُصدّق بيمينه)).
 
-التوزيع الخماسي المطلوب لكل فقرة (بالعامية المصرية + المصطلح بين قوسين):
+التوزيع الثلاثي الميسر لكل فقرة (بالعامية المصرية + المصطلح بين قوسين):
 - سؤال 1: سؤال عن المشكلة الواقعية والحل الشرعي في القصة (ممنوع السؤال عن أسماء الشخصيات!).
 - سؤال 2: سؤال مباشر حول المفهوم والتعريف بالعامية مع (المصطلح الفقهي بين قوسين).
-- سؤال 3: سؤال مباشر حول الدليل الشرعي المذكور في الفقرة.
-- سؤال 4: سؤال مباشر حول حكمة المشروعية والسبب بالعامية.
-- سؤال 5: سؤال مباشر حول تطبيق تنبيه (خد بالك منها) بالعامية مع (المصطلح الفقهي بين قوسين).
+- سؤال 3: سؤال مباشر حول الدليل الشرعي أو حكمة المشروعية ورفع الضرر أو تنبيه (خد بالك منها).
 
 الهيكل المطلوب:
 {
@@ -953,16 +1176,6 @@ function TeacherPage() {
             "question": "إيه هو الدليل على مشروعيته من القرآن؟",
             "options": ["قوله تعالى: (فلا جناح عليهما فيما افتدت به)", "قوله تعالى: (وأقيموا الصلاة)", "قوله تعالى: (كتب عليكم الصيام)", "قوله تعالى: (وأشهدوا ذوي عدل)"],
             "answer": "قوله تعالى: (فلا جناح عليهما فيما افتدت به)"
-          },
-          {
-            "question": "ليه الخلع بيجوز للمرأة في الشرع؟",
-            "options": ["علشان نرفع الضرر عنها لما العيشة تستحيل", "علشان نمنع الزوج من حقوقه", "علشان نزيد الطلاق", "بدون أي سبب"],
-            "answer": "علشان نرفع الضرر عنها لما العيشة تستحيل"
-          },
-          {
-            "question": "خد بالك: لو وقع الخلع على شيء غير محدد (عوض مجهول)، إيه اللي بيجب للزوج؟",
-            "options": ["تاخد حكم الطلاق البائن وبيدفع لها (مهر المثل)", "يبطل الخلع تماماً", "يتحول لطلاق رجعي", "لا شيء له"],
-            "answer": "تاخد حكم الطلاق البائن وبيدفع لها (مهر المثل)"
           }
         ]
       }
@@ -979,7 +1192,7 @@ function TeacherPage() {
                       className="px-5 py-2 bg-emerald-700 text-white rounded-full text-xs font-extrabold hover:bg-emerald-800 transition cursor-pointer shadow-xs flex items-center gap-2"
                     >
                       <Copy className="h-4 w-4" />
-                      <span>نسخ البرومبت 4 📋</span>
+                      <span>نسخ البرومبت 5 📋</span>
                     </button>
                   </div>
                 </div>
@@ -989,7 +1202,7 @@ function TeacherPage() {
                     htmlFor="json-input-4"
                     className="text-sm font-extrabold text-[#0b1c30] block"
                   >
-                    الصق كود JSON الناتج (JSON 4) الخاص بأسئلة المستوى الأول أدناه:
+                    الصق كود JSON الناتج الخاص بأسئلة المستوى الأول أدناه:
                   </label>
                   <textarea
                     id="json-input-4"
@@ -1002,21 +1215,21 @@ function TeacherPage() {
                   <div className="flex items-center justify-between pt-2">
                     <button
                       type="button"
-                      onClick={() => setWizardStep(3)}
+                      onClick={() => setWizardStep(4)}
                       className="px-6 py-3 border border-[#e0c0b1] text-[#584237] rounded-full text-sm font-extrabold hover:bg-slate-50 transition cursor-pointer flex items-center gap-2"
                     >
                       <ArrowRight className="h-4 w-4" />
-                      <span>العودة للخطوة 3</span>
+                      <span>العودة للخطوة 4</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => {
                         const ok = handleImportStepLevel1MCQs(jsonInput4);
-                        if (ok) setWizardStep(5);
+                        if (ok) setWizardStep(6);
                       }}
                       className="px-8 py-3 bg-emerald-700 text-white rounded-full text-sm font-extrabold hover:bg-emerald-800 transition cursor-pointer shadow-md flex items-center gap-2"
                     >
-                      <span>اعتماد وانتقال للخطوة 5 (الفلاش كاردز)</span>
+                      <span>اعتماد وانتقال للخطوة 6 (الفلاش كاردز)</span>
                       <ArrowLeft className="h-4 w-4" />
                     </button>
                   </div>
@@ -1024,8 +1237,8 @@ function TeacherPage() {
               </div>
             )}
 
-            {/* SCREEN 5: Single-Concept Flashcards JSON */}
-            {wizardStep === 5 && (
+            {/* SCREEN 6: Single-Concept Flashcards JSON */}
+            {wizardStep === 6 && (
               <div className="space-y-6 pt-2">
                 <div className="bg-purple-50 border border-purple-200 rounded-3xl p-6 space-y-4 text-right">
                   <div className="flex items-center justify-between border-b border-purple-200/60 pb-3">
@@ -1033,7 +1246,7 @@ function TeacherPage() {
                       <h3 className="text-base font-extrabold text-purple-950 flex items-center gap-2">
                         <Sparkles className="h-5 w-5 text-purple-700" />
                         <span>
-                          البرومبت المخصص 5: (بطاقات الفلاش كاردز ذات المعلومة الواحدة 🗂️)
+                          البرومبت المخصص 6: (بطاقات الفلاش كاردز ذات المعلومة الواحدة 🗂️)
                         </span>
                       </h3>
                       <p className="text-xs text-purple-800 font-semibold">
@@ -1079,7 +1292,7 @@ function TeacherPage() {
                       className="px-5 py-2 bg-purple-700 text-white rounded-full text-xs font-extrabold hover:bg-purple-800 transition cursor-pointer shadow-xs flex items-center gap-2"
                     >
                       <Copy className="h-4 w-4" />
-                      <span>نسخ البرومبت 5 📋</span>
+                      <span>نسخ البرومبت 6 📋</span>
                     </button>
                   </div>
                 </div>
@@ -1089,7 +1302,7 @@ function TeacherPage() {
                     htmlFor="json-input-5"
                     className="text-sm font-extrabold text-[#0b1c30] block"
                   >
-                    الصق كود JSON الناتج (JSON 5) الخاص ببطاقات الفلاش كاردز أدناه:
+                    الصق كود JSON الناتج الخاص ببطاقات الفلاش كاردز أدناه:
                   </label>
                   <textarea
                     id="json-input-5"
@@ -1102,21 +1315,21 @@ function TeacherPage() {
                   <div className="flex items-center justify-between pt-2">
                     <button
                       type="button"
-                      onClick={() => setWizardStep(4)}
+                      onClick={() => setWizardStep(5)}
                       className="px-6 py-3 border border-[#e0c0b1] text-[#584237] rounded-full text-sm font-extrabold hover:bg-slate-50 transition cursor-pointer flex items-center gap-2"
                     >
                       <ArrowRight className="h-4 w-4" />
-                      <span>العودة للخطوة 4</span>
+                      <span>العودة للخطوة 5</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => {
                         const ok = handleImportStepFlashcards(jsonInput5);
-                        if (ok) setWizardStep(6);
+                        if (ok) setWizardStep(7);
                       }}
                       className="px-8 py-3 bg-purple-700 text-white rounded-full text-sm font-extrabold hover:bg-purple-800 transition cursor-pointer shadow-md flex items-center gap-2"
                     >
-                      <span>اعتماد وانتقال للخطوة 6 (أسئلة المستوى 2 و 3)</span>
+                      <span>اعتماد وانتقال للخطوة 7 (أسئلة المستوى 2 و 3)</span>
                       <ArrowLeft className="h-4 w-4" />
                     </button>
                   </div>
@@ -1124,8 +1337,8 @@ function TeacherPage() {
               </div>
             )}
 
-            {/* SCREEN 6: Level 2 & 3 Advanced Quizzes JSON */}
-            {wizardStep === 6 && (
+            {/* SCREEN 7: Level 2 & 3 Advanced Quizzes JSON */}
+            {wizardStep === 7 && (
               <div className="space-y-6 pt-2">
                 <div className="bg-[#eff6ff] border border-blue-200 rounded-3xl p-6 space-y-4 text-right">
                   <div className="flex items-center justify-between border-b border-blue-200/60 pb-3">
@@ -1133,7 +1346,7 @@ function TeacherPage() {
                       <h3 className="text-base font-extrabold text-blue-950 flex items-center gap-2">
                         <Sparkles className="h-5 w-5 text-blue-700" />
                         <span>
-                          البرومبت المخصص 6: (أسئلة المستويين الثاني والثالث - أكمل الفراغ والمقالي
+                          البرومبت المخصص 7: (أسئلة المستويين الثاني والثالث - أكمل الفراغ والمقالي
                           🧠)
                         </span>
                       </h3>
@@ -1178,7 +1391,7 @@ function TeacherPage() {
                       className="px-5 py-2 bg-blue-700 text-white rounded-full text-xs font-extrabold hover:bg-blue-800 transition cursor-pointer shadow-xs flex items-center gap-2"
                     >
                       <Copy className="h-4 w-4" />
-                      <span>نسخ البرومبت 6 📋</span>
+                      <span>نسخ البرومبت 7 📋</span>
                     </button>
                   </div>
                 </div>
@@ -1188,24 +1401,24 @@ function TeacherPage() {
                     htmlFor="json-input-6"
                     className="text-sm font-extrabold text-[#0b1c30] block"
                   >
-                    الصق كود JSON الناتج (JSON 6) الخاص بأسئلة المستويين الثاني والثالث أدناه:
+                    الصق كود JSON الناتج (JSON 7) الخاص بأسئلة المستويين الثاني والثالث أدناه:
                   </label>
                   <textarea
                     id="json-input-6"
                     rows={10}
                     value={jsonInput6}
                     onChange={(e) => setJsonInput6(e.target.value)}
-                    placeholder="الصق كود JSON 6 هنا..."
+                    placeholder="الصق كود JSON 7 هنا..."
                     className="w-full bg-[#f8f9ff] border border-[#e0c0b1] rounded-2xl p-4 text-xs font-mono text-[#0b1c30] focus:outline-none focus:ring-2 focus:ring-blue-600 leading-relaxed"
                   />
                   <div className="flex items-center justify-between pt-2">
                     <button
                       type="button"
-                      onClick={() => setWizardStep(5)}
+                      onClick={() => setWizardStep(6)}
                       className="px-6 py-3 border border-[#e0c0b1] text-[#584237] rounded-full text-sm font-extrabold hover:bg-slate-50 transition cursor-pointer flex items-center gap-2"
                     >
                       <ArrowRight className="h-4 w-4" />
-                      <span>العودة للخطوة 5</span>
+                      <span>العودة للخطوة 6</span>
                     </button>
                     <button
                       type="button"

@@ -33,8 +33,8 @@ function normalize(s: string) {
   return s.trim().replace(/\s+/g, " ").toLowerCase();
 }
 
-function padMcqsToMinimumFive(rawMcqs: MCQ[]): MCQ[] {
-  if (rawMcqs.length >= 5) return rawMcqs;
+function padMcqsToMinimumThree(rawMcqs: MCQ[]): MCQ[] {
+  if (rawMcqs.length >= 3) return rawMcqs;
 
   const padded = [...rawMcqs];
   const templates: Omit<MCQ, "question">[] = [
@@ -65,19 +65,10 @@ function padMcqsToMinimumFive(rawMcqs: MCQ[]): MCQ[] {
       answer: "الفهم التفاعلي والربط الذهني الفعال",
       tags: ["#الاستيعاب_الذهني"],
     },
-    {
-      options: [
-        "الالتزام بالضوابط الشرعية والعملية الصحيحة",
-        "تجاوز الأركان والشروط",
-        "إهمال التقييم الذاتي",
-      ],
-      answer: "الالتزام بالضوابط الشرعية والعملية الصحيحة",
-      tags: ["#الأركان_والشروط"],
-    },
   ];
 
   let idx = 0;
-  while (padded.length < 5) {
+  while (padded.length < 3) {
     const template = templates[idx % templates.length];
     padded.push({
       question: `سؤال استيعابي إضافي (${padded.length + 1}): ما هي النتيجة العملية الأهم للفقرة المذكورة؟`,
@@ -116,7 +107,7 @@ export function QuizSection({
   const showFill = type === "all" || type === "fill";
   const showEssay = type === "all" || type === "essay";
 
-  let rawMcqs = !showMcq
+  const rawMcqs = !showMcq
     ? []
     : quizzes.mcqs.filter(
         (q) => (q.question.trim() || q.image_url?.trim()) && q.options.some((o) => o.trim()),
@@ -124,7 +115,7 @@ export function QuizSection({
 
   const mcqs = useMemo(() => {
     if (showMcq && rawMcqs.length > 0) {
-      return padMcqsToMinimumFive(rawMcqs);
+      return padMcqsToMinimumThree(rawMcqs);
     }
     return rawMcqs;
   }, [showMcq, rawMcqs, lessonTitle]);
@@ -602,8 +593,6 @@ function McqHybridCard({
           );
         })}
       </div>
-
-
 
       {metric.status === "wrong" && (
         <div className="pt-2 rounded-2xl bg-rose-50 border border-rose-200 p-5 space-y-4 text-right">

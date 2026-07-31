@@ -53,6 +53,7 @@ import {
   type TopicReportItem,
   type LessonNote,
 } from "@/lib/interactive-exams-service";
+import { getLibrary } from "@/lib/lesson-library";
 import { EditQuestionModal } from "./EditQuestionModal";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
@@ -63,6 +64,13 @@ export function InteractiveExamsView({
   initialTab?: "exam" | "stats" | "mistakes" | "notebook" | "ingest";
 }) {
   const navigate = useNavigate();
+  const library = useMemo(() => {
+    try {
+      return getLibrary();
+    } catch {
+      return [];
+    }
+  }, []);
   const [bankQuestions, setBankQuestions] = useState<ExamQuestion[]>(() => getQuestionBank());
   const [activeTab, setActiveTab] = useState<"exam" | "stats" | "mistakes" | "notebook" | "ingest">(
     initialTab,
@@ -430,7 +438,7 @@ export function InteractiveExamsView({
 
         <div className="flex flex-wrap items-center gap-2">
           <button
-           type="button"
+            type="button"
             onClick={() => {
               setIsExamActive(false);
               setIsExamCompleted(false);
@@ -447,7 +455,7 @@ export function InteractiveExamsView({
           </button>
 
           <button
-           type="button"
+            type="button"
             onClick={() => {
               setIsExamActive(false);
               setIsExamCompleted(false);
@@ -464,7 +472,7 @@ export function InteractiveExamsView({
           </button>
 
           <button
-           type="button"
+            type="button"
             onClick={() => {
               setIsExamActive(false);
               setIsExamCompleted(false);
@@ -481,7 +489,7 @@ export function InteractiveExamsView({
           </button>
 
           <button
-           type="button"
+            type="button"
             onClick={() => {
               setIsExamActive(false);
               setIsExamCompleted(false);
@@ -498,7 +506,7 @@ export function InteractiveExamsView({
           </button>
 
           <button
-           type="button"
+            type="button"
             onClick={() => {
               setIsExamActive(false);
               setIsExamCompleted(false);
@@ -611,7 +619,7 @@ export function InteractiveExamsView({
             <div className="flex items-center justify-between">
               <h3 className="text-2xl font-extrabold text-[#0b1c30]">تقدم الدروس الحالية 📚</h3>
               <button
-               type="button"
+                type="button"
                 onClick={() => navigate({ to: "/subjects" })}
                 className="text-[#9d4300] font-extrabold text-xs flex items-center gap-1.5 hover:opacity-80 transition cursor-pointer"
               >
@@ -621,107 +629,75 @@ export function InteractiveExamsView({
             </div>
 
             <div className="space-y-5">
-              {/* Lesson 1: Fiqh of Khul */}
-              <div className="bg-[#eff4ff] p-6 sm:p-8 rounded-[2.5rem] border border-[#e0c0b1]/30 relative overflow-hidden group hover:bg-white transition-all shadow-xs">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
-                  <div className="flex items-center gap-6">
-                    <div className="relative w-20 h-20 flex items-center justify-center shrink-0">
-                      <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 36 36">
-                        <path
-                          className="text-[#d3e4fe]"
-                          strokeDasharray="100, 100"
-                          strokeWidth="3.5"
-                          stroke="currentColor"
-                          fill="none"
-                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                        />
-                        <path
-                          className="text-[#9d4300] transition-all duration-1000 ease-out"
-                          strokeDasharray="96, 100"
-                          strokeLinecap="round"
-                          strokeWidth="3.5"
-                          stroke="currentColor"
-                          fill="none"
-                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                        />
-                      </svg>
-                      <span className="absolute font-extrabold text-sm text-[#0b1c30]">96%</span>
-                    </div>
-
-                    <div>
-                      <h4 className="text-xl font-extrabold text-[#0b1c30] mb-1">
-                        فقه الخُلع وعوض المهر
-                      </h4>
-                      <p className="text-xs font-semibold text-[#584237]/80">المستوى المتقدم</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-4">
-                    <span className="px-4 py-2 rounded-full bg-white text-[#584237] text-xs font-extrabold border border-[#e0c0b1]/30">
-                      تقريباً انتهى ✅
-                    </span>
-                    <button
-                     type="button"
-                      onClick={() => navigate({ to: "/" })}
-                      className="w-12 h-12 rounded-full bg-[#9d4300] text-white flex items-center justify-center hover:scale-105 transition-transform cursor-pointer shadow-md"
-                      title="متابعة الدراسة"
-                    >
-                      <Play className="h-5 w-5 fill-current mr-0.5" />
-                    </button>
-                  </div>
+              {library.length === 0 ? (
+                <div className="text-center py-16 bg-white rounded-[2.5rem] border border-[#e0c0b1]/40 space-y-2">
+                  <BookOpen className="h-12 w-12 text-[#9d4300]/30 mx-auto mb-3" />
+                  <p className="text-base font-extrabold text-[#0b1c30]">لا توجد دروس محفوظة أو سارية حالياً في المادة 📚</p>
+                  <p className="text-xs font-semibold text-[#584237]/60">قم باستيراد أو إضافة درس جديد ليتحدد تقدمك هنا</p>
                 </div>
-              </div>
-
-              {/* Lesson 2: Divorce Rules */}
-              <div className="bg-[#eff4ff] p-6 sm:p-8 rounded-[2.5rem] border border-[#e0c0b1]/30 relative overflow-hidden group hover:bg-white transition-all shadow-xs">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
-                  <div className="flex items-center gap-6">
-                    <div className="relative w-20 h-20 flex items-center justify-center shrink-0">
-                      <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 36 36">
-                        <path
-                          className="text-[#d3e4fe]"
-                          strokeDasharray="100, 100"
-                          strokeWidth="3.5"
-                          stroke="currentColor"
-                          fill="none"
-                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                        />
-                        <path
-                          className="text-[#8127cf] transition-all duration-1000 ease-out"
-                          strokeDasharray="45, 100"
-                          strokeLinecap="round"
-                          strokeWidth="3.5"
-                          stroke="currentColor"
-                          fill="none"
-                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                        />
-                      </svg>
-                      <span className="absolute font-extrabold text-sm text-[#0b1c30]">45%</span>
-                    </div>
-
-                    <div>
-                      <h4 className="text-xl font-extrabold text-[#0b1c30] mb-1">
-                        أحكام الطلاق والعدّة
-                      </h4>
-                      <p className="text-xs font-semibold text-[#584237]/80">المستوى المتوسط</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-4">
-                    <span className="px-4 py-2 rounded-full bg-white text-[#584237] text-xs font-extrabold border border-[#e0c0b1]/30">
-                      قيد المراجعة ⏳
-                    </span>
-                    <button
-                     type="button"
-                      onClick={() => navigate({ to: "/" })}
-                      className="w-12 h-12 rounded-full bg-[#8127cf] text-white flex items-center justify-center hover:scale-105 transition-transform cursor-pointer shadow-md"
-                      title="متابعة الدراسة"
+              ) : (
+                library.slice(0, 5).map((saved, idx) => {
+                  const colors = ["#9d4300", "#8127cf", "#0b6e4f"];
+                  const color = colors[idx % colors.length];
+                  const percent = 100;
+                  return (
+                    <div
+                      key={saved.id}
+                      className="bg-[#eff4ff] p-6 sm:p-8 rounded-[2.5rem] border border-[#e0c0b1]/30 hover:bg-white transition-all shadow-xs"
                     >
-                      <Play className="h-5 w-5 fill-current mr-0.5" />
-                    </button>
-                  </div>
-                </div>
-              </div>
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+                        <div className="flex items-center gap-6">
+                          <div className="relative w-20 h-20 flex items-center justify-center shrink-0">
+                            <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 36 36">
+                              <path
+                                className="text-[#d3e4fe]"
+                                strokeDasharray="100, 100"
+                                strokeWidth="3.5"
+                                stroke="currentColor"
+                                fill="none"
+                                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                              />
+                              <path
+                                strokeDasharray={`${percent}, 100`}
+                                strokeLinecap="round"
+                                strokeWidth="3.5"
+                                stroke={color}
+                                fill="none"
+                                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                              />
+                            </svg>
+                            <span className="absolute font-extrabold text-sm text-[#0b1c30]">
+                              {percent}%
+                            </span>
+                          </div>
+                          <div>
+                            <h4 className="text-xl font-extrabold text-[#0b1c30] mb-1">
+                              {saved.title}
+                            </h4>
+                            <p className="text-xs font-semibold text-[#584237]/80">
+                              {saved.blocks} كتلة تعليمية
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-4">
+                          <span className="px-4 py-2 rounded-full bg-white text-[#584237] text-xs font-extrabold border border-[#e0c0b1]/30">
+                            مكتمل ✅
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => navigate({ to: "/" })}
+                            className="w-12 h-12 rounded-full bg-[#9d4300] text-white flex items-center justify-center hover:scale-105 transition-transform cursor-pointer shadow-md"
+                            title="عرض الدرس"
+                          >
+                            <Play className="h-5 w-5 fill-current mr-0.5" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
             </div>
           </section>
 
@@ -771,7 +747,7 @@ export function InteractiveExamsView({
               </div>
 
               <button
-               type="button"
+                type="button"
                 onClick={handleStartMistakesChallenge}
                 className="h-14 px-8 bg-[#9d4300] text-white rounded-full font-extrabold text-sm flex items-center justify-center gap-2.5 hover:bg-[#833800] shadow-lg shadow-[#9d4300]/20 transition-all cursor-pointer shrink-0"
               >
@@ -793,9 +769,7 @@ export function InteractiveExamsView({
               <div className="bg-[#eff4ff] p-6 rounded-3xl border border-[#e0c0b1]/30 flex items-center justify-between">
                 <div>
                   <div className="text-xs font-bold text-[#584237]/80">انتظار المراجعة</div>
-                  <div className="text-3xl font-extrabold text-[#8127cf]">
-                    {mistakes.length}
-                  </div>
+                  <div className="text-3xl font-extrabold text-[#8127cf]">{mistakes.length}</div>
                 </div>
                 <Clock className="h-10 w-10 text-[#8127cf]/40" />
               </div>
@@ -839,7 +813,7 @@ export function InteractiveExamsView({
                     </div>
 
                     <button
-                     type="button"
+                      type="button"
                       onClick={() => handleDeleteMistake(m.id)}
                       className="text-rose-600 hover:bg-rose-50 px-3 py-1.5 rounded-xl font-extrabold text-xs transition cursor-pointer flex items-center gap-1 border border-transparent hover:border-rose-200"
                     >
@@ -892,7 +866,7 @@ export function InteractiveExamsView({
           {mistakes.length > 0 && (
             <div className="text-center pt-6">
               <button
-               type="button"
+                type="button"
                 onClick={handleStartMistakesChallenge}
                 className="px-12 py-5 bg-[#0b1c30] text-white rounded-full font-extrabold text-base hover:bg-[#9d4300] transition-all shadow-xl hover:scale-105 cursor-pointer"
               >
@@ -912,7 +886,7 @@ export function InteractiveExamsView({
               <div className="flex items-center justify-between border-b border-[#e0c0b1]/30 pb-4">
                 <h3 className="text-lg font-extrabold text-[#0b1c30]">ملاحظاتي ودروسي 📚</h3>
                 <button
-                 type="button"
+                  type="button"
                   onClick={handleCreateNewNote}
                   className="px-3.5 py-1.5 rounded-full bg-[#9d4300] text-white font-extrabold text-xs hover:bg-[#833800] transition cursor-pointer flex items-center gap-1.5 shadow-xs"
                 >
@@ -928,7 +902,7 @@ export function InteractiveExamsView({
                       لا توجد ملاحظات مسجلة حالياً
                     </p>
                     <button
-                     type="button"
+                      type="button"
                       onClick={handleCreateNewNote}
                       className="px-4 py-2 bg-[#9d4300] text-white rounded-full text-xs font-extrabold hover:bg-[#833800] transition cursor-pointer shadow-xs inline-block"
                     >
@@ -961,7 +935,7 @@ export function InteractiveExamsView({
                           </span>
                         </div>
                         <button
-                         type="button"
+                          type="button"
                           onClick={(e) => handleDeleteNotebookNote(item.id, e)}
                           className="p-1.5 text-rose-600 hover:bg-rose-100/80 rounded-full transition cursor-pointer flex-shrink-0"
                           title="حذف الملاحظة"
@@ -1008,21 +982,21 @@ export function InteractiveExamsView({
                 {/* Formatting Controls Bar */}
                 <div className="flex items-center bg-[#f8f9ff] rounded-full px-4 py-2 gap-2 border border-[#e0c0b1]/40 text-xs font-bold text-[#584237]">
                   <button
-                   type="button"
+                    type="button"
                     className="p-1 hover:text-[#9d4300] transition"
                     title="Bold"
                   >
                     <b>B</b>
                   </button>
                   <button
-                   type="button"
+                    type="button"
                     className="p-1 hover:text-[#9d4300] transition"
                     title="Italic"
                   >
                     <i>I</i>
                   </button>
                   <button
-                   type="button"
+                    type="button"
                     className="p-1 hover:text-[#9d4300] transition"
                     title="List"
                   >
@@ -1030,7 +1004,7 @@ export function InteractiveExamsView({
                   </button>
                   <div className="w-px h-4 bg-[#e0c0b1]" />
                   <button
-                   type="button"
+                    type="button"
                     onClick={() => setIsZenActive(!isZenActive)}
                     className={`p-1 transition ${isZenActive ? "text-[#8127cf] font-extrabold" : "hover:text-[#8127cf]"}`}
                     title="وضع التركيز Zen Mode"
@@ -1041,7 +1015,7 @@ export function InteractiveExamsView({
 
                 <div className="flex items-center gap-3">
                   <button
-                   type="button"
+                    type="button"
                     onClick={handleCreateNewNote}
                     className="px-4 py-2.5 rounded-full bg-[#eff4ff] text-[#9d4300] font-extrabold text-xs hover:bg-[#dce9ff] transition cursor-pointer border border-[#e0c0b1]/40 flex items-center gap-1.5"
                   >
@@ -1049,7 +1023,7 @@ export function InteractiveExamsView({
                     <span>ملاحظة جديدة</span>
                   </button>
                   <button
-                   type="button"
+                    type="button"
                     onClick={handleSaveNote}
                     className="px-6 py-2.5 rounded-full bg-[#9d4300] text-white font-extrabold text-xs shadow-md hover:bg-[#833800] transition cursor-pointer"
                   >
@@ -1240,7 +1214,10 @@ export function InteractiveExamsView({
                         </div>
 
                         <div className="space-y-3">
-                          <label htmlFor="fill-input" className="block text-xs font-bold text-[#584237]">
+                          <label
+                            htmlFor="fill-input"
+                            className="block text-xs font-bold text-[#584237]"
+                          >
                             اكتب الكلمة أو المصطلح المناسب في الفراغ:
                           </label>
                           <input
@@ -1268,7 +1245,10 @@ export function InteractiveExamsView({
                         </div>
 
                         <div className="space-y-3">
-                          <label htmlFor="essay-input" className="block text-xs font-bold text-[#584237]">
+                          <label
+                            htmlFor="essay-input"
+                            className="block text-xs font-bold text-[#584237]"
+                          >
                             اكتب صياغتك الفقهية الشاملة للجواب والتعليل:
                           </label>
                           <textarea
@@ -1394,7 +1374,7 @@ export function InteractiveExamsView({
               </div>
 
               <button
-               type="button"
+                type="button"
                 onClick={() => {
                   setEditingQuestion(null);
                   setShowEditQModal(true);
@@ -1408,7 +1388,7 @@ export function InteractiveExamsView({
 
             <div className="flex flex-wrap items-center gap-3 pt-2">
               <button
-               type="button"
+                type="button"
                 onClick={() => setIngestSubMode("list")}
                 className={`flex items-center gap-2 px-5 py-3 rounded-2xl font-extrabold text-xs transition cursor-pointer border ${
                   ingestSubMode === "list"
@@ -1421,7 +1401,7 @@ export function InteractiveExamsView({
               </button>
 
               <button
-               type="button"
+                type="button"
                 onClick={() => setIngestSubMode("json")}
                 className={`flex items-center gap-2 px-5 py-3 rounded-2xl font-extrabold text-xs transition cursor-pointer border ${
                   ingestSubMode === "json"
@@ -1434,7 +1414,7 @@ export function InteractiveExamsView({
               </button>
 
               <button
-               type="button"
+                type="button"
                 onClick={() => setIngestSubMode("ai")}
                 className={`flex items-center gap-2 px-5 py-3 rounded-2xl font-extrabold text-xs transition cursor-pointer border ${
                   ingestSubMode === "ai"
@@ -1494,7 +1474,7 @@ export function InteractiveExamsView({
 
                       <div className="flex items-center gap-1.5 shrink-0">
                         <button
-                         type="button"
+                          type="button"
                           onClick={() => {
                             setEditingQuestion(q);
                             setShowEditQModal(true);
@@ -1507,7 +1487,7 @@ export function InteractiveExamsView({
                         </button>
 
                         <button
-                         type="button"
+                          type="button"
                           onClick={() => {
                             handleDeleteBankQuestion(q.id);
                             toast.success("تم حذف السؤال من البنك.");
@@ -1541,7 +1521,7 @@ export function InteractiveExamsView({
                 </div>
 
                 <button
-                 type="button"
+                  type="button"
                   onClick={() => {
                     navigator.clipboard.writeText(sampleJsonTemplate);
                     toast.success("تم نسخ كود الـ JSON القالبي للحافظة! 📋");
@@ -1565,7 +1545,7 @@ export function InteractiveExamsView({
 
                 <div className="flex justify-end pt-2">
                   <button
-                   type="button"
+                    type="button"
                     onClick={handleImportJson}
                     className="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-7 py-3 text-xs font-extrabold text-white shadow-md hover:bg-emerald-700 transition cursor-pointer"
                   >
@@ -1596,7 +1576,7 @@ export function InteractiveExamsView({
                 />
 
                 <button
-                 type="button"
+                  type="button"
                   onClick={handleProcessRawText}
                   className="inline-flex items-center gap-2 rounded-2xl bg-purple-700 px-6 py-3 text-xs font-extrabold text-white shadow-md hover:bg-purple-800 transition cursor-pointer"
                 >
@@ -1612,7 +1592,7 @@ export function InteractiveExamsView({
                       معاينة الأسئلة المستخرجة ({parsedPreviewQs.length}):
                     </h4>
                     <button
-                     type="button"
+                      type="button"
                       onClick={handleSaveParsedToBank}
                       className="inline-flex items-center gap-1.5 rounded-xl bg-purple-700 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-purple-800 transition cursor-pointer"
                     >

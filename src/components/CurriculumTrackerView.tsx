@@ -71,37 +71,44 @@ function loadData(): TrackedSubject[] {
         (t) => t.id === sub.id || t.name.trim() === sub.name.trim(),
       );
 
-      const existingLessons = matchingSaved?.lessons || [];
-      const lessonTitlesSet = new Set(existingLessons.map((l) => l.title.trim()));
-      const mergedLessons: TrackedLesson[] = [...existingLessons];
+      let mergedLessons: TrackedLesson[] = [];
+      if (matchingSaved) {
+        // Filter saved lessons against deleted library entries
+        mergedLessons = matchingSaved.lessons.filter((les) => {
+          // If lesson was originally from library, verify it still exists in getLibrary()
+          const wasFromLib = libraryLessons.some(
+            (lib) =>
+              lib.id === les.id ||
+              lib.title.trim().toLowerCase() === les.title.trim().toLowerCase() ||
+              (les.id.startsWith("lesson-") && !les.id.startsWith("task-")),
+          );
+          if (wasFromLib) {
+            return libraryLessons.some(
+              (lib) =>
+                lib.id === les.id ||
+                lib.title.trim().toLowerCase() === les.title.trim().toLowerCase(),
+            );
+          }
+          return true;
+        });
+      } else {
+        const lessonTitlesSet = new Set<string>();
+        libraryLessons.forEach((libLesson) => {
+          const isMatch =
+            libLesson.subjectId === sub.id ||
+            (sub.name.includes("فقه") &&
+              (libLesson.subjectId === "fiqh" || libLesson.title.includes("خُلع")));
 
-      sub.units.forEach((unit) => {
-        if (!lessonTitlesSet.has(unit.name.trim())) {
-          lessonTitlesSet.add(unit.name.trim());
-          mergedLessons.push({
-            id: unit.id || uid(),
-            title: unit.name,
-            done: false,
-          });
-        }
-      });
-
-      libraryLessons.forEach((libLesson) => {
-        const isMatch =
-          libLesson.subjectId === sub.id ||
-          (sub.name.includes("فقه") && libLesson.subjectId === "fiqh") ||
-          (sub.name.includes("فقه") && libLesson.title.includes("خُلع")) ||
-          sub.units.some((u) => u.lessonIds.includes(libLesson.id));
-
-        if (isMatch && !lessonTitlesSet.has(libLesson.title.trim())) {
-          lessonTitlesSet.add(libLesson.title.trim());
-          mergedLessons.push({
-            id: libLesson.id || uid(),
-            title: libLesson.title,
-            done: false,
-          });
-        }
-      });
+          if (isMatch && !lessonTitlesSet.has(libLesson.title.trim())) {
+            lessonTitlesSet.add(libLesson.title.trim());
+            mergedLessons.push({
+              id: libLesson.id || uid(),
+              title: libLesson.title,
+              done: false,
+            });
+          }
+        });
+      }
 
       result.push({
         id: sub.id,
@@ -266,6 +273,12 @@ export function CurriculumTrackerView() {
   }
 
   function deleteLesson(subjectId: string, lessonId: string) {
+    const targetSub = subjects.find((s) => s.id === subjectId);
+    const targetLes = targetSub?.lessons.find((l) => l.id === lessonId);
+    if (targetLes?.title) {
+      deleteFromLibrary(targetLes.title);
+      deleteFromLibrary(targetLes.id);
+    }
     persist(
       subjects.map((s) =>
         s.id === subjectId ? { ...s, lessons: s.lessons.filter((l) => l.id !== lessonId) } : s,
@@ -277,7 +290,11 @@ export function CurriculumTrackerView() {
     <div className="mx-auto w-full max-w-[900px] px-6 py-10 space-y-10" dir="rtl">
       {/* ── Header ── */}
       <section className="flex items-start justify-between gap-4 text-right">
-        <button type="button" className="space-y-3 cursor-pointer group text-right" onClick={() => setShowSettingsModal(true)}>
+        <button
+          type="button"
+          className="space-y-3 cursor-pointer group text-right"
+          onClick={() => setShowSettingsModal(true)}
+        >
           <div>
             <span className="px-4 py-1.5 rounded-full bg-[#ffdbca]/40 text-[#9d4300] font-extrabold text-xs group-hover:bg-[#ffdbca]/70 transition">
               متابعة الإنجاز والمهام ⚙️ (انقر لفتح الإعدادات)
@@ -319,7 +336,7 @@ export function CurriculumTrackerView() {
                   <span>إعدادات وتنظيم المهام والدروس ⚙️</span>
                 </div>
                 <button
-                 type="button"
+                  type="button"
                   onClick={() => setShowSettingsModal(false)}
                   className="p-2 rounded-xl text-[#584237] hover:bg-[#eff4ff] transition cursor-pointer"
                 >
@@ -358,7 +375,7 @@ export function CurriculumTrackerView() {
                       className="flex-1 border border-[#e0c0b1]/60 rounded-xl px-4 py-2 text-xs font-bold text-[#0b1c30] bg-white focus:outline-none"
                     />
                     <button
-                     type="button"
+                      type="button"
                       onClick={addQuickTask}
                       disabled={!quickTaskTitle.trim() || subjects.length === 0}
                       className="px-4 py-2 bg-[#9d4300] text-white rounded-xl text-xs font-extrabold hover:bg-[#833800] disabled:opacity-40 transition cursor-pointer"
@@ -400,7 +417,7 @@ export function CurriculumTrackerView() {
                       ))}
                     </div>
                     <button
-                    type="button"
+                      type="button"
                       onClick={addSubject}
                       disabled={!newSubjectName.trim()}
                       className="px-4 py-2 bg-amber-800 text-white rounded-xl text-xs font-extrabold hover:bg-amber-900 disabled:opacity-40 transition cursor-pointer"
@@ -436,7 +453,7 @@ export function CurriculumTrackerView() {
                             </span>
                           </div>
                           <button
-                          type="button"
+                            type="button"
                             onClick={() => deleteSubject(s.id)}
                             className="p-1 text-rose-600 hover:bg-rose-50 rounded-lg transition cursor-pointer"
                             title="حذف المادة بالكامل"
@@ -457,7 +474,7 @@ export function CurriculumTrackerView() {
                                   {l.title}
                                 </span>
                                 <button
-                                type="button"
+                                  type="button"
                                   onClick={() => deleteLesson(s.id, l.id)}
                                   className="p-1 text-rose-500 hover:bg-rose-100 rounded-md transition cursor-pointer"
                                   title="حذف هذه المهمة"
@@ -477,7 +494,7 @@ export function CurriculumTrackerView() {
               {/* 4. Clear Completed Tasks */}
               <div className="space-y-3 pt-2 border-t border-slate-100">
                 <button
-                 type="button"
+                  type="button"
                   onClick={clearCompletedLessons}
                   disabled={doneLessons === 0}
                   className="w-full py-3 bg-amber-50 border border-amber-200 text-amber-900 rounded-2xl text-xs font-extrabold hover:bg-amber-100 disabled:opacity-40 transition cursor-pointer flex items-center justify-center gap-2"
@@ -490,7 +507,7 @@ export function CurriculumTrackerView() {
               {/* Close Button */}
               <div className="pt-2">
                 <button
-                 type="button"
+                  type="button"
                   onClick={() => setShowSettingsModal(false)}
                   className="w-full py-3 bg-[#0b1c30] text-white rounded-2xl text-xs font-extrabold hover:bg-[#213145] transition cursor-pointer"
                 >
@@ -564,7 +581,7 @@ export function CurriculumTrackerView() {
           <h2 className="text-xl font-extrabold text-[#0b1c30]">المواد الدراسية</h2>
           <div className="flex items-center gap-2">
             <button
-             type="button"
+              type="button"
               onClick={() => setShowSettingsModal(true)}
               className="p-2 bg-[#eff4ff] text-[#9d4300] hover:bg-[#dce9ff] rounded-full transition cursor-pointer shadow-xs border border-[#e0c0b1]/30"
               title="إعدادات المهام ⚙️"
@@ -572,7 +589,7 @@ export function CurriculumTrackerView() {
               <Settings2 className="h-4 w-4" />
             </button>
             <button
-             type="button"
+              type="button"
               onClick={() => setShowAddSubject(true)}
               className="flex items-center gap-2 px-5 py-2.5 bg-[#9d4300] text-white rounded-full text-xs font-extrabold hover:bg-[#833800] transition cursor-pointer shadow-md"
             >
@@ -605,7 +622,7 @@ export function CurriculumTrackerView() {
                 <div className="flex gap-2 flex-wrap">
                   {SUBJECT_COLORS.map((c) => (
                     <button
-                     type="button"
+                      type="button"
                       key={c}
                       onClick={() => setNewSubjectColor(c)}
                       className={`w-7 h-7 rounded-full border-2 transition cursor-pointer ${newSubjectColor === c ? "border-[#0b1c30] scale-110" : "border-transparent"}`}
@@ -616,7 +633,7 @@ export function CurriculumTrackerView() {
                 <div className="flex gap-2 flex-wrap">
                   {SUBJECT_ICONS.map((icon) => (
                     <button
-                     type="button"
+                      type="button"
                       key={icon}
                       onClick={() => setNewSubjectIcon(icon)}
                       className={`w-8 h-8 rounded-xl text-base flex items-center justify-center transition cursor-pointer ${newSubjectIcon === icon ? "bg-[#eff4ff] scale-110 ring-2 ring-[#9d4300]" : "hover:bg-[#eff4ff]"}`}
@@ -628,14 +645,14 @@ export function CurriculumTrackerView() {
               </div>
               <div className="flex gap-3">
                 <button
-                 type="button"
+                  type="button"
                   onClick={addSubject}
                   className="flex-1 py-3 bg-[#9d4300] text-white rounded-2xl font-extrabold text-sm hover:bg-[#833800] transition cursor-pointer"
                 >
                   إضافة
                 </button>
                 <button
-                 type="button"
+                  type="button"
                   onClick={() => {
                     setShowAddSubject(false);
                     setNewSubjectName("");
@@ -691,14 +708,14 @@ export function CurriculumTrackerView() {
                             autoFocus
                           />
                           <button
-                           type="button"
+                            type="button"
                             onClick={() => saveEditSubject(subject.id)}
                             className="text-emerald-600 cursor-pointer"
                           >
                             <Save className="h-4 w-4" />
                           </button>
                           <button
-                           type="button"
+                            type="button"
                             onClick={() => setEditingSubjectId(null)}
                             className="text-[#584237] cursor-pointer"
                           >
@@ -738,7 +755,7 @@ export function CurriculumTrackerView() {
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <button
-                     type="button"
+                      type="button"
                       onClick={() => {
                         setQuickTaskSubjectId(subject.id);
                         setShowSettingsModal(true);
@@ -749,7 +766,7 @@ export function CurriculumTrackerView() {
                       <Settings2 className="h-4 w-4 text-[#9d4300]" />
                     </button>
                     <button
-                     type="button"
+                      type="button"
                       onClick={() => startEditSubject(subject)}
                       className="p-2 text-[#584237] hover:text-[#9d4300] hover:bg-[#eff4ff] rounded-xl transition cursor-pointer"
                       title="تعديل المادة"
@@ -757,7 +774,7 @@ export function CurriculumTrackerView() {
                       <Edit3 className="h-4 w-4" />
                     </button>
                     <button
-                     type="button"
+                      type="button"
                       onClick={() => deleteSubject(subject.id)}
                       className="p-2 text-[#584237] hover:text-red-600 hover:bg-red-50 rounded-xl transition cursor-pointer"
                       title="حذف المادة"
@@ -765,7 +782,7 @@ export function CurriculumTrackerView() {
                       <Trash2 className="h-4 w-4" />
                     </button>
                     <button
-                     type="button"
+                      type="button"
                       onClick={() => toggleExpand(subject.id)}
                       className="p-2 text-[#584237] hover:bg-[#eff4ff] rounded-xl transition cursor-pointer"
                     >
@@ -795,7 +812,7 @@ export function CurriculumTrackerView() {
                             className="flex items-center gap-3 p-3 rounded-2xl hover:bg-[#f8f9ff] transition group"
                           >
                             <button
-                             type="button"
+                              type="button"
                               onClick={() => toggleLesson(subject.id, lesson.id)}
                               className="shrink-0 cursor-pointer"
                             >
@@ -814,7 +831,7 @@ export function CurriculumTrackerView() {
                               {lesson.title}
                             </span>
                             <button
-                             type="button"
+                              type="button"
                               onClick={() => deleteLesson(subject.id, lesson.id)}
                               className="opacity-0 group-hover:opacity-100 p-1.5 text-[#584237] hover:text-red-600 rounded-lg transition cursor-pointer"
                             >
@@ -836,14 +853,14 @@ export function CurriculumTrackerView() {
                               autoFocus
                             />
                             <button
-                             type="button"
+                              type="button"
                               onClick={() => addLesson(subject.id)}
                               className="px-4 py-2 bg-[#9d4300] text-white rounded-2xl text-xs font-extrabold hover:bg-[#833800] transition cursor-pointer"
                             >
                               إضافة
                             </button>
                             <button
-                             type="button"
+                              type="button"
                               onClick={() => {
                                 setAddingLessonForId(null);
                                 setNewLessonTitle("");
@@ -855,7 +872,7 @@ export function CurriculumTrackerView() {
                           </div>
                         ) : (
                           <button
-                           type="button"
+                            type="button"
                             onClick={() => setAddingLessonForId(subject.id)}
                             className="flex items-center gap-2 mt-2 px-4 py-2 text-xs font-bold text-[#9d4300] hover:bg-[#eff4ff] rounded-2xl transition cursor-pointer"
                           >
