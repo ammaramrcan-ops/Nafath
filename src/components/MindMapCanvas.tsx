@@ -32,7 +32,16 @@ function calculateConnectionPath(
   parent: MindMapNode,
   child: MindMapNode,
   visibleNodes: MindMapNode[],
-): { pathD: string; lineColor: string; lineThickness: number; isDashed: boolean } {
+): {
+  pathD: string;
+  lineColor: string;
+  lineThickness: number;
+  isDashed: boolean;
+  startX: number;
+  startY: number;
+  endX: number;
+  endY: number;
+} {
   const pW = parent.width || 200;
   const pH = parent.height || 70;
   const cW = child.width || 200;

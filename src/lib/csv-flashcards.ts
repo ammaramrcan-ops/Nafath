@@ -66,14 +66,10 @@ function buildSmartCardFromCSVRow(row: string[]): SmartFlashcard | null {
       keyword_cues: cues || undefined,
     },
     stats: {
-      interval_days: 0,
-      ease_factor: 2.5,
-      repetitions: 0,
-      due_timestamp: Date.now(),
-      consecutive_correct: 0,
-      total_reviews: 0,
-      total_correct: 0,
-      last_confidence_score: 0,
+      interval: 0,
+      repetition: 0,
+      easeFactor: 2.5,
+      nextReviewDate: Date.now(),
     },
   };
 }

@@ -560,10 +560,4 @@ export function deleteLessonNote(id: string) {
   saveStoredLessonNotes(updated);
 }
 
-function getInitialMistakes(): ExamMistake[] {
-  return [];
-}
 
-function getInitialLessonNotes(): LessonNote[] {
-  return [];
-}
