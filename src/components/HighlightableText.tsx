@@ -109,7 +109,7 @@ export function HighlightableText({
 
   const splitStringNodeByHighlight = (
     node: string,
-    h: TextHighlight,
+    h: HighlightItem,
     nIdx: number,
   ): React.ReactNode => {
     const parts = node.split(h.text);

@@ -9,6 +9,7 @@ import {
   Pencil,
   Layers,
   ArrowRight,
+  X,
 } from "lucide-react";
 import {
   getDailyStreak,

@@ -14,7 +14,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-import type { ParagraphBlock as Block, HardWord } from "@/lib/lesson-data";
+import type { ParagraphBlock as Block } from "@/lib/lesson-data";
 import { HardWordText } from "./HardWordText";
 import { cn } from "@/lib/utils";
 import { DEFAULT_STAGE_ORDER, STAGE_LABELS, type Stage } from "@/lib/settings";

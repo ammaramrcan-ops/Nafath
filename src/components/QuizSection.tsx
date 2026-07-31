@@ -8,7 +8,6 @@ import {
   ArrowLeft,
   Sparkles,
   Award,
-  Clock,
   Zap,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -461,7 +460,6 @@ function McqHybridCard({
   q,
   lessonTitle,
   subjectId,
-  isLastQuestion,
   metric,
   setMetric,
   onNext,

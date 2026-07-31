@@ -37,7 +37,7 @@ export function TextHighlightWithButtons({
     sel.removeAllRanges();
   };
 
-  const splitHighlightNode = (node: string, h: HighlightItem, nIdx: number): React.ReactNode => {
+  const splitHighlightNode = (node: string, h: HighlightSpan, nIdx: number): React.ReactNode => {
     const parts = node.split(h.text);
     if (parts.length <= 1) return node;
 

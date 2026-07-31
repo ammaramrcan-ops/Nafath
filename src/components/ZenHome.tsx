@@ -5,24 +5,15 @@ import {
   BookOpen,
   Plus,
   Trash2,
-  Pencil,
-  Tag,
-  Clock,
-  FolderOpen,
-  FileText,
   CheckSquare,
   Brain,
-  ChevronLeft,
   BookMarked,
   Trash,
-  Check,
-  Target,
-  Flame,
 } from "lucide-react";
 import { getLibrary, deleteFromLibrary, type SavedLesson } from "@/lib/lesson-library";
 import { type Lesson } from "@/lib/lesson-data";
 import { getCurriculum, type Subject } from "@/lib/curriculum";
-import { getDailyStreak, getStoredSmartCards, trackDailyVisit, getRealAccuracy } from "@/lib/spaced-repetition";
+import { trackDailyVisit, getRealAccuracy } from "@/lib/spaced-repetition";
 import { SettingsDialog } from "@/components/SettingsDialog";
 import { RestoreDialog } from "@/components/RestoreDialog";
 import { CategorizeLessonModal } from "@/components/CategorizeLessonModal";
@@ -356,10 +347,20 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
                       className="p-4 bg-gray-50 rounded-lg border border-gray-100 flex flex-col justify-between space-y-3 group hover:border-[#f97316]/50 transition-all"
                     >
                       <div className="flex justify-between items-center">
-                        <span className="text-[10px] bg-white px-2 py-0.5 rounded shadow-2xs border border-gray-100 font-medium">
-                          {saved.subjectId || "درس عام"}
-                        </span>
                         <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedLessonForCat(saved);
+                            setCategorizeModalOpen(true);
+                          }}
+                          className="text-[10px] bg-white px-2 py-0.5 rounded shadow-2xs border border-gray-100 font-medium hover:bg-orange-50 hover:text-[#f97316] cursor-pointer"
+                          title="تغيير التصنيف"
+                        >
+                          {saved.subjectId || "درس عام 🏷️"}
+                        </button>
+                        <button
+                          type="button"
                           onClick={(e) => {
                             e.stopPropagation();
                             deleteFromLibrary(saved.id);
@@ -540,8 +541,8 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
       <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
       {selectedLessonForCat && (
         <CategorizeLessonModal
-          open={categorizeModalOpen}
-          onOpenChange={setCategorizeModalOpen}
+          isOpen={categorizeModalOpen}
+          onClose={() => setCategorizeModalOpen(false)}
           lesson={selectedLessonForCat}
           onUpdated={() => refresh()}
         />

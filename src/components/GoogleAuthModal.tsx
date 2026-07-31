@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { LogOut, CheckCircle2, User, Mail, Sparkles, ExternalLink } from "lucide-react";
+import { LogOut, CheckCircle2, User, Mail, ExternalLink } from "lucide-react";
 
 export interface UserProfile {
   name: string;
@@ -81,7 +81,7 @@ export function GoogleAuthModal({
     const left = window.screen.width / 2 - width / 2;
     const top = window.screen.height / 2 - height / 2;
 
-    const popup = window.open(
+    window.open(
       "https://accounts.google.com/o/oauth2/v2/auth?client_id=1037568584824-nafath.apps.googleusercontent.com&response_type=token&scope=email%20profile&redirect_uri=https://oauth.pstmn.io/v1/browser-callback",
       "GoogleSignInPopup",
       `width=${width},height=${height},top=${top},left=${left},scrollbars=yes`,

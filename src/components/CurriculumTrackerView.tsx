@@ -21,7 +21,7 @@ import {
   addSubject as addCurriculumSubject,
   deleteSubject as deleteCurriculumSubject,
 } from "@/lib/curriculum";
-import { getLibrary } from "@/lib/lesson-library";
+import { getLibrary, deleteFromLibrary } from "@/lib/lesson-library";
 import { generateSecureId } from "@/lib/utils";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
