@@ -1,11 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import {
-  Sparkles,
-  Filter,
-  FileSpreadsheet,
-  AlertCircle,
-  Plus,
-} from "lucide-react";
+import { Sparkles, Filter, FileSpreadsheet, AlertCircle, Plus } from "lucide-react";
 import type { ParagraphBlock as Block } from "@/lib/lesson-data";
 import { generateSmartCardsFromBlock } from "@/lib/auto-flashcards";
 import {

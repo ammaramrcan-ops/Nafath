@@ -15,7 +15,7 @@ import {
   Pencil,
   FileJson,
 } from "lucide-react";
-import {getSubject, type Subject} from "@/lib/curriculum";
+import { getSubject, type Subject } from "@/lib/curriculum";
 import {
   getLibrary,
   deleteFromLibrary,

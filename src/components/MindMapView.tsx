@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import {Plus, Download} from "lucide-react";
+import { Plus, Download } from "lucide-react";
 import {
   getDefaultKhulMindMap,
   getStoredMindMaps,

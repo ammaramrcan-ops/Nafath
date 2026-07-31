@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import {BookMarked, Trash2, Plus, Sparkles, X, FileText} from "lucide-react";
+import { BookMarked, Trash2, Plus, Sparkles, X, FileText } from "lucide-react";
 import {
   Dialog,
   DialogContent,

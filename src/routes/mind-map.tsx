@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
-import {ChevronRight, Layers} from "lucide-react";
+import { ChevronRight, Layers } from "lucide-react";
 import { MindMapView } from "@/components/MindMapView";
 
 interface MindMapSearch {

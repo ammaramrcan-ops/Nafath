@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import {Target, BookMarked, Sparkles} from "lucide-react";
+import { Target, BookMarked, Sparkles } from "lucide-react";
 import type { Lesson } from "@/lib/lesson-data";
 import { CheatSheet } from "@/components/CheatSheet";
 import { getMistakes } from "@/lib/mistakes";

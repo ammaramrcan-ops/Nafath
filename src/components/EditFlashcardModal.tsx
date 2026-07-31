@@ -1,10 +1,7 @@
 import { useState, useEffect } from "react";
-import {motion} from "framer-motion";
-import {X, Pencil, Save, Trash2} from "lucide-react";
-import {
-  type FlashcardCategory,
-  type SmartFlashcard,
-} from "@/lib/spaced-repetition";
+import { motion } from "framer-motion";
+import { X, Pencil, Save, Trash2 } from "lucide-react";
+import { type FlashcardCategory, type SmartFlashcard } from "@/lib/spaced-repetition";
 import { toast } from "sonner";
 import { generateSecureId } from "@/lib/utils";
 
@@ -127,7 +124,9 @@ export function EditFlashcardModal({
         <div className="space-y-4">
           {/* Category Selector */}
           <div className="space-y-1.5">
-            <label htmlFor="fc-category-select" className="text-xs font-black text-slate-800">تصنيف نوع الكارت:</label>
+            <label htmlFor="fc-category-select" className="text-xs font-black text-slate-800">
+              تصنيف نوع الكارت:
+            </label>
             <select
               id="fc-category-select"
               value={category}
@@ -145,7 +144,9 @@ export function EditFlashcardModal({
 
           {/* Question Textarea */}
           <div className="space-y-1.5">
-            <label htmlFor="fc-question-input" className="text-xs font-black text-slate-800">نص السؤال الاسترجاعي 📌:</label>
+            <label htmlFor="fc-question-input" className="text-xs font-black text-slate-800">
+              نص السؤال الاسترجاعي 📌:
+            </label>
             <textarea
               id="fc-question-input"
               value={question}

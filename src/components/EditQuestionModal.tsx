@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import {motion} from "framer-motion";
-import {X, Pencil, Plus, Trash2, Check} from "lucide-react";
+import { motion } from "framer-motion";
+import { X, Pencil, Plus, Trash2, Check } from "lucide-react";
 import type { ExamQuestion, ExamQuestionType } from "@/lib/interactive-exams-service";
 import { toast } from "sonner";
 import { generateSecureId } from "@/lib/utils";
@@ -169,7 +169,9 @@ export function EditQuestionModal({
 
           {/* Question Text */}
           <div className="space-y-2">
-            <label htmlFor="eq-text-input" className="block text-xs font-bold text-[#0b1c30]">نص السؤال:</label>
+            <label htmlFor="eq-text-input" className="block text-xs font-bold text-[#0b1c30]">
+              نص السؤال:
+            </label>
             <textarea
               id="eq-text-input"
               rows={3}
@@ -222,7 +224,10 @@ export function EditQuestionModal({
 
           {/* Model Answer */}
           <div className="space-y-2">
-            <label htmlFor="eq-model-answer-input" className="block text-xs font-bold text-[#0b1c30]">
+            <label
+              htmlFor="eq-model-answer-input"
+              className="block text-xs font-bold text-[#0b1c30]"
+            >
               الإجابة النموذجية الصحيحة:
             </label>
             <textarea
@@ -238,7 +243,12 @@ export function EditQuestionModal({
           {/* Topic & Baladi Explanation Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label htmlFor="eq-topic-label-input" className="block text-xs font-bold text-[#0b1c30]">عنوان الموضوع/الدرس:</label>
+              <label
+                htmlFor="eq-topic-label-input"
+                className="block text-xs font-bold text-[#0b1c30]"
+              >
+                عنوان الموضوع/الدرس:
+              </label>
               <input
                 id="eq-topic-label-input"
                 type="text"
@@ -250,7 +260,12 @@ export function EditQuestionModal({
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="eq-topic-tag-input" className="block text-xs font-bold text-[#0b1c30]">التاج التوضيحي:</label>
+              <label
+                htmlFor="eq-topic-tag-input"
+                className="block text-xs font-bold text-[#0b1c30]"
+              >
+                التاج التوضيحي:
+              </label>
               <input
                 id="eq-topic-tag-input"
                 type="text"
@@ -263,7 +278,10 @@ export function EditQuestionModal({
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="eq-explanation-input" className="block text-xs font-bold text-[#0b1c30]">
+            <label
+              htmlFor="eq-explanation-input"
+              className="block text-xs font-bold text-[#0b1c30]"
+            >
               الشرح البلدي الميسر (اختياري):
             </label>
             <input

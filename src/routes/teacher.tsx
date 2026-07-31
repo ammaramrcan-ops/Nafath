@@ -17,6 +17,11 @@ import {
   BookOpen,
   CheckCircle2,
   Copy,
+  Code,
+  Feather,
+  Scale,
+  FlaskConical,
+  ChevronLeft,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -33,7 +38,7 @@ import {
   type Quizzes,
 } from "@/lib/lesson-data";
 import { STAGE_LABELS, DEFAULT_STAGE_ORDER, type Stage } from "@/lib/settings";
-import { saveToLibrary } from "@/lib/lesson-library";
+import { saveToLibrary, getLibrary } from "@/lib/lesson-library";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { VisualHighlightArea } from "@/components/VisualHighlightArea";
@@ -199,6 +204,15 @@ function TeacherPage() {
   // 7-Step Dedicated Modular AI Wizard Modal State
   const [showImportModal, setShowImportModal] = useState(false);
   const [wizardStep, setWizardStep] = useState<1 | 2 | 3 | 4 | 5 | 6 | 7>(1);
+  const [selectedSubjectId, setSelectedSubjectId] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get("subject");
+    }
+    return null;
+  });
+  const [isSelectingSubject, setIsSelectingSubject] = useState(false);
+
   const [jsonInput1, setJsonInput1] = useState("");
   const [jsonInputMindMap, setJsonInputMindMap] = useState("");
   const [jsonInput2, setJsonInput2] = useState("");
@@ -209,13 +223,13 @@ function TeacherPage() {
 
   useEffect(() => {
     if (typeof window !== "undefined" && window.location.search.includes("import=true")) {
-      setWizardStep(1);
       setShowImportModal(true);
 
-      // Apply subject stage orders if subject parameter is present
       const urlParams = new URLSearchParams(window.location.search);
       const subjectId = urlParams.get("subject");
       if (subjectId) {
+        setSelectedSubjectId(subjectId);
+        setIsSelectingSubject(false);
         const subject = getSubjectById(subjectId);
         if (subject) {
           setLesson((prev) => ({
@@ -224,6 +238,8 @@ function TeacherPage() {
             levelDisabledStages: subject.levelDisabledStages,
           }));
         }
+      } else {
+        setIsSelectingSubject(true);
       }
     }
   }, []);
@@ -618,6 +634,18 @@ function TeacherPage() {
 
           <div className="flex items-center gap-3">
             <button
+              type="button"
+              onClick={() => {
+                setWizardStep(1);
+                setShowImportModal(true);
+              }}
+              className="inline-flex items-center gap-2 rounded-full bg-[#9d4300] hover:bg-[#7d3500] px-6 py-3 text-xs sm:text-sm font-extrabold text-white shadow-md hover:shadow-lg transition cursor-pointer"
+            >
+              <Sparkles className="h-4 w-4" />
+              <span>استرداد وتصميم الدرس بالذكاء الاصطناعي 🚀</span>
+            </button>
+
+            <button
               onClick={handleSaveToLibrary}
               className="inline-flex items-center gap-2 rounded-full bg-[#213145] hover:bg-[#0b1c30] px-7 py-3 text-xs sm:text-sm font-extrabold text-white shadow-md transition cursor-pointer"
             >
@@ -628,157 +656,376 @@ function TeacherPage() {
         </div>
       </header>
 
-      {/* 3-Step Wizard Modal Window */}
+      {/* Full-Screen Immersive Wizard Workspace */}
+      {/* Full-Screen Immersive Wizard Workspace */}
       {showImportModal && (
-        <div className="fixed inset-0 bg-slate-950/75 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 z-[99999] dir-rtl overflow-y-auto">
-          <div className="bg-white border border-[#e0c0b1] rounded-3xl p-6 sm:p-10 max-w-4xl w-full shadow-2xl space-y-6 text-right max-h-[92vh] overflow-y-auto">
-            {/* Modal Header */}
-            {/* Stepper Header */}
-            <div className="flex items-center justify-between border-b border-[#e0c0b1]/30 pb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-[#ffdbca] text-[#9d4300] flex items-center justify-center font-black shadow-xs">
-                  <Sparkles className="h-5 w-5" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-extrabold text-[#0b1c30]">
-                    نظام إضافة الدرس الذكي (6 خطوات متتابعة بـ JSON) 🚀
-                  </h3>
-                  <p className="text-xs font-semibold text-[#584237]/70">
-                    توليد منظم ودقيق لكل مكون في الدرس لضمان أعلى جودة تعليمية بدون أخطاء
-                  </p>
-                </div>
+        <div className="fixed inset-0 bg-[#f8f9ff] z-[99999] dir-rtl flex flex-col w-full h-full min-h-screen overflow-hidden text-[#0b1c30]">
+          {/* Top Bar Header */}
+          <header className="bg-white border-b border-[#e0c0b1]/40 px-6 sm:px-10 py-4 shadow-xs z-50 flex items-center justify-between shrink-0">
+            <div className="flex items-center gap-4">
+              <div className="w-11 h-11 rounded-2xl bg-[#ffdbca] text-[#9d4300] flex items-center justify-center font-black shadow-xs">
+                <Sparkles className="h-6 w-6" />
               </div>
+              <div>
+                <h2 className="text-xl font-headline-sm font-extrabold text-[#0b1c30] flex items-center gap-3">
+                  <span>نظام إضافة واسترداد الدرس الذكي</span>
+                  {selectedSubjectId && !isSelectingSubject && (
+                    <span className="px-3 py-1 bg-[#ffdbca]/70 text-[#9d4300] text-xs font-black rounded-full border border-[#ffdbca]">
+                      المادة: {getCurriculum().subjects.find((s) => s.id === selectedSubjectId)?.name || "الفقه"}
+                    </span>
+                  )}
+                </h2>
+                <p className="text-xs font-semibold text-[#584237]/70 mt-0.5">
+                  توليد منظم ودقيق لكل مكون في الدرس لضمان أعلى جودة تعليمية بدقة احترافية
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              {selectedSubjectId && !isSelectingSubject && (
+                <button
+                  type="button"
+                  onClick={() => setIsSelectingSubject(true)}
+                  className="flex items-center gap-2 px-4 py-2 rounded-full border border-[#e0c0b1] hover:bg-slate-50 text-[#584237] font-bold text-xs transition cursor-pointer"
+                >
+                  <span>تغيير المادة 📚</span>
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => setShowImportModal(false)}
-                className="p-2.5 rounded-full hover:bg-slate-100 text-slate-500 transition cursor-pointer"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-slate-100 hover:bg-slate-200 text-[#0b1c30] font-extrabold text-xs transition cursor-pointer"
               >
-                <X className="h-6 w-6" />
+                <X className="h-4 w-4" />
+                <span>إغلاق والعودة</span>
               </button>
             </div>
+          </header>
 
-            {/* Stepper Tabs (Grid 6) */}
-            <div className="grid grid-cols-2 sm:grid-cols-7 gap-2">
+          {/* SCREEN 0: Subject Selection Canvas */}
+          {(isSelectingSubject || !selectedSubjectId) ? (
+            <main className="flex-1 flex flex-col items-center justify-between overflow-y-auto px-6 sm:px-12 py-10 max-w-[1400px] w-full mx-auto space-y-10">
+              <div className="text-center space-y-3">
+                <h2 className="text-3xl font-extrabold text-[#0b1c30]">
+                  اختر المادة التي تريد إضافة الدرس إليها 📚
+                </h2>
+                <p className="text-sm font-semibold text-[#584237]/80 max-w-lg mx-auto">
+                  حدد المادة التعليمية لتهيئة تخصيصات القواعد والمستويات وإدراج الدرس ضمن خطتها التعليمية.
+                </p>
+              </div>
+
+              {/* Selection Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+                {getCurriculum().subjects.map((subj) => {
+                  const category = subj.category || "عامة";
+                  const isSharia = category === "شرعية" || subj.name.includes("فقه");
+                  const isArabic = category === "عربية" || subj.name.includes("أدب");
+                  const isScience = category === "علمية" || subj.name.includes("أحياء");
+
+                  const icon = isSharia ? (
+                    <Scale className="h-7 w-7 text-purple-700" />
+                  ) : isArabic ? (
+                    <Feather className="h-7 w-7 text-[#9d4300]" />
+                  ) : isScience ? (
+                    <FlaskConical className="h-7 w-7 text-teal-700" />
+                  ) : (
+                    <Code className="h-7 w-7 text-blue-700" />
+                  );
+
+                  const bgStyle = isSharia
+                    ? "bg-purple-100 group-hover:bg-purple-200"
+                    : isArabic
+                    ? "bg-[#ffdbca]/60 group-hover:bg-[#ffdbca]"
+                    : isScience
+                    ? "bg-teal-100 group-hover:bg-teal-200"
+                    : "bg-blue-100 group-hover:bg-blue-200";
+
+                  const badgeStyle = isSharia
+                    ? "bg-purple-50 text-purple-800 border-purple-200"
+                    : isArabic
+                    ? "bg-[#fffaf7] text-[#9d4300] border-[#ffdbca]"
+                    : isScience
+                    ? "bg-teal-50 text-teal-800 border-teal-200"
+                    : "bg-blue-50 text-blue-800 border-blue-200";
+
+                  const lessonCount = getLibrary().filter((l) => l.subjectId === subj.id).length;
+
+                  return (
+                    <button
+                      key={subj.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedSubjectId(subj.id);
+                        setIsSelectingSubject(false);
+                        setWizardStep(1);
+                        const subjectConfig = getSubjectById(subj.id);
+                        if (subjectConfig) {
+                          setLesson((prev) => ({
+                            ...prev,
+                            levelStageOrders: subjectConfig.levelStageOrders,
+                            levelDisabledStages: subjectConfig.levelDisabledStages,
+                          }));
+                        }
+                        toast.success(`تم اختيار مادة (${subj.name}) لاستيراد الدرس! ✨`);
+                      }}
+                      className="bg-white border-2 border-[#e0c0b1]/40 hover:border-[#9d4300] rounded-2xl p-6 flex items-center justify-between group shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer text-right"
+                    >
+                      <div className="flex items-center gap-5">
+                        <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center transition-colors shrink-0", bgStyle)}>
+                          {icon}
+                        </div>
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <h3 className="text-xl font-extrabold text-[#0b1c30] group-hover:text-[#9d4300] transition-colors">
+                              {subj.name}
+                            </h3>
+                            <span className={cn("text-[10px] font-black px-2.5 py-0.5 rounded-full border", badgeStyle)}>
+                              {category}
+                            </span>
+                          </div>
+                          <p className="text-xs font-semibold text-[#584237]/70">
+                            {lessonCount > 0 ? `${lessonCount} دروس بالمنهج` : "مادة جديدة"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <ChevronLeft className="h-6 w-6 text-[#e0c0b1] group-hover:text-[#9d4300] group-hover:-translate-x-2 transition-transform shrink-0" />
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Quick Default Action */}
+              <div className="flex justify-center pt-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedSubjectId("fiqh");
+                    setIsSelectingSubject(false);
+                    setWizardStep(1);
+                  }}
+                  className="text-xs font-extrabold text-[#584237] hover:text-[#9d4300] underline underline-offset-4 transition cursor-pointer"
+                >
+                  متابعة الاستيراد مباشرة بدون تحديد مادة (افتراضي: الفقه)
+                </button>
+              </div>
+            </main>
+          ) : (
+            <>
+              {/* Stepper Header Bar Across Full Width */}
+              <nav className="bg-[#eff4ff] border-b border-[#e0c0b1]/30 px-6 sm:px-10 py-3.5 shrink-0 overflow-x-auto no-scrollbar">
+                <div className="max-w-[1700px] mx-auto flex items-center justify-between gap-2.5 min-w-[950px]">
               <button
                 type="button"
                 onClick={() => setWizardStep(1)}
                 className={cn(
-                  "p-3 rounded-2xl border text-right transition cursor-pointer flex flex-col gap-1",
+                  "flex-1 flex items-center gap-2.5 p-2.5 rounded-2xl border transition-all cursor-pointer text-right",
                   wizardStep === 1
-                    ? "bg-[#9d4300] text-white border-[#9d4300] shadow-md"
-                    : "bg-[#fffaf7] text-[#584237] border-[#ffdbca] hover:bg-[#ffeddf]",
+                    ? "bg-[#9d4300] text-white border-[#9d4300] shadow-md ring-2 ring-[#9d4300]/20 scale-[1.02]"
+                    : "bg-white text-[#584237] border-[#e0c0b1]/50 hover:bg-[#ffeddf]",
                 )}
               >
-                <span className="text-[10px] font-black opacity-80">1. القصة</span>
-                <span className="text-xs font-black truncate">التمهيد والدراما 📖</span>
+                <div
+                  className={cn(
+                    "w-8 h-8 rounded-xl flex items-center justify-center font-extrabold text-xs shrink-0",
+                    wizardStep === 1 ? "bg-white text-[#9d4300]" : "bg-[#ffdbca] text-[#9d4300]",
+                  )}
+                >
+                  1
+                </div>
+                <div className="overflow-hidden">
+                  <span className="block text-[9px] font-black opacity-80">الخطوة الأولى</span>
+                  <span className="block text-xs font-black truncate">القصة والدراما 📖</span>
+                </div>
               </button>
+
+              <div className="w-4 h-0.5 bg-[#d3e4fe] shrink-0" />
 
               <button
                 type="button"
                 onClick={() => setWizardStep(2)}
                 className={cn(
-                  "p-3 rounded-2xl border text-right transition cursor-pointer flex flex-col gap-1",
+                  "flex-1 flex items-center gap-2.5 p-2.5 rounded-2xl border transition-all cursor-pointer text-right",
                   wizardStep === 2
-                    ? "bg-teal-700 text-white border-teal-700 shadow-md"
-                    : "bg-teal-50 text-[#584237] border-teal-200 hover:bg-teal-100/70",
+                    ? "bg-teal-700 text-white border-teal-700 shadow-md ring-2 ring-teal-700/20 scale-[1.02]"
+                    : "bg-white text-[#584237] border-[#e0c0b1]/50 hover:bg-teal-50",
                 )}
               >
-                <span className="text-[10px] font-black opacity-80">2. البصرية</span>
-                <span className="text-xs font-black truncate">الخرائط الذهنية 🗺️</span>
+                <div
+                  className={cn(
+                    "w-8 h-8 rounded-xl flex items-center justify-center font-extrabold text-xs shrink-0",
+                    wizardStep === 2 ? "bg-white text-teal-800" : "bg-teal-100 text-teal-800",
+                  )}
+                >
+                  2
+                </div>
+                <div className="overflow-hidden">
+                  <span className="block text-[9px] font-black opacity-80">الخطوة الثانية</span>
+                  <span className="block text-xs font-black truncate">الخرائط الذهنية 🗺️</span>
+                </div>
               </button>
+
+              <div className="w-4 h-0.5 bg-[#d3e4fe] shrink-0" />
 
               <button
                 type="button"
                 onClick={() => setWizardStep(3)}
                 className={cn(
-                  "p-3 rounded-2xl border text-right transition cursor-pointer flex flex-col gap-1",
+                  "flex-1 flex items-center gap-2.5 p-2.5 rounded-2xl border transition-all cursor-pointer text-right",
                   wizardStep === 3
-                    ? "bg-[#8127cf] text-white border-[#8127cf] shadow-md"
-                    : "bg-[#eff4ff] text-[#584237] border-[#e0c0b1]/60 hover:bg-[#dce9ff]",
+                    ? "bg-[#8127cf] text-white border-[#8127cf] shadow-md ring-2 ring-[#8127cf]/20 scale-[1.02]"
+                    : "bg-white text-[#584237] border-[#e0c0b1]/50 hover:bg-purple-50",
                 )}
               >
-                <span className="text-[10px] font-black opacity-80">3. التنبيهات</span>
-                <span className="text-xs font-black truncate">خد بالك منها 💡</span>
+                <div
+                  className={cn(
+                    "w-8 h-8 rounded-xl flex items-center justify-center font-extrabold text-xs shrink-0",
+                    wizardStep === 3 ? "bg-white text-[#8127cf]" : "bg-purple-100 text-[#8127cf]",
+                  )}
+                >
+                  3
+                </div>
+                <div className="overflow-hidden">
+                  <span className="block text-[9px] font-black opacity-80">الخطوة الثالثة</span>
+                  <span className="block text-xs font-black truncate">خد بالك منها 💡</span>
+                </div>
               </button>
+
+              <div className="w-4 h-0.5 bg-[#d3e4fe] shrink-0" />
 
               <button
                 type="button"
                 onClick={() => setWizardStep(4)}
                 className={cn(
-                  "p-3 rounded-2xl border text-right transition cursor-pointer flex flex-col gap-1",
+                  "flex-1 flex items-center gap-2.5 p-2.5 rounded-2xl border transition-all cursor-pointer text-right",
                   wizardStep === 4
-                    ? "bg-amber-700 text-white border-amber-700 shadow-md"
-                    : "bg-amber-50 text-[#584237] border-amber-200 hover:bg-amber-100/80",
+                    ? "bg-amber-700 text-white border-amber-700 shadow-md ring-2 ring-amber-700/20 scale-[1.02]"
+                    : "bg-white text-[#584237] border-[#e0c0b1]/50 hover:bg-amber-50",
                 )}
               >
-                <span className="text-[10px] font-black opacity-80">4. الخلاصة</span>
-                <span className="text-xs font-black truncate">كروت الزيتونة 🫒</span>
+                <div
+                  className={cn(
+                    "w-8 h-8 rounded-xl flex items-center justify-center font-extrabold text-xs shrink-0",
+                    wizardStep === 4 ? "bg-white text-amber-800" : "bg-amber-100 text-amber-800",
+                  )}
+                >
+                  4
+                </div>
+                <div className="overflow-hidden">
+                  <span className="block text-[9px] font-black opacity-80">الخطوة الرابعة</span>
+                  <span className="block text-xs font-black truncate">كروت الزيتونة 🫒</span>
+                </div>
               </button>
+
+              <div className="w-4 h-0.5 bg-[#d3e4fe] shrink-0" />
 
               <button
                 type="button"
                 onClick={() => setWizardStep(5)}
                 className={cn(
-                  "p-3 rounded-2xl border text-right transition cursor-pointer flex flex-col gap-1",
+                  "flex-1 flex items-center gap-2.5 p-2.5 rounded-2xl border transition-all cursor-pointer text-right",
                   wizardStep === 5
-                    ? "bg-emerald-700 text-white border-emerald-700 shadow-md"
-                    : "bg-[#f0fdf4] text-[#584237] border-emerald-200 hover:bg-emerald-100/70",
+                    ? "bg-emerald-700 text-white border-emerald-700 shadow-md ring-2 ring-emerald-700/20 scale-[1.02]"
+                    : "bg-white text-[#584237] border-[#e0c0b1]/50 hover:bg-emerald-50",
                 )}
               >
-                <span className="text-[10px] font-black opacity-80">5. المستوى 1</span>
-                <span className="text-xs font-black truncate">أسئلة MCQs 🎯</span>
+                <div
+                  className={cn(
+                    "w-8 h-8 rounded-xl flex items-center justify-center font-extrabold text-xs shrink-0",
+                    wizardStep === 5 ? "bg-white text-emerald-800" : "bg-emerald-100 text-emerald-800",
+                  )}
+                >
+                  5
+                </div>
+                <div className="overflow-hidden">
+                  <span className="block text-[9px] font-black opacity-80">الخطوة الخامسة</span>
+                  <span className="block text-xs font-black truncate">أسئلة المستوى 1 🎯</span>
+                </div>
               </button>
+
+              <div className="w-4 h-0.5 bg-[#d3e4fe] shrink-0" />
 
               <button
                 type="button"
                 onClick={() => setWizardStep(6)}
                 className={cn(
-                  "p-3 rounded-2xl border text-right transition cursor-pointer flex flex-col gap-1",
+                  "flex-1 flex items-center gap-2.5 p-2.5 rounded-2xl border transition-all cursor-pointer text-right",
                   wizardStep === 6
-                    ? "bg-purple-700 text-white border-purple-700 shadow-md"
-                    : "bg-purple-50 text-[#584237] border-purple-200 hover:bg-purple-100/70",
+                    ? "bg-purple-700 text-white border-purple-700 shadow-md ring-2 ring-purple-700/20 scale-[1.02]"
+                    : "bg-white text-[#584237] border-[#e0c0b1]/50 hover:bg-purple-50",
                 )}
               >
-                <span className="text-[10px] font-black opacity-80">6. الاستذكار</span>
-                <span className="text-xs font-black truncate">الفلاش كاردز 🗂️</span>
+                <div
+                  className={cn(
+                    "w-8 h-8 rounded-xl flex items-center justify-center font-extrabold text-xs shrink-0",
+                    wizardStep === 6 ? "bg-white text-purple-800" : "bg-purple-100 text-purple-800",
+                  )}
+                >
+                  6
+                </div>
+                <div className="overflow-hidden">
+                  <span className="block text-[9px] font-black opacity-80">الخطوة السادسة</span>
+                  <span className="block text-xs font-black truncate">الفلاش كاردز 🗂️</span>
+                </div>
               </button>
+
+              <div className="w-4 h-0.5 bg-[#d3e4fe] shrink-0" />
 
               <button
                 type="button"
                 onClick={() => setWizardStep(7)}
                 className={cn(
-                  "p-3 rounded-2xl border text-right transition cursor-pointer flex flex-col gap-1",
+                  "flex-1 flex items-center gap-2.5 p-2.5 rounded-2xl border transition-all cursor-pointer text-right",
                   wizardStep === 7
-                    ? "bg-blue-700 text-white border-blue-700 shadow-md"
-                    : "bg-[#eff6ff] text-[#584237] border-blue-200 hover:bg-blue-100/70",
+                    ? "bg-blue-700 text-white border-blue-700 shadow-md ring-2 ring-blue-700/20 scale-[1.02]"
+                    : "bg-white text-[#584237] border-[#e0c0b1]/50 hover:bg-blue-50",
                 )}
               >
-                <span className="text-[10px] font-black opacity-80">7. المستويات 2و3</span>
-                <span className="text-xs font-black truncate">أكمل ومقالي 🧠</span>
+                <div
+                  className={cn(
+                    "w-8 h-8 rounded-xl flex items-center justify-center font-extrabold text-xs shrink-0",
+                    wizardStep === 7 ? "bg-white text-blue-800" : "bg-blue-100 text-blue-800",
+                  )}
+                >
+                  7
+                </div>
+                <div className="overflow-hidden">
+                  <span className="block text-[9px] font-black opacity-80">الخطوة السابعة</span>
+                  <span className="block text-xs font-black truncate">المستويات 2و3 🧠</span>
+                </div>
               </button>
             </div>
+          </nav>
 
+          {/* Full Screen Split Main Workspace */}
+          <main className="flex-1 overflow-y-auto px-6 sm:px-12 py-8 max-w-[1700px] w-full mx-auto">
             {/* SCREEN 1: Story & Master Story JSON */}
             {wizardStep === 1 && (
-              <div className="space-y-6 pt-2">
-                <div className="bg-[#fffaf7] border border-[#ffdbca] rounded-3xl p-6 space-y-4 text-right">
-                  <div className="flex items-center justify-between border-b border-[#ffdbca]/60 pb-3">
-                    <div className="space-y-1">
-                      <h3 className="text-base font-extrabold text-[#9d4300] flex items-center gap-2">
-                        <BookOpen className="h-5 w-5" />
-                        <span>
-                          البرومبت المخصص 1: (القصة التمهيدية الجامعة والمواقف الحوارية 📖)
-                        </span>
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                {/* Right Column: Prompt & AI Instructions */}
+                <div className="lg:col-span-5 bg-white p-8 rounded-2xl shadow-sm border border-[#e0c0b1]/40 space-y-6 text-right">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3.5 rounded-2xl bg-[#ffdbca]/50 text-[#9d4300]">
+                      <BookOpen className="h-8 w-8" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-extrabold text-[#0b1c30]">
+                        البرومبت المخصص 1:
                       </h3>
-                      <p className="text-xs text-[#584237]/70 font-semibold">
-                        انسخ هذا الأمر والصقه في الذكاء الاصطناعي لتوليد القصة الشاملة للدرس ككل
-                        والمواقف الحوارية لكل فقرة
+                      <p className="text-xs font-semibold text-[#584237]/80">
+                        (القصة التمهيدية الجامعة والمواقف الحوارية 📖)
                       </p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const promptText = `أنت خبير التصميم التعليمي لمنصة "نفاذ - Nafath".
+                  </div>
+
+                  <p className="text-xs font-semibold text-[#584237]/80 leading-relaxed bg-[#fffaf7] p-4 rounded-xl border border-[#ffdbca]/60">
+                    انسخ هذا الأمر والصقه في الذكاء الاصطناعي (مثل NotebookLM أو ChatGPT) لتوليد القصة الشاملة للدرس ككل والمواقف الحوارية لكل فقرة بأسلوب مشوق.
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const promptText = `أنت خبير التصميم التعليمي لمنصة "نفاذ - Nafath".
 مهمتك تحويل النص أدناه إلى كود JSON للقصص الحوارية والتمهيد، وفق القواعد التالية:
 
 1. الفهم الفكري لا الحفظ (شرط جوهري): هدف المستوى الأول هو الفهم العام والسلس للفكرة الجوهرية للفقرة دون الحاجة للحفظ الميكانيكي أو البصم الحرفي!
@@ -804,43 +1051,50 @@ function TeacherPage() {
 }
 ---
 [الصق نص الدرس هنا]`;
-                        navigator.clipboard.writeText(promptText);
-                        toast.success("تم نسخ برومبت القصة والدراما بالعامية المصرية بنجاح! 📋");
-                      }}
-                      className="px-5 py-2 bg-[#9d4300] text-white rounded-full text-xs font-extrabold hover:bg-[#833800] transition cursor-pointer shadow-xs flex items-center gap-2"
-                    >
-                      <Copy className="h-4 w-4" />
-                      <span>نسخ البرومبت 1 📋</span>
-                    </button>
-                  </div>
+                      navigator.clipboard.writeText(promptText);
+                      toast.success("تم نسخ برومبت القصة والدراما بنجاح! 📋");
+                    }}
+                    className="w-full flex items-center justify-center gap-3 bg-[#8127cf] hover:bg-[#6b1cb3] text-white py-4 px-8 rounded-full font-extrabold text-sm transition-all active:scale-95 shadow-md hover:shadow-lg cursor-pointer"
+                  >
+                    <Copy className="h-5 w-5" />
+                    <span>نسخ البرومبت 1 📋</span>
+                  </button>
                 </div>
 
-                <div className="space-y-3 text-right">
+                {/* Left Column: Code Input & Action */}
+                <div className="lg:col-span-7 bg-white p-8 rounded-2xl shadow-sm border border-[#e0c0b1]/40 space-y-6 text-right">
                   <label
                     htmlFor="json-input-1"
-                    className="text-sm font-extrabold text-[#0b1c30] block"
+                    className="text-lg font-extrabold text-[#0b1c30] flex items-center gap-3"
                   >
-                    الصق كود JSON الناتج (JSON 1) الخاص بالقصة والدراما أدناه:
+                    <span className="p-2 rounded-lg bg-[#9d4300]/10 text-[#9d4300]">
+                      <Code className="h-5 w-5" />
+                    </span>
+                    <span>الصق كود JSON الناتج الخاص بالقصة والدراما أدناه:</span>
                   </label>
-                  <textarea
-                    id="json-input-1"
-                    rows={10}
-                    value={jsonInput1}
-                    onChange={(e) => setJsonInput1(e.target.value)}
-                    placeholder="الصق كود JSON 1 هنا..."
-                    className="w-full bg-[#f8f9ff] border border-[#e0c0b1] rounded-2xl p-4 text-xs font-mono text-[#0b1c30] focus:outline-none focus:ring-2 focus:ring-[#9d4300] leading-relaxed"
-                  />
-                  <div className="flex items-center justify-end pt-2">
+
+                  <div className="relative group">
+                    <textarea
+                      id="json-input-1"
+                      rows={14}
+                      value={jsonInput1}
+                      onChange={(e) => setJsonInput1(e.target.value)}
+                      placeholder='{ "title": "...", "master_story": "...", "blocks": [...] }'
+                      className="w-full bg-[#f8f9ff] border-2 border-transparent focus:border-[#9d4300] focus:bg-white rounded-2xl p-6 font-mono text-sm leading-relaxed text-[#0b1c30] transition-all shadow-inner"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-end pt-4 border-t border-[#e0c0b1]/30">
                     <button
                       type="button"
                       onClick={() => {
                         const ok = handleImportStepContent(jsonInput1);
                         if (ok) setWizardStep(2);
                       }}
-                      className="px-8 py-3 bg-[#9d4300] text-white rounded-full text-sm font-extrabold hover:bg-[#833800] transition cursor-pointer shadow-md flex items-center gap-2"
+                      className="group flex items-center gap-3 bg-[#9d4300] hover:bg-[#7f3600] text-white px-10 py-4.5 rounded-full font-extrabold text-base hover:shadow-lg hover:shadow-[#9d4300]/20 transition-all active:scale-98 cursor-pointer"
                     >
                       <span>اعتماد وانتقال للخطوة 2 (الخرائط الذهنية 🗺️)</span>
-                      <ArrowLeft className="h-4 w-4" />
+                      <ArrowLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
                     </button>
                   </div>
                 </div>
@@ -849,24 +1103,31 @@ function TeacherPage() {
 
             {/* SCREEN 2: Mind Maps JSON */}
             {wizardStep === 2 && (
-              <div className="space-y-6 pt-2">
-                <div className="bg-teal-50 border border-teal-200 rounded-3xl p-6 space-y-4 text-right">
-                  <div className="flex items-center justify-between border-b border-teal-200/60 pb-3">
-                    <div className="space-y-1">
-                      <h3 className="text-base font-extrabold text-teal-950 flex items-center gap-2">
-                        <Sparkles className="h-5 w-5 text-teal-700" />
-                        <span>
-                          البرومبت المخصص 2: (الخرائط الذهنية الهيكلية لكل فقرة 🗺️)
-                        </span>
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                {/* Right Column: Prompt & AI Instructions */}
+                <div className="lg:col-span-5 bg-white p-8 rounded-2xl shadow-sm border border-teal-200/60 space-y-6 text-right">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3.5 rounded-2xl bg-teal-100 text-teal-800">
+                      <Sparkles className="h-8 w-8 text-teal-700" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-extrabold text-[#0b1c30]">
+                        البرومبت المخصص 2:
                       </h3>
-                      <p className="text-xs text-teal-800 font-semibold">
-                        انسخ هذا الأمر والصقه في الذكاء الاصطناعي لاستخراج فروع الخريطة الذهنية البصرية لكل فقرة
+                      <p className="text-xs font-semibold text-teal-800">
+                        (الخرائط الذهنية الهيكلية لكل فقرة 🗺️)
                       </p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const promptText = `أنت خبير تصاميم الخرائط الذهنية البصرية لمنصة "نفاذ - Nafath".
+                  </div>
+
+                  <p className="text-xs font-semibold text-teal-900 leading-relaxed bg-teal-50 p-4 rounded-xl border border-teal-200/60">
+                    انسخ هذا الأمر والصقه في الذكاء الاصطناعي لاستخراج فروع الخريطة الذهنية البصرية لكل فقرة ليتم رسمها حركياً للطالب.
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const promptText = `أنت خبير تصاميم الخرائط الذهنية البصرية لمنصة "نفاذ - Nafath".
 مهمتك استخراج فروع الخريطة الذهنية البصرية لكل فقرة ليتم رسمها حركياً للطالب.
 
 القواعد:
@@ -891,37 +1152,44 @@ function TeacherPage() {
 أخرج كود JSON الصافي فقط وبدون أي مقدمات أو نصوص خارجيّة.
 ---
 [الصق نص الدرس هنا]`;
-                        navigator.clipboard.writeText(promptText);
-                        toast.success("تم نسخ برومبت الخرائط الذهنية بنجاح! 📋");
-                      }}
-                      className="px-5 py-2 bg-teal-700 text-white rounded-full text-xs font-extrabold hover:bg-teal-800 transition cursor-pointer shadow-xs flex items-center gap-2"
-                    >
-                      <Copy className="h-4 w-4" />
-                      <span>نسخ البرومبت 2 📋</span>
-                    </button>
-                  </div>
+                      navigator.clipboard.writeText(promptText);
+                      toast.success("تم نسخ برومبت الخرائط الذهنية بنجاح! 📋");
+                    }}
+                    className="w-full flex items-center justify-center gap-3 bg-teal-700 hover:bg-teal-800 text-white py-4 px-8 rounded-full font-extrabold text-sm transition-all active:scale-95 shadow-md hover:shadow-lg cursor-pointer"
+                  >
+                    <Copy className="h-5 w-5" />
+                    <span>نسخ البرومبت 2 📋</span>
+                  </button>
                 </div>
 
-                <div className="space-y-3 text-right">
+                {/* Left Column: Code Input & Action */}
+                <div className="lg:col-span-7 bg-white p-8 rounded-2xl shadow-sm border border-teal-200/60 space-y-6 text-right">
                   <label
                     htmlFor="json-input-mindmap"
-                    className="text-sm font-extrabold text-[#0b1c30] block"
+                    className="text-lg font-extrabold text-[#0b1c30] flex items-center gap-3"
                   >
-                    الصق كود JSON الناتج (JSON 2) الخاص بالخرائط الذهنية أدناه:
+                    <span className="p-2 rounded-lg bg-teal-100 text-teal-800">
+                      <Code className="h-5 w-5" />
+                    </span>
+                    <span>الصق كود JSON الناتج الخاص بالخرائط الذهنية أدناه:</span>
                   </label>
-                  <textarea
-                    id="json-input-mindmap"
-                    rows={10}
-                    value={jsonInputMindMap}
-                    onChange={(e) => setJsonInputMindMap(e.target.value)}
-                    placeholder="الصق كود JSON الخرائط الذهنية هنا..."
-                    className="w-full bg-[#f8f9ff] border border-[#e0c0b1] rounded-2xl p-4 text-xs font-mono text-[#0b1c30] focus:outline-none focus:ring-2 focus:ring-teal-600 leading-relaxed"
-                  />
-                  <div className="flex items-center justify-between pt-2">
+
+                  <div className="relative group">
+                    <textarea
+                      id="json-input-mindmap"
+                      rows={14}
+                      value={jsonInputMindMap}
+                      onChange={(e) => setJsonInputMindMap(e.target.value)}
+                      placeholder='{ "mind_maps_by_block": [...] }'
+                      className="w-full bg-[#f8f9ff] border-2 border-transparent focus:border-teal-600 focus:bg-white rounded-2xl p-6 font-mono text-sm leading-relaxed text-[#0b1c30] transition-all shadow-inner"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between pt-4 border-t border-[#e0c0b1]/30">
                     <button
                       type="button"
                       onClick={() => setWizardStep(1)}
-                      className="px-6 py-3 border border-[#e0c0b1] text-[#584237] rounded-full text-sm font-extrabold hover:bg-slate-50 transition cursor-pointer flex items-center gap-2"
+                      className="px-6 py-3 border border-[#e0c0b1] text-[#584237] rounded-full font-bold hover:bg-slate-50 transition cursor-pointer flex items-center gap-2"
                     >
                       <ArrowRight className="h-4 w-4" />
                       <span>العودة للخطوة 1</span>
@@ -932,10 +1200,10 @@ function TeacherPage() {
                         const ok = handleImportStepMindMaps(jsonInputMindMap);
                         if (ok) setWizardStep(3);
                       }}
-                      className="px-8 py-3 bg-teal-700 text-white rounded-full text-sm font-extrabold hover:bg-teal-800 transition cursor-pointer shadow-md flex items-center gap-2"
+                      className="group flex items-center gap-3 bg-teal-700 hover:bg-teal-800 text-white px-10 py-4.5 rounded-full font-extrabold text-base hover:shadow-lg transition-all active:scale-98 cursor-pointer"
                     >
                       <span>اعتماد وانتقال للخطوة 3 (تنبيهات خد بالك)</span>
-                      <ArrowLeft className="h-4 w-4" />
+                      <ArrowLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
                     </button>
                   </div>
                 </div>
@@ -944,23 +1212,31 @@ function TeacherPage() {
 
             {/* SCREEN 3: Mnemonic JSON */}
             {wizardStep === 3 && (
-              <div className="space-y-6 pt-2">
-                <div className="bg-[#eff4ff] border border-[#e0c0b1]/60 rounded-3xl p-6 space-y-4 text-right">
-                  <div className="flex items-center justify-between border-b border-[#e0c0b1]/40 pb-3">
-                    <div className="space-y-1">
-                      <h3 className="text-base font-extrabold text-[#8127cf] flex items-center gap-2">
-                        <Sparkles className="h-5 w-5" />
-                        <span>البرومبت المخصص 2: (تنبيهات واستبصارات "💡 خد بالك منها" 💡)</span>
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                {/* Right Column: Prompt & AI Instructions */}
+                <div className="lg:col-span-5 bg-white p-8 rounded-2xl shadow-sm border border-purple-200/60 space-y-6 text-right">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3.5 rounded-2xl bg-purple-100 text-[#8127cf]">
+                      <Sparkles className="h-8 w-8" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-extrabold text-[#0b1c30]">
+                        البرومبت المخصص 3:
                       </h3>
-                      <p className="text-xs text-[#584237]/70 font-semibold">
-                        انسخ هذا الأمر والصقه في الذكاء الاصطناعي لاستنباط التنبيهات الفقهية الدقيقة
-                        لكل فقرة
+                      <p className="text-xs font-semibold text-[#8127cf]">
+                        (تنبيهات واستبصارات "💡 خد بالك منها" 💡)
                       </p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const promptText = `أنت خبير الاستبصار والتأهيل الشرعي لمنصة "نفاذ - Nafath".
+                  </div>
+
+                  <p className="text-xs font-semibold text-[#584237]/80 leading-relaxed bg-[#eff4ff] p-4 rounded-xl border border-[#e0c0b1]/60">
+                    انسخ هذا الأمر والصقه في الذكاء الاصطناعي لاستنباط التنبيهات والقواعد الفقهية الدقيقة لكل فقرة.
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const promptText = `أنت خبير الاستبصار والتأهيل الشرعي لمنصة "نفاذ - Nafath".
 مهمتك استنباط القواعد الفقهية والتنبيهات الدقيقة وتفريغها في كود JSON تحت مفتاح "mnemonic" لكل فقرة.
 
 القواعد:
@@ -980,37 +1256,44 @@ function TeacherPage() {
 أخرج كود JSON الصافي فقط وبدون أي نصوص خارجيّة.
 ---
 [الصق نص الدرس هنا]`;
-                        navigator.clipboard.writeText(promptText);
-                        toast.success("تم نسخ برومبت تنبيهات خد بالك منها بنجاح! 📋");
-                      }}
-                      className="px-5 py-2 bg-[#8127cf] text-white rounded-full text-xs font-extrabold hover:bg-[#6b1fb0] transition cursor-pointer shadow-xs flex items-center gap-2"
-                    >
-                      <Copy className="h-4 w-4" />
-                      <span>نسخ البرومبت 2 📋</span>
-                    </button>
-                  </div>
+                      navigator.clipboard.writeText(promptText);
+                      toast.success("تم نسخ برومبت تنبيهات خد بالك منها بنجاح! 📋");
+                    }}
+                    className="w-full flex items-center justify-center gap-3 bg-[#8127cf] hover:bg-[#6b1fb0] text-white py-4 px-8 rounded-full font-extrabold text-sm transition-all active:scale-95 shadow-md hover:shadow-lg cursor-pointer"
+                  >
+                    <Copy className="h-5 w-5" />
+                    <span>نسخ البرومبت 3 📋</span>
+                  </button>
                 </div>
 
-                <div className="space-y-3 text-right">
+                {/* Left Column: Code Input & Action */}
+                <div className="lg:col-span-7 bg-white p-8 rounded-2xl shadow-sm border border-purple-200/60 space-y-6 text-right">
                   <label
                     htmlFor="json-input-2"
-                    className="text-sm font-extrabold text-[#0b1c30] block"
+                    className="text-lg font-extrabold text-[#0b1c30] flex items-center gap-3"
                   >
-                    الصق كود JSON الناتج (JSON 2) الخاص بتنبيهات "خد بالك منها" أدناه:
+                    <span className="p-2 rounded-lg bg-purple-100 text-[#8127cf]">
+                      <Code className="h-5 w-5" />
+                    </span>
+                    <span>الصق كود JSON الناتج الخاص بتنبيهات "خد بالك منها" أدناه:</span>
                   </label>
-                  <textarea
-                    id="json-input-2"
-                    rows={10}
-                    value={jsonInput2}
-                    onChange={(e) => setJsonInput2(e.target.value)}
-                    placeholder="الصق كود JSON 2 هنا..."
-                    className="w-full bg-[#f8f9ff] border border-[#e0c0b1] rounded-2xl p-4 text-xs font-mono text-[#0b1c30] focus:outline-none focus:ring-2 focus:ring-[#8127cf] leading-relaxed"
-                  />
-                  <div className="flex items-center justify-between pt-2">
+
+                  <div className="relative group">
+                    <textarea
+                      id="json-input-2"
+                      rows={14}
+                      value={jsonInput2}
+                      onChange={(e) => setJsonInput2(e.target.value)}
+                      placeholder='{ "takeaways_by_block": [...] }'
+                      className="w-full bg-[#f8f9ff] border-2 border-transparent focus:border-[#8127cf] focus:bg-white rounded-2xl p-6 font-mono text-sm leading-relaxed text-[#0b1c30] transition-all shadow-inner"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between pt-4 border-t border-[#e0c0b1]/30">
                     <button
                       type="button"
                       onClick={() => setWizardStep(2)}
-                      className="px-6 py-3 border border-[#e0c0b1] text-[#584237] rounded-full text-sm font-extrabold hover:bg-slate-50 transition cursor-pointer flex items-center gap-2"
+                      className="px-6 py-3 border border-[#e0c0b1] text-[#584237] rounded-full font-bold hover:bg-slate-50 transition cursor-pointer flex items-center gap-2"
                     >
                       <ArrowRight className="h-4 w-4" />
                       <span>العودة للخطوة 2</span>
@@ -1021,10 +1304,10 @@ function TeacherPage() {
                         const ok = handleImportStepMnemonics(jsonInput2);
                         if (ok) setWizardStep(4);
                       }}
-                      className="px-8 py-3 bg-[#8127cf] text-white rounded-full text-sm font-extrabold hover:bg-[#6b1fb0] transition cursor-pointer shadow-md flex items-center gap-2"
+                      className="group flex items-center gap-3 bg-[#8127cf] hover:bg-[#6b1fb0] text-white px-10 py-4.5 rounded-full font-extrabold text-base hover:shadow-lg transition-all active:scale-98 cursor-pointer"
                     >
                       <span>اعتماد وانتقال للخطوة 4 (كروت الزيتونة)</span>
-                      <ArrowLeft className="h-4 w-4" />
+                      <ArrowLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
                     </button>
                   </div>
                 </div>
@@ -1033,23 +1316,31 @@ function TeacherPage() {
 
             {/* SCREEN 4: Zaitouna Summary JSON */}
             {wizardStep === 4 && (
-              <div className="space-y-6 pt-2">
-                <div className="bg-amber-50 border border-amber-200 rounded-3xl p-6 space-y-4 text-right">
-                  <div className="flex items-center justify-between border-b border-amber-200/60 pb-3">
-                    <div className="space-y-1">
-                      <h3 className="text-base font-extrabold text-amber-950 flex items-center gap-2">
-                        <Sparkles className="h-5 w-5 text-amber-700" />
-                        <span>البرومبت المخصص 4: (بطاقات الزيتونة والخلاصة المركزة 🫒)</span>
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                {/* Right Column: Prompt & AI Instructions */}
+                <div className="lg:col-span-5 bg-white p-8 rounded-2xl shadow-sm border border-amber-200/60 space-y-6 text-right">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3.5 rounded-2xl bg-amber-100 text-amber-800">
+                      <Sparkles className="h-8 w-8 text-amber-700" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-extrabold text-[#0b1c30]">
+                        البرومبت المخصص 4:
                       </h3>
-                      <p className="text-xs text-amber-800 font-semibold">
-                        انسخ هذا الأمر والصقه في الذكاء الاصطناعي لاستخلاص خلاصة الزيتونة (التعريفات
-                        المركزة، التوجيهات الشرعية، والروابط)
+                      <p className="text-xs font-semibold text-amber-800">
+                        (بطاقات الزيتونة والخلاصة المركزة 🫒)
                       </p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const promptText = `أنت خبير تلخيص واستخلاص "الزيتونة الفقهية" لمنصة "نفاذ - Nafath".
+                  </div>
+
+                  <p className="text-xs font-semibold text-amber-900 leading-relaxed bg-amber-50 p-4 rounded-xl border border-amber-200/60">
+                    انسخ هذا الأمر والصقه في الذكاء الاصطناعي لاستخلاص خلاصة الزيتونة (التعريفات المركزة، التوجيهات الشرعية، والروابط).
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const promptText = `أنت خبير تلخيص واستخلاص "الزيتونة الفقهية" لمنصة "نفاذ - Nafath".
 مهمتك تلخيص كل فقرة في 3 عناصر مركزة ومباشرة جداً:
 1. definitions (التعريفات الجوهرية والحدود الفقهية): سطر واحد دقيق.
 2. reasoning (التوجيه والعلة الشرعية): سطر واحد يدعم الفهم العلمي.
@@ -1072,37 +1363,44 @@ function TeacherPage() {
 أخرج كود JSON الصافي فقط وبدون أي مقدمات.
 ---
 [الصق نص الدرس هنا]`;
-                        navigator.clipboard.writeText(promptText);
-                        toast.success("تم نسخ برومبت كروت الزيتونة بنجاح! 📋");
-                      }}
-                      className="px-5 py-2 bg-amber-700 text-white rounded-full text-xs font-extrabold hover:bg-amber-800 transition cursor-pointer shadow-xs flex items-center gap-2"
-                    >
-                      <Copy className="h-4 w-4" />
-                      <span>نسخ البرومبت 4 📋</span>
-                    </button>
-                  </div>
+                      navigator.clipboard.writeText(promptText);
+                      toast.success("تم نسخ برومبت كروت الزيتونة بنجاح! 📋");
+                    }}
+                    className="w-full flex items-center justify-center gap-3 bg-amber-700 hover:bg-amber-800 text-white py-4 px-8 rounded-full font-extrabold text-sm transition-all active:scale-95 shadow-md hover:shadow-lg cursor-pointer"
+                  >
+                    <Copy className="h-5 w-5" />
+                    <span>نسخ البرومبت 4 📋</span>
+                  </button>
                 </div>
 
-                <div className="space-y-3 text-right">
+                {/* Left Column: Code Input & Action */}
+                <div className="lg:col-span-7 bg-white p-8 rounded-2xl shadow-sm border border-amber-200/60 space-y-6 text-right">
                   <label
                     htmlFor="json-input-3"
-                    className="text-sm font-extrabold text-[#0b1c30] block"
+                    className="text-lg font-extrabold text-[#0b1c30] flex items-center gap-3"
                   >
-                    الصق كود JSON الناتج الخاص بكروت الزيتونة أدناه:
+                    <span className="p-2 rounded-lg bg-amber-100 text-amber-800">
+                      <Code className="h-5 w-5" />
+                    </span>
+                    <span>الصق كود JSON الناتج الخاص بكروت الزيتونة أدناه:</span>
                   </label>
-                  <textarea
-                    id="json-input-3"
-                    rows={10}
-                    value={jsonInput3}
-                    onChange={(e) => setJsonInput3(e.target.value)}
-                    placeholder="الصق كود JSON 3 هنا..."
-                    className="w-full bg-[#f8f9ff] border border-[#e0c0b1] rounded-2xl p-4 text-xs font-mono text-[#0b1c30] focus:outline-none focus:ring-2 focus:ring-amber-600 leading-relaxed"
-                  />
-                  <div className="flex items-center justify-between pt-2">
+
+                  <div className="relative group">
+                    <textarea
+                      id="json-input-3"
+                      rows={14}
+                      value={jsonInput3}
+                      onChange={(e) => setJsonInput3(e.target.value)}
+                      placeholder='{ "zaitouna_by_block": [...] }'
+                      className="w-full bg-[#f8f9ff] border-2 border-transparent focus:border-amber-600 focus:bg-white rounded-2xl p-6 font-mono text-sm leading-relaxed text-[#0b1c30] transition-all shadow-inner"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between pt-4 border-t border-[#e0c0b1]/30">
                     <button
                       type="button"
                       onClick={() => setWizardStep(3)}
-                      className="px-6 py-3 border border-[#e0c0b1] text-[#584237] rounded-full text-sm font-extrabold hover:bg-slate-50 transition cursor-pointer flex items-center gap-2"
+                      className="px-6 py-3 border border-[#e0c0b1] text-[#584237] rounded-full font-bold hover:bg-slate-50 transition cursor-pointer flex items-center gap-2"
                     >
                       <ArrowRight className="h-4 w-4" />
                       <span>العودة للخطوة 3</span>
@@ -1113,10 +1411,10 @@ function TeacherPage() {
                         const ok = handleImportStepZaitouna(jsonInput3);
                         if (ok) setWizardStep(5);
                       }}
-                      className="px-8 py-3 bg-amber-700 text-white rounded-full text-sm font-extrabold hover:bg-amber-800 transition cursor-pointer shadow-md flex items-center gap-2"
+                      className="group flex items-center gap-3 bg-amber-700 hover:bg-amber-800 text-white px-10 py-4.5 rounded-full font-extrabold text-base hover:shadow-lg transition-all active:scale-98 cursor-pointer"
                     >
                       <span>اعتماد وانتقال للخطوة 5 (أسئلة المستوى 1)</span>
-                      <ArrowLeft className="h-4 w-4" />
+                      <ArrowLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
                     </button>
                   </div>
                 </div>
@@ -1125,23 +1423,31 @@ function TeacherPage() {
 
             {/* SCREEN 5: Level 1 MCQs JSON */}
             {wizardStep === 5 && (
-              <div className="space-y-6 pt-2">
-                <div className="bg-[#f0fdf4] border border-emerald-200 rounded-3xl p-6 space-y-4 text-right">
-                  <div className="flex items-center justify-between border-b border-emerald-200/60 pb-3">
-                    <div className="space-y-1">
-                      <h3 className="text-base font-extrabold text-emerald-950 flex items-center gap-2">
-                        <CheckCircle2 className="h-5 w-5 text-emerald-700" />
-                        <span>البرومبت المخصص 5: (أسئلة المستوى الأول القصصية 🎯)</span>
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                {/* Right Column: Prompt & AI Instructions */}
+                <div className="lg:col-span-5 bg-white p-8 rounded-2xl shadow-sm border border-emerald-200/60 space-y-6 text-right">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3.5 rounded-2xl bg-emerald-100 text-emerald-800">
+                      <CheckCircle2 className="h-8 w-8 text-emerald-700" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-extrabold text-[#0b1c30]">
+                        البرومبت المخصص 5:
                       </h3>
-                      <p className="text-xs text-[#584237]/70 font-semibold">
-                        انسخ هذا الأمر والصقه في الذكاء الاصطناعي لتوليد 3 أسئلة خيار من متعدد
-                        بالعامية المصرية الميسرة
+                      <p className="text-xs font-semibold text-emerald-800">
+                        (أسئلة المستوى الأول القصصية 🎯)
                       </p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const promptText = `أنت خبير إعداد أسئلة المستوى الأول لمنصة "نفاذ - Nafath".
+                  </div>
+
+                  <p className="text-xs font-semibold text-emerald-900 leading-relaxed bg-[#f0fdf4] p-4 rounded-xl border border-emerald-200/60">
+                    انسخ هذا الأمر والصقه في الذكاء الاصطناعي لتوليد 3 أسئلة خيار من متعدد بالعامية المصرية الميسرة.
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const promptText = `أنت خبير إعداد أسئلة المستوى الأول لمنصة "نفاذ - Nafath".
 بناءً على فقرات الدرس والقصة، صغ كود JSON لأسئلة اختيار من متعدد (MCQ) ميسرة ومباشرة بالعامية المصرية (3 أسئلة لكل فقرة)، وفق الشروط الحازمة التالية:
 
 1. قياس الفهم لا الحفظ الحرفي (شرط جوهري): هدف المستوى الأول هو قياس الفهم العام والفكرة الجوهرية للفقرة والحل الشرعي، وليس الحفظ الميكانيكي أو البصم!
@@ -1186,37 +1492,44 @@ function TeacherPage() {
 أخرج النتيجة في مربع كود JSON الصافي فقط وبدون أي مقدمات.
 ---
 [الصق نص الدرس هنا]`;
-                        navigator.clipboard.writeText(promptText);
-                        toast.success("تم نسخ برومبت أسئلة المستوى الأول المحسن بنجاح! 📋");
-                      }}
-                      className="px-5 py-2 bg-emerald-700 text-white rounded-full text-xs font-extrabold hover:bg-emerald-800 transition cursor-pointer shadow-xs flex items-center gap-2"
-                    >
-                      <Copy className="h-4 w-4" />
-                      <span>نسخ البرومبت 5 📋</span>
-                    </button>
-                  </div>
+                      navigator.clipboard.writeText(promptText);
+                      toast.success("تم نسخ برومبت أسئلة المستوى الأول بنجاح! 📋");
+                    }}
+                    className="w-full flex items-center justify-center gap-3 bg-emerald-700 hover:bg-emerald-800 text-white py-4 px-8 rounded-full font-extrabold text-sm transition-all active:scale-95 shadow-md hover:shadow-lg cursor-pointer"
+                  >
+                    <Copy className="h-5 w-5" />
+                    <span>نسخ البرومبت 5 📋</span>
+                  </button>
                 </div>
 
-                <div className="space-y-3 text-right">
+                {/* Left Column: Code Input & Action */}
+                <div className="lg:col-span-7 bg-white p-8 rounded-2xl shadow-sm border border-emerald-200/60 space-y-6 text-right">
                   <label
                     htmlFor="json-input-4"
-                    className="text-sm font-extrabold text-[#0b1c30] block"
+                    className="text-lg font-extrabold text-[#0b1c30] flex items-center gap-3"
                   >
-                    الصق كود JSON الناتج الخاص بأسئلة المستوى الأول أدناه:
+                    <span className="p-2 rounded-lg bg-emerald-100 text-emerald-800">
+                      <Code className="h-5 w-5" />
+                    </span>
+                    <span>الصق كود JSON الناتج الخاص بأسئلة المستوى الأول أدناه:</span>
                   </label>
-                  <textarea
-                    id="json-input-4"
-                    rows={10}
-                    value={jsonInput4}
-                    onChange={(e) => setJsonInput4(e.target.value)}
-                    placeholder="الصق كود JSON 4 هنا..."
-                    className="w-full bg-[#f8f9ff] border border-[#e0c0b1] rounded-2xl p-4 text-xs font-mono text-[#0b1c30] focus:outline-none focus:ring-2 focus:ring-emerald-600 leading-relaxed"
-                  />
-                  <div className="flex items-center justify-between pt-2">
+
+                  <div className="relative group">
+                    <textarea
+                      id="json-input-4"
+                      rows={14}
+                      value={jsonInput4}
+                      onChange={(e) => setJsonInput4(e.target.value)}
+                      placeholder='{ "quizzes_by_block": [...] }'
+                      className="w-full bg-[#f8f9ff] border-2 border-transparent focus:border-emerald-600 focus:bg-white rounded-2xl p-6 font-mono text-sm leading-relaxed text-[#0b1c30] transition-all shadow-inner"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between pt-4 border-t border-[#e0c0b1]/30">
                     <button
                       type="button"
                       onClick={() => setWizardStep(4)}
-                      className="px-6 py-3 border border-[#e0c0b1] text-[#584237] rounded-full text-sm font-extrabold hover:bg-slate-50 transition cursor-pointer flex items-center gap-2"
+                      className="px-6 py-3 border border-[#e0c0b1] text-[#584237] rounded-full font-bold hover:bg-slate-50 transition cursor-pointer flex items-center gap-2"
                     >
                       <ArrowRight className="h-4 w-4" />
                       <span>العودة للخطوة 4</span>
@@ -1227,10 +1540,10 @@ function TeacherPage() {
                         const ok = handleImportStepLevel1MCQs(jsonInput4);
                         if (ok) setWizardStep(6);
                       }}
-                      className="px-8 py-3 bg-emerald-700 text-white rounded-full text-sm font-extrabold hover:bg-emerald-800 transition cursor-pointer shadow-md flex items-center gap-2"
+                      className="group flex items-center gap-3 bg-emerald-700 hover:bg-emerald-800 text-white px-10 py-4.5 rounded-full font-extrabold text-base hover:shadow-lg transition-all active:scale-98 cursor-pointer"
                     >
                       <span>اعتماد وانتقال للخطوة 6 (الفلاش كاردز)</span>
-                      <ArrowLeft className="h-4 w-4" />
+                      <ArrowLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
                     </button>
                   </div>
                 </div>
@@ -1239,25 +1552,31 @@ function TeacherPage() {
 
             {/* SCREEN 6: Single-Concept Flashcards JSON */}
             {wizardStep === 6 && (
-              <div className="space-y-6 pt-2">
-                <div className="bg-purple-50 border border-purple-200 rounded-3xl p-6 space-y-4 text-right">
-                  <div className="flex items-center justify-between border-b border-purple-200/60 pb-3">
-                    <div className="space-y-1">
-                      <h3 className="text-base font-extrabold text-purple-950 flex items-center gap-2">
-                        <Sparkles className="h-5 w-5 text-purple-700" />
-                        <span>
-                          البرومبت المخصص 6: (بطاقات الفلاش كاردز ذات المعلومة الواحدة 🗂️)
-                        </span>
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                {/* Right Column: Prompt & AI Instructions */}
+                <div className="lg:col-span-5 bg-white p-8 rounded-2xl shadow-sm border border-purple-200/60 space-y-6 text-right">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3.5 rounded-2xl bg-purple-100 text-purple-800">
+                      <Sparkles className="h-8 w-8 text-purple-700" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-extrabold text-[#0b1c30]">
+                        البرومبت المخصص 6:
                       </h3>
-                      <p className="text-xs text-purple-800 font-semibold">
-                        انسخ هذا الأمر والصقه في الذكاء الاصطناعي لتوليد بطاقات فلاش كاردز بسيطة
-                        ومباشرة تحمل معلومة واحدة صريحة في كل بطاقة
+                      <p className="text-xs font-semibold text-purple-800">
+                        (بطاقات الفلاش كاردز ذات المعلومة الواحدة 🗂️)
                       </p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const promptText = `أنت خبير صياغة بطاقات الاستذكار السريع (Flashcards) لمنصة "نفاذ - Nafath".
+                  </div>
+
+                  <p className="text-xs font-semibold text-purple-900 leading-relaxed bg-purple-50 p-4 rounded-xl border border-purple-200/60">
+                    انسخ هذا الأمر والصقه في الذكاء الاصطناعي لتوليد بطاقات فلاش كاردز بسيطة ومباشرة تحمل معلومة واحدة صريحة في كل بطاقة.
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const promptText = `أنت خبير صياغة بطاقات الاستذكار السريع (Flashcards) لمنصة "نفاذ - Nafath".
 مهمتك تحويل المفاهيم الفقهية للفقرات إلى بطاقات فلاش كاردز ذكية وبسيطة جداً، بحيث تحمل كل بطاقة معلومة واحدة صريحة كحد أقصى (سؤال وجواب دقيق ومختصر).
 
 القواعد:
@@ -1286,37 +1605,44 @@ function TeacherPage() {
 أخرج كود JSON الصافي فقط وبدون أي نصوص خارجيّة.
 ---
 [الصق نص الدرس هنا]`;
-                        navigator.clipboard.writeText(promptText);
-                        toast.success("تم نسخ برومبت الفلاش كاردز بنجاح! 📋");
-                      }}
-                      className="px-5 py-2 bg-purple-700 text-white rounded-full text-xs font-extrabold hover:bg-purple-800 transition cursor-pointer shadow-xs flex items-center gap-2"
-                    >
-                      <Copy className="h-4 w-4" />
-                      <span>نسخ البرومبت 6 📋</span>
-                    </button>
-                  </div>
+                      navigator.clipboard.writeText(promptText);
+                      toast.success("تم نسخ برومبت الفلاش كاردز بنجاح! 📋");
+                    }}
+                    className="w-full flex items-center justify-center gap-3 bg-purple-700 hover:bg-purple-800 text-white py-4 px-8 rounded-full font-extrabold text-sm transition-all active:scale-95 shadow-md hover:shadow-lg cursor-pointer"
+                  >
+                    <Copy className="h-5 w-5" />
+                    <span>نسخ البرومبت 6 📋</span>
+                  </button>
                 </div>
 
-                <div className="space-y-3 text-right">
+                {/* Left Column: Code Input & Action */}
+                <div className="lg:col-span-7 bg-white p-8 rounded-2xl shadow-sm border border-purple-200/60 space-y-6 text-right">
                   <label
                     htmlFor="json-input-5"
-                    className="text-sm font-extrabold text-[#0b1c30] block"
+                    className="text-lg font-extrabold text-[#0b1c30] flex items-center gap-3"
                   >
-                    الصق كود JSON الناتج الخاص ببطاقات الفلاش كاردز أدناه:
+                    <span className="p-2 rounded-lg bg-purple-100 text-purple-800">
+                      <Code className="h-5 w-5" />
+                    </span>
+                    <span>الصق كود JSON الناتج الخاص ببطاقات الفلاش كاردز أدناه:</span>
                   </label>
-                  <textarea
-                    id="json-input-5"
-                    rows={10}
-                    value={jsonInput5}
-                    onChange={(e) => setJsonInput5(e.target.value)}
-                    placeholder="الصق كود JSON 5 هنا..."
-                    className="w-full bg-[#f8f9ff] border border-[#e0c0b1] rounded-2xl p-4 text-xs font-mono text-[#0b1c30] focus:outline-none focus:ring-2 focus:ring-purple-600 leading-relaxed"
-                  />
-                  <div className="flex items-center justify-between pt-2">
+
+                  <div className="relative group">
+                    <textarea
+                      id="json-input-5"
+                      rows={14}
+                      value={jsonInput5}
+                      onChange={(e) => setJsonInput5(e.target.value)}
+                      placeholder='{ "flashcards_by_block": [...] }'
+                      className="w-full bg-[#f8f9ff] border-2 border-transparent focus:border-purple-600 focus:bg-white rounded-2xl p-6 font-mono text-sm leading-relaxed text-[#0b1c30] transition-all shadow-inner"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between pt-4 border-t border-[#e0c0b1]/30">
                     <button
                       type="button"
                       onClick={() => setWizardStep(5)}
-                      className="px-6 py-3 border border-[#e0c0b1] text-[#584237] rounded-full text-sm font-extrabold hover:bg-slate-50 transition cursor-pointer flex items-center gap-2"
+                      className="px-6 py-3 border border-[#e0c0b1] text-[#584237] rounded-full font-bold hover:bg-slate-50 transition cursor-pointer flex items-center gap-2"
                     >
                       <ArrowRight className="h-4 w-4" />
                       <span>العودة للخطوة 5</span>
@@ -1327,10 +1653,10 @@ function TeacherPage() {
                         const ok = handleImportStepFlashcards(jsonInput5);
                         if (ok) setWizardStep(7);
                       }}
-                      className="px-8 py-3 bg-purple-700 text-white rounded-full text-sm font-extrabold hover:bg-purple-800 transition cursor-pointer shadow-md flex items-center gap-2"
+                      className="group flex items-center gap-3 bg-purple-700 hover:bg-purple-800 text-white px-10 py-4.5 rounded-full font-extrabold text-base hover:shadow-lg transition-all active:scale-98 cursor-pointer"
                     >
                       <span>اعتماد وانتقال للخطوة 7 (أسئلة المستوى 2 و 3)</span>
-                      <ArrowLeft className="h-4 w-4" />
+                      <ArrowLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
                     </button>
                   </div>
                 </div>
@@ -1339,26 +1665,31 @@ function TeacherPage() {
 
             {/* SCREEN 7: Level 2 & 3 Advanced Quizzes JSON */}
             {wizardStep === 7 && (
-              <div className="space-y-6 pt-2">
-                <div className="bg-[#eff6ff] border border-blue-200 rounded-3xl p-6 space-y-4 text-right">
-                  <div className="flex items-center justify-between border-b border-blue-200/60 pb-3">
-                    <div className="space-y-1">
-                      <h3 className="text-base font-extrabold text-blue-950 flex items-center gap-2">
-                        <Sparkles className="h-5 w-5 text-blue-700" />
-                        <span>
-                          البرومبت المخصص 7: (أسئلة المستويين الثاني والثالث - أكمل الفراغ والمقالي
-                          🧠)
-                        </span>
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                {/* Right Column: Prompt & AI Instructions */}
+                <div className="lg:col-span-5 bg-white p-8 rounded-2xl shadow-sm border border-blue-200/60 space-y-6 text-right">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3.5 rounded-2xl bg-blue-100 text-blue-800">
+                      <Sparkles className="h-8 w-8 text-blue-700" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-extrabold text-[#0b1c30]">
+                        البرومبت المخصص 7:
                       </h3>
-                      <p className="text-xs text-[#584237]/70 font-semibold">
-                        انسخ هذا الأمر والصقه في الذكاء الاصطناعي لتوليد أسئلة أكمل الفراغ والأسئلة
-                        المقالية الفقهية
+                      <p className="text-xs font-semibold text-blue-800">
+                        (أسئلة المستويين الثاني والثالث - أكمل الفراغ والمقالي 🧠)
                       </p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const promptText = `أنت خبير إعداد الاختبارات المتقدمة لمنصة "نفاذ - Nafath".
+                  </div>
+
+                  <p className="text-xs font-semibold text-blue-900 leading-relaxed bg-[#eff6ff] p-4 rounded-xl border border-blue-200/60">
+                    انسخ هذا الأمر والصقه في الذكاء الاصطناعي لتوليد أسئلة أكمل الفراغ والأسئلة المقالية الفقهية.
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const promptText = `أنت خبير إعداد الاختبارات المتقدمة لمنصة "نفاذ - Nafath".
 صغ كود JSON لأسئلة أكمل الفراغ (fills) والأسئلة المقالية (essays) لكل فقرة.
 
 القواعد:
@@ -1385,37 +1716,44 @@ function TeacherPage() {
 أخرج النتيجة في مربع كود JSON الصافي فقط وبدون أي مقدمات.
 ---
 [الصق نص الدرس هنا]`;
-                        navigator.clipboard.writeText(promptText);
-                        toast.success("تم نسخ برومبت أسئلة المستوى الثاني والثالث بنجاح! 📋");
-                      }}
-                      className="px-5 py-2 bg-blue-700 text-white rounded-full text-xs font-extrabold hover:bg-blue-800 transition cursor-pointer shadow-xs flex items-center gap-2"
-                    >
-                      <Copy className="h-4 w-4" />
-                      <span>نسخ البرومبت 7 📋</span>
-                    </button>
-                  </div>
+                      navigator.clipboard.writeText(promptText);
+                      toast.success("تم نسخ برومبت أسئلة المستوى الثاني والثالث بنجاح! 📋");
+                    }}
+                    className="w-full flex items-center justify-center gap-3 bg-blue-700 hover:bg-blue-800 text-white py-4 px-8 rounded-full font-extrabold text-sm transition-all active:scale-95 shadow-md hover:shadow-lg cursor-pointer"
+                  >
+                    <Copy className="h-5 w-5" />
+                    <span>نسخ البرومبت 7 📋</span>
+                  </button>
                 </div>
 
-                <div className="space-y-3 text-right">
+                {/* Left Column: Code Input & Action */}
+                <div className="lg:col-span-7 bg-white p-8 rounded-2xl shadow-sm border border-blue-200/60 space-y-6 text-right">
                   <label
                     htmlFor="json-input-6"
-                    className="text-sm font-extrabold text-[#0b1c30] block"
+                    className="text-lg font-extrabold text-[#0b1c30] flex items-center gap-3"
                   >
-                    الصق كود JSON الناتج (JSON 7) الخاص بأسئلة المستويين الثاني والثالث أدناه:
+                    <span className="p-2 rounded-lg bg-blue-100 text-blue-800">
+                      <Code className="h-5 w-5" />
+                    </span>
+                    <span>الصق كود JSON الناتج الخاص بأسئلة المستويين الثاني والثالث أدناه:</span>
                   </label>
-                  <textarea
-                    id="json-input-6"
-                    rows={10}
-                    value={jsonInput6}
-                    onChange={(e) => setJsonInput6(e.target.value)}
-                    placeholder="الصق كود JSON 7 هنا..."
-                    className="w-full bg-[#f8f9ff] border border-[#e0c0b1] rounded-2xl p-4 text-xs font-mono text-[#0b1c30] focus:outline-none focus:ring-2 focus:ring-blue-600 leading-relaxed"
-                  />
-                  <div className="flex items-center justify-between pt-2">
+
+                  <div className="relative group">
+                    <textarea
+                      id="json-input-6"
+                      rows={14}
+                      value={jsonInput6}
+                      onChange={(e) => setJsonInput6(e.target.value)}
+                      placeholder='{ "quizzes_by_block": [...] }'
+                      className="w-full bg-[#f8f9ff] border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-2xl p-6 font-mono text-sm leading-relaxed text-[#0b1c30] transition-all shadow-inner"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between pt-4 border-t border-[#e0c0b1]/30">
                     <button
                       type="button"
                       onClick={() => setWizardStep(6)}
-                      className="px-6 py-3 border border-[#e0c0b1] text-[#584237] rounded-full text-sm font-extrabold hover:bg-slate-50 transition cursor-pointer flex items-center gap-2"
+                      className="px-6 py-3 border border-[#e0c0b1] text-[#584237] rounded-full font-bold hover:bg-slate-50 transition cursor-pointer flex items-center gap-2"
                     >
                       <ArrowRight className="h-4 w-4" />
                       <span>العودة للخطوة 6</span>
@@ -1430,7 +1768,7 @@ function TeacherPage() {
                           handlePreviewStudent();
                         }
                       }}
-                      className="px-8 py-3.5 bg-blue-700 bg-gradient-to-r from-blue-700 to-blue-800 text-white rounded-full text-sm font-extrabold hover:from-blue-800 hover:to-blue-900 transition cursor-pointer shadow-lg flex items-center gap-2"
+                      className="group flex items-center gap-3 bg-blue-700 bg-gradient-to-r from-blue-700 to-blue-800 text-white px-10 py-4.5 rounded-full font-extrabold text-base hover:from-blue-800 hover:to-blue-900 transition-all active:scale-98 cursor-pointer shadow-lg"
                     >
                       <span>إنهاء وحفظ الدرس ومعاينته كطالب 🎓 ✨</span>
                     </button>
@@ -1438,9 +1776,11 @@ function TeacherPage() {
                 </div>
               </div>
             )}
-          </div>
-        </div>
+          </main>
+        </>
       )}
+    </div>
+  )}
 
       {/* Main Editing Container */}
       <main className="mx-auto max-w-7xl p-6 sm:p-8 space-y-8">

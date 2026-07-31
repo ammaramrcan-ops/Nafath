@@ -1,14 +1,6 @@
 import { useState } from "react";
-import {motion} from "framer-motion";
-import {
-  X,
-  Upload,
-  Download,
-  Copy,
-  Check,
-  FileSpreadsheet,
-  Sparkles,
-} from "lucide-react";
+import { motion } from "framer-motion";
+import { X, Upload, Download, Copy, Check, FileSpreadsheet, Sparkles } from "lucide-react";
 import { downloadCSVFile, exportCardsToCSV, parseCSVToSmartCards } from "@/lib/csv-flashcards";
 import type { SmartFlashcard } from "@/lib/spaced-repetition";
 import { toast } from "sonner";

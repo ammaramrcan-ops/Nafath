@@ -52,7 +52,7 @@ function buildProviderRequestConfig(
   const apiKey = (aiSettings.apiKey || "").trim();
   const provider = aiSettings.provider || "nvidia_nim";
   let modelName = (aiSettings.modelName || "").trim();
-  let baseUrl = (aiSettings.baseUrl || "").trim().replace(/\/+$/, "");
+  const baseUrl = (aiSettings.baseUrl || "").trim().replace(/\/+$/, "");
 
   if (provider === "google_gemini" || baseUrl.includes("generativelanguage.googleapis.com")) {
     if (!modelName) modelName = "gemini-1.5-flash";

@@ -1,11 +1,5 @@
 import { useState } from "react";
-import {
-  Clock,
-  BookOpen,
-  Layers,
-  ArrowRight,
-  Sparkles,
-} from "lucide-react";
+import { Clock, BookOpen, Layers, ArrowRight, Sparkles } from "lucide-react";
 import type { Lesson } from "@/lib/lesson-data";
 import { PrepModal, type LearningLevel } from "./PrepModal";
 

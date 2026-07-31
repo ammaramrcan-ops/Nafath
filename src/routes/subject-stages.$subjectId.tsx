@@ -2,7 +2,7 @@ import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import {ArrowLeft, Plus, Trash2, GripVertical, MessageSquare} from "lucide-react";
+import { ArrowLeft, Plus, Trash2, GripVertical, MessageSquare } from "lucide-react";
 import { STAGE_LABELS, type Stage, DEFAULT_STAGE_ORDER } from "@/lib/settings";
 import {
   getSubject,

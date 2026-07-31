@@ -342,7 +342,9 @@ export function SpacedRepetitionView() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Clock className="h-5 w-5 text-[#9d4300]" />
-                  <h3 className="text-sm font-extrabold text-[#0b1c30]">حدد الميعاد المتبقي للامتحان ⏳</h3>
+                  <h3 className="text-sm font-extrabold text-[#0b1c30]">
+                    حدد الميعاد المتبقي للامتحان ⏳
+                  </h3>
                 </div>
                 <button
                   type="button"
@@ -353,7 +355,9 @@ export function SpacedRepetitionView() {
                 </button>
               </div>
 
-              <p className="text-xs text-[#584237]/80 font-semibold">اختر عدد الأيام المتبقية حتى الامتحان مباشرة وبسهولة دون تقويم معقد:</p>
+              <p className="text-xs text-[#584237]/80 font-semibold">
+                اختر عدد الأيام المتبقية حتى الامتحان مباشرة وبسهولة دون تقويم معقد:
+              </p>
 
               {/* Preset Days Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
@@ -380,7 +384,9 @@ export function SpacedRepetitionView() {
                     <div className="text-xs font-extrabold text-[#0b1c30] group-hover:text-[#9d4300]">
                       {item.label}
                     </div>
-                    <div className="text-[10px] text-[#584237]/60 font-semibold mt-0.5">{item.sub}</div>
+                    <div className="text-[10px] text-[#584237]/60 font-semibold mt-0.5">
+                      {item.sub}
+                    </div>
                   </button>
                 ))}
               </div>

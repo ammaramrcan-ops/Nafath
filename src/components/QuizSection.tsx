@@ -132,7 +132,7 @@ export function QuizSection({
     mcqs.forEach((q, i) => list.push({ kind: "mcq", data: q, id: `mcq-${i}` }));
     fills.forEach((q, i) => list.push({ kind: "fill", data: q, id: `fill-${i}` }));
     essays.forEach((q, i) => list.push({ kind: "essay", data: q, id: `essay-${i}` }));
-    return list;
+    return list.slice(0, 10);
   }, [mcqs, fills, essays]);
 
   const { devModeActive } = useSettings();

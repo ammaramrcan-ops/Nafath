@@ -25,7 +25,10 @@ export function generateSecureId(prefix?: string): string {
  * Cryptographically secure float generator between [0, 1) compliant with Sonar security standards.
  */
 export function secureRandomFloat(): number {
-  if (typeof globalThis.crypto !== "undefined" && typeof globalThis.crypto.getRandomValues === "function") {
+  if (
+    typeof globalThis.crypto !== "undefined" &&
+    typeof globalThis.crypto.getRandomValues === "function"
+  ) {
     const array = new Uint32Array(1);
     globalThis.crypto.getRandomValues(array);
     return array[0] / (0xffffffff + 1);

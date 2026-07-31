@@ -393,31 +393,46 @@ export function LessonFlow({
             </div>
           )}
 
-          {phase === "lesson" && (
-            blockIdx === 0 && showMasterStory && lesson.master_story ? (
-              <div className="mx-auto max-w-4xl px-4 py-10 dir-rtl text-right" dir="rtl">
-                <div className="rounded-[2.5rem] bg-white p-8 sm:p-12 shadow-[0_20px_60px_-15px_rgba(11,28,48,0.08)] space-y-6 border border-amber-200/80">
-                  <div className="flex items-center justify-between border-b border-amber-200/60 pb-5">
-                    <div className="flex items-center gap-3">
-                      <Sparkles className="h-7 w-7 text-amber-600 shrink-0" />
+          {phase === "lesson" &&
+            (blockIdx === 0 && showMasterStory && lesson.master_story ? (
+              <div className="mx-auto max-w-5xl px-4 py-12 dir-rtl text-right" dir="rtl">
+                <div className="relative overflow-hidden rounded-[2.5rem] bg-white p-8 sm:p-14 shadow-2xl border-2 border-[#e0c0b1]/50 space-y-8">
+                  {/* Decorative Orbs */}
+                  <div className="absolute -top-24 -right-24 w-64 h-64 bg-[#ffdbca]/30 rounded-full blur-3xl pointer-events-none" />
+                  <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-purple-100/40 rounded-full blur-3xl pointer-events-none" />
+
+                  <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border-b border-[#e0c0b1]/40 pb-6">
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 rounded-2xl bg-[#ffdbca] text-[#9d4300] flex items-center justify-center font-black shadow-xs shrink-0">
+                        <Sparkles className="h-8 w-8" />
+                      </div>
                       <div>
-                        <h2 className="text-xl sm:text-2xl font-black text-amber-950">📖 القصة التمهيدية الجامعة للدرس ككل</h2>
-                        <p className="text-xs sm:text-sm font-bold text-amber-800 pt-1">مدخل سينمائي درامي يعطيك السياق الحياتي والواقعي الشامل لموضوع الدرس</p>
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ffdbca]/60 text-[#9d4300] text-xs font-black mb-1 border border-[#ffdbca]">
+                          <span>التمهيد العام والمدخل الدرامي للدرس</span>
+                        </div>
+                        <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0b1c30]">
+                          📖 القصة التمهيدية الشاملة
+                        </h2>
                       </div>
                     </div>
-                    <span className="text-xs font-bold text-amber-900 bg-amber-100 px-4 py-1.5 rounded-full border border-amber-300 shadow-2xs">
-                      التمهيد العام للدرس 📜
+                    <span className="text-xs font-extrabold text-[#584237]/80 bg-slate-100 px-4 py-2 rounded-full border border-slate-200">
+                      مدخل واقعي وسينمائي
                     </span>
                   </div>
 
-                  <div className="rounded-3xl bg-amber-50/70 p-6 sm:p-8 border border-amber-200 text-amber-950 font-bold text-sm sm:text-base leading-relaxed whitespace-pre-line space-y-4 shadow-2xs">
+                  {/* Story Text Card */}
+                  <div className="relative z-10 rounded-[2rem] bg-[#f8f9ff] p-8 sm:p-12 border-2 border-[#e0c0b1]/30 text-[#0b1c30] font-semibold text-base sm:text-lg leading-[2.2] text-justify md:text-right shadow-inner whitespace-pre-line">
                     {lesson.master_story}
                   </div>
 
-                  <div className="pt-4 flex justify-end">
+                  {/* Action CTA */}
+                  <div className="relative z-10 pt-4 flex flex-col sm:flex-row items-center justify-between gap-6 border-t border-[#e0c0b1]/30">
+                    <p className="text-xs font-bold text-[#584237]/70 flex items-center gap-2">
+                      <span>💡 استغرق وقتك في قراءة القصة جيداً قبل الدخول للفقرات التفاعلية</span>
+                    </p>
                     <button
                       onClick={() => setShowMasterStory(false)}
-                      className="bg-[#9d4300] hover:bg-[#833800] text-white font-black text-sm px-8 py-4 rounded-full shadow-lg transition cursor-pointer flex items-center gap-3"
+                      className="w-full sm:w-auto bg-[#9d4300] hover:bg-[#7e3500] text-white font-extrabold text-base px-10 py-4.5 rounded-full shadow-xl hover:shadow-primary/30 transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-3 shrink-0"
                     >
                       <span>ابدأ دراسة الفقرات التفاعلية 🚀</span>
                       <ArrowLeft className="h-5 w-5" />
@@ -441,8 +456,7 @@ export function LessonFlow({
                 onStageChange={handleStageChange}
                 onComplete={handleBlockCompletion}
               />
-            )
-          )}
+            ))}
 
           {phase === "break" && (
             <BreathingBreak

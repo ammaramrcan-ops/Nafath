@@ -1,6 +1,6 @@
 import { useState } from "react";
-import {motion} from "framer-motion";
-import {X, Pencil, Plus, Trash2, BookOpen, ChevronRight, Layers} from "lucide-react";
+import { motion } from "framer-motion";
+import { X, Pencil, Plus, Trash2, BookOpen, ChevronRight, Layers } from "lucide-react";
 import { CATEGORY_INFO, type SmartFlashcard } from "@/lib/spaced-repetition";
 import { toast } from "sonner";
 
