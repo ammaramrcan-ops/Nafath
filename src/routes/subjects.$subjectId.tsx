@@ -118,12 +118,13 @@ function SubjectPage() {
       <header className="w-full h-20 bg-[#f8f9ff]/90 backdrop-blur-md fixed top-0 z-50 border-b border-[#e0c0b1]/30 flex justify-center">
         <nav className="flex justify-between items-center w-full max-w-[1280px] px-8 md:px-16 h-full">
           <div className="flex items-center gap-10">
-            <div
+            <button
+              type="button"
               onClick={() => navigate({ to: "/" })}
-              className="text-3xl font-extrabold text-[#9d4300] cursor-pointer tracking-tight"
+              className="text-3xl font-extrabold text-[#9d4300] cursor-pointer tracking-tight border-none bg-transparent p-0"
             >
               نفاذ
-            </div>
+            </button>
             <div className="hidden md:flex gap-8 items-center">
               <button
                 onClick={() => navigate({ to: "/subjects" })}

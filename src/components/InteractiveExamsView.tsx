@@ -913,7 +913,8 @@ export function InteractiveExamsView({
                   notes.map((item) => {
                     const isSelected = selectedNoteId === item.id || noteTitle === item.lessonTitle;
                     return (
-                      <div
+                      <button
+                        type="button"
                         key={item.id}
                         onClick={() => {
                           setSelectedNoteId(item.id);
@@ -942,7 +943,7 @@ export function InteractiveExamsView({
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
-                      </div>
+                      </button>
                     );
                   })
                 )}

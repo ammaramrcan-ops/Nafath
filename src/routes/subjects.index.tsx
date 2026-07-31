@@ -75,12 +75,13 @@ export function SubjectsPage() {
       <header className="w-full h-20 bg-[#f8f9ff]/90 backdrop-blur-md fixed top-0 z-50 border-b border-[#e0c0b1]/30 flex justify-center">
         <nav className="flex justify-between items-center w-full max-w-[1280px] px-8 md:px-16 h-full">
           <div className="flex items-center gap-10">
-            <div
+            <button
+              type="button"
               onClick={() => navigate({ to: "/" })}
-              className="text-3xl font-extrabold text-[#9d4300] cursor-pointer tracking-tight"
+              className="text-3xl font-extrabold text-[#9d4300] cursor-pointer tracking-tight border-none bg-transparent p-0"
             >
               نفاذ
-            </div>
+            </button>
             <div className="hidden md:flex gap-8 items-center">
               <button
                 onClick={() => navigate({ to: "/subjects" })}
@@ -172,11 +173,18 @@ export function SubjectsPage() {
                   const lessonsCount = library.filter((l) => l.subjectId === sub.id).length;
                   return (
                     <div
+                      role="button"
+                      tabIndex={0}
                       key={sub.id}
                       onClick={() =>
                         navigate({ to: "/subjects/$subjectId", params: { subjectId: sub.id } })
                       }
-                      className="group relative bg-white p-7 rounded-2xl border border-[#e0c0b1]/40 hover:border-[#9d4300]/50 shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between min-h-[190px]"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          navigate({ to: "/subjects/$subjectId", params: { subjectId: sub.id } });
+                        }
+                      }}
+                      className="group relative bg-white p-7 rounded-2xl border border-[#e0c0b1]/40 hover:border-[#9d4300]/50 shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between min-h-[190px] text-right"
                     >
                       <div className="flex justify-between items-start mb-5">
                         <span className="p-3 rounded-2xl bg-[#eff4ff] text-[#9d4300] group-hover:scale-110 transition-transform">
@@ -236,11 +244,18 @@ export function SubjectsPage() {
                   const lessonsCount = library.filter((l) => l.subjectId === sub.id).length;
                   return (
                     <div
+                      role="button"
+                      tabIndex={0}
                       key={sub.id}
                       onClick={() =>
                         navigate({ to: "/subjects/$subjectId", params: { subjectId: sub.id } })
                       }
-                      className="group relative bg-white p-7 rounded-2xl border border-[#e0c0b1]/40 hover:border-[#8127cf]/50 shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between min-h-[190px]"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          navigate({ to: "/subjects/$subjectId", params: { subjectId: sub.id } });
+                        }
+                      }}
+                      className="group relative bg-white p-7 rounded-2xl border border-[#e0c0b1]/40 hover:border-[#8127cf]/50 shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between min-h-[190px] text-right"
                     >
                       <div className="flex justify-between items-start mb-5">
                         <span className="p-3 rounded-2xl bg-[#f0dbff]/60 text-[#8127cf] group-hover:scale-110 transition-transform">
@@ -293,11 +308,18 @@ export function SubjectsPage() {
                   const lessonsCount = library.filter((l) => l.subjectId === sub.id).length;
                   return (
                     <div
+                      role="button"
+                      tabIndex={0}
                       key={sub.id}
                       onClick={() =>
                         navigate({ to: "/subjects/$subjectId", params: { subjectId: sub.id } })
                       }
-                      className="group relative bg-white p-7 rounded-2xl border border-[#e0c0b1]/40 hover:border-[#5c5f61]/50 shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between min-h-[190px]"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          navigate({ to: "/subjects/$subjectId", params: { subjectId: sub.id } });
+                        }
+                      }}
+                      className="group relative bg-white p-7 rounded-2xl border border-[#e0c0b1]/40 hover:border-[#5c5f61]/50 shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between min-h-[190px] text-right"
                     >
                       <div className="flex justify-between items-start mb-5">
                         <span className="p-3 rounded-2xl bg-[#e0e3e5]/60 text-[#5c5f61] group-hover:scale-110 transition-transform">

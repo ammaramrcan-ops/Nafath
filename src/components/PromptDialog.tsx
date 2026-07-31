@@ -37,6 +37,7 @@ export function PromptDialog({
         aria-modal="true"
         className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-[var(--shadow-deep)]"
         onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => e.stopPropagation()}
       >
         <h3 className="mb-4 text-[18px] font-medium text-zen-on-surface">{title}</h3>
         <input

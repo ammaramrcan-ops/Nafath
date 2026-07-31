@@ -283,12 +283,13 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
                     const category = sub.category || "العلوم الشرعية";
                     const lessonCount = library.filter((l) => l.subjectId === sub.id).length;
                     return (
-                      <div
+                      <button
                         key={sub.id}
+                        type="button"
                         onClick={() =>
                           navigate({ to: "/subjects/$subjectId", params: { subjectId: sub.id } })
                         }
-                        className="bg-white border border-gray-200/60 rounded-xl p-6 hover:shadow-md transition-all cursor-pointer group space-y-4"
+                        className="text-right w-full bg-white border border-gray-200/60 rounded-xl p-6 hover:shadow-md transition-all cursor-pointer group space-y-4"
                       >
                         <div className="flex justify-between items-start">
                           <span className="bg-blue-50 text-blue-600 text-[10px] font-bold px-2.5 py-1 rounded">
@@ -303,11 +304,11 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
                           <span className="flex-grow text-xs font-medium text-gray-700">
                             {lessonCount > 0 ? `الدروس المسجلة: ${lessonCount} درس` : "مادة دراسية نشطة"}
                           </span>
-                          <button className="text-[#f97316] font-bold text-xs hover:underline cursor-pointer">
+                          <span className="text-[#f97316] font-bold text-xs hover:underline">
                             عرض المادة ➔
-                          </button>
+                          </span>
                         </div>
-                      </div>
+                      </button>
                     );
                   })
                 ) : mounted ? (
@@ -373,11 +374,15 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
                         </button>
                       </div>
 
-                      <div onClick={() => onOpenLesson(saved.data)} className="cursor-pointer space-y-1">
+                      <button
+                        type="button"
+                        onClick={() => onOpenLesson(saved.data)}
+                        className="text-right w-full cursor-pointer space-y-1 border-none bg-transparent p-0"
+                      >
                         <p className="font-bold text-sm text-gray-900 group-hover:text-[#f97316] transition-colors">
                           {saved.title}
                         </p>
-                      </div>
+                      </button>
                     </div>
                   ))
                 ) : (
@@ -484,7 +489,14 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
 
             {/* 2. Flashcards Quick Access Card (Exact Compact Image 1 Match) */}
             <section
+              role="button"
+              tabIndex={0}
               onClick={() => navigate({ to: "/spaced-repetition" })}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  navigate({ to: "/spaced-repetition" });
+                }
+              }}
               className="bg-[#f97316] rounded-xl overflow-hidden relative group cursor-pointer p-6 text-white shadow-md hover:shadow-lg transition-all"
             >
               <div className="relative z-10 space-y-4">

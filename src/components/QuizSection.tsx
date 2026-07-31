@@ -227,11 +227,12 @@ export function QuizSection({
             const isDone = m?.status === "correct";
             const isCurrent = idx === currentIndex;
             return (
-              <div
+              <button
+                type="button"
                 key={qItem.id}
                 onClick={() => setCurrentIndex(idx)}
                 className={cn(
-                  "h-full flex-1 rounded-full transition-all duration-300 cursor-pointer",
+                  "h-full flex-1 rounded-full transition-all duration-300 cursor-pointer border-none p-0",
                   isDone
                     ? "bg-emerald-500"
                     : isCurrent

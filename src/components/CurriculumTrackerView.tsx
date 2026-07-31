@@ -723,16 +723,17 @@ export function CurriculumTrackerView() {
                           </button>
                         </div>
                       ) : (
-                        <p
+                        <button
+                          type="button"
                           onClick={() => {
                             setQuickTaskSubjectId(subject.id);
                             setShowSettingsModal(true);
                           }}
-                          className="font-extrabold text-[#0b1c30] truncate hover:text-[#9d4300] transition cursor-pointer"
+                          className="text-right font-extrabold text-[#0b1c30] truncate hover:text-[#9d4300] transition cursor-pointer border-none bg-transparent p-0"
                           title="انقر لإضافة دروس/مهام أو تعديل الإعدادات ⚙️"
                         >
                           {subject.name}
-                        </p>
+                        </button>
                       )}
                       <div className="flex items-center gap-3 mt-1.5">
                         <div className="flex-1 bg-[#eff4ff] rounded-full h-1.5 max-w-[140px]">

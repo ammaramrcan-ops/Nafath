@@ -626,8 +626,10 @@ export function MindMapCanvas({
 
                 {isEditing ? (
                   <div
+                    role="presentation"
                     className="flex items-center gap-1 w-full z-20"
                     onClick={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => e.stopPropagation()}
                   >
                     <input
                       type="text"
