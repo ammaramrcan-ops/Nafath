@@ -71,29 +71,23 @@ function sanitizeJsonInput<T>(data: T): T {
 }
 
 function parseFlexibleJson(rawStr: string): any {
-  if (!rawStr || !rawStr.trim()) throw new Error("نص JSON فارغ");
+  if (!rawStr || typeof rawStr !== "string" || !rawStr.trim()) {
+    throw new Error("نص JSON فارغ أو غير متاح.");
+  }
 
   let cleaned = rawStr.trim();
 
-  // 1. Strip markdown code block wrappers (e.g. ```json ... ```)
-  cleaned = cleaned.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
+  // Replace smart quotes/curly quotes with standard quotes
+  cleaned = cleaned.replace(/[“”«»]/g, '"').replace(/[‘’]/g, "'");
 
-  // 2. Handle outer double-quotes or single-quotes wrapper if present: e.g. "{ ... }" or '{ ... }'
-  if (
-    (cleaned.startsWith('"') && cleaned.endsWith('"')) ||
-    (cleaned.startsWith("'") && cleaned.endsWith("'"))
-  ) {
-    const unquoted = cleaned.slice(1, -1).trim();
-    if (unquoted.startsWith("{") || unquoted.startsWith("[")) {
-      cleaned = unquoted;
-    }
-  }
+  // Remove markdown code fences: ```json ... ``` or ``` ... ```
+  cleaned = cleaned.replace(/```(?:json)?/gi, "").replace(/```/g, "").trim();
 
-  // 3. Extract JSON object/array boundaries if there is surrounding text
+  // Find actual start index of object '{' or array '['
   const firstBrace = cleaned.indexOf("{");
   const firstBracket = cleaned.indexOf("[");
-  let startIdx = -1;
 
+  let startIdx = -1;
   if (firstBrace !== -1 && firstBracket !== -1) {
     startIdx = Math.min(firstBrace, firstBracket);
   } else if (firstBrace !== -1) {
@@ -110,21 +104,28 @@ function parseFlexibleJson(rawStr: string): any {
     }
   }
 
-  // 4. Remove trailing commas before } or ]
+  // Strip trailing commas before } or ]
   cleaned = cleaned.replace(/,\s*([\}\]])/g, "$1");
 
   try {
-    const firstParse = JSON.parse(cleaned);
-    if (typeof firstParse === "string") {
-      return JSON.parse(firstParse);
+    const parsed = JSON.parse(cleaned);
+    if (typeof parsed === "string") {
+      try {
+        return JSON.parse(parsed);
+      } catch {
+        return parsed;
+      }
     }
-    return firstParse;
-  } catch {
-    // Fallback: unescape internal string newlines if any
-    const sanitized = cleaned.replace(/(?<=:\s*"[^"]*)\n(?=[^"]*")/g, "\\n");
-    const res = JSON.parse(sanitized);
-    if (typeof res === "string") return JSON.parse(res);
-    return res;
+    return parsed;
+  } catch (firstErr: any) {
+    try {
+      const sanitized = cleaned.replace(/(?<=:\s*"[^"]*)\n(?=[^"]*")/g, "\\n");
+      const secondParse = JSON.parse(sanitized);
+      if (typeof secondParse === "string") return JSON.parse(secondParse);
+      return secondParse;
+    } catch {
+      throw new Error(`صيغة JSON غير صحيحة: ${firstErr?.message || "يرجى التأكد من الأقواس"}`);
+    }
   }
 }
 
@@ -274,15 +275,22 @@ function TeacherPage() {
       return false;
     }
     try {
-      const data = sanitizeJsonInput(parseFlexibleJson(jsonStr));
+      const parsed = parseFlexibleJson(jsonStr);
+      const data = sanitizeJsonInput(parsed);
       const list = (() => {
         if (Array.isArray(data.mind_maps_by_block)) return data.mind_maps_by_block;
         if (Array.isArray(data.blocks)) return data.blocks;
+        if (Array.isArray(data)) return data;
         return [data];
       })();
 
+      if (!list || list.length === 0) {
+        toast.error("لم يتم العثور على مصفوفة الخرائط الذهنية داخل كود JSON.");
+        return false;
+      }
+
       const updatedBlocks = lesson.blocks.map((b, i) => {
-        const item = list[i] || list.find((m: MCQ) => m.block_id === b.id) || list[0];
+        const item = list[i] || list.find((m: MCQ) => m.block_id === b.id || m.id === b.id) || list[0];
         if (!item) return b;
         const rawMindMap =
           item.mind_map_nodes ??
@@ -303,8 +311,8 @@ function TeacherPage() {
       updateLesson({ blocks: updatedBlocks });
       toast.success("تم استيراد الخرائط الذهنية لكل فقرة بنجاح! 🗺️✨");
       return true;
-    } catch {
-      toast.error("كود JSON غير صالح للخرائط الذهنية.");
+    } catch (err: any) {
+      toast.error(err?.message || "كود JSON غير صالح للخرائط الذهنية.");
       return false;
     }
   };
