@@ -3,7 +3,7 @@ import { Upload, Sparkles, FileJson } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { defaultLesson, parseLessonJson, type Lesson } from "@/lib/lesson-data";
 
-export function HomeUpload({ onLoad }: { onLoad: (lesson: Lesson) => void }) {
+export function HomeUpload({ onLoad }: { readonly onLoad: (lesson: Lesson) => void }) {
   const [text, setText] = useState("");
   const [error, setError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);

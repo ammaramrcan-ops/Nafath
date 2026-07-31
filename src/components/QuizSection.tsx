@@ -95,12 +95,12 @@ export function QuizSection({
   subjectId,
   onAllCorrect,
 }: {
-  quizzes: Quizzes;
-  type?: "mcq" | "fill" | "essay" | "all";
-  stage?: string;
-  lessonTitle?: string;
-  subjectId?: string;
-  onAllCorrect: () => void;
+  readonly quizzes: Quizzes;
+  readonly type?: "mcq" | "fill" | "essay" | "all";
+  readonly stage?: string;
+  readonly lessonTitle?: string;
+  readonly subjectId?: string;
+  readonly onAllCorrect: () => void;
 }) {
   const showMcq = type === "all" || type === "mcq";
   const showFill = type === "all" || type === "fill";
@@ -400,8 +400,8 @@ function ConfidenceRatingBar({
   selected,
   onRate,
 }: {
-  selected?: "easy" | "medium" | "hard";
-  onRate: (difficulty: "easy" | "medium" | "hard") => void;
+  readonly selected?: "easy" | "medium" | "hard";
+  readonly onRate: (difficulty: "easy" | "medium" | "hard") => void;
 }) {
   return (
     <div className="rounded-2xl bg-[#eff4ff] p-3.5 border border-[#e0c0b1]/30 space-y-2 text-center">
@@ -465,14 +465,14 @@ function McqHybridCard({
   setMetric,
   onNext,
 }: {
-  num: number;
-  q: MCQ;
-  lessonTitle?: string;
-  subjectId?: string;
-  isLastQuestion?: boolean;
-  metric: QuestionMetrics;
-  setMetric: (m: Partial<QuestionMetrics>) => void;
-  onNext: () => void;
+  readonly num: number;
+  readonly q: MCQ;
+  readonly lessonTitle?: string;
+  readonly subjectId?: string;
+  readonly isLastQuestion?: boolean;
+  readonly metric: QuestionMetrics;
+  readonly setMetric: (m: Partial<QuestionMetrics>) => void;
+  readonly onNext: () => void;
 }) {
   const [sel, setSel] = useState<string | null>(null);
   const [showNotesModal, setShowNotesModal] = useState(false);
@@ -570,7 +570,7 @@ function McqHybridCard({
           const showWrong = metric.status === "wrong" && isSel;
           const isLocked = metric.status !== "idle";
           return (
-            <button
+            <button type="button"
               key={opt}
               disabled={isLocked}
               onClick={() => handleSelectOption(opt)}
@@ -651,13 +651,13 @@ function FillHybridCard({
   setMetric,
   onNext,
 }: {
-  num: number;
-  q: Fill;
-  lessonTitle?: string;
-  subjectId?: string;
-  metric: QuestionMetrics;
-  setMetric: (m: Partial<QuestionMetrics>) => void;
-  onNext: () => void;
+  readonly num: number;
+  readonly q: Fill;
+  readonly lessonTitle?: string;
+  readonly subjectId?: string;
+  readonly metric: QuestionMetrics;
+  readonly setMetric: (m: Partial<QuestionMetrics>) => void;
+  readonly onNext: () => void;
 }) {
   const [val, setVal] = useState("");
   const startTimeRef = useRef<number>(Date.now());
@@ -768,11 +768,11 @@ function EssayHybridCard({
   setMetric,
   onNext,
 }: {
-  num: number;
-  q: Essay;
-  metric: QuestionMetrics;
-  setMetric: (m: Partial<QuestionMetrics>) => void;
-  onNext: () => void;
+  readonly num: number;
+  readonly q: Essay;
+  readonly metric: QuestionMetrics;
+  readonly setMetric: (m: Partial<QuestionMetrics>) => void;
+  readonly onNext: () => void;
 }) {
   const [val, setVal] = useState("");
   const [showAnswer, setShowAnswer] = useState(false);

@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { BookOpen, HelpCircle, Lightbulb, Sparkles } from "lucide-react";
 import { type Lesson } from "@/lib/lesson-data";
 
-export function CheatSheet({ lesson }: { lesson: Lesson }) {
+export function CheatSheet({ lesson }: { readonly lesson: Lesson }) {
   const definitions = useMemo(() => {
     return lesson.blocks.flatMap((b) => {
       const words = b.hard_words.map((w) => ({ ...w, blockTitle: b.title }));

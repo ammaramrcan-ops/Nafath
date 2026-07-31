@@ -63,7 +63,7 @@ function LessonsPage() {
 
           <h1 className="text-lg font-bold text-zen-on-surface">جميع الدروس ({library.length})</h1>
 
-          <button
+          <button type="button"
             onClick={() => setRestoreOpen(true)}
             className="flex items-center gap-1.5 rounded-full bg-zen-primary px-4 py-2 text-xs font-semibold text-white hover:opacity-90 transition cursor-pointer"
           >
@@ -96,7 +96,7 @@ function LessonsPage() {
             <p className="text-xs text-zen-on-surface-variant mt-1">
               قم باسترداد درس جديد أو جرب البحث بكلمة أخرى.
             </p>
-            <button
+            <button type="button"
               onClick={() => setRestoreOpen(true)}
               className="mt-6 inline-flex items-center gap-2 rounded-full bg-zen-primary px-6 py-2.5 text-xs font-semibold text-white"
             >
@@ -114,7 +114,7 @@ function LessonsPage() {
                   <span className="rounded-full bg-zen-surface-low px-3 py-1 text-xs font-medium text-zen-primary">
                     درس متكامل
                   </span>
-                  <button
+                  <button type="button"
                     onClick={() => {
                       deleteFromLibrary(saved.id);
                       refresh();
@@ -137,7 +137,7 @@ function LessonsPage() {
                   )}
                 </div>
 
-                <button
+                <button type="button"
                   onClick={() => handleOpenLesson(saved.data)}
                   className="w-full flex items-center justify-center gap-2 rounded-2xl bg-zen-surface-low py-3 text-xs font-semibold text-zen-primary group-hover:bg-zen-primary group-hover:text-white transition cursor-pointer"
                 >

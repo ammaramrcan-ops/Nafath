@@ -118,14 +118,14 @@ function UnitPage() {
 
         {/* Action buttons */}
         <div className="mb-8 grid grid-cols-2 gap-3">
-          <button
+          <button type="button"
             onClick={handleNewLesson}
             className="flex items-center justify-center gap-2 rounded-2xl bg-zen-primary px-5 py-4 text-[14px] font-medium text-white shadow-[var(--shadow-deep)] transition hover:opacity-90"
           >
             <Plus className="h-4 w-4" strokeWidth={2.25} />
             درس جديد
           </button>
-          <button
+          <button type="button"
             onClick={() => fileRef.current?.click()}
             className="flex items-center justify-center gap-2 rounded-2xl border border-zen-surface-container bg-white px-5 py-4 text-[14px] font-medium text-zen-on-surface shadow-sm transition hover:border-zen-primary"
           >
@@ -161,7 +161,7 @@ function UnitPage() {
                 className="group relative rounded-2xl border border-white bg-white p-6 shadow-[var(--shadow-deep)] transition hover:-translate-y-0.5"
               >
                 <div className="absolute left-3 top-3 flex gap-1 opacity-0 transition group-hover:opacity-100">
-                  <button
+                  <button type="button"
                     onClick={() => {
                       try {
                         localStorage.setItem("teacher.lesson.draft", JSON.stringify(l.data));
@@ -175,7 +175,7 @@ function UnitPage() {
                   >
                     <Pencil className="h-3.5 w-3.5" />
                   </button>
-                  <button
+                  <button type="button"
                     onClick={() => {
                       if (confirm(`إزالة "${l.title}" من هذه الوحدة؟`)) {
                         removeLessonFromUnit(subjectId, unitId, l.id);
@@ -194,7 +194,7 @@ function UnitPage() {
                 <h3 className="mb-5 text-[17px] font-medium text-zen-on-surface line-clamp-2">
                   {l.title}
                 </h3>
-                <button
+                <button type="button"
                   onClick={() => {
                     try {
                       localStorage.setItem("nafath.openLesson", JSON.stringify(l.data));

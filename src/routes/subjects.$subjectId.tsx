@@ -35,7 +35,7 @@ export const Route = createFileRoute("/subjects/$subjectId")({
         <p className="text-sm text-[#584237]/70 mb-6">
           قد تكون المادة حُذفت أو أن الرابط غير صحيح.
         </p>
-        <button
+        <button type="button"
           onClick={() => (window.location.href = "/subjects")}
           className="inline-flex items-center gap-2 bg-[#9d4300] text-white px-6 py-2.5 rounded-full text-sm font-bold hover:bg-[#833800] transition"
         >
@@ -74,7 +74,7 @@ function SubjectPage() {
           <p className="text-sm text-[#584237]/70 mb-6">
             قد تكون المادة حُذفت أو أن الرابط غير صحيح.
           </p>
-          <button
+          <button type="button"
             onClick={() => navigate({ to: "/subjects" })}
             className="inline-flex items-center gap-2 bg-[#9d4300] text-white px-6 py-2.5 rounded-full text-sm font-bold hover:bg-[#833800] transition cursor-pointer"
           >
@@ -126,13 +126,13 @@ function SubjectPage() {
               نفاذ
             </button>
             <div className="hidden md:flex gap-8 items-center">
-              <button
+              <button type="button"
                 onClick={() => navigate({ to: "/subjects" })}
                 className="text-base font-bold text-[#9d4300] border-b-2 border-[#9d4300] pb-1 cursor-pointer"
               >
                 المواد
               </button>
-              <button
+              <button type="button"
                 onClick={() => navigate({ to: "/interactive-exams" })}
                 className="text-base font-semibold text-[#584237] hover:text-[#9d4300] transition-colors cursor-pointer"
               >
@@ -142,7 +142,7 @@ function SubjectPage() {
           </div>
 
           <div className="flex items-center gap-4">
-            <button
+            <button type="button"
               onClick={() => setSettingsOpen(true)}
               className="w-11 h-11 flex items-center justify-center rounded-full bg-[#dce9ff] text-[#9d4300] hover:bg-[#d3e4fe] transition-colors cursor-pointer"
               title="الإعدادات"
@@ -157,7 +157,7 @@ function SubjectPage() {
       <main className="w-full max-w-[1280px] px-8 md:px-16 pt-28 pb-24 flex-grow">
         {/* Breadcrumb Navigation */}
         <div className="mb-6 flex items-center gap-2 text-sm font-semibold text-[#584237]/80">
-          <button
+          <button type="button"
             onClick={() => navigate({ to: "/subjects" })}
             className="hover:text-[#9d4300] transition-colors flex items-center gap-1 cursor-pointer"
           >
@@ -201,7 +201,7 @@ function SubjectPage() {
 
         {/* Quick Action Bento Section (4 Main Tools for this Subject) */}
         <section className="mb-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <button
+          <button type="button"
             onClick={() => navigate({ to: "/interactive-exams", search: { tab: "stats" } })}
             className="group p-7 bg-white border border-[#e0c0b1]/40 rounded-3xl text-right transition-all hover:shadow-lg hover:border-green-600 cursor-pointer flex flex-col justify-between"
           >
@@ -214,7 +214,7 @@ function SubjectPage() {
             </div>
           </button>
 
-          <button
+          <button type="button"
             onClick={() =>
               navigate({
                 to: "/mind-map",
@@ -232,7 +232,7 @@ function SubjectPage() {
             </div>
           </button>
 
-          <button
+          <button type="button"
             onClick={() => navigate({ to: "/interactive-exams" })}
             className="group p-7 bg-white border border-[#e0c0b1]/40 rounded-3xl text-right transition-all hover:shadow-lg hover:border-[#8127cf] cursor-pointer flex flex-col justify-between"
           >
@@ -247,7 +247,7 @@ function SubjectPage() {
             </div>
           </button>
 
-          <button
+          <button type="button"
             onClick={() => {
               sessionStorage.setItem("nafath.spacedRepetition.filterSubjectId", subject.id);
               sessionStorage.setItem("nafath.spacedRepetition.filterSubjectName", subject.name);
@@ -277,14 +277,14 @@ function SubjectPage() {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <button
+              <button type="button"
                 onClick={() => setRestoreOpen(true)}
                 className="inline-flex items-center gap-1.5 text-xs font-bold text-[#9d4300] bg-[#9d4300]/10 hover:bg-[#9d4300]/20 px-4 py-2 rounded-full transition-colors cursor-pointer"
               >
                 <FileJson className="w-4 h-4" />
                 استرداد درس
               </button>
-              <button
+              <button type="button"
                 onClick={() =>
                   navigate({ to: "/subject-stages/$subjectId", params: { subjectId } })
                 }
@@ -332,14 +332,14 @@ function SubjectPage() {
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <button
+                    <button type="button"
                       onClick={() => handleStartLesson(saved.data)}
                       className="inline-flex items-center gap-2 bg-[#9d4300] text-white px-6 py-2.5 rounded-full text-xs font-bold hover:bg-[#833800] transition cursor-pointer shadow"
                     >
                       <PlayCircle className="w-4 h-4" />
                       متابعة الآن
                     </button>
-                    <button
+                    <button type="button"
                       onClick={() => {
                         try {
                           localStorage.setItem("teacher.lesson.draft", JSON.stringify(saved.data));
@@ -353,7 +353,7 @@ function SubjectPage() {
                     >
                       <Pencil className="w-4 h-4" />
                     </button>
-                    <button
+                    <button type="button"
                       onClick={() => {
                         if (confirm(`هل أنت تأكد من حذف درس "${saved.title}"؟`)) {
                           deleteFromLibrary(saved.id);

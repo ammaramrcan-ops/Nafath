@@ -61,7 +61,7 @@ import { toast } from "sonner";
 export function InteractiveExamsView({
   initialTab = "exam",
 }: {
-  initialTab?: "exam" | "stats" | "mistakes" | "notebook" | "ingest";
+  readonly initialTab?: "exam" | "stats" | "mistakes" | "notebook" | "ingest";
 }) {
   const navigate = useNavigate();
   const library = useMemo(() => {

@@ -37,9 +37,9 @@ export function GoogleAuthModal({
   onOpenChange,
   onUserChanged,
 }: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onUserChanged?: (user: UserProfile | null) => void;
+  readonly open: boolean;
+  readonly onOpenChange: (open: boolean) => void;
+  readonly onUserChanged?: (user: UserProfile | null) => void;
 }) {
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(() => getStoredUser());
   const [customName, setCustomName] = useState("");
@@ -168,7 +168,7 @@ export function GoogleAuthModal({
           <div className="space-y-4 pt-3">
             {mode === "login" ? (
               <>
-                <button
+                <button type="button"
                   disabled={isLoading}
                   onClick={handleOpenRealGooglePopup}
                   className="w-full bg-white hover:bg-slate-50 border-2 border-slate-200 p-3.5 rounded-2xl flex items-center justify-between transition-all cursor-pointer shadow-xs hover:border-[#9d4300] group"
@@ -208,7 +208,7 @@ export function GoogleAuthModal({
                   </span>
                 </div>
 
-                <button
+                <button type="button"
                   onClick={() => setMode("custom")}
                   className="w-full bg-[#f8f9ff] hover:bg-[#eff4ff] border border-[#e0c0b1]/40 p-3.5 rounded-2xl flex items-center justify-center gap-2 text-xs font-extrabold text-[#0b1c30] transition cursor-pointer"
                 >
@@ -254,7 +254,7 @@ export function GoogleAuthModal({
                     {isLoading ? "جاري الحفظ..." : "حفظ الحساب وتأكيد الدخول 🚀"}
                   </Button>
 
-                  <button
+                  <button type="button"
                     onClick={() => setMode("login")}
                     className="w-full text-center text-xs text-[#584237]/70 hover:text-[#9d4300] font-bold cursor-pointer py-1"
                   >

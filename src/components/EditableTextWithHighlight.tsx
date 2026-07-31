@@ -8,10 +8,10 @@ export function EditableTextWithHighlight({
   rows = 3,
   placeholder = "",
 }: {
-  value: string;
-  onChange: (val: string) => void;
-  rows?: number;
-  placeholder?: string;
+  readonly value: string;
+  readonly onChange: (val: string) => void;
+  readonly rows?: number;
+  readonly placeholder?: string;
 }) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 

@@ -121,10 +121,10 @@ export function MindMapCanvas({
   readOnly = false,
   hideSideControls = false,
 }: {
-  mapData: MindMapData;
-  onUpdateMap?: (newMap: MindMapData) => void;
-  readOnly?: boolean;
-  hideSideControls?: boolean;
+  readonly mapData: MindMapData;
+  readonly onUpdateMap?: (newMap: MindMapData) => void;
+  readonly readOnly?: boolean;
+  readonly hideSideControls?: boolean;
 }) {
   const [nodes, setNodes] = useState<MindMapNode[]>(mapData.nodes || []);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);

@@ -32,7 +32,7 @@ function SpacedRepetitionPage() {
       {/* Top Bar */}
       <header className="fixed inset-x-0 top-0 z-40 bg-white/90 backdrop-blur-md border-b border-zen-surface-container/60">
         <div className="relative mx-auto flex w-full max-w-[900px] items-center justify-between px-6 py-4">
-          <button
+          <button type="button"
             onClick={handleBack}
             className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-zen-on-surface-variant hover:bg-zen-surface-low transition cursor-pointer"
             aria-label="رجوع"

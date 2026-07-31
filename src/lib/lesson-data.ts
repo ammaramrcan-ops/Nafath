@@ -246,28 +246,26 @@ function extractZaitounaRawFields(zaitounaObj: Record<string, unknown>): {
 
 export function extractMindMapNodesFromRaw(mmRaw: unknown): string[] {
   if (Array.isArray(mmRaw)) {
-    return mmRaw.map((n: unknown) =>
-      typeof n === "string"
-        ? n
-        : typeof n === "object" && n !== null
-          ? String(
-              (n as Record<string, unknown>).text || (n as Record<string, unknown>).title || "",
-            )
-          : "",
-    );
+    return mmRaw.map((n: unknown) => {
+      if (typeof n === "string") return n;
+      if (typeof n === "object" && n !== null) {
+        const obj = n as Record<string, unknown>;
+        return String(obj.text || obj.title || "");
+      }
+      return "";
+    });
   }
   if (mmRaw && typeof mmRaw === "object") {
     const nodes = (mmRaw as Record<string, unknown>).nodes;
     if (Array.isArray(nodes)) {
-      return nodes.map((n: unknown) =>
-        typeof n === "string"
-          ? n
-          : typeof n === "object" && n !== null
-            ? String(
-                (n as Record<string, unknown>).text || (n as Record<string, unknown>).title || "",
-              )
-            : "",
-      );
+      return nodes.map((n: unknown) => {
+        if (typeof n === "string") return n;
+        if (typeof n === "object" && n !== null) {
+          const obj = n as Record<string, unknown>;
+          return String(obj.text || obj.title || "");
+        }
+        return "";
+      });
     }
   }
   return [];
@@ -278,8 +276,22 @@ function extractHardWordsFromRaw(rawHardWords: unknown): HardWord[] {
   return rawHardWords.map((hwItem: unknown) => {
     const hw = (hwItem && typeof hwItem === "object" ? hwItem : {}) as Record<string, unknown>;
     return {
-      word: String(hw.term ?? hw.word ?? ""),
-      meaning: String(hw.definition ?? hw.explanation ?? hw.meaning ?? ""),
+      word: String(
+        typeof hw.term === "string"
+          ? hw.term
+          : typeof hw.word === "string"
+          ? hw.word
+          : "",
+      ),
+      meaning: String(
+        typeof hw.definition === "string"
+          ? hw.definition
+          : typeof hw.explanation === "string"
+          ? hw.explanation
+          : typeof hw.meaning === "string"
+          ? hw.meaning
+          : "",
+      ),
     };
   });
 }
@@ -295,12 +307,18 @@ export function normalizeBlock(raw: unknown, idx: number): ParagraphBlock {
     ? (rawObj.highlights as TextHighlight[])
     : [];
 
-  let short_sentence = String(rawObj.short_sentence ?? rawObj.summary ?? "");
-  let story = String(rawObj.story ?? "");
-  let examples = String(rawObj.examples ?? "");
-  let full_text = String(rawObj.full_text ?? "");
-  let mnemonic = String(rawObj.mnemonic ?? "");
-  let funny_link = String(rawObj.funny_link ?? "");
+  let short_sentence = String(
+    typeof rawObj.short_sentence === "string"
+      ? rawObj.short_sentence
+      : typeof rawObj.summary === "string"
+      ? rawObj.summary
+      : "",
+  );
+  let story = String(typeof rawObj.story === "string" ? rawObj.story : "");
+  let examples = String(typeof rawObj.examples === "string" ? rawObj.examples : "");
+  let full_text = String(typeof rawObj.full_text === "string" ? rawObj.full_text : "");
+  let mnemonic = String(typeof rawObj.mnemonic === "string" ? rawObj.mnemonic : "");
+  let funny_link = String(typeof rawObj.funny_link === "string" ? rawObj.funny_link : "");
 
   const zaitounaObj = (
     rawObj.zaitouna && typeof rawObj.zaitouna === "object" ? rawObj.zaitouna : {}
@@ -368,42 +386,54 @@ export function normalizeBlock(raw: unknown, idx: number): ParagraphBlock {
 
   const mcqSrc =
     quizzesMcq.content ?? quizzesContent.mcq ?? rawQuizzesObj.mcqs ?? rawQuizzesObj.mcq;
-  const rawMcqs: MCQ[] = Array.isArray(mcqSrc)
+  const isMcqArray = Array.isArray(mcqSrc);
+  const isMcqObject =
+    mcqSrc &&
+    typeof mcqSrc === "object" &&
+    ((mcqSrc as Record<string, unknown>).question ||
+      (mcqSrc as Record<string, unknown>).answer ||
+      (mcqSrc as Record<string, unknown>).correct_answer);
+
+  const rawMcqs: MCQ[] = isMcqArray
     ? mcqSrc.map((mItem: unknown) => {
         const m = (mItem && typeof mItem === "object" ? mItem : {}) as Record<string, unknown>;
         return {
-          question: String(m.question ?? ""),
+          question: String(typeof m.question === "string" ? m.question : ""),
           options: Array.isArray(m.options) ? (m.options as string[]) : [],
-          answer: String(m.answer ?? m.correct_answer ?? ""),
+          answer: String(
+            typeof m.answer === "string"
+              ? m.answer
+              : typeof m.correct_answer === "string"
+              ? m.correct_answer
+              : "",
+          ),
           difficulty: (m.difficulty as MCQ["difficulty"]) || "medium",
           estimated_time: typeof m.estimated_time === "number" ? m.estimated_time : 30,
         };
       })
-    : mcqSrc &&
-        typeof mcqSrc === "object" &&
-        ((mcqSrc as Record<string, unknown>).question ||
-          (mcqSrc as Record<string, unknown>).answer ||
-          (mcqSrc as Record<string, unknown>).correct_answer)
-      ? [
-          {
-            question: String((mcqSrc as Record<string, unknown>).question ?? ""),
-            options: Array.isArray((mcqSrc as Record<string, unknown>).options)
-              ? ((mcqSrc as Record<string, unknown>).options as string[])
-              : [],
-            answer: String(
-              (mcqSrc as Record<string, unknown>).answer ??
-                (mcqSrc as Record<string, unknown>).correct_answer ??
-                "",
-            ),
-            difficulty:
-              ((mcqSrc as Record<string, unknown>).difficulty as MCQ["difficulty"]) || "medium",
-            estimated_time:
-              typeof (mcqSrc as Record<string, unknown>).estimated_time === "number"
-                ? ((mcqSrc as Record<string, unknown>).estimated_time as number)
-                : 30,
-          },
-        ]
-      : [];
+    : isMcqObject
+    ? [
+        {
+          question: String((mcqSrc as Record<string, unknown>).question ?? ""),
+          options: Array.isArray((mcqSrc as Record<string, unknown>).options)
+            ? ((mcqSrc as Record<string, unknown>).options as string[])
+            : [],
+          answer: String(
+            typeof (mcqSrc as Record<string, unknown>).answer === "string"
+              ? (mcqSrc as Record<string, unknown>).answer
+              : typeof (mcqSrc as Record<string, unknown>).correct_answer === "string"
+              ? (mcqSrc as Record<string, unknown>).correct_answer
+              : "",
+          ),
+          difficulty:
+            ((mcqSrc as Record<string, unknown>).difficulty as MCQ["difficulty"]) || "medium",
+          estimated_time:
+            typeof (mcqSrc as Record<string, unknown>).estimated_time === "number"
+              ? ((mcqSrc as Record<string, unknown>).estimated_time as number)
+              : 30,
+        },
+      ]
+    : [];
   const mcqs = padMcqsToFive(rawMcqs);
 
   const fillSrc =
@@ -411,77 +441,117 @@ export function normalizeBlock(raw: unknown, idx: number): ParagraphBlock {
     quizzesContent.fill_in_blank ??
     rawQuizzesObj.fills ??
     rawQuizzesObj.fill;
-  const fills: Fill[] = Array.isArray(fillSrc)
+  const isFillArray = Array.isArray(fillSrc);
+  const isFillObject =
+    fillSrc &&
+    typeof fillSrc === "object" &&
+    ((fillSrc as Record<string, unknown>).question ||
+      (fillSrc as Record<string, unknown>).sentence ||
+      (fillSrc as Record<string, unknown>).answer);
+
+  const fills: Fill[] = isFillArray
     ? fillSrc.map((fItem: unknown) => {
         const f = (fItem && typeof fItem === "object" ? fItem : {}) as Record<string, unknown>;
         return {
-          question: String(f.question ?? f.sentence ?? ""),
-          answer: String(f.answer ?? ""),
+          question: String(
+            typeof f.question === "string"
+              ? f.question
+              : typeof f.sentence === "string"
+              ? f.sentence
+              : "",
+          ),
+          answer: String(typeof f.answer === "string" ? f.answer : ""),
           difficulty: (f.difficulty as Fill["difficulty"]) || "medium",
           estimated_time: typeof f.estimated_time === "number" ? f.estimated_time : 30,
         };
       })
-    : fillSrc &&
-        typeof fillSrc === "object" &&
-        ((fillSrc as Record<string, unknown>).question ||
-          (fillSrc as Record<string, unknown>).sentence ||
-          (fillSrc as Record<string, unknown>).answer)
-      ? [
-          {
-            question: String(
-              (fillSrc as Record<string, unknown>).question ??
-                (fillSrc as Record<string, unknown>).sentence ??
-                "",
-            ),
-            answer: String((fillSrc as Record<string, unknown>).answer ?? ""),
-            difficulty:
-              ((fillSrc as Record<string, unknown>).difficulty as Fill["difficulty"]) || "medium",
-            estimated_time:
-              typeof (fillSrc as Record<string, unknown>).estimated_time === "number"
-                ? ((fillSrc as Record<string, unknown>).estimated_time as number)
-                : 30,
-          },
-        ]
-      : [];
+    : isFillObject
+    ? [
+        {
+          question: String(
+            typeof (fillSrc as Record<string, unknown>).question === "string"
+              ? (fillSrc as Record<string, unknown>).question
+              : typeof (fillSrc as Record<string, unknown>).sentence === "string"
+              ? (fillSrc as Record<string, unknown>).sentence
+              : "",
+          ),
+          answer: String(
+            typeof (fillSrc as Record<string, unknown>).answer === "string"
+              ? (fillSrc as Record<string, unknown>).answer
+              : "",
+          ),
+          difficulty:
+            ((fillSrc as Record<string, unknown>).difficulty as Fill["difficulty"]) || "medium",
+          estimated_time:
+            typeof (fillSrc as Record<string, unknown>).estimated_time === "number"
+              ? ((fillSrc as Record<string, unknown>).estimated_time as number)
+              : 30,
+        },
+]
+    : [];
 
   const essaySrc =
     quizzesEssay.content ?? quizzesContent.essay ?? rawQuizzesObj.essays ?? rawQuizzesObj.essay;
-  const essays: Essay[] = Array.isArray(essaySrc)
-    ? essaySrc.map((eItem: unknown) => {
+  const isEssayArray = Array.isArray(essaySrc);
+  const isEssayObject =
+    essaySrc &&
+    typeof essaySrc === "object" &&
+    (essaySrc as Record<string, unknown>).question;
+
+  const essays: Essay[] = (isEssayArray
+    ? (essaySrc.map((eItem: unknown) => {
         const e = (eItem && typeof eItem === "object" ? eItem : {}) as Record<string, unknown>;
         return {
-          question: String(e.question ?? ""),
+          question: String(typeof e.question === "string" ? e.question : ""),
           keywords: Array.isArray(e.keywords)
-            ? (e.keywords as string[])
-            : e.answer
-              ? [String(e.answer)]
-              : [],
-          answer: String(e.answer ?? ""),
-          hint: String(e.hint || ""),
+            ? (e.keywords as unknown[]).map((k: unknown) => String(k)) as string[]
+            : typeof e.answer === "string"
+            ? [e.answer]
+            : [],
+          hint: String(typeof e.hint === "string" ? e.hint : ""),
+          explanation: String(typeof e.explanation === "string" ? e.explanation : ""),
+          sampleAnswer: String(typeof e.sampleAnswer === "string" ? e.sampleAnswer : ""),
           difficulty: (e.difficulty as Essay["difficulty"]) || "medium",
           estimated_time: typeof e.estimated_time === "number" ? e.estimated_time : 60,
         };
-      })
-    : essaySrc && typeof essaySrc === "object" && (essaySrc as Record<string, unknown>).question
-      ? [
-          {
-            question: String((essaySrc as Record<string, unknown>).question ?? ""),
-            keywords: Array.isArray((essaySrc as Record<string, unknown>).keywords)
-              ? ((essaySrc as Record<string, unknown>).keywords as string[])
-              : (essaySrc as Record<string, unknown>).answer
-                ? [String((essaySrc as Record<string, unknown>).answer)]
-                : [],
-            answer: String((essaySrc as Record<string, unknown>).answer ?? ""),
-            hint: String((essaySrc as Record<string, unknown>).hint || ""),
-            difficulty:
-              ((essaySrc as Record<string, unknown>).difficulty as Essay["difficulty"]) || "medium",
-            estimated_time:
-              typeof (essaySrc as Record<string, unknown>).estimated_time === "number"
-                ? ((essaySrc as Record<string, unknown>).estimated_time as number)
-                : 60,
-          },
-        ]
-      : [];
+      }) as Essay[])
+    : isEssayObject
+    ? ([
+        {
+          question: String(
+            typeof (essaySrc as Record<string, unknown>).question === "string"
+              ? (essaySrc as Record<string, unknown>).question
+              : "",
+          ),
+          keywords: Array.isArray((essaySrc as Record<string, unknown>).keywords)
+            ? (((essaySrc as Record<string, unknown>).keywords as unknown[]).map((k: unknown) => String(k)) as string[])
+            : typeof (essaySrc as Record<string, unknown>).answer === "string"
+            ? [(essaySrc as Record<string, unknown>).answer]
+            : [],
+          hint: String(
+            typeof (essaySrc as Record<string, unknown>).hint === "string"
+              ? (essaySrc as Record<string, unknown>).hint
+              : "",
+          ),
+          explanation: String(
+            typeof (essaySrc as Record<string, unknown>).explanation === "string"
+              ? (essaySrc as Record<string, unknown>).explanation
+              : "",
+          ),
+          sampleAnswer: String(
+            typeof (essaySrc as Record<string, unknown>).sampleAnswer === "string"
+              ? (essaySrc as Record<string, unknown>).sampleAnswer
+              : "",
+          ),
+          difficulty:
+            ((essaySrc as Record<string, unknown>).difficulty as Essay["difficulty"]) || "medium",
+          estimated_time:
+            typeof (essaySrc as Record<string, unknown>).estimated_time === "number"
+              ? ((essaySrc as Record<string, unknown>).estimated_time as number)
+              : 60,
+        },
+      ] as Essay[])
+    : []) as Essay[];
 
   let quiz_enabled = Boolean(rawObj.quiz_enabled ?? true);
   if (s.quizzes_mcq || s.quizzes_fill || s.quizzes_essay) {
@@ -646,7 +716,13 @@ export function normalizeLesson(raw: unknown): Lesson {
     topics: Array.isArray(rawObj.topics) ? (rawObj.topics as string[]) : [],
     notebookLmUrl: String(rawObj.notebookLmUrl ?? "https://notebooklm.google.com/"),
     master_story: String(
-      rawObj.master_story ?? rawObj.masterStory ?? rawObj.intro_story ?? DEFAULT_MASTER_STORY,
+      typeof rawObj.master_story === "string"
+        ? rawObj.master_story
+        : typeof rawObj.masterStory === "string"
+        ? rawObj.masterStory
+        : typeof rawObj.intro_story === "string"
+        ? rawObj.intro_story
+        : DEFAULT_MASTER_STORY,
     ),
     levelStageOrders,
     levelDisabledStages,
@@ -1238,7 +1314,9 @@ export function parseLessonJson(input: string): Lesson {
       estimatedTime: `${Math.max(5, data.length * 5)} دقيقة`,
       size: `${data.length} فقرات`,
       topics: data.map((b: unknown) =>
-        b && typeof b === "object" ? String((b as Record<string, unknown>).title ?? "") : "",
+        b && typeof b === "object" && typeof (b as Record<string, unknown>).title === "string"
+          ? (b as Record<string, unknown>).title
+          : "",
       ),
       blocks: data,
     });

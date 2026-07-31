@@ -4,7 +4,7 @@ import { getLessonNotes, saveSmartNote, type SmartNote } from "@/lib/smart-notes
 import { SmartNotesModal } from "@/components/SmartNotesModal";
 import { toast } from "sonner";
 
-export function SmartNotesBar({ lessonTitle }: { lessonTitle: string }) {
+export function SmartNotesBar({ lessonTitle }: { readonly lessonTitle: string }) {
   const [notes, setNotes] = useState<SmartNote[]>([]);
   const [isOpenQuickNote, setIsOpenQuickNote] = useState(false);
   const [quickInput, setQuickInput] = useState("");

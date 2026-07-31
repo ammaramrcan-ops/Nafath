@@ -7,8 +7,8 @@ export function WelcomeScreen({
   lesson,
   onStart,
 }: {
-  lesson: Lesson;
-  onStart: (level: LearningLevel) => void;
+  readonly lesson: Lesson;
+  readonly onStart: (level: LearningLevel) => void;
 }) {
   const [showPrepModal, setShowPrepModal] = useState(false);
 
@@ -86,7 +86,7 @@ export function WelcomeScreen({
 
         {/* Primary Start CTA */}
         <div className="flex flex-col items-center gap-4 w-full max-w-md">
-          <button
+          <button type="button"
             onClick={handleStart}
             className="w-full h-16 bg-[#9d4300] hover:bg-[#833800] text-white rounded-full font-extrabold text-lg transition-all shadow-xl shadow-[#9d4300]/25 hover:scale-105 active:scale-95 flex items-center justify-center gap-3 cursor-pointer"
           >
@@ -101,7 +101,7 @@ export function WelcomeScreen({
 
       {/* Floating AI Guide & Help Button */}
       <div className="fixed bottom-6 right-6 z-40 hidden sm:flex flex-col gap-3">
-        <button
+        <button type="button"
           onClick={handleStart}
           className="p-3.5 bg-[#9d4300] text-white rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 transition-all flex items-center gap-2 font-bold text-xs cursor-pointer"
         >

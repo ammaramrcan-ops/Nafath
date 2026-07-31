@@ -12,11 +12,11 @@ export function EditQuestionModal({
   onSaveQuestion,
   onDeleteQuestion,
 }: {
-  isOpen: boolean;
-  onClose: () => void;
-  questionToEdit: ExamQuestion | null;
-  onSaveQuestion: (question: ExamQuestion) => void;
-  onDeleteQuestion?: (questionId: string) => void;
+  readonly isOpen: boolean;
+  readonly onClose: () => void;
+  readonly questionToEdit: ExamQuestion | null;
+  readonly onSaveQuestion: (question: ExamQuestion) => void;
+  readonly onDeleteQuestion?: (questionId: string) => void;
 }) {
   const [type, setType] = useState<ExamQuestionType>("mcq");
   const [questionText, setQuestionText] = useState("");

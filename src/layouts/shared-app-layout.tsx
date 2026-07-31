@@ -22,10 +22,10 @@ export function useSharedLayout(): SharedLayoutContextValue {
 }
 
 export type SharedAppLayoutProps = {
-  appName?: string;
+  readonly appName?: string;
   /** Override default sidebar; keep same flex structure as AppSidebarShell */
-  sidebar?: React.ReactNode;
-  children: React.ReactNode;
+  readonly sidebar?: React.ReactNode;
+  readonly children: React.ReactNode;
 };
 
 export function SharedAppLayout({

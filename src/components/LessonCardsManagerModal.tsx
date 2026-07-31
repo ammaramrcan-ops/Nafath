@@ -13,13 +13,13 @@ export function LessonCardsManagerModal({
   onEditCard,
   onDeleteCard,
 }: {
-  isOpen: boolean;
-  onClose: () => void;
-  lessonTitle: string;
-  lessonCards: SmartFlashcard[];
-  onAddNewCard: () => void;
-  onEditCard: (card: SmartFlashcard) => void;
-  onDeleteCard: (cardId: string) => void;
+  readonly isOpen: boolean;
+  readonly onClose: () => void;
+  readonly lessonTitle: string;
+  readonly lessonCards: SmartFlashcard[];
+  readonly onAddNewCard: () => void;
+  readonly onEditCard: (card: SmartFlashcard) => void;
+  readonly onDeleteCard: (cardId: string) => void;
 }) {
   const [viewMode, setViewMode] = useState<"menu" | "list">("menu");
 

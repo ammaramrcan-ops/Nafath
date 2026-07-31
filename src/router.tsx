@@ -1,7 +1,7 @@
 import { createRouter, useRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
 
-function DefaultErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function DefaultErrorComponent({ error, reset }: { readonly error: Error; readonly reset: () => void }) {
   const router = useRouter();
 
   return (
@@ -33,7 +33,7 @@ function DefaultErrorComponent({ error, reset }: { error: Error; reset: () => vo
           </pre>
         )}
         <div className="mt-6 flex items-center justify-center gap-3">
-          <button
+          <button type="button"
             onClick={() => {
               router.invalidate();
               reset();

@@ -646,7 +646,7 @@ function TeacherPage() {
               <span>استرداد وتصميم الدرس بالذكاء الاصطناعي 🚀</span>
             </button>
 
-            <button
+            <button type="button"
               onClick={handleSaveToLibrary}
               className="inline-flex items-center gap-2 rounded-full bg-[#213145] hover:bg-[#0b1c30] px-7 py-3 text-xs sm:text-sm font-extrabold text-white shadow-md transition cursor-pointer"
             >
@@ -723,31 +723,38 @@ function TeacherPage() {
                   const isArabic = category === "عربية" || subj.name.includes("أدب");
                   const isScience = category === "علمية" || subj.name.includes("أحياء");
 
-                  const icon = isSharia ? (
-                    <Scale className="h-7 w-7 text-purple-700" />
-                  ) : isArabic ? (
-                    <Feather className="h-7 w-7 text-[#9d4300]" />
-                  ) : isScience ? (
-                    <FlaskConical className="h-7 w-7 text-teal-700" />
-                  ) : (
-                    <Code className="h-7 w-7 text-blue-700" />
-                  );
+                  let icon: React.ReactNode;
+                  if (isSharia) {
+                    icon = <Scale className="h-7 w-7 text-purple-700" />;
+                  } else if (isArabic) {
+                    icon = <Feather className="h-7 w-7 text-[#9d4300]" />;
+                  } else if (isScience) {
+                    icon = <FlaskConical className="h-7 w-7 text-teal-700" />;
+                  } else {
+                    icon = <Code className="h-7 w-7 text-blue-700" />;
+                  }
 
-                  const bgStyle = isSharia
-                    ? "bg-purple-100 group-hover:bg-purple-200"
-                    : isArabic
-                    ? "bg-[#ffdbca]/60 group-hover:bg-[#ffdbca]"
-                    : isScience
-                    ? "bg-teal-100 group-hover:bg-teal-200"
-                    : "bg-blue-100 group-hover:bg-blue-200";
+                  let bgStyle: string;
+                  if (isSharia) {
+                    bgStyle = "bg-purple-100 group-hover:bg-purple-200";
+                  } else if (isArabic) {
+                    bgStyle = "bg-[#ffdbca]/60 group-hover:bg-[#ffdbca]";
+                  } else if (isScience) {
+                    bgStyle = "bg-teal-100 group-hover:bg-teal-200";
+                  } else {
+                    bgStyle = "bg-blue-100 group-hover:bg-blue-200";
+                  }
 
-                  const badgeStyle = isSharia
-                    ? "bg-purple-50 text-purple-800 border-purple-200"
-                    : isArabic
-                    ? "bg-[#fffaf7] text-[#9d4300] border-[#ffdbca]"
-                    : isScience
-                    ? "bg-teal-50 text-teal-800 border-teal-200"
-                    : "bg-blue-50 text-blue-800 border-blue-200";
+                  let badgeStyle: string;
+                  if (isSharia) {
+                    badgeStyle = "bg-purple-50 text-purple-800 border-purple-200";
+                  } else if (isArabic) {
+                    badgeStyle = "bg-[#fffaf7] text-[#9d4300] border-[#ffdbca]";
+                  } else if (isScience) {
+                    badgeStyle = "bg-teal-50 text-teal-800 border-teal-200";
+                  } else {
+                    badgeStyle = "bg-blue-50 text-blue-800 border-blue-200";
+                  }
 
                   const lessonCount = getLibrary().filter((l) => l.subjectId === subj.id).length;
 
@@ -1787,7 +1794,7 @@ function TeacherPage() {
       <main className="mx-auto max-w-7xl p-6 sm:p-8 space-y-8">
         {/* Bento Step Tabs Navigation */}
         <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5 pb-2">
-          <button
+          <button type="button"
             onClick={() => setStep(0)}
             className={cn(
               "rounded-2xl px-6 py-3 text-xs sm:text-sm font-extrabold transition cursor-pointer flex items-center gap-2 shadow-xs",
@@ -1801,7 +1808,7 @@ function TeacherPage() {
           </button>
 
           {lesson.blocks.map((b, i) => (
-            <button
+            <button type="button"
               key={b.id}
               onClick={() => setStep(i + 1)}
               className={cn(
@@ -1815,7 +1822,7 @@ function TeacherPage() {
             </button>
           ))}
 
-          <button
+          <button type="button"
             onClick={addBlock}
             className="inline-flex items-center gap-1.5 rounded-2xl border-2 border-dashed border-[#e0c0b1] bg-white px-5 py-2.5 text-xs font-bold text-[#9d4300] hover:bg-[#eff4ff] transition cursor-pointer"
           >
@@ -1961,7 +1968,7 @@ function TeacherPage() {
                 </div>
 
                 <div className="pt-6">
-                  <button
+                  <button type="button"
                     onClick={() => setStep(1)}
                     className="w-full sm:w-auto px-12 py-5 rounded-full bg-[#213145] hover:bg-[#0b1c30] text-white font-extrabold text-base shadow-lg transition cursor-pointer inline-flex items-center justify-center gap-3"
                   >
@@ -1990,7 +1997,7 @@ function TeacherPage() {
         {/* Footer Clean Floating Action (Save & Continue Only) */}
         <div className="fixed bottom-6 inset-x-0 z-40 flex justify-center pointer-events-none px-4">
           <div className="pointer-events-auto bg-white/90 backdrop-blur-md px-8 py-3.5 rounded-full shadow-2xl border border-[#e0c0b1]/50 flex items-center gap-4">
-            <button
+            <button type="button"
               onClick={handleSaveToLibrary}
               className="bg-[#9d4300] hover:bg-[#833800] text-white px-10 py-3.5 rounded-full text-sm font-extrabold shadow-md shadow-[#9d4300]/20 transition cursor-pointer flex items-center gap-2"
             >
@@ -2010,10 +2017,10 @@ function Field({
   children,
   id,
 }: {
-  label: string;
-  hint?: string;
-  id?: string;
-  children: React.ReactNode;
+  readonly label: string;
+  readonly hint?: string;
+  readonly id?: string;
+  readonly children: React.ReactNode;
 }) {
   return (
     <div className="space-y-1.5">
@@ -2035,13 +2042,13 @@ function LevelStageCardItem({
   onToggleDisabled,
   onMoveStage,
 }: {
-  stage: Stage;
-  idx: number;
-  isDisabled: boolean;
-  isFirst: boolean;
-  isLast: boolean;
-  onToggleDisabled: (stage: Stage) => void;
-  onMoveStage: (idx: number, dir: -1 | 1) => void;
+  readonly stage: Stage;
+  readonly idx: number;
+  readonly isDisabled: boolean;
+  readonly isFirst: boolean;
+  readonly isLast: boolean;
+  readonly onToggleDisabled: (stage: Stage) => void;
+  readonly onMoveStage: (idx: number, dir: -1 | 1) => void;
 }) {
   return (
     <div
@@ -2111,9 +2118,9 @@ function GlobalLevelSequenceEditor({
   activeLevel,
   onChange,
 }: {
-  lesson: Lesson;
-  activeLevel: 1 | 2 | 3;
-  onChange: (patch: Partial<Lesson>) => void;
+  readonly lesson: Lesson;
+  readonly activeLevel: 1 | 2 | 3;
+  readonly onChange: (patch: Partial<Lesson>) => void;
 }) {
   const subject = useMemo(() => {
     if (typeof window === "undefined") return null;
@@ -2239,13 +2246,13 @@ function BlockEditor({
   onChange,
   onRemove,
 }: {
-  block: ParagraphBlock;
-  blockNum: number;
-  selectedLevelFilter: 1 | 2 | 3 | "all";
-  lessonLevelStageOrders?: Lesson["levelStageOrders"];
-  lessonLevelDisabledStages?: Lesson["levelDisabledStages"];
-  onChange: (patch: Partial<ParagraphBlock>) => void;
-  onRemove?: () => void;
+  readonly block: ParagraphBlock;
+  readonly blockNum: number;
+  readonly selectedLevelFilter: 1 | 2 | 3 | "all";
+  readonly lessonLevelStageOrders?: Lesson["levelStageOrders"];
+  readonly lessonLevelDisabledStages?: Lesson["levelDisabledStages"];
+  readonly onChange: (patch: Partial<ParagraphBlock>) => void;
+  readonly onRemove?: () => void;
 }) {
   const [activeStage, setActiveStage] = useState<FillStage | null>(null);
 
@@ -2277,7 +2284,7 @@ function BlockEditor({
         </div>
 
         {onRemove && (
-          <button
+          <button type="button"
             onClick={onRemove}
             className="inline-flex items-center gap-1.5 rounded-full border border-rose-200 bg-rose-50 px-5 py-2.5 text-xs font-extrabold text-rose-700 hover:bg-rose-100 transition cursor-pointer"
           >
@@ -2391,11 +2398,11 @@ function ContentFillSurface({
   onSelectStage,
   onChange,
 }: {
-  block: ParagraphBlock;
-  activeStages: FillStage[];
-  selectedStage: FillStage | null;
-  onSelectStage: (stage: FillStage) => void;
-  onChange: (patch: Partial<ParagraphBlock>) => void;
+  readonly block: ParagraphBlock;
+  readonly activeStages: FillStage[];
+  readonly selectedStage: FillStage | null;
+  readonly onSelectStage: (stage: FillStage) => void;
+  readonly onChange: (patch: Partial<ParagraphBlock>) => void;
 }) {
   const stage =
     selectedStage && activeStages.includes(selectedStage) ? selectedStage : activeStages[0];
@@ -2405,7 +2412,7 @@ function ContentFillSurface({
       {/* Sub Stage Selector Tabs */}
       <div className="flex flex-wrap items-center gap-2 rounded-2xl bg-white p-2 border border-[#e0c0b1]/50">
         {activeStages.map((s, i) => (
-          <button
+          <button type="button"
             key={s}
             onClick={() => onSelectStage(s)}
             className={cn(
@@ -2438,8 +2445,8 @@ function TeacherMindMapEditor({
   block,
   onChange,
 }: {
-  block: ParagraphBlock;
-  onChange: (patch: Partial<ParagraphBlock>) => void;
+  readonly block: ParagraphBlock;
+  readonly onChange: (patch: Partial<ParagraphBlock>) => void;
 }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -2532,9 +2539,9 @@ function InlineStageCanvas({
   block,
   onChange,
 }: {
-  stage: FillStage;
-  block: ParagraphBlock;
-  onChange: (patch: Partial<ParagraphBlock>) => void;
+  readonly stage: FillStage;
+  readonly block: ParagraphBlock;
+  readonly onChange: (patch: Partial<ParagraphBlock>) => void;
 }) {
   if (stage === "quizzes_mcq") {
     return <QuizzesEditor block={block} onChange={onChange} type="mcq" />;
@@ -2719,9 +2726,9 @@ function QuizzesEditor({
   onChange,
   type,
 }: {
-  block: ParagraphBlock;
-  onChange: (patch: Partial<ParagraphBlock>) => void;
-  type: "mcq" | "fill" | "essay";
+  readonly block: ParagraphBlock;
+  readonly onChange: (patch: Partial<ParagraphBlock>) => void;
+  readonly type: "mcq" | "fill" | "essay";
 }) {
   const quizzes = block.quizzes || { mcqs: [], fills: [], essays: [] };
   const items =
@@ -2900,8 +2907,8 @@ export function HardWordsEditor({
   words,
   onChange,
 }: {
-  words?: HardWord[];
-  onChange: (words: HardWord[]) => void;
+  readonly words?: HardWord[];
+  readonly onChange: (words: HardWord[]) => void;
 }) {
   const items = words || [];
 

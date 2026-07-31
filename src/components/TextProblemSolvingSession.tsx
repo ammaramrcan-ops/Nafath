@@ -7,8 +7,8 @@ export function TextProblemSolvingSession({
   blindSpotCards,
   onFinishSession,
 }: {
-  blindSpotCards: SmartFlashcard[];
-  onFinishSession: () => void;
+  readonly blindSpotCards: SmartFlashcard[];
+  readonly onFinishSession: () => void;
 }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [retypedAnswer, setRetypedAnswer] = useState("");

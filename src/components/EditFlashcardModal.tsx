@@ -12,11 +12,11 @@ export function EditFlashcardModal({
   onSaveCard,
   onDeleteCard,
 }: {
-  isOpen: boolean;
-  onClose: () => void;
-  cardToEdit?: SmartFlashcard | null;
-  onSaveCard: (updated: SmartFlashcard) => void;
-  onDeleteCard?: (cardId: string) => void;
+  readonly isOpen: boolean;
+  readonly onClose: () => void;
+  readonly cardToEdit?: SmartFlashcard | null;
+  readonly onSaveCard: (updated: SmartFlashcard) => void;
+  readonly onDeleteCard?: (cardId: string) => void;
 }) {
   const isNew = !cardToEdit;
 

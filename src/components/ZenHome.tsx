@@ -98,7 +98,7 @@ function loadUserStats(): { accuracy: number; streak: number } {
   }
 }
 
-export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => void }) {
+export function ZenHome({ onOpenLesson }: { readonly onOpenLesson: (lesson: Lesson) => void }) {
   // Synchronous State Initialization (No FOUC / No Dummy Data Flicker on Refresh)
   const [library, setLibrary] = useState<SavedLesson[]>(() =>
     typeof window !== "undefined" ? getLibrary() : [],
@@ -185,7 +185,7 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
 
           {/* User Profile / Settings */}
           <div className="flex items-center gap-4">
-            <button
+            <button type="button"
               onClick={() => setGoogleAuthOpen(true)}
               className="flex items-center gap-2 hover:opacity-80 transition cursor-pointer"
               title="تسجيل الدخول / الحساب"
@@ -203,7 +203,7 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
               </div>
             </button>
 
-            <button
+            <button type="button"
               onClick={() => setSettingsOpen(true)}
               className="p-2 text-gray-500 hover:bg-gray-100 rounded-full transition cursor-pointer"
               title="الإعدادات"
@@ -223,7 +223,7 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
             
             {/* 1. Progress Summary Banner */}
             <section className="bg-white border border-gray-200/60 rounded-xl p-8 flex flex-col md:flex-row items-center justify-between gap-8 shadow-xs hover:shadow-md transition-all">
-              <button
+              <button type="button"
                 onClick={() => navigate({ to: "/curriculum-tracker" })}
                 className="px-6 py-3 bg-[#1e293b] hover:bg-[#0f172a] text-white rounded-lg text-sm font-bold transition-all shrink-0 cursor-pointer shadow-sm order-2 md:order-1"
               >
@@ -269,7 +269,7 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
             <section className="space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-gray-900">المواد الدراسية النشطة</h2>
-                <button
+                <button type="button"
                   onClick={() => navigate({ to: "/subjects" })}
                   className="text-primary text-sm font-medium hover:underline cursor-pointer text-[#f97316]"
                 >
@@ -311,17 +311,19 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
                       </button>
                     );
                   })
-                ) : mounted ? (
-                  <div className="col-span-2 p-6 bg-white rounded-xl border border-dashed border-gray-200 text-center">
-                    <p className="text-sm text-gray-400 font-medium">لا توجد مواد دراسية مضافة بعد.</p>
-                    <button
-                      onClick={() => navigate({ to: "/subjects" })}
-                      className="mt-3 text-xs text-[#f97316] font-bold hover:underline cursor-pointer"
-                    >
-                      إضافة مادة دراسية الآن ➔
-                    </button>
-                  </div>
-                ) : null}
+                ) : (
+                  mounted ? (
+                    <div className="col-span-2 p-6 bg-white rounded-xl border border-dashed border-gray-200 text-center">
+                      <p className="text-sm text-gray-400 font-medium">لا توجد مواد دراسية مضافة بعد.</p>
+                      <button type="button"
+                        onClick={() => navigate({ to: "/subjects" })}
+                        className="mt-3 text-xs text-[#f97316] font-bold hover:underline cursor-pointer"
+                      >
+                        إضافة مادة دراسية الآن ➔
+                      </button>
+                    </div>
+                  ) : null
+                )}
               </div>
             </section>
 
@@ -332,7 +334,7 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
                   <BookMarked className="h-5 w-5 text-[#f97316]" />
                   <span>الدروس المحفوظة</span>
                 </h2>
-                <button
+                <button type="button"
                   onClick={() => setRestoreOpen(true)}
                   className="text-xs text-[#f97316] hover:underline font-bold cursor-pointer"
                 >
@@ -388,7 +390,7 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
                 ) : (
                   <div className="p-4 bg-gray-50 rounded-lg border border-gray-100 flex items-center justify-between col-span-2">
                     <p className="text-sm font-medium text-gray-500">لا توجد دروس محفوظة حالياً. انقر على "+ استرداد درس" لإضافة أي درس جديد.</p>
-                    <button
+                    <button type="button"
                       onClick={() => setRestoreOpen(true)}
                       className="text-xs text-[#f97316] font-bold hover:underline cursor-pointer shrink-0"
                     >
@@ -441,7 +443,7 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
                       </div>
                     </label>
 
-                    <button
+                    <button type="button"
                       onClick={() => handleDeleteTask(task.id)}
                       className="text-gray-400 hover:text-red-500 opacity-60 group-hover:opacity-100 transition cursor-pointer p-1"
                       title="حذف المهمة"
@@ -463,13 +465,13 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
                     className="rounded-lg text-xs"
                     autoFocus
                   />
-                  <button
+                  <button type="button"
                     onClick={handleCreateNewTask}
                     className="bg-[#f97316] text-white px-3.5 py-2 rounded-lg text-xs font-bold hover:bg-[#ea580c] transition cursor-pointer shrink-0 shadow-xs"
                   >
                     حفظ
                   </button>
-                  <button
+                  <button type="button"
                     onClick={() => setShowAddTaskInput(false)}
                     className="text-gray-400 hover:text-gray-600 text-xs px-2 cursor-pointer"
                   >
@@ -477,7 +479,7 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
                   </button>
                 </div>
               ) : (
-                <button
+                <button type="button"
                   onClick={() => setShowAddTaskInput(true)}
                   className="w-full mt-2 py-2.5 text-sm text-[#f97316] font-bold border border-dashed border-orange-300 rounded-lg hover:bg-orange-50 transition-colors cursor-pointer flex items-center justify-center gap-1"
                 >
@@ -507,7 +509,7 @@ export function ZenHome({ onOpenLesson }: { onOpenLesson: (lesson: Lesson) => vo
                   <h3 className="text-xl font-bold mb-1">فلاش كارد المراجعة</h3>
                   <p className="text-orange-100 text-sm">اختبر معلوماتك في 5 دقائق ذكية</p>
                 </div>
-                <button
+                <button type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     navigate({ to: "/spaced-repetition" });

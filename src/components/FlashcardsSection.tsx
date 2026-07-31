@@ -15,7 +15,7 @@ import { TextProblemSolvingSession } from "./TextProblemSolvingSession";
 import { CSVImportExportModal } from "./CSVImportExportModal";
 import { EditFlashcardModal } from "./EditFlashcardModal";
 
-export function FlashcardsSection({ block }: { block: Block }) {
+export function FlashcardsSection({ block }: { readonly block: Block }) {
   const initialCards = useMemo(() => {
     return generateSmartCardsFromBlock(block);
   }, [block]);

@@ -29,8 +29,8 @@ export function SettingsDialog({
   open,
   onOpenChange,
 }: {
-  open?: boolean;
-  onOpenChange?: (v: boolean) => void;
+  readonly open?: boolean;
+  readonly onOpenChange?: (v: boolean) => void;
 }) {
   const [tab, setTab] = useState<"ai" | "dev">("ai");
   const [showApiKey, setShowApiKey] = useState(false);
@@ -346,13 +346,13 @@ export function SettingsDialog({
   );
 }
 
-export function SettingsButton({ className }: { className?: string }) {
+export function SettingsButton({ className }: { readonly className?: string }) {
   const [open, setOpen] = useState(false);
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <button
+          <button type="button"
             className={
               className ??
               "inline-flex items-center gap-2 rounded-full border border-zen-surface-container bg-white px-4 py-2 text-sm font-semibold text-zen-on-surface-variant transition hover:border-zen-primary-container hover:text-zen-on-surface cursor-pointer"

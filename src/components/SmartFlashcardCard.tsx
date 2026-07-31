@@ -13,12 +13,12 @@ export function SmartFlashcardCard({
   onEditCard,
   onExitStudy,
 }: {
-  card: SmartFlashcard;
-  currentIndex: number;
-  totalCards: number;
-  dailyStreak: number;
-  daysToExam?: number;
-  onCompleteCard: (
+  readonly card: SmartFlashcard;
+  readonly currentIndex: number;
+  readonly totalCards: number;
+  readonly dailyStreak: number;
+  readonly daysToExam?: number;
+  readonly onCompleteCard: (
     updatedCard: SmartFlashcard,
     isBlindSpot: boolean,
     evaluation: {
@@ -28,8 +28,8 @@ export function SmartFlashcardCard({
       diagnostic: string;
     },
   ) => void;
-  onEditCard?: (card: SmartFlashcard) => void;
-  onExitStudy?: () => void;
+  readonly onEditCard?: (card: SmartFlashcard) => void;
+  readonly onExitStudy?: () => void;
 }) {
   const [userAnswer, setUserAnswer] = useState("");
   const [confidence, setConfidence] = useState<"low" | "medium" | "high">("medium");
@@ -129,7 +129,7 @@ export function SmartFlashcardCard({
       <div className="flex flex-wrap items-center justify-between gap-4 rounded-3xl bg-white p-5 shadow-sm border border-[#e0c0b1]/40">
         <div className="flex items-center gap-4">
           {onExitStudy && (
-            <button
+            <button type="button"
               onClick={onExitStudy}
               className="flex items-center gap-1.5 rounded-full px-5 py-2.5 bg-[#eff4ff] text-[#9d4300] hover:bg-[#dce9ff] transition cursor-pointer font-black text-xs shadow-xs"
             >

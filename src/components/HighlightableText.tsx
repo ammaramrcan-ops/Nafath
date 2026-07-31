@@ -16,9 +16,9 @@ export function HighlightableText({
   words = [],
   editable = true,
 }: {
-  text: string;
-  words?: HardWord[];
-  editable?: boolean;
+  readonly text: string;
+  readonly words?: HardWord[];
+  readonly editable?: boolean;
 }) {
   const [highlights, setHighlights] = useState<HighlightItem[]>([]);
   const [selectionRange, setSelectionRange] = useState<{

@@ -23,7 +23,7 @@ import { SmartNotesModal } from "./SmartNotesModal";
 import { FlashcardsSection } from "./FlashcardsSection";
 import { StudentMindMapSection } from "./StudentMindMapSection";
 
-function ParagraphBlockIntroCard({ block, onStart }: { block: Block; onStart: () => void }) {
+function ParagraphBlockIntroCard({ block, onStart }: { readonly block: Block; readonly onStart: () => void }) {
   const quizCount =
     (block.quizzes?.mcqs?.length || 0) +
     (block.quizzes?.fills?.length || 0) +
@@ -144,17 +144,17 @@ export function ParagraphBlockCard({
   mode = "student",
   subjectId,
 }: {
-  block: Block;
-  onComplete: () => void;
-  onStageChange?: (
+  readonly block: Block;
+  readonly onComplete: () => void;
+  readonly onStageChange?: (
     completedStageKey: Stage,
     timeSpentSeconds: number,
     currentStageIndex: number,
     totalStagesInBlock: number,
   ) => void;
-  stageOrder?: Stage[];
-  mode?: "student" | "teacher";
-  subjectId?: string;
+  readonly stageOrder?: Stage[];
+  readonly mode?: "student" | "teacher";
+  readonly subjectId?: string;
 }) {
   const STAGES = stageOrder.map((key) => ({ key, label: STAGE_LABELS[key] }));
   const showIntro = false;

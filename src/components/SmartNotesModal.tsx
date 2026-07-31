@@ -23,11 +23,11 @@ export function SmartNotesModal({
   initialQuestionText,
   initialBlockTitle,
 }: {
-  isOpen: boolean;
-  onClose: () => void;
-  lessonTitle: string;
-  initialQuestionText?: string;
-  initialBlockTitle?: string;
+  readonly isOpen: boolean;
+  readonly onClose: () => void;
+  readonly lessonTitle: string;
+  readonly initialQuestionText?: string;
+  readonly initialBlockTitle?: string;
 }) {
   const [notes, setNotes] = useState<SmartNote[]>([]);
   const [noteText, setNoteText] = useState("");

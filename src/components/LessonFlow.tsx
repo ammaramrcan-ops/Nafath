@@ -382,7 +382,7 @@ export function LessonFlow({
               />
 
               <div className="mt-8 text-center">
-                <button
+                <button type="button"
                   onClick={() => setPhase("lesson")}
                   className="inline-flex items-center gap-2 rounded-full bg-white border border-zen-surface-container px-6 py-2.5 text-xs font-bold text-zen-on-surface-variant hover:bg-zen-surface-low transition cursor-pointer"
                 >
@@ -430,7 +430,7 @@ export function LessonFlow({
                     <p className="text-xs font-bold text-[#584237]/70 flex items-center gap-2">
                       <span>💡 استغرق وقتك في قراءة القصة جيداً قبل الدخول للفقرات التفاعلية</span>
                     </p>
-                    <button
+                    <button type="button"
                       onClick={() => setShowMasterStory(false)}
                       className="w-full sm:w-auto bg-[#9d4300] hover:bg-[#7e3500] text-white font-extrabold text-base px-10 py-4.5 rounded-full shadow-xl hover:shadow-primary/30 transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-3 shrink-0"
                     >

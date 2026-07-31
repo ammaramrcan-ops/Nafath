@@ -10,9 +10,9 @@ export function EndScreen({
   onRestart,
   restartLabel,
 }: {
-  lesson: Lesson;
-  onRestart: () => void;
-  restartLabel?: string;
+  readonly lesson: Lesson;
+  readonly onRestart: () => void;
+  readonly restartLabel?: string;
 }) {
   const [showNotesModal, setShowNotesModal] = useState(false);
 

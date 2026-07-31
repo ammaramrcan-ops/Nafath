@@ -14,10 +14,10 @@ import { AppShell, AppShellSidebar, AppShellMain, MobileSidebarTrigger } from "@
 
 interface ShellProps {
   /** Sidebar content — e.g. <Sidebar><SidebarItem .../></Sidebar> */
-  sidebar: React.ReactNode;
+  readonly sidebar: React.ReactNode;
   /** App name shown in mobile header */
-  appName?: string;
-  children: React.ReactNode;
+  readonly appName?: string;
+  readonly children: React.ReactNode;
 }
 
 export function Shell({ sidebar, appName = "App", children }: ShellProps) {

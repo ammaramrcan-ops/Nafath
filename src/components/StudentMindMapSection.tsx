@@ -4,7 +4,7 @@ import type { ParagraphBlock as Block } from "@/lib/lesson-data";
 import { MindMapCanvas } from "./MindMapCanvas";
 import { parseBlockMindMap, saveSubjectMindMaps, type MindMapData } from "@/lib/mind-map-types";
 
-export function StudentMindMapSection({ block }: { block: Block }) {
+export function StudentMindMapSection({ block }: { readonly block: Block }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {

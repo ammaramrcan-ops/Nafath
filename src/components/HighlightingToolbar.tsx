@@ -9,10 +9,10 @@ export function HighlightingToolbar({
   onHighlight,
   onBold,
 }: {
-  x: number;
-  y: number;
-  onHighlight: (color: HighlightColor) => void;
-  onBold: () => void;
+  readonly x: number;
+  readonly y: number;
+  readonly onHighlight: (color: HighlightColor) => void;
+  readonly onBold: () => void;
 }) {
   const [showColorPicker, setShowColorPicker] = useState(false);
 

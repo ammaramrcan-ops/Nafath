@@ -1,0 +1,3133 @@
+{
+  "total": 391,
+  "issues": [
+    {
+      "file": "src/components/MindMapCanvas.tsx",
+      "line": 628,
+      "rule": "typescript:S6819",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Use <img alt=...> instead of the \"presentation\" role to ensure accessibility across all devices."
+    },
+    {
+      "file": "src/components/ZenHome.tsx",
+      "line": 491,
+      "rule": "typescript:S6819",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Use <input type=\"button\">, <input type=\"image\">, <input type=\"reset\">, <input type=\"submit\">, or <button> instead of the \"button\" role to ensure accessibility across all devices."
+    },
+    {
+      "file": "src/routes/subjects.index.tsx",
+      "line": 175,
+      "rule": "typescript:S6819",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Use <input type=\"button\">, <input type=\"image\">, <input type=\"reset\">, <input type=\"submit\">, or <button> instead of the \"button\" role to ensure accessibility across all devices."
+    },
+    {
+      "file": "src/routes/subjects.index.tsx",
+      "line": 246,
+      "rule": "typescript:S6819",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Use <input type=\"button\">, <input type=\"image\">, <input type=\"reset\">, <input type=\"submit\">, or <button> instead of the \"button\" role to ensure accessibility across all devices."
+    },
+    {
+      "file": "src/routes/subjects.index.tsx",
+      "line": 310,
+      "rule": "typescript:S6819",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Use <input type=\"button\">, <input type=\"image\">, <input type=\"reset\">, <input type=\"submit\">, or <button> instead of the \"button\" role to ensure accessibility across all devices."
+    },
+    {
+      "file": "src/components/GoogleAuthModal.tsx",
+      "line": 84,
+      "rule": "typescript:S5148",
+      "type": "VULNERABILITY",
+      "severity": "MINOR",
+      "message": "Make sure not using \"noopener\" is safe here."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 2899,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/HardWordText.tsx",
+      "line": 47,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'textObj.text || textObj.title || textObj.content || textObj.value || JSON.stringify(text)' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/components/LessonFlow.tsx",
+      "line": 433,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/MindMap.tsx",
+      "line": 11,
+      "rule": "typescript:S7752",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Prefer `.flatMap(…)` over `.map(…).flat()`."
+    },
+    {
+      "file": "src/components/ParagraphBlock.tsx",
+      "line": 26,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/lib/ai-assistant-service.ts",
+      "line": 55,
+      "rule": "typescript:S8786",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking."
+    },
+    {
+      "file": "src/lib/utils.ts",
+      "line": 29,
+      "rule": "typescript:S7741",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Compare with `undefined` directly instead of using `typeof`."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 179,
+      "rule": "typescript:S3776",
+      "type": "CODE_SMELL",
+      "severity": "CRITICAL",
+      "message": "Refactor this function to reduce its Cognitive Complexity from 38 to the 15 allowed."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 649,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 720,
+      "rule": "typescript:S3776",
+      "type": "CODE_SMELL",
+      "severity": "CRITICAL",
+      "message": "Refactor this function to reduce its Cognitive Complexity from 19 to the 15 allowed."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 728,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 730,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 738,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 740,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 746,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 748,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/components/GoogleAuthModal.tsx",
+      "line": 35,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/GoogleAuthModal.tsx",
+      "line": 171,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/GoogleAuthModal.tsx",
+      "line": 211,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/GoogleAuthModal.tsx",
+      "line": 257,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/RestoreDialog.tsx",
+      "line": 85,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/RestoreDialog.tsx",
+      "line": 116,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/RestoreDialog.tsx",
+      "line": 133,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/RestoreDialog.tsx",
+      "line": 153,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/RestoreDialog.tsx",
+      "line": 182,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/RestoreDialog.tsx",
+      "line": 192,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/RestoreDialog.tsx",
+      "line": 223,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/RestoreDialog.tsx",
+      "line": 242,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/RestoreDialog.tsx",
+      "line": 253,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/ZenHome.tsx",
+      "line": 188,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/ZenHome.tsx",
+      "line": 206,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/ZenHome.tsx",
+      "line": 226,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/ZenHome.tsx",
+      "line": 272,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/ZenHome.tsx",
+      "line": 314,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/components/ZenHome.tsx",
+      "line": 317,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/ZenHome.tsx",
+      "line": 335,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/ZenHome.tsx",
+      "line": 391,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/ZenHome.tsx",
+      "line": 425,
+      "rule": "typescript:S6853",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "A form label must have accessible text."
+    },
+    {
+      "file": "src/components/ZenHome.tsx",
+      "line": 444,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/ZenHome.tsx",
+      "line": 466,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/ZenHome.tsx",
+      "line": 472,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/ZenHome.tsx",
+      "line": 480,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/ZenHome.tsx",
+      "line": 510,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 127,
+      "rule": "typescript:S8786",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 127,
+      "rule": "typescript:S7780",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "`String.raw` should be used to avoid escaping `\\`."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 76,
+      "rule": "typescript:S3776",
+      "type": "CODE_SMELL",
+      "severity": "CRITICAL",
+      "message": "Refactor this function to reduce its Cognitive Complexity from 18 to the 15 allowed."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 87,
+      "rule": "typescript:S7781",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Prefer `String#replaceAll()` over `String#replace()`."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 111,
+      "rule": "typescript:S6535",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Unnecessary escape character: \\}."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 252,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 254,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'(n as Record<string, unknown>).text || (n as Record<string, unknown>).title || \"\"' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 265,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 267,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'(n as Record<string, unknown>).text || (n as Record<string, unknown>).title || \"\"' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 287,
+      "rule": "typescript:S3776",
+      "type": "CODE_SMELL",
+      "severity": "CRITICAL",
+      "message": "Refactor this function to reduce its Cognitive Complexity from 79 to the 15 allowed."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 382,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 394,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'(mcqSrc as Record<string, unknown>).answer ??\n                (mcqSrc as Record<string, unknown>).correct_answer ??\n                \"\"' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 424,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 432,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'(fillSrc as Record<string, unknown>).question ??\n                (fillSrc as Record<string, unknown>).sentence ??\n                \"\"' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 456,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 457,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'e.answer' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 465,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 501,
+      "rule": "typescript:S7744",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "The empty object is useless."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 649,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'rawObj.master_story ?? rawObj.masterStory ?? rawObj.intro_story ?? DEFAULT_MASTER_STORY' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 659,
+      "rule": "typescript:S3776",
+      "type": "CODE_SMELL",
+      "severity": "CRITICAL",
+      "message": "Refactor this function to reduce its Cognitive Complexity from 37 to the 15 allowed."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 1241,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'(b as Record<string, unknown>).title ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/lib/mind-map-types.ts",
+      "line": 159,
+      "rule": "typescript:S3776",
+      "type": "CODE_SMELL",
+      "severity": "CRITICAL",
+      "message": "Refactor this function to reduce its Cognitive Complexity from 18 to the 15 allowed."
+    },
+    {
+      "file": "src/components/VisualHighlightArea.tsx",
+      "line": 7,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 2007,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/MindMapCanvas.tsx",
+      "line": 742,
+      "rule": "typescript:S6479",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Do not use Array index in keys"
+    },
+    {
+      "file": "src/components/MindMapCanvas.tsx",
+      "line": 845,
+      "rule": "typescript:S6479",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Do not use Array index in keys"
+    },
+    {
+      "file": "src/components/PromptDialog.tsx",
+      "line": 29,
+      "rule": "typescript:S6819",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Use <img alt=...> instead of the \"presentation\" role to ensure accessibility across all devices."
+    },
+    {
+      "file": "src/components/PromptDialog.tsx",
+      "line": 34,
+      "rule": "typescript:S6847",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Non-interactive elements should not be assigned mouse or keyboard event listeners."
+    },
+    {
+      "file": "src/components/PromptDialog.tsx",
+      "line": 34,
+      "rule": "typescript:S6819",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Use <dialog> instead of the \"dialog\" role to ensure accessibility across all devices."
+    },
+    {
+      "file": "src/lib/utils.ts",
+      "line": 13,
+      "rule": "typescript:S7741",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Compare with `undefined` directly instead of using `typeof`."
+    },
+    {
+      "file": "src/components/MindMapCanvas.tsx",
+      "line": 65,
+      "rule": "typescript:S6582",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Prefer using an optional chain expression instead, as it's more concise and easier to read."
+    },
+    {
+      "file": "src/components/MindMapCanvas.tsx",
+      "line": 89,
+      "rule": "typescript:S6660",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "'If' statement should not be the only statement in 'else' block"
+    },
+    {
+      "file": "src/lib/ai-assistant-service.ts",
+      "line": 134,
+      "rule": "typescript:S8786",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking."
+    },
+    {
+      "file": "src/lib/csv-flashcards.ts",
+      "line": 78,
+      "rule": "typescript:S6582",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Prefer using an optional chain expression instead, as it's more concise and easier to read."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 226,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 233,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 240,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 281,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'hw.term ?? hw.word ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 282,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'hw.definition ?? hw.explanation ?? hw.meaning ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/lib/mind-map-types.ts",
+      "line": 147,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'pid' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/lib/mind-map-types.ts",
+      "line": 179,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'rn.parentId' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/lib/mind-map-types.ts",
+      "line": 181,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/lib/mind-map-types.ts",
+      "line": 186,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/lib/mind-map-types.ts",
+      "line": 188,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/lib/mind-map-types.ts",
+      "line": 191,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 2029,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/routes/subject-stages.$subjectId.tsx",
+      "line": 278,
+      "rule": "typescript:S6749",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "A fragment with only one child is redundant."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 687,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 689,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 691,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 713,
+      "rule": "typescript:S7776",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "`disabledForLevel` should be a `Set`, and use `disabledForLevel.has()` to check existence or non-existence."
+    },
+    {
+      "file": "src/components/SpacedRepetition.tsx",
+      "line": 407,
+      "rule": "typescript:S7773",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Prefer `Number.parseInt` over `parseInt`."
+    },
+    {
+      "file": "src/components/SpacedRepetition.tsx",
+      "line": 423,
+      "rule": "typescript:S7773",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Prefer `Number.parseInt` over `parseInt`."
+    },
+    {
+      "file": "src/components/HardWordText.tsx",
+      "line": 21,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/HardWordText.tsx",
+      "line": 39,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'itemObj.text || itemObj.title || JSON.stringify(item)' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/components/HardWordText.tsx",
+      "line": 41,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'item ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/components/MindMap.tsx",
+      "line": 4,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/ParagraphBlock.tsx",
+      "line": 139,
+      "rule": "typescript:S3776",
+      "type": "CODE_SMELL",
+      "severity": "CRITICAL",
+      "message": "Refactor this function to reduce its Cognitive Complexity from 24 to the 15 allowed."
+    },
+    {
+      "file": "src/components/ParagraphBlock.tsx",
+      "line": 496,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/components/ParagraphBlock.tsx",
+      "line": 521,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 298,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'rawObj.short_sentence ?? rawObj.summary ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 299,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'rawObj.story ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 300,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'rawObj.examples ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 301,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'rawObj.full_text ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 302,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'rawObj.mnemonic ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 303,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'rawObj.funny_link ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 375,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'m.question ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 377,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'m.answer ?? m.correct_answer ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 389,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'(mcqSrc as Record<string, unknown>).question ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 418,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'f.question ?? f.sentence ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 419,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'f.answer ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 436,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'(fillSrc as Record<string, unknown>).answer ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 453,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'e.question ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 459,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'e.answer ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 460,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'e.hint || \"\"' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 468,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'(essaySrc as Record<string, unknown>).question ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 471,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 474,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'(essaySrc as Record<string, unknown>).answer ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 475,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'(essaySrc as Record<string, unknown>).hint || \"\"' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 504,
+      "rule": "typescript:S7744",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "The empty object is useless."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 534,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'rawObj.title ?? rawObj.section_title ?? rawObj.name ?? `فقرة ${idx + 1}`' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 549,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'metaCard.estimated_time_range ?? \"2 - 5 دقائق\"' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 557,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'rawObj.visual_url ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 594,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 596,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 643,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'rawObj.title ?? rawObj.lesson_title ?? rawObj.name ?? \"درس بدون عنوان\"' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 644,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'rawObj.estimatedTime ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 645,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'rawObj.size ?? \"\"' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 647,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'rawObj.notebookLmUrl ?? \"https://notebooklm.google.com/\"' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/lib/mind-map-types.ts",
+      "line": 322,
+      "rule": "typescript:S1854",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Remove this useless assignment to variable \"x\"."
+    },
+    {
+      "file": "src/lib/mind-map-types.ts",
+      "line": 323,
+      "rule": "typescript:S1854",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Remove this useless assignment to variable \"shape\"."
+    },
+    {
+      "file": "src/lib/mind-map-types.ts",
+      "line": 331,
+      "rule": "typescript:S4165",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Review this redundant assignment: \"x\" already holds the assigned value along all execution paths."
+    },
+    {
+      "file": "src/lib/mind-map-types.ts",
+      "line": 332,
+      "rule": "typescript:S4165",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Review this redundant assignment: \"shape\" already holds the assigned value along all execution paths."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 1240,
+      "rule": "typescript:S7780",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "`String.raw` should be used to avoid escaping `\\`."
+    },
+    {
+      "file": "src/Shell.tsx",
+      "line": 23,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/HardWordText.tsx",
+      "line": 56,
+      "rule": "typescript:S6582",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Prefer using an optional chain expression instead, as it's more concise and easier to read."
+    },
+    {
+      "file": "src/components/InteractiveExamsView.tsx",
+      "line": 718,
+      "rule": "typescript:S6479",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Do not use Array index in keys"
+    },
+    {
+      "file": "src/components/InteractiveExamsView.tsx",
+      "line": 1311,
+      "rule": "typescript:S6479",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Do not use Array index in keys"
+    },
+    {
+      "file": "src/components/InteractiveExamsView.tsx",
+      "line": 1466,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/components/InteractiveExamsView.tsx",
+      "line": 1608,
+      "rule": "typescript:S6479",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Do not use Array index in keys"
+    },
+    {
+      "file": "src/components/MindMapCanvas.tsx",
+      "line": 253,
+      "rule": "typescript:S6582",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Prefer using an optional chain expression instead, as it's more concise and easier to read."
+    },
+    {
+      "file": "src/components/MindMapCanvas.tsx",
+      "line": 342,
+      "rule": "typescript:S6582",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Prefer using an optional chain expression instead, as it's more concise and easier to read."
+    },
+    {
+      "file": "src/components/MindMapCanvas.tsx",
+      "line": 523,
+      "rule": "typescript:S3776",
+      "type": "CODE_SMELL",
+      "severity": "CRITICAL",
+      "message": "Refactor this function to reduce its Cognitive Complexity from 24 to the 15 allowed."
+    },
+    {
+      "file": "src/components/MindMapCanvas.tsx",
+      "line": 530,
+      "rule": "typescript:S6582",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Prefer using an optional chain expression instead, as it's more concise and easier to read."
+    },
+    {
+      "file": "src/components/MindMapCanvas.tsx",
+      "line": 552,
+      "rule": "typescript:S6848",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element."
+    },
+    {
+      "file": "src/components/MindMapCanvas.tsx",
+      "line": 832,
+      "rule": "typescript:S6853",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "A form label must be associated with a control."
+    },
+    {
+      "file": "src/components/ParagraphBlock.tsx",
+      "line": 139,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/ParagraphBlock.tsx",
+      "line": 404,
+      "rule": "typescript:S6479",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Do not use Array index in keys"
+    },
+    {
+      "file": "src/components/PasswordGate.tsx",
+      "line": 6,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/QuizSection.tsx",
+      "line": 238,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/components/QuizSection.tsx",
+      "line": 364,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/components/QuizSection.tsx",
+      "line": 415,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/components/QuizSection.tsx",
+      "line": 448,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/components/QuizSection.tsx",
+      "line": 573,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/SettingsDialog.tsx",
+      "line": 191,
+      "rule": "typescript:S6853",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "A form label must be associated with a control."
+    },
+    {
+      "file": "src/components/SettingsDialog.tsx",
+      "line": 207,
+      "rule": "typescript:S6853",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "A form label must be associated with a control."
+    },
+    {
+      "file": "src/components/SmartFlashcardCard.tsx",
+      "line": 6,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/SpacedRepetition.tsx",
+      "line": 140,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/components/TextProblemSolvingSession.tsx",
+      "line": 129,
+      "rule": "typescript:S6479",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Do not use Array index in keys"
+    },
+    {
+      "file": "src/layouts/shared-app-layout.tsx",
+      "line": 31,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/lib/csv-flashcards.ts",
+      "line": 56,
+      "rule": "typescript:S7781",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Prefer `String#replaceAll()` over `String#replace()`."
+    },
+    {
+      "file": "src/lib/csv-flashcards.ts",
+      "line": 186,
+      "rule": "typescript:S8786",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking."
+    },
+    {
+      "file": "src/lib/interactive-exams-service.ts",
+      "line": 321,
+      "rule": "typescript:S4165",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Review this redundant assignment: \"qType\" already holds the assigned value along all execution paths."
+    },
+    {
+      "file": "src/lib/interactive-exams-service.ts",
+      "line": 363,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/lib/interactive-exams-service.ts",
+      "line": 375,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 553,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/routes/interactive-exams.tsx",
+      "line": 63,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/routes/interactive-exams.tsx",
+      "line": 65,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/routes/interactive-exams.tsx",
+      "line": 67,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/routes/subject-stages.$subjectId.tsx",
+      "line": 243,
+      "rule": "typescript:S6853",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "A form label must be associated with a control."
+    },
+    {
+      "file": "src/routes/subject-stages.$subjectId.tsx",
+      "line": 254,
+      "rule": "typescript:S6853",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "A form label must be associated with a control."
+    },
+    {
+      "file": "src/routes/subjects.$subjectId.tsx",
+      "line": 38,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/subjects.$subjectId.tsx",
+      "line": 217,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/subjects.$subjectId.tsx",
+      "line": 235,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/subjects.$subjectId.tsx",
+      "line": 250,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/subjects.$subjectId.tsx",
+      "line": 287,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/subjects.index.tsx",
+      "line": 54,
+      "rule": "typescript:S6582",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Prefer using an optional chain expression instead, as it's more concise and easier to read."
+    },
+    {
+      "file": "src/routes/subjects.index.tsx",
+      "line": 423,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 1790,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 1804,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 2408,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 2772,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 2803,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 2822,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/components/MistakesLog.tsx",
+      "line": 5,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/QuizSection.tsx",
+      "line": 90,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/QuizSection.tsx",
+      "line": 459,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/QuizSection.tsx",
+      "line": 645,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/StatisticsView.tsx",
+      "line": 18,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/routes/subject-stages.$subjectId.tsx",
+      "line": 234,
+      "rule": "typescript:S6853",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "A form label must be associated with a control."
+    },
+    {
+      "file": "src/components/RestoreDialog.tsx",
+      "line": 12,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/routes/subjects.$subjectId.tsx",
+      "line": 280,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/subjects.index.tsx",
+      "line": 392,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/subjects.index.tsx",
+      "line": 402,
+      "rule": "typescript:S6853",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "A form label must be associated with a control."
+    },
+    {
+      "file": "src/routes/subjects.index.tsx",
+      "line": 412,
+      "rule": "typescript:S6853",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "A form label must be associated with a control."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 1964,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/HardWordText.tsx",
+      "line": 159,
+      "rule": "typescript:S7780",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "`String.raw` should be used to avoid escaping `\\`."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 1249,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/lib/lesson-data.ts",
+      "line": 1251,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/lib/spaced-repetition.ts",
+      "line": 334,
+      "rule": "typescript:S7773",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Prefer `Number.parseInt` over `parseInt`."
+    },
+    {
+      "file": "src/components/CSVImportExportModal.tsx",
+      "line": 8,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/CSVImportExportModal.tsx",
+      "line": 43,
+      "rule": "typescript:S7756",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Prefer `Blob#text()` over `FileReader#readAsText(blob)`."
+    },
+    {
+      "file": "src/components/CategorizeLessonModal.tsx",
+      "line": 8,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/CheatSheet.tsx",
+      "line": 126,
+      "rule": "typescript:S6479",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Do not use Array index in keys"
+    },
+    {
+      "file": "src/components/CheatSheet.tsx",
+      "line": 170,
+      "rule": "typescript:S6479",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Do not use Array index in keys"
+    },
+    {
+      "file": "src/components/EditFlashcardModal.tsx",
+      "line": 8,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/EditQuestionModal.tsx",
+      "line": 8,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/EditQuestionModal.tsx",
+      "line": 201,
+      "rule": "typescript:S6479",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Do not use Array index in keys"
+    },
+    {
+      "file": "src/components/EditableTextWithHighlight.tsx",
+      "line": 5,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/EditableTextWithHighlight.tsx",
+      "line": 74,
+      "rule": "typescript:S6772",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Ambiguous spacing after previous element span"
+    },
+    {
+      "file": "src/components/EditableTextWithHighlight.tsx",
+      "line": 87,
+      "rule": "typescript:S6772",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Ambiguous spacing after previous element span"
+    },
+    {
+      "file": "src/components/FlashcardsSection.tsx",
+      "line": 18,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/FlashcardsSection.tsx",
+      "line": 77,
+      "rule": "typescript:S6660",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "'If' statement should not be the only statement in 'else' block"
+    },
+    {
+      "file": "src/components/HardWordText.tsx",
+      "line": 50,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'text' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/components/HardWordText.tsx",
+      "line": 89,
+      "rule": "typescript:S6479",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Do not use Array index in keys"
+    },
+    {
+      "file": "src/components/HardWordText.tsx",
+      "line": 135,
+      "rule": "typescript:S6479",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Do not use Array index in keys"
+    },
+    {
+      "file": "src/components/HardWordText.tsx",
+      "line": 137,
+      "rule": "typescript:S6479",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Do not use Array index in keys"
+    },
+    {
+      "file": "src/components/HardWordText.tsx",
+      "line": 153,
+      "rule": "typescript:S6582",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Prefer using an optional chain expression instead, as it's more concise and easier to read."
+    },
+    {
+      "file": "src/components/HighlightableText.tsx",
+      "line": 14,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/HighlightingToolbar.tsx",
+      "line": 6,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/InteractiveExamsView.tsx",
+      "line": 61,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/InteractiveExamsView.tsx",
+      "line": 376,
+      "rule": "typescript:S2486",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Handle this exception or don't catch it at all."
+    },
+    {
+      "file": "src/components/InteractiveExamsView.tsx",
+      "line": 1177,
+      "rule": "typescript:S6479",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Do not use Array index in keys"
+    },
+    {
+      "file": "src/components/LessonCardsManagerModal.tsx",
+      "line": 7,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/LessonFlow.tsx",
+      "line": 34,
+      "rule": "typescript:S6594",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Use the \"RegExp.exec()\" method instead."
+    },
+    {
+      "file": "src/components/LessonFlow.tsx",
+      "line": 254,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/components/LessonFlow.tsx",
+      "line": 385,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/MindMap.tsx",
+      "line": 46,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'n' will use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/components/MindMap.tsx",
+      "line": 97,
+      "rule": "typescript:S6479",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Do not use Array index in keys"
+    },
+    {
+      "file": "src/components/MindMapCanvas.tsx",
+      "line": 118,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/MindMapCanvas.tsx",
+      "line": 419,
+      "rule": "typescript:S6848",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Avoid non-native interactive elements. If using native HTML is not possible, add an appropriate role and support for tabbing, mouse, keyboard, and touch inputs to an interactive content element."
+    },
+    {
+      "file": "src/components/MindMapCanvas.tsx",
+      "line": 459,
+      "rule": "typescript:S6479",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Do not use Array index in keys"
+    },
+    {
+      "file": "src/components/MindMapCanvas.tsx",
+      "line": 543,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/components/MindMapCanvas.tsx",
+      "line": 545,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/components/MindMapCanvas.tsx",
+      "line": 547,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/components/MindMapCanvas.tsx",
+      "line": 594,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/components/MindMapCanvas.tsx",
+      "line": 607,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/components/MindMapCanvas.tsx",
+      "line": 705,
+      "rule": "typescript:S6853",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "A form label must be associated with a control."
+    },
+    {
+      "file": "src/components/MindMapView.tsx",
+      "line": 15,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/ParagraphBlock.tsx",
+      "line": 764,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/components/ParagraphBlock.tsx",
+      "line": 766,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/components/ParagraphOverviewModal.tsx",
+      "line": 14,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/PrepModal.tsx",
+      "line": 24,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/PrepModal.tsx",
+      "line": 85,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/components/QuizSection.tsx",
+      "line": 399,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/QuizSection.tsx",
+      "line": 403,
+      "rule": "typescript:S4323",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Replace this union type with a type alias."
+    },
+    {
+      "file": "src/components/QuizSection.tsx",
+      "line": 472,
+      "rule": "typescript:S6767",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'isLastQuestion' PropType is defined but prop is never used"
+    },
+    {
+      "file": "src/components/QuizSection.tsx",
+      "line": 764,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/SettingsDialog.tsx",
+      "line": 355,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/SmartFlashcardCard.tsx",
+      "line": 132,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/SmartFlashcardCard.tsx",
+      "line": 355,
+      "rule": "typescript:S6479",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Do not use Array index in keys"
+    },
+    {
+      "file": "src/components/SmartNotesBar.tsx",
+      "line": 7,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/SmartNotesModal.tsx",
+      "line": 19,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/SpacedRepetition.tsx",
+      "line": 40,
+      "rule": "typescript:S6754",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "useState call is not destructured into value + setter pair"
+    },
+    {
+      "file": "src/components/SpacedRepetition.tsx",
+      "line": 292,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/SpacedRepetition.tsx",
+      "line": 331,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/SpacedRepetition.tsx",
+      "line": 443,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/SpacedRepetition.tsx",
+      "line": 529,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/SpacedRepetition.tsx",
+      "line": 550,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/StatisticsView.tsx",
+      "line": 288,
+      "rule": "typescript:S6479",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Do not use Array index in keys"
+    },
+    {
+      "file": "src/components/StudentMindMapSection.tsx",
+      "line": 7,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/TextHighlightWithButtons.tsx",
+      "line": 13,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/TextHighlightWithButtons.tsx",
+      "line": 111,
+      "rule": "typescript:S6772",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Ambiguous spacing after previous element span"
+    },
+    {
+      "file": "src/components/TextHighlightWithButtons.tsx",
+      "line": 123,
+      "rule": "typescript:S6772",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Ambiguous spacing after previous element span"
+    },
+    {
+      "file": "src/components/TextProblemSolvingSession.tsx",
+      "line": 6,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/TextProblemSolvingSession.tsx",
+      "line": 141,
+      "rule": "typescript:S6853",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "A form label must be associated with a control."
+    },
+    {
+      "file": "src/components/WelcomeScreen.tsx",
+      "line": 6,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/WelcomeScreen.tsx",
+      "line": 89,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/WelcomeScreen.tsx",
+      "line": 104,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/lib/ai-assistant-service.ts",
+      "line": 177,
+      "rule": "typescript:S6582",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Prefer using an optional chain expression instead, as it's more concise and easier to read."
+    },
+    {
+      "file": "src/lib/ai-settings.ts",
+      "line": 51,
+      "rule": "typescript:S6754",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "useState call is not destructured into value + setter pair"
+    },
+    {
+      "file": "src/lib/csv-flashcards.ts",
+      "line": 198,
+      "rule": "typescript:S7781",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Prefer `String#replaceAll()` over `String#replace()`."
+    },
+    {
+      "file": "src/lib/csv-flashcards.ts",
+      "line": 215,
+      "rule": "typescript:S7762",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Prefer `childNode.remove()` over `parentNode.removeChild(childNode)`."
+    },
+    {
+      "file": "src/lib/interactive-exams-service.ts",
+      "line": 61,
+      "rule": "typescript:S7781",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Prefer `String#replaceAll()` over `String#replace()`."
+    },
+    {
+      "file": "src/lib/interactive-exams-service.ts",
+      "line": 62,
+      "rule": "typescript:S7781",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Prefer `String#replaceAll()` over `String#replace()`."
+    },
+    {
+      "file": "src/lib/interactive-exams-service.ts",
+      "line": 113,
+      "rule": "typescript:S6660",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "'If' statement should not be the only statement in 'else' block"
+    },
+    {
+      "file": "src/lib/interactive-exams-service.ts",
+      "line": 293,
+      "rule": "typescript:S6582",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Prefer using an optional chain expression instead, as it's more concise and easier to read."
+    },
+    {
+      "file": "src/lib/interactive-exams-service.ts",
+      "line": 306,
+      "rule": "typescript:S6535",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Unnecessary escape character: \\.."
+    },
+    {
+      "file": "src/lib/interactive-exams-service.ts",
+      "line": 306,
+      "rule": "typescript:S6535",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Unnecessary escape character: \\)."
+    },
+    {
+      "file": "src/lib/interactive-exams-service.ts",
+      "line": 306,
+      "rule": "typescript:S6535",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Unnecessary escape character: \\.."
+    },
+    {
+      "file": "src/lib/interactive-exams-service.ts",
+      "line": 306,
+      "rule": "typescript:S6535",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Unnecessary escape character: \\)."
+    },
+    {
+      "file": "src/lib/interactive-exams-service.ts",
+      "line": 309,
+      "rule": "typescript:S6582",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Prefer using an optional chain expression instead, as it's more concise and easier to read."
+    },
+    {
+      "file": "src/lib/interactive-exams-service.ts",
+      "line": 341,
+      "rule": "typescript:S6606",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Prefer using nullish coalescing operator (`??=`) instead of an assignment expression, as it is simpler to read."
+    },
+    {
+      "file": "src/lib/interactive-exams-service.ts",
+      "line": 342,
+      "rule": "typescript:S6535",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Unnecessary escape character: \\.."
+    },
+    {
+      "file": "src/lib/interactive-exams-service.ts",
+      "line": 342,
+      "rule": "typescript:S6535",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Unnecessary escape character: \\)."
+    },
+    {
+      "file": "src/lib/settings.ts",
+      "line": 109,
+      "rule": "typescript:S6754",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "useState call is not destructured into value + setter pair"
+    },
+    {
+      "file": "src/lib/spaced-repetition.ts",
+      "line": 104,
+      "rule": "typescript:S7781",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Prefer `String#replaceAll()` over `String#replace()`."
+    },
+    {
+      "file": "src/lib/spaced-repetition.ts",
+      "line": 105,
+      "rule": "typescript:S7781",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Prefer `String#replaceAll()` over `String#replace()`."
+    },
+    {
+      "file": "src/routes/curriculum-tracker.tsx",
+      "line": 30,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/interactive-exams.tsx",
+      "line": 43,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/lessons.tsx",
+      "line": 66,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/lessons.tsx",
+      "line": 99,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/lessons.tsx",
+      "line": 117,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/lessons.tsx",
+      "line": 140,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/mind-map.tsx",
+      "line": 53,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/spaced-repetition.tsx",
+      "line": 35,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/subjects.$subjectId.tsx",
+      "line": 77,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/subjects.$subjectId.tsx",
+      "line": 129,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/subjects.$subjectId.tsx",
+      "line": 135,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/subjects.$subjectId.tsx",
+      "line": 145,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/subjects.$subjectId.tsx",
+      "line": 160,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/subjects.$subjectId.tsx",
+      "line": 204,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/subjects.$subjectId.tsx",
+      "line": 335,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/subjects.$subjectId.tsx",
+      "line": 342,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/subjects.$subjectId.tsx",
+      "line": 356,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/subjects.index.tsx",
+      "line": 86,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/subjects.index.tsx",
+      "line": 92,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/subjects.index.tsx",
+      "line": 114,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/subjects.index.tsx",
+      "line": 122,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/subjects.index.tsx",
+      "line": 146,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/subjects.index.tsx",
+      "line": 199,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/subjects.index.tsx",
+      "line": 264,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/subjects.index.tsx",
+      "line": 328,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 1818,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 1993,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 2109,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 2233,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 2245,
+      "rule": "typescript:S4782",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Consider removing 'undefined' type or '?' specifier, one of them is redundant."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 2246,
+      "rule": "typescript:S4782",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Consider removing 'undefined' type or '?' specifier, one of them is redundant."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 2280,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 2323,
+      "rule": "typescript:S7773",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Prefer `Number.parseInt` over `parseInt`."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 2387,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 2437,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 2530,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 2717,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 2730,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 2740,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 2756,
+      "rule": "typescript:S3358",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Extract this nested ternary operation into an independent statement."
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 2844,
+      "rule": "typescript:S6479",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Do not use Array index in keys"
+    },
+    {
+      "file": "src/routes/teacher.tsx",
+      "line": 2929,
+      "rule": "typescript:S6479",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Do not use Array index in keys"
+    },
+    {
+      "file": "src/routes/subjects.$subjectId.units.$unitId.tsx",
+      "line": 164,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/subjects.$subjectId.units.$unitId.tsx",
+      "line": 178,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/AppSidebarShell.tsx",
+      "line": 38,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/PromptDialog.tsx",
+      "line": 3,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/routes/subjects.$subjectId.units.$unitId.tsx",
+      "line": 45,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'reader.result' may use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/routes/subjects.$subjectId.units.$unitId.tsx",
+      "line": 54,
+      "rule": "typescript:S7756",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Prefer `Blob#text()` over `FileReader#readAsText(blob)`."
+    },
+    {
+      "file": "src/routes/subjects.$subjectId.units.$unitId.tsx",
+      "line": 121,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/subjects.$subjectId.units.$unitId.tsx",
+      "line": 128,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/subjects.$subjectId.units.$unitId.tsx",
+      "line": 197,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/SettingsDialog.tsx",
+      "line": 28,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/RestoreDialog.tsx",
+      "line": 53,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'reader.result' may use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/components/RestoreDialog.tsx",
+      "line": 54,
+      "rule": "typescript:S7756",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Prefer `Blob#text()` over `FileReader#readAsText(blob)`."
+    },
+    {
+      "file": "src/components/ZenHome.tsx",
+      "line": 101,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/LessonLibrary.tsx",
+      "line": 18,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/LessonLibrary.tsx",
+      "line": 52,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'reader.result' may use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/components/LessonLibrary.tsx",
+      "line": 60,
+      "rule": "typescript:S7756",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Prefer `Blob#text()` over `FileReader#readAsText(blob)`."
+    },
+    {
+      "file": "src/components/BreathingBreak.tsx",
+      "line": 5,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/SettingsDialog.tsx",
+      "line": 349,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/CheatSheet.tsx",
+      "line": 5,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/EndScreen.tsx",
+      "line": 8,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/Flashcards.tsx",
+      "line": 30,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/LessonFlow.tsx",
+      "line": 44,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "server.mjs",
+      "line": 4,
+      "rule": "javascript:S1128",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Remove this unused import of 'join'."
+    },
+    {
+      "file": "src/components/Flashcards.tsx",
+      "line": 5,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/HomeUpload.tsx",
+      "line": 6,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/components/HomeUpload.tsx",
+      "line": 23,
+      "rule": "typescript:S6551",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "'reader.result' may use Object's default stringification format ('[object Object]') when stringified."
+    },
+    {
+      "file": "src/components/HomeUpload.tsx",
+      "line": 24,
+      "rule": "typescript:S7756",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Prefer `Blob#text()` over `FileReader#readAsText(blob)`."
+    },
+    {
+      "file": "src/components/HomeUpload.tsx",
+      "line": 76,
+      "rule": "typescript:S6772",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Ambiguous spacing after previous element span"
+    },
+    {
+      "file": "src/components/MindMap.tsx",
+      "line": 66,
+      "rule": "typescript:S6479",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Do not use Array index in keys"
+    },
+    {
+      "file": "src/components/ParagraphBlock.tsx",
+      "line": 303,
+      "rule": "typescript:S6479",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Do not use Array index in keys"
+    },
+    {
+      "file": "src/components/HardWordText.tsx",
+      "line": 167,
+      "rule": "typescript:S6479",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Do not use Array index in keys"
+    },
+    {
+      "file": "src/components/ui/alert.tsx",
+      "line": 32,
+      "rule": "typescript:S6850",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Headings must have content and the content must be accessible by a screen reader."
+    },
+    {
+      "file": "src/components/ui/breadcrumb.tsx",
+      "line": 56,
+      "rule": "typescript:S6819",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Use <a href=...>, or <area href=...> instead of the \"link\" role to ensure accessibility across all devices."
+    },
+    {
+      "file": "src/components/ui/breadcrumb.tsx",
+      "line": 69,
+      "rule": "typescript:S6819",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Use <img alt=...> instead of the \"presentation\" role to ensure accessibility across all devices."
+    },
+    {
+      "file": "src/components/ui/breadcrumb.tsx",
+      "line": 81,
+      "rule": "typescript:S6819",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Use <img alt=...> instead of the \"presentation\" role to ensure accessibility across all devices."
+    },
+    {
+      "file": "src/components/ui/calendar.tsx",
+      "line": 108,
+      "rule": "typescript:S6478",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Move this component definition out of the parent component and pass data as props."
+    },
+    {
+      "file": "src/components/ui/calendar.tsx",
+      "line": 111,
+      "rule": "typescript:S6478",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Move this component definition out of the parent component and pass data as props."
+    },
+    {
+      "file": "src/components/ui/calendar.tsx",
+      "line": 123,
+      "rule": "typescript:S6478",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Move this component definition out of the parent component and pass data as props."
+    },
+    {
+      "file": "src/components/ui/carousel.tsx",
+      "line": 109,
+      "rule": "typescript:S6481",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "The object passed as the value prop to the Context provider changes every render. To fix this consider wrapping it in a useMemo hook."
+    },
+    {
+      "file": "src/components/ui/carousel.tsx",
+      "line": 120,
+      "rule": "typescript:S6819",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Use <section aria-label=...>, or <section aria-labelledby=...> instead of the \"region\" role to ensure accessibility across all devices."
+    },
+    {
+      "file": "src/components/ui/carousel.tsx",
+      "line": 161,
+      "rule": "typescript:S6819",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Use <details>, <fieldset>, <optgroup>, or <address> instead of the \"group\" role to ensure accessibility across all devices."
+    },
+    {
+      "file": "src/components/ui/chart.tsx",
+      "line": 43,
+      "rule": "typescript:S7781",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Prefer `String#replaceAll()` over `String#replace()`."
+    },
+    {
+      "file": "src/components/ui/chart.tsx",
+      "line": 46,
+      "rule": "typescript:S6481",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "The object passed as the value prop to the Context provider changes every render. To fix this consider wrapping it in a useMemo hook."
+    },
+    {
+      "file": "src/components/ui/command.tsx",
+      "line": 42,
+      "rule": "typescript:S6747",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Unknown property 'cmdk-input-wrapper' found"
+    },
+    {
+      "file": "src/components/ui/form.tsx",
+      "line": 34,
+      "rule": "typescript:S6481",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "The object passed as the value prop to the Context provider changes every render. To fix this consider wrapping it in a useMemo hook."
+    },
+    {
+      "file": "src/components/ui/form.tsx",
+      "line": 78,
+      "rule": "typescript:S6481",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "The object passed as the value prop to the Context provider changes every render. To fix this consider wrapping it in a useMemo hook."
+    },
+    {
+      "file": "src/components/ui/sidebar.tsx",
+      "line": 291,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/components/ui/toggle-group.tsx",
+      "line": 25,
+      "rule": "typescript:S6481",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "The object passed as the value prop to the Context provider changes every render. To fix this consider wrapping it in a useMemo hook."
+    },
+    {
+      "file": "src/routeTree.gen.ts",
+      "line": 1,
+      "rule": "typescript:S7724",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Specify the rules you want to disable."
+    },
+    {
+      "file": "src/router.tsx",
+      "line": 4,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    },
+    {
+      "file": "src/router.tsx",
+      "line": 36,
+      "rule": "typescript:S9011",
+      "type": "CODE_SMELL",
+      "severity": "MAJOR",
+      "message": "Add an explicit \"type\" attribute to this button."
+    },
+    {
+      "file": "src/routes/__root.tsx",
+      "line": 76,
+      "rule": "typescript:S6759",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "message": "Mark the props of the component as read-only."
+    }
+  ]
+}

@@ -16,8 +16,8 @@ export function MindMapView({
   subjectId,
   subjectName,
 }: {
-  subjectId?: string;
-  subjectName?: string;
+  readonly subjectId?: string;
+  readonly subjectName?: string;
 }) {
   const [maps, setMaps] = useState<MindMapData[]>([]);
   const [selectedMapId, setSelectedMapId] = useState<string>("");

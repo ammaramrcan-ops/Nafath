@@ -50,7 +50,7 @@ function MindMapPage() {
       {/* Top Header Floating Navigation Bar */}
       <header className="fixed top-4 inset-x-6 z-40 bg-white/95 backdrop-blur-md border border-[#e0c0b1]/50 rounded-2xl shadow-xl px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <button
+          <button type="button"
             onClick={handleBack}
             className="flex items-center gap-1.5 rounded-full px-4 py-2 bg-[#eff4ff] text-[#9d4300] hover:bg-[#dce9ff] transition cursor-pointer font-bold text-xs shadow-xs"
             aria-label="رجوع"

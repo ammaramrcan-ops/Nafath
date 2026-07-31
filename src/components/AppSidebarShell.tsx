@@ -35,7 +35,7 @@ const NAV_ITEMS: NavItemDef[] = [
   { href: "/settings", icon: <Settings className="h-4 w-4" />, label: "Settings" },
 ];
 
-function NavItem({ item, collapsed }: { item: NavItemDef; collapsed: boolean }) {
+function NavItem({ item, collapsed }: { readonly item: NavItemDef; readonly collapsed: boolean }) {
   const link = (
     <a
       href={item.href}

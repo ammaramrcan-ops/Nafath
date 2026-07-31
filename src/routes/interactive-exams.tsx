@@ -40,7 +40,7 @@ function InteractiveExamsPage() {
       {/* Top Header Navigation */}
       <header className="fixed inset-x-0 top-0 z-40 bg-white/90 backdrop-blur-md border-b border-[#e0c0b1]/30">
         <div className="relative mx-auto flex w-full max-w-[1000px] items-center justify-between px-6 py-4">
-          <button
+          <button type="button"
             onClick={handleBack}
             className="flex items-center gap-1.5 rounded-full px-4 py-2 bg-[#eff4ff] text-[#9d4300] hover:bg-[#dce9ff] transition cursor-pointer font-bold text-xs shadow-xs"
             aria-label="رجوع"

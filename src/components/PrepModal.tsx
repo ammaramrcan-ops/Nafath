@@ -16,9 +16,9 @@ import { useSettings } from "@/lib/settings";
 export type LearningLevel = 1 | 2 | 3;
 
 interface PrepModalProps {
-  isOpen: boolean;
-  onConfirm: (data: { distractions: string[]; hasWater: boolean; level: LearningLevel }) => void;
-  onCancel?: () => void;
+  readonly isOpen: boolean;
+  readonly onConfirm: (data: { distractions: string[]; hasWater: boolean; level: LearningLevel }) => void;
+  readonly onCancel?: () => void;
 }
 
 export function PrepModal({ isOpen, onConfirm, onCancel }: PrepModalProps) {

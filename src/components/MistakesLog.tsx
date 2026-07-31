@@ -7,9 +7,9 @@ export function MistakesLogModal({
   onClose,
   subjectId,
 }: {
-  isOpen: boolean;
-  onClose: () => void;
-  subjectId?: string;
+  readonly isOpen: boolean;
+  readonly onClose: () => void;
+  readonly subjectId?: string;
 }) {
   const [list, setList] = useState<MistakeRecord[]>([]);
 

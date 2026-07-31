@@ -9,13 +9,13 @@ export function PromptDialog({
   onConfirm,
   onClose,
 }: {
-  open: boolean;
-  title: string;
-  placeholder?: string;
-  initialValue?: string;
-  confirmLabel?: string;
-  onConfirm: (value: string) => void;
-  onClose: () => void;
+  readonly open: boolean;
+  readonly title: string;
+  readonly placeholder?: string;
+  readonly initialValue?: string;
+  readonly confirmLabel?: string;
+  readonly onConfirm: (value: string) => void;
+  readonly onClose: () => void;
 }) {
   const [value, setValue] = useState(initialValue);
 

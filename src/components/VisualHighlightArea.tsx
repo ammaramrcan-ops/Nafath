@@ -13,13 +13,13 @@ export function VisualHighlightArea({
   placeholder = "",
   id,
 }: {
-  value: string;
-  onChangeText: (val: string) => void;
-  highlights?: TextHighlight[];
-  onChangeHighlights: (h: TextHighlight[]) => void;
-  rows?: number;
-  placeholder?: string;
-  id?: string;
+  readonly value: string;
+  readonly onChangeText: (val: string) => void;
+  readonly highlights?: TextHighlight[];
+  readonly onChangeHighlights: (h: TextHighlight[]) => void;
+  readonly rows?: number;
+  readonly placeholder?: string;
+  readonly id?: string;
 }) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isLargeSize, setIsLargeSize] = useState(false);

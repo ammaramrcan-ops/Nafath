@@ -14,8 +14,8 @@ export function TextHighlightWithButtons({
   text,
   words = [],
 }: {
-  text: string;
-  words?: HardWord[];
+  readonly text: string;
+  readonly words?: HardWord[];
 }) {
   const [highlights, setHighlights] = useState<HighlightSpan[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);

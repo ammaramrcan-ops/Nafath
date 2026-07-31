@@ -83,13 +83,13 @@ export function SubjectsPage() {
               نفاذ
             </button>
             <div className="hidden md:flex gap-8 items-center">
-              <button
+              <button type="button"
                 onClick={() => navigate({ to: "/subjects" })}
                 className="text-base font-bold text-[#9d4300] border-b-2 border-[#9d4300] pb-1 cursor-pointer"
               >
                 المواد
               </button>
-              <button
+              <button type="button"
                 onClick={() => navigate({ to: "/interactive-exams" })}
                 className="text-base font-semibold text-[#584237] hover:text-[#9d4300] transition-colors cursor-pointer"
               >
@@ -111,7 +111,7 @@ export function SubjectsPage() {
               />
             </div>
 
-            <button
+            <button type="button"
               onClick={() => setAddOpen(true)}
               className="inline-flex items-center gap-2 bg-[#9d4300] text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-[#833800] transition-all cursor-pointer shadow-md"
             >
@@ -119,7 +119,7 @@ export function SubjectsPage() {
               مادة جديدة
             </button>
 
-            <button
+            <button type="button"
               onClick={() => setSettingsOpen(true)}
               className="w-11 h-11 flex items-center justify-center rounded-full bg-[#dce9ff] text-[#9d4300] hover:bg-[#d3e4fe] transition-colors cursor-pointer"
               title="الإعدادات"
@@ -143,7 +143,7 @@ export function SubjectsPage() {
                 اختر مسارك التعليمي وانطلق في رحلة معرفية متكاملة مصممة لتعزيز قدراتك وتركيزك.
               </p>
             </div>
-            <button
+            <button type="button"
               onClick={() => setAddOpen(true)}
               className="inline-flex items-center gap-2 bg-[#9d4300] text-white px-6 py-3 rounded-full text-base font-bold hover:bg-[#833800] transition-all cursor-pointer shadow-md self-start sm:self-center"
             >
@@ -196,7 +196,7 @@ export function SubjectsPage() {
                               نشط
                             </span>
                           )}
-                          <button
+                          <button type="button"
                             onClick={(e) => {
                               e.stopPropagation();
                               if (confirm(`هل أنت تأكد من حذف مادة "${sub.name}"؟`)) {
@@ -261,7 +261,7 @@ export function SubjectsPage() {
                         <span className="p-3 rounded-2xl bg-[#f0dbff]/60 text-[#8127cf] group-hover:scale-110 transition-transform">
                           <FlaskConical className="w-7 h-7" />
                         </span>
-                        <button
+                        <button type="button"
                           onClick={(e) => {
                             e.stopPropagation();
                             if (confirm(`هل أنت تأكد من حذف مادة "${sub.name}"؟`)) {
@@ -325,7 +325,7 @@ export function SubjectsPage() {
                         <span className="p-3 rounded-2xl bg-[#e0e3e5]/60 text-[#5c5f61] group-hover:scale-110 transition-transform">
                           <Feather className="w-7 h-7" />
                         </span>
-                        <button
+                        <button type="button"
                           onClick={(e) => {
                             e.stopPropagation();
                             if (confirm(`هل أنت تأكد من حذف مادة "${sub.name}"؟`)) {
@@ -389,7 +389,7 @@ export function SubjectsPage() {
           <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-[#0b1c30]">مادة جديدة</h3>
-              <button
+              <button type="button"
                 onClick={() => setAddOpen(false)}
                 className="p-2 rounded-lg hover:bg-slate-100 transition cursor-pointer"
               >
@@ -420,7 +420,7 @@ export function SubjectsPage() {
                 </select>
               </div>
 
-              <button
+              <button type="button"
                 onClick={() => {
                   const nameInput = document.getElementById("subject-name") as HTMLInputElement;
                   const categorySelect = document.getElementById(

@@ -15,10 +15,10 @@ export function RestoreDialog({
   onLoad,
   subjectId,
 }: {
-  open: boolean;
-  onOpenChange: (v: boolean) => void;
-  onLoad: (lesson: Lesson) => void;
-  subjectId?: string;
+  readonly open: boolean;
+  readonly onOpenChange: (v: boolean) => void;
+  readonly onLoad: (lesson: Lesson) => void;
+  readonly subjectId?: string;
 }) {
   const [mode, setMode] = useState<Mode>("choice");
   const [text, setText] = useState("");
@@ -82,7 +82,7 @@ export function RestoreDialog({
 
           <div className="flex items-center gap-4">
             <span className="text-2xl font-black text-[#9d4300] tracking-tight">نفاذ</span>
-            <button
+            <button type="button"
               onClick={() => close(false)}
               className="rounded-full p-2.5 text-[#584237] transition hover:bg-slate-100 cursor-pointer"
               aria-label="إغلاق"
@@ -113,7 +113,7 @@ export function RestoreDialog({
                     </div>
                   </div>
 
-                  <button
+                  <button type="button"
                     onClick={() => {
                       close(false);
                       const targetSubj = subjectId ? `&subject=${subjectId}` : "";
@@ -130,7 +130,7 @@ export function RestoreDialog({
               {/* Secondary Actions: Preset Templates */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 {/* Preset Template 1: Fiqh Al-Khul' */}
-                <button
+                <button type="button"
                   onClick={() => {
                     onLoad(khulLesson);
                     close(false);
@@ -150,7 +150,7 @@ export function RestoreDialog({
                 </button>
 
                 {/* Preset Template 2: Photosynthesis */}
-                <button
+                <button type="button"
                   onClick={() => {
                     onLoad(defaultLesson);
                     close(false);
@@ -179,7 +179,7 @@ export function RestoreDialog({
                   <h3 className="text-xl font-extrabold text-[#0b1c30]">اختر المادة الإثرائية 📚</h3>
                   <p className="text-xs font-semibold text-[#584237]/70">سيتم تطبيق مسارات وقواعد هذه المادة على الدرس المستورد</p>
                 </div>
-                <button
+                <button type="button"
                   onClick={() => setMode("choice")}
                   className="text-xs font-extrabold text-[#584237] hover:text-[#9d4300] transition cursor-pointer"
                 >
@@ -189,7 +189,7 @@ export function RestoreDialog({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {getCurriculum().subjects.map((subj) => (
-                  <button
+                  <button type="button"
                     key={subj.id}
                     onClick={() => {
                       close(false);
@@ -220,7 +220,7 @@ export function RestoreDialog({
                   <h3 className="text-xl font-extrabold text-[#0b1c30]">رفع كود JSON مباشر</h3>
                   <p className="text-xs font-semibold text-[#584237]/70">الصق محتوى الدرس كاملاً بصيغة JSON أو اختر ملفاً من جهازك</p>
                 </div>
-                <button
+                <button type="button"
                   onClick={() => setMode("choice")}
                   className="text-xs font-extrabold text-[#584237] hover:text-[#9d4300] transition cursor-pointer"
                 >
@@ -239,7 +239,7 @@ export function RestoreDialog({
               {error && <p className="text-center text-sm font-bold text-red-600 bg-red-50 p-3 rounded-xl border border-red-200">{error}</p>}
 
               <div className="flex flex-col sm:flex-row gap-4 pt-2">
-                <button
+                <button type="button"
                   onClick={() => text.trim() && tryLoad(text)}
                   disabled={!text.trim()}
                   className={cn(
@@ -250,7 +250,7 @@ export function RestoreDialog({
                   <FileJson className="h-5 w-5" />
                   <span>تحميل واعتماد الدرس من النص</span>
                 </button>
-                <button
+                <button type="button"
                   onClick={() => fileRef.current?.click()}
                   className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border-2 border-[#e0c0b1] bg-white hover:bg-slate-50 px-8 py-4 text-sm font-extrabold text-[#0b1c30] transition cursor-pointer"
                 >

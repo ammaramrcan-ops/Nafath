@@ -289,7 +289,7 @@ export function SpacedRepetitionView() {
                   {dueTodayCount > 0 ? dueTodayCount : 45}
                 </div>
               </div>
-              <button
+              <button type="button"
                 onClick={() => {
                   setSelectedLessonId(null);
                   setCurrentIndex(0);
@@ -328,7 +328,7 @@ export function SpacedRepetitionView() {
                   {typeof daysToExam === "number" ? `${daysToExam} يوم` : "12 يوم"}
                 </div>
               </div>
-              <button
+              <button type="button"
                 onClick={() => setShowExamPicker(!showExamPicker)}
                 className="text-xs font-extrabold text-rose-600 hover:underline cursor-pointer text-right"
               >
@@ -440,7 +440,7 @@ export function SpacedRepetitionView() {
 
           {/* Action Bar */}
           <section className="flex flex-wrap gap-4 justify-center">
-            <button
+            <button type="button"
               onClick={() => setShowCSVModal(true)}
               className="flex items-center gap-3 px-6 py-4 bg-white border border-[#e0c0b1] text-[#584237] hover:bg-[#eff4ff] rounded-full font-bold text-sm transition-all cursor-pointer shadow-xs"
             >
@@ -526,7 +526,7 @@ export function SpacedRepetitionView() {
                         </div>
                       </div>
                       <p className="text-xs font-semibold text-[#584237]/80">{lesson.subtitle}</p>
-                      <button
+                      <button type="button"
                         onClick={() => handleStartLessonStudy(lesson.id)}
                         className="flex items-center gap-2 text-[#9d4300] font-extrabold text-xs group-hover:gap-3 transition-all cursor-pointer pt-1"
                       >
@@ -547,7 +547,7 @@ export function SpacedRepetitionView() {
                 <Brain className="h-6 w-6 text-[#9d4300]" />
                 <span className="text-base font-extrabold text-[#0b1c30]">بنك الأسئلة الموحد</span>
               </div>
-              <button
+              <button type="button"
                 onClick={() => navigate({ to: "/interactive-exams" })}
                 className="group flex items-center gap-2 text-[#9d4300] font-extrabold text-xs hover:gap-3 transition-all cursor-pointer"
               >

@@ -11,10 +11,10 @@ export function CSVImportExportModal({
   cards = [],
   onImportCards,
 }: {
-  isOpen: boolean;
-  onClose: () => void;
-  cards?: SmartFlashcard[];
-  onImportCards: (newCards: SmartFlashcard[]) => void;
+  readonly isOpen: boolean;
+  readonly onClose: () => void;
+  readonly cards?: SmartFlashcard[];
+  readonly onImportCards: (newCards: SmartFlashcard[]) => void;
 }) {
   const [tab, setTab] = useState<"import" | "export">("import");
   const [rawCsvInput, setRawCsvInput] = useState("");

@@ -3,7 +3,7 @@ import { Lock, Eye, EyeOff } from "lucide-react";
 
 const AUTH_KEY = "nafath.auth";
 
-export function PasswordGate({ children }: { children: React.ReactNode }) {
+export function PasswordGate({ children }: { readonly children: React.ReactNode }) {
   const [authed, setAuthed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [password, setPassword] = useState("");

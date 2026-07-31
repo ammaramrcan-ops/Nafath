@@ -23,9 +23,9 @@ export function HardWordText({
   words = [],
   highlights = [],
 }: {
-  text: unknown;
-  words?: HardWord[];
-  highlights?: TextHighlight[];
+  readonly text: unknown;
+  readonly words?: HardWord[];
+  readonly highlights?: TextHighlight[];
 }) {
   let safeText = "";
   if (typeof text === "string") {
@@ -43,9 +43,8 @@ export function HardWordText({
       .join(" ");
   } else if (text && typeof text === "object") {
     const textObj = text as Record<string, unknown>;
-    safeText = String(
-      textObj.text || textObj.title || textObj.content || textObj.value || JSON.stringify(text),
-    );
+    const candidate = textObj.text ?? textObj.title ?? textObj.content ?? textObj.value;
+    safeText = typeof candidate === "string" ? candidate : JSON.stringify(text);
   } else if (text != null) {
     safeText = String(text);
   }

@@ -15,7 +15,7 @@ function formatDate(iso: string) {
   return d.toLocaleDateString("ar-EG", { day: "numeric", month: "short", year: "numeric" });
 }
 
-export function LessonLibrary({ onOpen }: { onOpen: (lesson: Lesson) => void }) {
+export function LessonLibrary({ onOpen }: { readonly onOpen: (lesson: Lesson) => void }) {
   const [library, setLibrary] = useState<SavedLesson[]>([]);
   const [importError, setImportError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);

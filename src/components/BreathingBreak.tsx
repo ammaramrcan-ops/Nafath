@@ -7,9 +7,9 @@ export function BreathingBreak({
   showSkip = false,
   duration = 60,
 }: {
-  onComplete: () => void;
-  showSkip?: boolean;
-  duration?: number;
+  readonly onComplete: () => void;
+  readonly showSkip?: boolean;
+  readonly duration?: number;
 }) {
   const [elapsed, setElapsed] = useState(0);
   const [canSkip, setCanSkip] = useState(showSkip);

@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { motion } from "framer-motion";
 
-export function MindMap({ title, nodes }: { title: string; nodes: unknown[] }) {
+export function MindMap({ title, nodes }: { readonly title: string; readonly nodes: unknown[] }) {
   const radius = 220;
 
   // Safely extract string titles from nodes whether they are strings, objects, or MindMapData

@@ -19,12 +19,12 @@ export function ParagraphOverviewModal({
   onStartParagraph,
   onClose,
 }: {
-  isOpen: boolean;
-  block: ParagraphBlock;
-  blockNumber: number;
-  totalBlocks: number;
-  onStartParagraph: () => void;
-  onClose?: () => void;
+  readonly isOpen: boolean;
+  readonly block: ParagraphBlock;
+  readonly blockNumber: number;
+  readonly totalBlocks: number;
+  readonly onStartParagraph: () => void;
+  readonly onClose?: () => void;
 }) {
   if (!isOpen || !block) return null;
 

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import type { HardWord } from "@/lib/lesson-data";
 
-function FlipCard({ front, back }: { front: string; back: string }) {
+function FlipCard({ front, back }: { readonly front: string; readonly back: string }) {
   const [flipped, setFlipped] = useState(false);
   return (
     <button
@@ -32,9 +32,9 @@ export function Flashcards({
   onRestart,
   embedded = false,
 }: {
-  words: HardWord[];
-  onRestart?: () => void;
-  embedded?: boolean;
+  readonly words: HardWord[];
+  readonly onRestart?: () => void;
+  readonly embedded?: boolean;
 }) {
   const grid =
     words.length === 0 ? (

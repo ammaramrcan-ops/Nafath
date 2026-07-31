@@ -11,10 +11,10 @@ export function CategorizeLessonModal({
   lesson,
   onUpdated,
 }: {
-  isOpen: boolean;
-  onClose: () => void;
-  lesson: SavedLesson | null;
-  onUpdated: () => void;
+  readonly isOpen: boolean;
+  readonly onClose: () => void;
+  readonly lesson: SavedLesson | null;
+  readonly onUpdated: () => void;
 }) {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [selectedSubjectId, setSelectedSubjectId] = useState<string>("");

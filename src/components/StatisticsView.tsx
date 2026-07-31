@@ -15,7 +15,7 @@ import { getStoredLessonNotes } from "@/lib/interactive-exams-service";
 import { getLibrary } from "@/lib/lesson-library";
 import { getMistakes } from "@/lib/mistakes";
 
-export function StatisticsView({ subjectId }: { subjectId?: string }) {
+export function StatisticsView({ subjectId }: { readonly subjectId?: string }) {
   const navigate = useNavigate();
 
   const mistakes = useMemo(() => {
