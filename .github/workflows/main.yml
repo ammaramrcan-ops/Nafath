@@ -22,7 +22,3 @@ jobs:
       - run: bun install --frozen-lockfile --ignore-scripts
       - run: bunx --package=typescript@5.8.2 tsc --noEmit
       - run: bun run build
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v5
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
