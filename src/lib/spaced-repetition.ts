@@ -337,6 +337,70 @@ export function getDailyStreak(): number {
   }
 }
 
+const LAST_VISIT_KEY = "nafath.last_visit_date";
+
+// Call this on every app load — auto-increments streak if a new day
+export function trackDailyVisit(): number {
+  if (typeof window === "undefined") return 0;
+  try {
+    const today = new Date().toDateString();
+    const lastVisit = localStorage.getItem(LAST_VISIT_KEY);
+    const current = getDailyStreak();
+
+    if (lastVisit === today) {
+      // Already visited today — just return current streak
+      return current;
+    }
+
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toDateString();
+
+    let next: number;
+    if (lastVisit === yesterdayStr) {
+      // Consecutive day — increment streak
+      next = current + 1;
+    } else if (!lastVisit) {
+      // First visit ever
+      next = 1;
+    } else {
+      // Streak broken — reset to 1
+      next = 1;
+    }
+
+    localStorage.setItem(STREAK_KEY, next.toString());
+    localStorage.setItem(LAST_VISIT_KEY, today);
+    return next;
+  } catch {
+    return 0;
+  }
+}
+
+// Compute real accuracy from flashcard ease factors
+// easeFactor starts at 2.5, increases on correct answers, decreases on wrong
+// Range ~1.3 (bad) to ~3.5+ (excellent). Map to 0-100%
+export function getRealAccuracy(): number {
+  if (typeof window === "undefined") return 0;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return 0;
+    const cards: SmartFlashcard[] = JSON.parse(raw);
+    if (!Array.isArray(cards) || cards.length === 0) return 0;
+
+    // Only count cards that have been reviewed at least once (repetition > 0)
+    const reviewed = cards.filter((c) => c.stats.repetition > 0);
+    if (reviewed.length === 0) return 0;
+
+    // easeFactor default is 2.5. Values: 1.3 (min, worst) to ~3.5 (max, best)
+    // Map to percentage: (ef - 1.3) / (3.5 - 1.3) * 100
+    const avg = reviewed.reduce((sum, c) => sum + c.stats.easeFactor, 0) / reviewed.length;
+    const pct = Math.round(((avg - 1.3) / (3.5 - 1.3)) * 100);
+    return Math.min(100, Math.max(0, pct));
+  } catch {
+    return 0;
+  }
+}
+
 export function incrementDailyStreak(): number {
   const current = getDailyStreak();
   const next = Math.max(1, current + 1);
@@ -345,6 +409,7 @@ export function incrementDailyStreak(): number {
   }
   return next;
 }
+
 
 export function deleteSmartCard(cardId: string) {
   if (typeof window === "undefined") return;
