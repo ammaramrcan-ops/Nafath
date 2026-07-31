@@ -99,4 +99,29 @@ export function deleteFromLibrary(idOrTitle: string) {
     return true;
   });
   writeLibrary(lib);
+
+  // Sync deletion with curriculumTracker storage
+  try {
+    const rawTracker = localStorage.getItem("nafath.curriculumTracker");
+    if (rawTracker) {
+      const trackerData = JSON.parse(rawTracker);
+      if (Array.isArray(trackerData)) {
+        const updatedTracker = trackerData.map((sub: any) => ({
+          ...sub,
+          lessons: Array.isArray(sub.lessons)
+            ? sub.lessons.filter((les: any) => {
+                const lesId = (les.id || "").trim().toLowerCase();
+                const lesTitle = (les.title || "").trim().toLowerCase();
+                if (lesId === target || lesTitle === target) return false;
+                if (target.length > 3 && (lesTitle.includes(target) || target.includes(lesTitle))) return false;
+                return true;
+              })
+            : [],
+        }));
+        localStorage.setItem("nafath.curriculumTracker", JSON.stringify(updatedTracker));
+      }
+    }
+  } catch {
+    /* ignore */
+  }
 }
