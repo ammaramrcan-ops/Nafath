@@ -527,42 +527,46 @@ function TeacherPage() {
 
   const blockIdx = step - 1;
 
-  const updateLesson = (patch: Partial<Lesson>) =>
+  const updateLesson = (patch: Partial<Lesson>) => {
+    const cleanPatch = sanitizeJsonInput(patch);
     setLesson((prev) => {
-      const next = { ...prev, ...patch };
+      const next = sanitizeJsonInput({ ...prev, ...cleanPatch });
       saveToLibrary(next);
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitizeJsonInput(next)));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
       } catch {
         // ignore localStorage errors
       }
       return next;
     });
+  };
 
-  const updateBlock = (idx: number, patch: Partial<ParagraphBlock>) =>
+  const updateBlock = (idx: number, patch: Partial<ParagraphBlock>) => {
+    const cleanPatch = sanitizeJsonInput(patch);
     setLesson((prev) => {
-      const next = {
+      const next = sanitizeJsonInput({
         ...prev,
-        blocks: prev.blocks.map((b, i) => (i === idx ? { ...b, ...patch } : b)),
-      };
+        blocks: prev.blocks.map((b, i) => (i === idx ? { ...b, ...cleanPatch } : b)),
+      });
       saveToLibrary(next);
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitizeJsonInput(next)));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
       } catch {
         // ignore localStorage errors
       }
       return next;
     });
+  };
 
   const addBlock = () => {
     setLesson((prev) => {
-      const next = {
+      const next = sanitizeJsonInput({
         ...prev,
         blocks: [...prev.blocks, emptyBlock(prev.blocks.length + 1)],
-      };
+      });
       saveToLibrary(next);
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitizeJsonInput(next)));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
       } catch {
         // ignore localStorage errors
       }
@@ -573,13 +577,13 @@ function TeacherPage() {
 
   const removeBlock = (idx: number) => {
     setLesson((prev) => {
-      const next = {
+      const next = sanitizeJsonInput({
         ...prev,
         blocks: prev.blocks.filter((_, i) => i !== idx).map((b, i) => ({ ...b, id: i + 1 })),
-      };
+      });
       saveToLibrary(next);
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitizeJsonInput(next)));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
       } catch {
         // ignore localStorage errors
       }

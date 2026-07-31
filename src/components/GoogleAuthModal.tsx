@@ -84,7 +84,7 @@ export function GoogleAuthModal({
     window.open(
       "https://accounts.google.com/o/oauth2/v2/auth?client_id=1037568584824-nafath.apps.googleusercontent.com&response_type=token&scope=email%20profile&redirect_uri=https://oauth.pstmn.io/v1/browser-callback",
       "GoogleSignInPopup",
-      `width=${width},height=${height},top=${top},left=${left},scrollbars=yes`,
+      `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,noopener,noreferrer`,
     );
 
     toast.info("جاري فتح نافذة تسجيل دخول Google الرسمية...");
