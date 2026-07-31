@@ -77,8 +77,8 @@ function parseFlexibleJson(rawStr: string): any {
 
   let cleaned = rawStr.trim();
 
-  // Replace smart quotes/curly quotes with standard quotes
-  cleaned = cleaned.replace(/[“”«»]/g, '"').replace(/[‘’]/g, "'");
+  // Replace smart quotes/curly quotes/guillemets with single quotes
+  cleaned = cleaned.replace(/[“”«»]/g, "'");
 
   // Remove markdown code fences: ```json ... ``` or ``` ... ```
   cleaned = cleaned.replace(/```(?:json)?/gi, "").replace(/```/g, "").trim();
@@ -119,8 +119,12 @@ function parseFlexibleJson(rawStr: string): any {
     return parsed;
   } catch (firstErr: any) {
     try {
-      const sanitized = cleaned.replace(/(?<=:\s*"[^"]*)\n(?=[^"]*")/g, "\\n");
-      const secondParse = JSON.parse(sanitized);
+      // Auto-repair unescaped inner quotes inside string array elements
+      const repaired = cleaned
+        .replace(/(?<=:\s*"[^"]*)\n(?=[^"]*")/g, "\\n")
+        .replace(/([آ-يa-zA-Z0-9\s])"([آ-يa-zA-Z0-9\s])/g, "$1'$2");
+
+      const secondParse = JSON.parse(repaired);
       if (typeof secondParse === "string") return JSON.parse(secondParse);
       return secondParse;
     } catch {
